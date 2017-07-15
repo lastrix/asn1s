@@ -24,14 +24,29 @@
 <!-- OR OTHER DEALINGS IN THE SOFTWARE.                                      -->
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>9</version>
+    </parent>
     <artifactId>asn1s</artifactId>
-    <groupId>org.asn1s</groupId>
-    <version>0.1-SNAPSHOT</version>
+    <groupId>com.github.lastrix</groupId>
+    <version>0.1-ALPHA-SNAPSHOT</version>
     <packaging>pom</packaging>
+    <url>https://github.com/lastrix/asn1s</url>
+    <name>ASN.1 Serialization</name>
+    <description>Library for automated mapping java classes to ASN.1 and vice versa. Allows for you for easiest
+        conversion between java objects and ASN.1 values in Jackson, Hibernate way.
+    </description>
+    <scm>
+        <url>https://github.com/lastrix/asn1s.git</url>
+        <connection>scm:git:ssh://git@github.com/lastrix/asn1s.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/lastrix/asn1s.git</developerConnection>
+        <tag>0.1-ALPHA</tag>
+    </scm>
 
     <properties>
         <jdk.version>1.8</jdk.version>
@@ -45,6 +60,17 @@
         <module>asn1s-io</module>
         <module>asn1s-tests</module>
     </modules>
+
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+        </repository>
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>
@@ -57,6 +83,31 @@
                         <format>xml</format>
                     </formats>
                     <check/>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
         </plugins>

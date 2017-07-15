@@ -24,19 +24,20 @@
 <!-- OR OTHER DEALINGS IN THE SOFTWARE.                                      -->
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>asn1s</artifactId>
-        <groupId>org.asn1s</groupId>
-        <version>0.1-SNAPSHOT</version>
+        <groupId>com.github.lastrix</groupId>
+        <version>0.1-ALPHA-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>asn1s-io</artifactId>
-
     <packaging>jar</packaging>
+    <url>https://github.com/lastrix/asn1s</url>
+    <name>ASN.1 S I/O implementations</name>
+    <description>Contains coders for different encoding types, currently only BER, DER are supported.</description>
 
     <dependencies>
         <dependency>
