@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/lastrix/asn1s.svg?branch=master)](https://travis-ci.org/lastrix/asn1s)
+[![codecov](https://codecov.io/gh/lastrix/asn1s/branch/master/graph/badge.svg)](https://codecov.io/gh/lastrix/asn1s)
 
 ASN.1 S
 ==
