@@ -1,0 +1,6 @@
+Constraint-Sequence-Of-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Sequence-Of ::= SEQUENCE ( SIZE(1..8) ) OF INTEGER
+END

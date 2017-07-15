@@ -1,0 +1,12 @@
+Constraint-Sequence-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-Sequence ::= SEQUENCE {
+        int INTEGER,
+        int2 INTEGER OPTIONAL,
+        double REAL OPTIONAL,
+        string UTF8String OPTIONAL
+    }
+    Constrained-Sequence ::= My-Sequence ( WITH COMPONENTS {..., int2 ABSENT, double ABSENT, string PRESENT} )
+END

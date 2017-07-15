@@ -1,0 +1,4 @@
+rec1Value Constrained-Real ::= 1
+rec2Value Constrained-Real ::= 1.5
+rec3Value Constrained-Real ::= 10.2
+rec4Value Constrained-Real ::= 8.765

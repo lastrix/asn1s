@@ -1,0 +1,2 @@
+rec1Value Constrained-Set-Of ::= {}
+rec2Value Constrained-Set-Of ::= {10, 100, -1, 4, 2, 1, 67, 7, 8, -1}

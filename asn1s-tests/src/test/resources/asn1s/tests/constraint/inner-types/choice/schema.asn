@@ -1,0 +1,13 @@
+Constraint-Choice-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-Choice ::= CHOICE {
+        null NULL,
+        int INTEGER,
+        int2 INTEGER,
+        double REAL,
+        string UTF8String
+    }
+    Constrained-Choice ::= My-Choice (WITH COMPONENTS {int2 (0..10) PRESENT, null})
+END

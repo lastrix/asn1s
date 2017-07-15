@@ -1,0 +1,2 @@
+rec1Value Constrained-Sequence-Of ::= { 1, 1, -1, 2, 10, 1, 4}
+rec2Value Constrained-Sequence-Of ::= {10000}

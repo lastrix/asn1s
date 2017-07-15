@@ -1,0 +1,6 @@
+Constraint-Object-Identifier
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-Object-ID ::= OBJECT IDENTIFIER ( { 1 0 102 1 } | { 1 0 0 1 1000 } | { 2 999 10 10234 10230123 })
+END

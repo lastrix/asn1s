@@ -1,0 +1,6 @@
+Constraint-Sequence-Of-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Sequence-Of ::= SEQUENCE ( WITH COMPONENT (0..100) ) OF INTEGER
+END

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/asn1s.iml" filepath="$PROJECT_DIR$/asn1s.iml" />
+      <module fileurl="file://$PROJECT_DIR$/asn1s-api/asn1s-api.iml" filepath="$PROJECT_DIR$/asn1s-api/asn1s-api.iml" />
+      <module fileurl="file://$PROJECT_DIR$/asn1s-core/asn1s-core.iml" filepath="$PROJECT_DIR$/asn1s-core/asn1s-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/asn1s-databind/asn1s-databind.iml" filepath="$PROJECT_DIR$/asn1s-databind/asn1s-databind.iml" />
+      <module fileurl="file://$PROJECT_DIR$/asn1s-io/asn1s-io.iml" filepath="$PROJECT_DIR$/asn1s-io/asn1s-io.iml" />
+      <module fileurl="file://$PROJECT_DIR$/asn1s-schema/asn1s-schema.iml" filepath="$PROJECT_DIR$/asn1s-schema/asn1s-schema.iml" />
+      <module fileurl="file://$PROJECT_DIR$/asn1s-tests/asn1s-tests.iml" filepath="$PROJECT_DIR$/asn1s-tests/asn1s-tests.iml" />
+    </modules>
+  </component>
+</project>

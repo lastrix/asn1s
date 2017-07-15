@@ -1,0 +1,13 @@
+Primitives-int
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-Set ::= SET {
+        a INTEGER,
+        b BOOLEAN DEFAULT FALSE,
+        aa INTEGER,
+        ...,
+        [[c INTEGER DEFAULT 1, d INTEGER]],
+        [[e BOOLEAN, f INTEGER DEFAULT 0]]
+    }
+END

@@ -1,0 +1,4 @@
+rec1Value Constrained-ObjectDescriptor ::= 'Hello, World'
+rec2Value Constrained-ObjectDescriptor ::= ''
+rec3Value Constrained-ObjectDescriptor ::= 'Friend!'
+rec4Value Constrained-ObjectDescriptor ::= 'Good luck'

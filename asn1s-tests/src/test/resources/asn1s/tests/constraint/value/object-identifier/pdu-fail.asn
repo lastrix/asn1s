@@ -1,0 +1,3 @@
+rec1Value My-Object-ID ::= { 1 0 102 2 }
+rec2Value My-Object-ID ::= { 1 0 0 3 1000 }
+rec3Value My-Object-ID ::= { 2 999 11 10234 10230123 }

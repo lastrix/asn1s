@@ -1,0 +1,6 @@
+Primitives-int
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-Bit ::= BIT STRING { a(0), b(1), c(2), d(5), f(7), k(11), m(12) }
+END

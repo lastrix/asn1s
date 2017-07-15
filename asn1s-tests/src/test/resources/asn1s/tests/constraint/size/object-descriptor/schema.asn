@@ -1,0 +1,6 @@
+Constraint-ObjectDescriptor-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-ObjectDescriptor ::= ObjectDescriptor ( SIZE(1..6) )
+END

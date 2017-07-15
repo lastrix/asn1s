@@ -1,0 +1,4 @@
+rec1Value Constrained-Real ::= 0.1
+rec2Value Constrained-Real ::= -0.5
+rec3Value Constrained-Real ::= 0.5
+rec4Value Constrained-Real ::= 0

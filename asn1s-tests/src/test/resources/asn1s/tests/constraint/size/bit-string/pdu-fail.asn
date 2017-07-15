@@ -1,0 +1,7 @@
+rec1Value Constrained-Bit-String ::= '110'B
+rec2Value Constrained-Bit-String ::= '011'B
+rec3Value Constrained-Bit-String ::= '101'B
+rec4Value Constrained-Bit-String ::= '001'B
+rec5Value Constrained-Bit-String ::= '10111'B
+rec8Value Constrained-Bit-String ::= '17'H
+rec9Value Constrained-Bit-String ::= '11'H 

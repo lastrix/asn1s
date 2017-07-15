@@ -1,0 +1,15 @@
+Primitives-instance-of
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    root-oid OBJECT IDENTIFIER ::= { 1 0 1001 1 0 }
+    TID ::= TYPE-IDENTIFIER
+    Male ::= SEQUENCE { dick INTEGER, salary INTEGER }
+    Female ::= SEQUENCE { tits INTEGER, vagina INTEGER, anal INTEGER, mouth INTEGER, slut BOOLEAN DEFAULT TRUE}
+    male-oid OBJECT IDENTIFIER ::= { root-oid 1}
+    female-oid OBJECT IDENTIFIER ::= { root-oid 0 }
+    male-type-id TID ::= { Male IDENTIFIED BY male-oid }
+    female-type-id TID ::= { Female IDENTIFIED BY female-oid }
+    Humans TID ::= { male-type-id | female-type-id }
+    My-Instance-of ::= INSTANCE OF TID ({Humans})    
+END

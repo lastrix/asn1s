@@ -1,0 +1,6 @@
+Constraint-Integer-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Integer ::= INTEGER { a(1), b(1000), c(99990)} (1 | 1000 | 99990 | -10 | -1)
+END

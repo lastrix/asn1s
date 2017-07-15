@@ -1,0 +1,3 @@
+rec1Value Constrained-UTCTime ::= "011231000000Z"
+rec2Value Constrained-UTCTime ::= "021201000000Z"
+rec3Value Constrained-UTCTime ::= "031230000000Z"

@@ -1,0 +1,23 @@
+rec1Value My-Seq ::= {
+            a 1,
+            aa 2,
+            d 3
+        }
+rec2Value My-Seq ::= {
+            a 1,
+            aa 2,
+            d 3,
+            e TRUE,
+            f 1
+        }
+rec3Value My-Seq ::= {
+            a 1,
+            aa 2,
+            c 23,
+            d 3
+        }
+rec4Value My-Seq ::= {
+            a 1,
+            aa 2
+        }
+        

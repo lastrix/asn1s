@@ -1,0 +1,4 @@
+rec1Value My-Seq-Of ::= {}
+rec2Value My-Seq-Of ::= {1}
+rec3Value My-Seq-Of ::= {1, 2, 3, 4}
+rec4Value My-Seq-Of ::= {1, 100, 100000}

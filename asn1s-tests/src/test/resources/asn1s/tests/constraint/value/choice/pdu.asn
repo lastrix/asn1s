@@ -1,0 +1,3 @@
+rec1Value Constrained-Choice ::= int : 1
+rec2Value Constrained-Choice ::= double : 2.5
+rec3Value Constrained-Choice ::= int2 : 10

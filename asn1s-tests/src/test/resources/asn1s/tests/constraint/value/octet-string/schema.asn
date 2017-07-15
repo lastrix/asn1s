@@ -1,0 +1,6 @@
+Constraint-Octet-String-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Octet-String ::= OCTET STRING ( '001'H | '002'H | '004'H | '008'H | '010'H | '100'H | '200'H )
+END

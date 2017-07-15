@@ -1,0 +1,6 @@
+Constraint-Bit-String-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Bit-String ::= BIT STRING { a(0), b(1), c(2) } (SIZE ( 4 ))
+END

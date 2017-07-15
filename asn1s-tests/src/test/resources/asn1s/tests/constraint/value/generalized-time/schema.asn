@@ -1,0 +1,6 @@
+Constraint-GeneralizedTime-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-GeneralizedTime ::= GeneralizedTime ( "20001231000000Z" | "20001230000000Z" | "20001201000000Z" )
+END

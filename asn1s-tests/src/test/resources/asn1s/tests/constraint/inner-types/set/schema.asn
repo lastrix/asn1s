@@ -1,0 +1,12 @@
+Constraint-Set-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-Set ::= SEQUENCE {
+        int INTEGER,
+        int2 INTEGER OPTIONAL,
+        double REAL OPTIONAL,
+        string UTF8String OPTIONAL
+    }
+    Constrained-Set ::= My-Set ( WITH COMPONENTS { int (1..10), double PRESENT} )
+END

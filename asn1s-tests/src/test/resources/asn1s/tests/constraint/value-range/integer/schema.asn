@@ -1,0 +1,6 @@
+Constraint-Integer-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Integer ::= INTEGER (0..255)
+END

@@ -1,0 +1,6 @@
+Primitives-object-identifier
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-oid ::= OBJECT IDENTIFIER
+END

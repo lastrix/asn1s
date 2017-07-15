@@ -1,0 +1,6 @@
+Constraint-Set-Of-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Set-Of ::= SET ( SIZE(1..8) ) OF INTEGER
+END

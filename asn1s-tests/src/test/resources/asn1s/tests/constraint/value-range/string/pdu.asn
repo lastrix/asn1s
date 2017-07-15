@@ -1,0 +1,4 @@
+rec1Value Constrained-String ::= 'a'
+rec2Value Constrained-String ::= 'b'
+rec3Value Constrained-String ::= 'F'
+rec4Value Constrained-String ::= 'E'

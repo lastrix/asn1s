@@ -1,0 +1,6 @@
+Constraint-Sequence-Of-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Sequence-Of ::= SEQUENCE ( {1, 2} | {10, 100, -1} ) OF INTEGER
+END

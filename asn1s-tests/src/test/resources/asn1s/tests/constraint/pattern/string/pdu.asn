@@ -1,0 +1,4 @@
+rec1Value Constrained-String ::= 'MY'
+rec2Value Constrained-String ::= 'DOCUMENT'
+rec3Value Constrained-String ::= 'MY.DOCUMENT'
+rec4Value Constrained-String ::= 'OBJECT.METHOD'

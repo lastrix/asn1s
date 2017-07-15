@@ -1,0 +1,6 @@
+Constraint-Octet-String-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Octet-String ::= OCTET STRING (SIZE ( 2 ))
+END

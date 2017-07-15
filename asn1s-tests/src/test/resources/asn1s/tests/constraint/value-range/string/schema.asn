@@ -1,0 +1,6 @@
+Constraint-String-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-String ::= UTF8String ( 'a' .. 'f' | 'A' .. 'F' )
+END

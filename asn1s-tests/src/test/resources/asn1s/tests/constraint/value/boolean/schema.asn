@@ -1,0 +1,6 @@
+Constraint-Boolean-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Boolean ::= BOOLEAN (TRUE)
+END

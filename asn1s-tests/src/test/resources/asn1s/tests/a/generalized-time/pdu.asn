@@ -1,0 +1,3 @@
+rec1Value My-Time ::= "20001231205959.999Z"
+rec2Value My-Time ::= "2000123120.998Z"
+        

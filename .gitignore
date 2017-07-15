@@ -1,0 +1,8 @@
+/asn1s-core/target
+/asn1s-schema/target
+/asn1s-databind/target
+/asn1s-tests/target
+/.idea/libraries
+/.idea/kotlinc.xml
+/.idea/workspace.xml
+/.idea/uiDesigner.xml

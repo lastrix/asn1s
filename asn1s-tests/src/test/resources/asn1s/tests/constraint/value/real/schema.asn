@@ -1,0 +1,6 @@
+Constraint-Real-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Real ::= REAL ( 1 | 1.5 | 10.2 | 8.765 )
+END

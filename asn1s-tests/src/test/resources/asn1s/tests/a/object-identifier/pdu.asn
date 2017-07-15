@@ -1,0 +1,3 @@
+rec1Value My-oid ::= { 1 0 102 1 }
+rec2Value My-oid ::= { 1 0 0 1 1000 }
+rec3Value My-oid ::= { 2 39 10 10234 10230123 }

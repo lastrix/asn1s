@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<My-Instance-of>
+    <type-id>1.0.1001.1.0.1</type-id>
+    <value>
+        <Male>
+            <dick>10</dick>
+            <salary>10000</salary>
+        </Male>
+    </value>
+</My-Instance-of><?xml version="1.0" encoding="UTF-8"?>
+<My-Instance-of>
+<type-id>1.0.1001.1.0.0</type-id>
+<value>
+    <Female>
+        <tits>3</tits>
+        <vagina>15</vagina>
+        <anal>12</anal>
+        <mouth>10</mouth>
+    </Female>
+</value>
+</My-Instance-of>

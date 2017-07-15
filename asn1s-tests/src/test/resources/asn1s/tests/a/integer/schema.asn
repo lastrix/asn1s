@@ -1,0 +1,6 @@
+Primitives-int
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-Int-N ::= INTEGER { a(1), b(1000), c(99990)}
+END

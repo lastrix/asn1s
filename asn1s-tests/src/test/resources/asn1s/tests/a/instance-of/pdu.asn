@@ -1,0 +1,2 @@
+rec1Value My-Instance-of ::= { type-id male-oid, value Male : { dick 10, salary 10000 } }
+rec2Value My-Instance-of ::= { type-id female-oid, value Female : {tits 3, vagina 15, anal 12, mouth 10 } }

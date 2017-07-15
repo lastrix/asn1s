@@ -1,0 +1,6 @@
+rec1Value Constrained-Octet-String ::= '000A'H
+rec2Value Constrained-Octet-String ::= '00A0'H
+rec3Value Constrained-Octet-String ::= '0A00'H
+rec4Value Constrained-Octet-String ::= 'A000'H
+rec5Value Constrained-Octet-String ::= 'AAAA'H
+rec6Value Constrained-Octet-String ::= '0000'H

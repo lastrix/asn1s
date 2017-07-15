@@ -1,0 +1,9 @@
+rec1Value My-Enum ::= 1
+rec2Value My-Enum ::= d
+rec3Value My-Enum ::= k
+rec4Value My-Enum ::= l
+rec5Value My-Enum ::= m
+rec6Value My-Enum ::= 20
+rec7Value My-Enum ::= e
+rec8Value My-Enum ::= 5
+        

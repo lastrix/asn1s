@@ -1,0 +1,4 @@
+rec1Value Constrained-String ::= 'Hello, World'
+rec2Value Constrained-String ::= ''
+rec3Value Constrained-String ::= 'Friend!'
+rec4Value Constrained-String ::= 'Good luck'

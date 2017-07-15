@@ -1,0 +1,5 @@
+rec1Value Constrained-Choice ::= null : NULL
+rec2Value Constrained-Choice ::= string : 'Hello, World'
+rec3Value Constrained-Choice ::= int : 0
+rec4Value Constrained-Choice ::= double : 4.675
+rec5Value Constrained-Choice ::= int : 10

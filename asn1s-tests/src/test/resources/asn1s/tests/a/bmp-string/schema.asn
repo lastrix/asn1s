@@ -1,0 +1,6 @@
+Primitives-int
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-Str ::= BMPString
+END

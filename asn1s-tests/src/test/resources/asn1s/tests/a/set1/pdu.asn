@@ -1,0 +1,10 @@
+rec1Value My-Set ::= {
+            a 1,
+            aa 2
+        }
+rec2Value My-Set ::= {
+            a 1,
+            b FALSE,
+            aa 2
+        }
+

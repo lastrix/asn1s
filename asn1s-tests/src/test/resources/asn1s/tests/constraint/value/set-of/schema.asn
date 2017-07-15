@@ -1,0 +1,6 @@
+Constraint-Set-Of-Module
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    Constrained-Set-Of ::= SET ( {1, 2} | {10, 100, -1} ) OF INTEGER
+END

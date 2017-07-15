@@ -1,0 +1,17 @@
+rec1Value My-Real ::= 0 
+rec2Value My-Real ::= MINUS-INFINITY 
+rec3Value My-Real ::= PLUS-INFINITY
+rec4Value My-Real ::= NOT-A-NUMBER 
+-- rec5Value My-Real ::= -1 
+-- rec6Value My-Real ::= 1.0
+-- rec7Value My-Real ::= -2.1 
+-- rec8Value My-Real ::= -2e50 
+-- rec9Value My-Real ::= 2e12
+-- rec10Value My-Real ::= 1.56521e40
+-- rec11Value My-Real ::= 6.66666e6666 
+-- rec12Value My-Real ::= 1.e0 
+-- rec13Value My-Real ::= 1.0e-1 
+-- rec14Value My-Real ::= 8e-3 
+-- rec15Value My-Real ::= 2e1000 
+-- rec16Value My-Real ::= 3.55
+-- rec17Value My-Real ::= 2.3333333

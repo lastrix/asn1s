@@ -1,0 +1,4 @@
+rec1Value Constrained-Set ::= {int 1, string 'Hello!1'}
+rec2Value Constrained-Set ::= {int 0, double 1.0}
+rec3Value Constrained-Set ::= {int 3}
+rec4Value Constrained-Set ::= {int 4, int2 10, double 2.0}

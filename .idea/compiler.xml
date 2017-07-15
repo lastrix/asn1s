@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="asn14j-core" />
+        <module name="asn14j-databind" />
+        <module name="asn14j-io" />
+        <module name="asn14j-schema" />
+        <module name="asn14j-tests" />
+        <module name="asn1s-api" />
+        <module name="asn1s-core" />
+        <module name="asn1s-databind" />
+        <module name="asn1s-io" />
+        <module name="asn1s-schema" />
+        <module name="asn1s-tests" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="asn14j" target="1.5" />
+      <module name="asn14j-antlr-plugin" target="1.8" />
+      <module name="asn14j-core" target="1.8" />
+      <module name="asn14j-databind" target="1.8" />
+      <module name="asn14j-io" target="1.8" />
+      <module name="asn14j-parser" target="1.5" />
+      <module name="asn14j-schema" target="1.8" />
+      <module name="asn14j-tests" target="1.8" />
+      <module name="asn1s" target="1.5" />
+      <module name="asn1s-api" target="1.8" />
+      <module name="asn1s-core" target="1.8" />
+      <module name="asn1s-databind" target="1.8" />
+      <module name="asn1s-io" target="1.8" />
+      <module name="asn1s-schema" target="1.8" />
+      <module name="asn1s-tests" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

@@ -1,0 +1,2 @@
+rec1Value Constrained-Sequence ::= {int 1, string 'Hello!'}
+rec2Value Constrained-Sequence ::= {int 2, string 'Welcome!'}

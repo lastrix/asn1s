@@ -1,0 +1,5 @@
+rec1Value Constrained-Integer ::= 1
+rec2Value Constrained-Integer ::= 1000
+rec3Value Constrained-Integer ::= 99990
+rec4Value Constrained-Integer ::= -10
+rec5Value Constrained-Integer ::= -1

@@ -1,0 +1,10 @@
+Primitives-int
+DEFINITIONS AUTOMATIC TAGS ::=
+BEGIN
+EXPORTS ALL;
+    My-Set ::= SET {
+        a [3]INTEGER,
+        b [2]BOOLEAN DEFAULT FALSE,
+        aa [0]INTEGER
+    }
+END

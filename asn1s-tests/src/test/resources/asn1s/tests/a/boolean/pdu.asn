@@ -1,0 +1,2 @@
+rec1Value My-Bool ::= TRUE 
+rec2Value My-Bool ::= FALSE

@@ -1,0 +1,3 @@
+rec1Value Constrained-Octet-String ::= '001'H
+rec2Value Constrained-Octet-String ::= '002'H
+rec3Value Constrained-Octet-String ::= '200'H

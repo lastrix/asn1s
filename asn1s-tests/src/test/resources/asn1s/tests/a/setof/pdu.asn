@@ -1,0 +1,4 @@
+rec1Value My-Set-Of ::= {}
+rec2Value My-Set-Of ::= {1}
+rec3Value My-Set-Of ::= {1, 2, 3, 4}
+rec4Value My-Set-Of ::= {1, 100, 100000}

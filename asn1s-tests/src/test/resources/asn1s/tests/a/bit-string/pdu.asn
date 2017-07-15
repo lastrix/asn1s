@@ -1,0 +1,16 @@
+rec1Value My-Bit ::= '01'B 
+rec2Value My-Bit ::= 'AF'H 
+rec3Value My-Bit ::= { a, f }
+rec4Value My-Bit ::= { f }
+rec5Value My-Bit ::= { b, d }
+rec6Value My-Bit ::= '10011101110111'B
+rec7Value My-Bit ::= '01110111'B 
+rec8Value My-Bit ::= 'AFAFAFAF'H 
+rec9Value My-Bit ::= '000000000000000000000000'B
+rec10Value My-Bit ::= { a, b, c, d, f }
+rec11Value My-Bit ::= '646778444'H 
+rec12Value My-Bit ::= '10001000'B 
+rec13Value My-Bit ::= { k, a }
+rec14Value My-Bit ::= '100000000000000000000000'B
+rec15Value My-Bit ::= '000000010000000000000000'B
+rec16Value My-Bit ::= '000000001000000000000000'B

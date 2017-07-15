@@ -1,0 +1,3 @@
+rec1Value Constrained-GeneralizedTime ::= "20011231000000Z"
+rec2Value Constrained-GeneralizedTime ::= "20021201000000Z"
+rec3Value Constrained-GeneralizedTime ::= "20031230000000Z"
