@@ -25,42 +25,53 @@
 
 package org.asn1s.core.type.x680.collection;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.encoding.EncodingInstructions;
+import org.asn1s.api.encoding.IEncoding;
+import org.asn1s.api.encoding.tag.TagClass;
+import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.type.Type;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-
-final class ChoiceComponentsInterpolator extends AbstractComponentInterpolator
+final class InterpolatorUtils
 {
-	ChoiceComponentsInterpolator( Scope scope, AbstractCollectionType type )
+	private InterpolatorUtils()
 	{
-		super( scope, type );
 	}
 
-	@Override
-	List<ComponentType> interpolate() throws ValidationException, ResolutionException
+	static void assertTags( NamedType component, Iterable<ComponentType> list ) throws ValidationException
 	{
-		if( !getType().getComponentsLast().isEmpty() )
-			throw new ValidationException( "Choice type may not have any Secondary components. Allowed: Primary, Extension" );
-
-		return super.interpolate();
-	}
-
-	@Override
-	protected void assertTagAmbiguity( Collection<ComponentType> components ) throws ValidationException
-	{
-		Iterable<ComponentType> list = new LinkedList<>( components );
-		Iterator<ComponentType> iterator = list.iterator();
-		while( iterator.hasNext() )
+		if( component.getFamily() == Type.Family.Choice && component.getEncoding( EncodingInstructions.Tag ) == null )
 		{
-			ComponentType component = iterator.next();
-			iterator.remove();
-			InterpolatorUtils.assertTags( component, list );
+			for( NamedType namedType : component.getNamedTypes() )
+				assertTags( namedType, list );
+		}
+		else
+		{
+			TagEncoding encoding = (TagEncoding)component.getEncoding( EncodingInstructions.Tag );
+			assertTagsImpl( component.getName(), encoding.getTagClass(), encoding.getTagNumber(), list );
+		}
+	}
+
+	private static void assertTagsImpl( String name, TagClass tagClass, int tagNumber, Iterable<? extends NamedType> list ) throws ValidationException
+	{
+		for( NamedType component : list )
+		{
+			IEncoding enc = component.getEncoding( EncodingInstructions.Tag );
+			if( enc == null )
+			{
+				if( component.getFamily() == Type.Family.Choice )
+					assertTagsImpl( name, tagClass, tagNumber, component.getNamedTypes() );
+
+				throw new IllegalStateException();
+			}
+			else
+			{
+				TagEncoding encoding = (TagEncoding)enc;
+				if( tagClass == encoding.getTagClass() && tagNumber == encoding.getTagNumber() )
+					throw new ValidationException( "Duplicate tag detected for component '" + name + "' and '" + component.getName() + '\'' );
+			}
 		}
 	}
 }

@@ -49,7 +49,7 @@ final class SetComponentsInterpolator extends AbstractComponentInterpolator
 		{
 			ComponentType component = iterator.next();
 			iterator.remove();
-			assertTags( component, list );
+			InterpolatorUtils.assertTags( component, list );
 		}
 	}
 }

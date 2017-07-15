@@ -79,7 +79,7 @@ final class SequenceComponentsInterpolator extends AbstractComponentInterpolator
 			}
 			for( ComponentType component : components )
 				if( component.getVersion() > 1 )
-					assertTags( component, lastComponents );
+					InterpolatorUtils.assertTags( component, lastComponents );
 		}
 	}
 
@@ -92,7 +92,7 @@ final class SequenceComponentsInterpolator extends AbstractComponentInterpolator
 			if( list.isEmpty() )
 				break;
 			iterator.remove();
-			assertTags( component, list );
+			InterpolatorUtils.assertTags( component, list );
 		}
 	}
 }

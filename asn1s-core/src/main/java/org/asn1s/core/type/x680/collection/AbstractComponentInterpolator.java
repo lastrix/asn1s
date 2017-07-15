@@ -28,15 +28,12 @@ package org.asn1s.core.type.x680.collection;
 import org.asn1s.api.Scope;
 import org.asn1s.api.State;
 import org.asn1s.api.encoding.EncodingInstructions;
-import org.asn1s.api.encoding.IEncoding;
-import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.CollectionTypeExtensionGroup;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.core.type.TaggedTypeImpl;
@@ -50,7 +47,6 @@ abstract class AbstractComponentInterpolator
 	private final AbstractCollectionType type;
 	private final boolean applyAutomaticTags;
 	private final Map<String, Family> componentFamilyMap = new HashMap<>();
-
 
 	AbstractComponentInterpolator( Scope scope, AbstractCollectionType type )
 	{
@@ -104,73 +100,87 @@ abstract class AbstractComponentInterpolator
 
 	private void assertValidity() throws ValidationException
 	{
-		assertNames();
-		assertExtensions();
+		Collection<String> names = new HashSet<>();
+		assertNames( getType().getComponents(), names );
+		assertNames( getType().getExtensions(), names );
+		assertNames( getType().getComponentsLast(), names );
+
+		if( isExtensionVersionProhibited() )
+			assertExtensionGroupHasNoVersion();
+		else
+			assertExtensionVersions();
 	}
 
-	private void assertNames() throws ValidationException
+	private static void assertNames( Iterable<Type> items, Collection<String> names ) throws ValidationException
 	{
-		Collection<String> names = new HashSet<>();
-		for( Type item : getType().getComponents() )
-			assertName( item, names );
-
-		for( Type item : getType().getExtensions() )
-			assertName( item, names );
-
-		for( Type item : getType().getComponentsLast() )
+		for( Type item : items )
 			assertName( item, names );
 	}
 
 	private static void assertName( Type item, Collection<String> names ) throws ValidationException
 	{
 		if( item instanceof ComponentType )
-		{
-			String componentName = ( (ComponentType)item ).getComponentName();
-			if( names.contains( componentName ) )
-				throw new ValidationException( "ComponentType with name '" + componentName + "' already exist" );
-			names.add( componentName );
-		}
+			assertNameForComponentType( (ComponentType)item, names );
 		else if( item instanceof CollectionTypeExtensionGroup )
-		{
-			for( ComponentType componentType : ( (CollectionTypeExtensionGroup)item ).getComponents() )
-				assertName( componentType, names );
-		}
+			assertNameForExtensionGroup( (CollectionTypeExtensionGroup)item, names );
 		else if( item instanceof ComponentsFromType )
-			for( ComponentType componentType : ( (ComponentsFromType)item ).getComponents() )
-				assertName( componentType, names );
+			assertNameForComponentsFromType( (ComponentsFromType)item, names );
 	}
 
-	private void assertExtensions() throws ValidationException
+	private static void assertNameForComponentsFromType( ComponentsFromType item, Collection<String> names ) throws ValidationException
 	{
-		boolean allHasVersion = true;
+		for( ComponentType componentType : item.getComponents() )
+			assertName( componentType, names );
+	}
+
+	private static void assertNameForExtensionGroup( CollectionTypeExtensionGroup item, Collection<String> names ) throws ValidationException
+	{
+		for( ComponentType componentType : item.getComponents() )
+			assertName( componentType, names );
+	}
+
+	private static void assertNameForComponentType( ComponentType item, Collection<String> names ) throws ValidationException
+	{
+		String componentName = item.getComponentName();
+		if( names.contains( componentName ) )
+			throw new ValidationException( "ComponentType with name '" + componentName + "' already exist" );
+		names.add( componentName );
+	}
+
+	private void assertExtensionVersions() throws ValidationException
+	{
 		int prevVersion = 1;
-		int checked = 0;
 		for( Type extension : getType().getExtensions() )
 		{
-			if( extension instanceof ComponentType || extension instanceof ComponentsFromType )
-			{
-				allHasVersion = false;
-			}
-			else if( extension instanceof CollectionTypeExtensionGroup )
-			{
-				int groupVersion = ( (CollectionTypeExtensionGroup)extension ).getVersion();
-				if( groupVersion == -1 )
-				{
-					if( checked > 0 && allHasVersion )
-						throw new ValidationException( "All extension groups must have version or no one." );
-					allHasVersion = false;
-				}
+			CollectionTypeExtensionGroup group = (CollectionTypeExtensionGroup)extension;
+			if( prevVersion >= group.getVersion() )
+				throw new ValidationException( "Extension group version is greater than previous" );
 
-				if( allHasVersion )
-				{
-					if( prevVersion >= groupVersion )
-						throw new ValidationException( "Extension group version is greater than previous" );
-
-					prevVersion = groupVersion;
-				}
-			}
-			checked++;
+			prevVersion = group.getVersion();
 		}
+	}
+
+	private void assertExtensionGroupHasNoVersion() throws ValidationException
+	{
+		for( Type extension : getType().getExtensions() )
+			if( extension instanceof CollectionTypeExtensionGroup && ( (CollectionTypeExtensionGroup)extension ).getVersion() != -1 )
+				throw new ValidationException( "Extension group version is prohibited: " + type );
+	}
+
+	private boolean isExtensionVersionProhibited()
+	{
+		for( Type extension : getType().getExtensions() )
+			if( isVersionProhibitedFor( extension ) )
+				return true;
+
+		return false;
+	}
+
+	private static boolean isVersionProhibitedFor( Type extension )
+	{
+		return extension instanceof ComponentType
+				|| extension instanceof ComponentsFromType
+				|| extension instanceof CollectionTypeExtensionGroup && ( (CollectionTypeExtensionGroup)extension ).getVersion() == -1;
 	}
 
 	@NotNull
@@ -186,6 +196,7 @@ abstract class AbstractComponentInterpolator
 				tagNumber++;
 			}
 		}
+
 		for( ComponentType component : components )
 		{
 			if( component.getVersion() > 1 )
@@ -216,40 +227,38 @@ abstract class AbstractComponentInterpolator
 	@NotNull
 	private List<ComponentType> buildComponentTypeList() throws ValidationException
 	{
-		Collection<ComponentType> components = new ArrayList<>();
-		for( Type source : getType().getComponents() )
-			resolveComponentTypeSource( components, source, 1 );
+		Collection<ComponentType> _components = new ArrayList<>();
+		resolveComponentsImpl( _components, getType().getComponents(), -1 );
 
-		Collection<ComponentType> componentsLast = new ArrayList<>();
-		for( Type source : getType().getComponentsLast() )
-			resolveComponentTypeSource( componentsLast, source, 1 );
+		Collection<ComponentType> _componentsLast = new ArrayList<>();
+		resolveComponentsImpl( _componentsLast, getType().getComponentsLast(), -1 );
 
-		int version = 1;
-		Collection<ComponentType> extensions = new ArrayList<>();
-		for( Type source : getType().getExtensions() )
-		{
-			version++;
-			resolveComponentTypeSource( extensions, source, version );
-		}
+		Collection<ComponentType> _extensions = new ArrayList<>();
+		resolveComponentsImpl( _extensions, getType().getExtensions(), 1 );
 
 		List<ComponentType> result = new ArrayList<>();
 		int index = 0;
-		for( ComponentType component : components )
-		{
-			addComponentType( result, component, component.getVersion(), index );
-			index++;
-		}
-		for( ComponentType extension : extensions )
-		{
-			addComponentType( result, extension, extension.getVersion(), index );
-			index++;
-		}
-		for( ComponentType component : componentsLast )
-		{
-			addComponentType( result, component, component.getVersion(), index );
-			index++;
-		}
+		index = registerComponents( result, _components, index );
+		index = registerComponents( result, _extensions, index );
+		registerComponents( result, _componentsLast, index );
 		return result;
+	}
+
+	private int registerComponents( Collection<ComponentType> result, Iterable<ComponentType> source, int index )
+	{
+		for( ComponentType component : source )
+			addComponentType( result, component, component.getVersion(), index++ );
+		return index;
+	}
+
+	private void resolveComponentsImpl( Collection<ComponentType> list, Iterable<Type> sources, int version ) throws ValidationException
+	{
+		if( version == -1 )
+			for( Type source : sources )
+				resolveComponentTypeSource( list, source, 1 );
+		else
+			for( Type source : sources )
+				resolveComponentTypeSource( list, source, version++ );
 	}
 
 	private boolean isApplyAutomaticTags()
@@ -262,24 +271,30 @@ abstract class AbstractComponentInterpolator
 		if( source instanceof ComponentType )
 			addComponentType( list, (ComponentType)source, version, -1 );
 		else if( source instanceof ComponentsFromType )
-		{
-			for( ComponentType componentType : ( (ComponentsFromType)source ).getComponents() )
-				addComponentType( list, componentType, version, -1 );
-		}
+			resolveComponentTypeSourceForCompsFromType( list, (ComponentsFromType)source, version );
 		else if( source instanceof CollectionTypeExtensionGroup )
-		{
-			int groupVersion = ( (CollectionTypeExtensionGroup)source ).getVersion();
-			if( groupVersion != -1 )
-			{
-				if( groupVersion < version )
-					throw new ValidationException( "Version must be greater than previous group" );
-				version = groupVersion;
-			}
-			for( ComponentType componentType : ( (CollectionTypeExtensionGroup)source ).getComponents() )
-				addComponentType( list, componentType, version, -1 );
-		}
+			resolveComponentTypeSourceForExtGroup( list, (CollectionTypeExtensionGroup)source, version );
 		else
 			throw new IllegalStateException( "Unable to use type: " + source );
+	}
+
+	private void resolveComponentTypeSourceForExtGroup( Collection<ComponentType> list, CollectionTypeExtensionGroup source, int version ) throws ValidationException
+	{
+		int groupVersion = source.getVersion();
+		if( groupVersion != -1 )
+		{
+			if( groupVersion < version )
+				throw new ValidationException( "Version must be greater than previous group" );
+			version = groupVersion;
+		}
+		for( ComponentType componentType : source.getComponents() )
+			addComponentType( list, componentType, version, -1 );
+	}
+
+	private void resolveComponentTypeSourceForCompsFromType( Collection<ComponentType> list, ComponentsFromType source, int version )
+	{
+		for( ComponentType componentType : source.getComponents() )
+			addComponentType( list, componentType, version, -1 );
 	}
 
 	private void addComponentType( Collection<ComponentType> list, ComponentType source, int version, int index )
@@ -302,38 +317,4 @@ abstract class AbstractComponentInterpolator
 		}
 	}
 
-	static void assertTags( NamedType component, Iterable<ComponentType> list ) throws ValidationException
-	{
-		if( component.getFamily() == Family.Choice && component.getEncoding( EncodingInstructions.Tag ) == null )
-		{
-			for( NamedType namedType : component.getNamedTypes() )
-				assertTags( namedType, list );
-		}
-		else
-		{
-			TagEncoding encoding = (TagEncoding)component.getEncoding( EncodingInstructions.Tag );
-			assertTagsImpl( component.getName(), encoding.getTagClass(), encoding.getTagNumber(), list );
-		}
-	}
-
-	private static void assertTagsImpl( String name, TagClass tagClass, int tagNumber, Iterable<? extends NamedType> list ) throws ValidationException
-	{
-		for( NamedType component : list )
-		{
-			IEncoding enc = component.getEncoding( EncodingInstructions.Tag );
-			if( enc == null )
-			{
-				if( component.getFamily() == Family.Choice )
-					assertTagsImpl( name, tagClass, tagNumber, component.getNamedTypes() );
-
-				throw new IllegalStateException();
-			}
-			else
-			{
-				TagEncoding encoding = (TagEncoding)enc;
-				if( tagClass == encoding.getTagClass() && tagNumber == encoding.getTagNumber() )
-					throw new ValidationException( "Duplicate tag detected for component '" + name + "' and '" + component.getName() + '\'' );
-			}
-		}
-	}
 }
