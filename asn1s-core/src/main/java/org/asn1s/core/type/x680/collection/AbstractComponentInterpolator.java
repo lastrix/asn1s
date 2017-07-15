@@ -109,6 +109,7 @@ abstract class AbstractComponentInterpolator
 			assertExtensionGroupHasNoVersion();
 		else
 			assertExtensionVersions();
+		int k = 0;
 	}
 
 	private static void assertNames( Iterable<Type> items, Collection<String> names ) throws ValidationException
@@ -234,7 +235,7 @@ abstract class AbstractComponentInterpolator
 		resolveComponentsImpl( _componentsLast, getType().getComponentsLast(), -1 );
 
 		Collection<ComponentType> _extensions = new ArrayList<>();
-		resolveComponentsImpl( _extensions, getType().getExtensions(), 1 );
+		resolveComponentsImpl( _extensions, getType().getExtensions(), 2 );
 
 		List<ComponentType> result = new ArrayList<>();
 		int index = 0;
