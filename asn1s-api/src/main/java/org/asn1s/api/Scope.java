@@ -53,7 +53,7 @@ public interface Scope
 	 *
 	 * @param ref    type reference name
 	 * @param module referenced module name
-	 * @return {@link Ref<Type>}
+	 * @return Ref&lt;Type&gt;
 	 */
 	@NotNull
 	Ref<Type> getTypeRef( @NotNull String ref, @Nullable String module );
@@ -63,7 +63,7 @@ public interface Scope
 	 *
 	 * @param ref    value reference name
 	 * @param module referenced module name
-	 * @return {@link Ref<Value>}
+	 * @return Ref&lt;Value&gt;
 	 */
 	@NotNull
 	Ref<Value> getValueRef( @NotNull String ref, @Nullable String module );

@@ -78,6 +78,7 @@ public interface Constraint
 	 * Check constraint tree has constraints from allowed types only.
 	 *
 	 * @param allowedTypes the collection of allowed types
+	 * @throws ValidationException if constraint type is not allowed by parameter
 	 */
 	void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException;
 }

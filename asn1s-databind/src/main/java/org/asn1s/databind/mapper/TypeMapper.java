@@ -65,7 +65,7 @@ public interface TypeMapper
 	 * @param type          the type to be bound with universal type
 	 * @param universalType the universal type to bound with type
 	 * @param isDefault     set to true if binding must be default for type.
-	 *                      Example Instant=>UTCTime and Instant=>GeneralizedTime, only one of them
+	 *                      Example Instant=&gt;UTCTime and Instant=&gt;GeneralizedTime, only one of them
 	 *                      should have isDefault flag set to true. When true, the method will add
 	 *                      another binding if user don't know how target ASN.1 is called
 	 */

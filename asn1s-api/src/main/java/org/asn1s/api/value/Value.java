@@ -44,7 +44,7 @@ import org.jetbrains.annotations.NotNull;
  * obj == obj.toIntegerValue() is not always true or false.
  * </p>
  * <p>
- * By default {@link #equals(Object)} and {@link #hashCode()} must be used if you want to check exact instance.
+ * By default {@link Object#equals(Object)} and {@link Object#hashCode()} must be used if you want to check exact instance.
  * When logical comparison is required, you must always refer to methods such as: {@link #isEqualTo(Value)}
  * and {@link Comparable#compareTo(Object)}
  * </p>
