@@ -342,13 +342,6 @@ public class CoreValueFactory implements ValueFactory
 
 	@NotNull
 	@Override
-	public ByteArrayValue byteArrayFromBitString( String content )
-	{
-		return CoreUtils.byteArrayFromBitString( content );
-	}
-
-	@NotNull
-	@Override
 	public ByteArrayValue emptyByteArray()
 	{
 		return EMPTY_ARRAY;

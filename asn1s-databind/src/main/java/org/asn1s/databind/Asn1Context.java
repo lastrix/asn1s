@@ -25,8 +25,8 @@
 
 package org.asn1s.databind;
 
-import org.asn1s.api.Module;
 import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.databind.mapper.DefaultTypeMapper;
 import org.asn1s.databind.mapper.MappedType;

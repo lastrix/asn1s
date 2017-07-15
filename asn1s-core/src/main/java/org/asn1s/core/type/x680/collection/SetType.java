@@ -82,10 +82,9 @@ public final class SetType extends AbstractCollectionType
 	{
 		if( collection.isEmpty() )
 		{
-			if( !isAllComponentsOptional() )
-				throw new IllegalValueException( "Components required" );
-
-			return collection;
+			if( isAllComponentsOptional() )
+				return collection;
+			throw new IllegalValueException( "Components required" );
 		}
 
 		Collection<ComponentType> unusedComponents = new HashSet<>( getComponents( true ) );
@@ -129,10 +128,9 @@ public final class SetType extends AbstractCollectionType
 	{
 		if( collection.isEmpty() )
 		{
-			if( !isAllComponentsOptional() )
-				throw new IllegalValueException( "Components required" );
-
-			return;
+			if( isAllComponentsOptional() )
+				return;
+			throw new IllegalValueException( "Components required" );
 		}
 		scope.setValueLevel( collection );
 		Collection<ComponentType> unusedComponents = new HashSet<>( getComponents( true ) );

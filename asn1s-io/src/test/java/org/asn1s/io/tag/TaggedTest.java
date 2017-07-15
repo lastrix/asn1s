@@ -25,13 +25,13 @@
 
 package org.asn1s.io.tag;
 
-import org.asn1s.api.Module;
 import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;

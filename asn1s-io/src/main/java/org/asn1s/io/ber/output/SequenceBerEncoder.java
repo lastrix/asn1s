@@ -88,9 +88,9 @@ final class SequenceBerEncoder implements BerEncoder
 	{
 		if( values.isEmpty() )
 		{
-			if( !type.isAllComponentsOptional() )
-				throw new IllegalValueException( "Type does not accepts empty collections" );
-			return;
+			if( type.isAllComponentsOptional() )
+				return;
+			throw new IllegalValueException( "Type does not accepts empty collections" );
 		}
 
 		int previousComponentIndex = -1;

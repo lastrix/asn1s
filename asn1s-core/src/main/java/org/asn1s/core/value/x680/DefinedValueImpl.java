@@ -25,12 +25,12 @@
 
 package org.asn1s.core.value.x680;
 
-import org.asn1s.api.Module;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.State;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.ByteArrayValue;
 import org.asn1s.api.value.Value;

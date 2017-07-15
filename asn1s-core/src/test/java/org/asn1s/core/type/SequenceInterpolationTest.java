@@ -25,10 +25,10 @@
 
 package org.asn1s.core.type;
 
-import org.asn1s.api.Module;
 import org.asn1s.api.Ref;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.*;
 import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.core.DefaultObjectFactory;

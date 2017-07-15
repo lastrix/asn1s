@@ -26,7 +26,6 @@
 package org.asn1s.core.type;
 
 
-import org.asn1s.api.Module;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.constraint.ElementSetSpecs;
@@ -34,6 +33,7 @@ import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;

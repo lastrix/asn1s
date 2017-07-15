@@ -29,20 +29,13 @@ import org.asn1s.api.Ref;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
-import org.asn1s.api.value.x680.ValueCollection;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 public final class CollectionUtils
 {
-
-	private static final byte[] EMPTY_ARRAY = new byte[0];
-
 	private CollectionUtils()
 	{
 	}
@@ -84,32 +77,5 @@ public final class CollectionUtils
 			sb.append( values.contains( value ) ? '1' : '0' );
 		sb.append( "'B" );
 		return sb.toString();
-	}
-
-	@Nullable
-	public static BigInteger tryBuildBigInteger( @NotNull ValueCollection collection )
-	{
-		if( collection.getKind() != Kind.Collection
-				|| collection.asValueList().isEmpty() )
-			return null;
-
-		List<Ref<Value>> list = collection.asValueList();
-		BigInteger result = BigInteger.ZERO;
-		for( Ref<Value> valueRef : list )
-		{
-			if( !( valueRef instanceof NamedValue ) )
-				return null;
-
-			NamedValue namedValue = (NamedValue)valueRef;
-
-			if( namedValue.getReferenceKind() != Kind.Integer
-					|| !namedValue.toIntegerValue().isInt() )
-				return null;
-
-			int bit = namedValue.toIntegerValue().asInt();
-			result = result.setBit( bit );
-		}
-
-		return result;
 	}
 }

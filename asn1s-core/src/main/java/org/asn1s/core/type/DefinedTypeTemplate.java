@@ -26,9 +26,13 @@
 package org.asn1s.core.type;
 
 import org.apache.commons.lang3.StringUtils;
-import org.asn1s.api.*;
+import org.asn1s.api.Ref;
+import org.asn1s.api.Scope;
+import org.asn1s.api.Template;
+import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.CoreUtils;

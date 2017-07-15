@@ -32,7 +32,7 @@ import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.NamedType;
-import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 
 final class InterpolatorUtils
 {
@@ -42,7 +42,7 @@ final class InterpolatorUtils
 
 	static void assertTags( NamedType component, Iterable<ComponentType> list ) throws ValidationException
 	{
-		if( component.getFamily() == Type.Family.Choice && component.getEncoding( EncodingInstructions.Tag ) == null )
+		if( component.getFamily() == Family.Choice && component.getEncoding( EncodingInstructions.Tag ) == null )
 		{
 			for( NamedType namedType : component.getNamedTypes() )
 				assertTags( namedType, list );
@@ -61,7 +61,7 @@ final class InterpolatorUtils
 			IEncoding enc = component.getEncoding( EncodingInstructions.Tag );
 			if( enc == null )
 			{
-				if( component.getFamily() == Type.Family.Choice )
+				if( component.getFamily() == Family.Choice )
 					assertTagsImpl( name, tagClass, tagNumber, component.getNamedTypes() );
 
 				throw new IllegalStateException();

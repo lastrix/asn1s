@@ -25,8 +25,8 @@
 
 package org.asn1s.core.type;
 
-import org.asn1s.api.Module;
 import org.asn1s.api.Ref;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.DefinedType;

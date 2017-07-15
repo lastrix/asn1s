@@ -25,10 +25,10 @@
 
 package org.asn1s.core.type;
 
-import org.asn1s.api.Module;
 import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.*;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -116,7 +116,7 @@ public class DefinedTypeTemplateTest
 
 		DefinedType type = factory.define( "CollectionType", collectionType, null );
 		ValueCollection collection = factory.collection( true );
-		Ref<Value> xValue = module.getValueRef( "x-Value", null );
+		Ref<Value> xValue = module.getValueResolver().getValueRef( "x-Value", null );
 		collection.addNamed( "a", xValue );
 		collection.addNamed( "b", factory.integer( 3 ) );
 		DefinedValue valueTemplate = factory.define( "value-Template", type, collection, Collections.singletonList( factory.templateParameter( 0, xValue, intType ) ) );

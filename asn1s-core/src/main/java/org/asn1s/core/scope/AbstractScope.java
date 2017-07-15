@@ -29,11 +29,13 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.Module;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.Template;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.TypeName;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -61,19 +63,18 @@ abstract class AbstractScope implements Scope
 		throw new IllegalStateException( "No Type available" );
 	}
 
-	@NotNull
 	@Override
 	public final Scope getParentScope()
 	{
-		if( parent == null )
-			throw new IllegalStateException();
+		//noinspection ConstantConditions
 		return parent;
 	}
 
+	@Nullable
 	@Override
-	public boolean hasParentScope()
+	public final DefinedType resolveBuiltinTypeOrNull( @NotNull TypeName name )
 	{
-		return parent != null;
+		return getModule().getCoreModule().getTypeResolver().getType( name.getName() );
 	}
 
 	@NotNull

@@ -23,112 +23,50 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api;
+package org.asn1s.api.module;
 
-import org.apache.commons.lang3.StringUtils;
+
+import org.asn1s.api.Ref;
+import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.type.DefinedType;
+import org.asn1s.api.type.Type;
+import org.asn1s.api.type.TypeName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
+import java.util.Collection;
 
-public final class ModuleReference implements Comparable<ModuleReference>
+public interface TypeResolver
 {
-	public ModuleReference( String name )
-	{
-		this( name, null, null );
-	}
+	/**
+	 * Registers type in this module
+	 *
+	 * @param type named type
+	 */
+	void add( @NotNull DefinedType type );
 
-	public ModuleReference( @NotNull String name, @Nullable long[] oid, @Nullable String iri )
-	{
-		this.name = name;
-		this.oid = oid != null ? Arrays.copyOf( oid, oid.length ) : null;
-		oidString = oid != null ? StringUtils.join( oid, "-" ) : null;
-		this.iri = iri;
-	}
-
-	private final String name;
-	private final long[] oid;
-	private final String oidString;
-	private final String iri;
+	void addImports( @NotNull ModuleReference moduleReference, @NotNull Collection<String> symbols );
 
 	/**
-	 * Module name
+	 * Returns collection of types present in this module
 	 *
-	 * @return string
+	 * @return {@link Collection} of {@link DefinedType}
 	 */
-	public String getName()
-	{
-		return name;
-	}
+	@NotNull
+	Collection<DefinedType> getTypes();
+
+	@NotNull
+	Ref<Type> getTypeRef( @NotNull String ref, @Nullable String module );
 
 	/**
-	 * Returns copy of OID value;
+	 * Return type declared in this module
 	 *
-	 * @return oid array
-	 * @see #getOidString()
+	 * @param name type name
+	 * @return {@link DefinedType} or null
 	 */
-	public long[] getOid()
-	{
-		return Arrays.copyOf( oid, oid.length );
-	}
+	@Nullable
+	DefinedType getType( @NotNull String name );
 
-	/**
-	 * Returns oid array as string
-	 *
-	 * @return string
-	 * @see #getOid()
-	 */
-	public String getOidString()
-	{
-		return oidString;
-	}
-
-	/**
-	 * Returns International Resource Identifier (IRI)
-	 *
-	 * @return iri
-	 */
-	public String getIri()
-	{
-		return iri;
-	}
-
-	@Override
-	public int compareTo( @NotNull ModuleReference o )
-	{
-		return getName().compareTo( o.getName() );
-	}
-
-	@Override
-	public boolean equals( Object obj )
-	{
-		if( this == obj ) return true;
-		if( !( obj instanceof ModuleReference ) ) return false;
-
-		ModuleReference reference = (ModuleReference)obj;
-		return getName().equals( reference.getName() );
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return getName().hashCode();
-	}
-
-	@Override
-	public String toString()
-	{
-		if( oid == null && iri == null )
-			return getName();
-
-		StringBuilder sb = new StringBuilder();
-		sb.append( getName() );
-		if( oid != null )
-			sb.append( " {" ).append( getOidString() ).append( '}' );
-
-		if( iri != null )
-			sb.append( ' ' ).append( getIri() );
-
-		return sb.toString();
-	}
+	@NotNull
+	Type resolve( @NotNull TypeName typeName ) throws ResolutionException;
 }

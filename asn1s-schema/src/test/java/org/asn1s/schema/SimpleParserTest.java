@@ -25,7 +25,7 @@
 
 package org.asn1s.schema;
 
-import org.asn1s.api.Module;
+import org.asn1s.api.module.Module;
 import org.asn1s.core.DefaultObjectFactory;
 import org.asn1s.core.module.ModuleSet;
 import org.junit.Assert;
@@ -45,8 +45,8 @@ public class SimpleParserTest
 		Assert.assertEquals( "Exactly 1 module required", 1, modules.size() );
 		Module module = modules.get( 0 );
 		module.validate();
-		Assert.assertEquals( "Single type expected", 1, module.getTypes().size() );
-		Assert.assertEquals( "No values expected", 0, module.getValues().size() );
+		Assert.assertEquals( "Single type expected", 1, module.getTypeResolver().getTypes().size() );
+		Assert.assertEquals( "No values expected", 0, module.getValueResolver().getValues().size() );
 	}
 
 	@Test
@@ -58,8 +58,8 @@ public class SimpleParserTest
 		Assert.assertEquals( "Exactly 1 module required", 1, modules.size() );
 		Module module = modules.get( 0 );
 		module.validate();
-		Assert.assertEquals( "Two types expected", 2, module.getTypes().size() );
-		Assert.assertEquals( "No values expected", 0, module.getValues().size() );
+		Assert.assertEquals( "Two types expected", 2, module.getTypeResolver().getTypes().size() );
+		Assert.assertEquals( "No values expected", 0, module.getValueResolver().getValues().size() );
 	}
 
 	@Test
@@ -71,8 +71,8 @@ public class SimpleParserTest
 		Assert.assertEquals( "Exactly 1 module required", 1, modules.size() );
 		Module module = modules.get( 0 );
 		module.validate();
-		Assert.assertEquals( "Two types expected", 2, module.getTypes().size() );
-		Assert.assertEquals( "Single value expected", 1, module.getValues().size() );
+		Assert.assertEquals( "Two types expected", 2, module.getTypeResolver().getTypes().size() );
+		Assert.assertEquals( "Single value expected", 1, module.getValueResolver().getValues().size() );
 	}
 
 	@Test

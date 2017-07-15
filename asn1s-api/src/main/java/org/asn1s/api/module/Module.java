@@ -23,17 +23,13 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api;
+package org.asn1s.api.module;
 
+import org.asn1s.api.Disposable;
+import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.DefinedType;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.type.TypeName;
-import org.asn1s.api.value.Value;
-import org.asn1s.api.value.ValueName;
-import org.asn1s.api.value.x680.DefinedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,10 +37,14 @@ import java.util.Collection;
 
 public interface Module extends Disposable
 {
-
-	void addImports( ModuleReference moduleReference, Iterable<String> symbols );
-
 	Scope createScope();
+
+	/**
+	 * Return module with core types, like INTEGER, BOOLEAN, REAL, etc.
+	 *
+	 * @return Module
+	 */
+	Module getCoreModule();
 
 	/**
 	 * Return module resolver used by this module
@@ -53,6 +53,12 @@ public interface Module extends Disposable
 	 */
 	@Nullable
 	ModuleResolver getModuleResolver();
+
+	@NotNull
+	TypeResolver getTypeResolver();
+
+	@NotNull
+	ValueResolver getValueResolver();
 
 	/**
 	 * Return module reference
@@ -110,70 +116,11 @@ public interface Module extends Disposable
 	Collection<String> getExports();
 
 	/**
-	 * Returns collection of types present in this module
-	 *
-	 * @return {@link Collection} of {@link DefinedType}
-	 */
-	@NotNull
-	Collection<DefinedType> getTypes();
-
-	/**
-	 * Return type declared in this module
-	 *
-	 * @param name type name
-	 * @return {@link DefinedType} or null
-	 */
-	@Nullable
-	DefinedType getType( String name );
-
-	@NotNull
-	Type resolveType( @NotNull TypeName typeName ) throws ResolutionException;
-
-	/**
-	 * Returns collection of values present in this module
-	 *
-	 * @return {@link Collection} of {@link DefinedValue}
-	 */
-	@NotNull
-	Collection<DefinedValue> getValues();
-
-	/**
-	 * Returns value declared in this module
-	 *
-	 * @param name value name
-	 * @return {@link DefinedValue} or null
-	 */
-	@Nullable
-	DefinedValue getValue( String name );
-
-	Value resolveValue( @NotNull ValueName valueName ) throws ResolutionException;
-
-	/**
 	 * Register disposable
 	 *
 	 * @param disposable a disposable
 	 */
 	void addDisposable( Disposable disposable );
-
-	@NotNull
-	Ref<Type> getTypeRef( @NotNull String ref, @Nullable String module );
-
-	/**
-	 * Registers type in this module
-	 *
-	 * @param type named type
-	 */
-	void addType( @NotNull DefinedType type );
-
-	@NotNull
-	Ref<Value> getValueRef( @NotNull String ref, @Nullable String module );
-
-	/**
-	 * Registers new value in this module
-	 *
-	 * @param value named value
-	 */
-	void addValue( @NotNull DefinedValue value );
 
 	/**
 	 * Allow all types to be extensible

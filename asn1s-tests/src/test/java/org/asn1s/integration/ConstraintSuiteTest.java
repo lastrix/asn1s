@@ -27,11 +27,11 @@ package org.asn1s.integration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.Module;
-import org.asn1s.api.ModuleResolver;
 import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.Asn1Exception;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.DefinedValue;
 import org.asn1s.core.DefaultObjectFactory;
@@ -108,7 +108,7 @@ public class ConstraintSuiteTest
 		ModuleResolver resolver = new ModuleSet();
 		Module module = SchemaUtils.parsePdu( pdu, resolver, new DefaultObjectFactory( resolver ) );
 		Assert.assertNotNull( "Null result", module );
-		Assert.assertFalse( "No values parsed", module.getValues().isEmpty() );
+		Assert.assertFalse( "No values parsed", module.getValueResolver().getValues().isEmpty() );
 	}
 
 	@Test
@@ -117,7 +117,7 @@ public class ConstraintSuiteTest
 		ModuleSet resolver = new ModuleSet();
 		Module module = SchemaUtils.parsePdu( pduFail, resolver, new DefaultObjectFactory( resolver ) );
 		Assert.assertNotNull( "Null result", module );
-		Assert.assertFalse( "No values parsed", module.getValues().isEmpty() );
+		Assert.assertFalse( "No values parsed", module.getValueResolver().getValues().isEmpty() );
 	}
 
 	@Test
@@ -134,7 +134,7 @@ public class ConstraintSuiteTest
 
 		Scope scope = module.createScope();
 		Collection<String> failed = new HashSet<>();
-		for( DefinedValue value : module.getValues() )
+		for( DefinedValue value : module.getValueResolver().getValues() )
 		{
 			try
 			{
@@ -163,7 +163,7 @@ public class ConstraintSuiteTest
 		module.validate();
 
 		Scope scope = module.createScope();
-		for( DefinedValue value : module.getValues() )
+		for( DefinedValue value : module.getValueResolver().getValues() )
 		{
 			checkValueWriteRead( scope, value, BerRules.Ber, objectFactory );
 			checkValueWriteRead( scope, value, BerRules.Der, objectFactory );
@@ -203,7 +203,7 @@ public class ConstraintSuiteTest
 		module.validate( false, false );
 		Scope scope = module.createScope();
 		Collection<String> notFailed = new HashSet<>();
-		for( DefinedValue value : module.getValues() )
+		for( DefinedValue value : module.getValueResolver().getValues() )
 		{
 			try
 			{

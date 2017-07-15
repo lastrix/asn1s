@@ -25,11 +25,11 @@
 
 package org.asn1s.schema.x681;
 
-import org.asn1s.api.Module;
-import org.asn1s.api.ModuleResolver;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.type.ClassType;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;

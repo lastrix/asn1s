@@ -58,6 +58,9 @@ public class TypeNameRef implements Ref<Type>
 	@Override
 	public Type resolve( Scope scope ) throws ResolutionException
 	{
+		DefinedType type = scope.resolveBuiltinTypeOrNull( name );
+		if( type != null )
+			return type;
 		return scope.resolveType( name );
 	}
 

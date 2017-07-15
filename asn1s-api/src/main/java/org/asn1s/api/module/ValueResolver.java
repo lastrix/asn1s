@@ -23,22 +23,49 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.value.x680;
+package org.asn1s.api.module;
 
 import org.asn1s.api.Ref;
-import org.asn1s.api.Template;
+import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.ValueName;
+import org.asn1s.api.value.x680.DefinedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface DefinedValueTemplate extends DefinedValue, Template<Value>
-{
-	@Nullable
-	Ref<?> getParameterRef( @NotNull String name );
+import java.util.Collection;
 
-	@Override
-	default boolean isTemplate()
-	{
-		return true;
-	}
+public interface ValueResolver
+{
+	/**
+	 * Registers new value in this module
+	 *
+	 * @param value named value
+	 */
+	void add( @NotNull DefinedValue value );
+
+	void addImports( @NotNull ModuleReference moduleReference, @NotNull Collection<String> symbols );
+
+	/**
+	 * Returns collection of values present in this module
+	 *
+	 * @return {@link Collection} of {@link DefinedValue}
+	 */
+	@NotNull
+	Collection<DefinedValue> getValues();
+
+	/**
+	 * Returns value declared in this module
+	 *
+	 * @param name value name
+	 * @return {@link DefinedValue} or null
+	 */
+	@Nullable
+	DefinedValue getValue( String name );
+
+	@NotNull
+	Ref<Value> getValueRef( @NotNull String ref, @Nullable String module );
+
+	@NotNull
+	Value resolve( @NotNull ValueName valueName ) throws ResolutionException;
 }

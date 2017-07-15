@@ -78,18 +78,6 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	}
 
 	/**
-	 * Returns all sibling types, could be used for collections
-	 *
-	 * @return list of Type
-	 * @throws IllegalStateException if type is not validated
-	 */
-	@NotNull
-	default List<Type> getSiblings()
-	{
-		return Collections.emptyList();
-	}
-
-	/**
 	 * Accept value, use scope for resolution. You should chain scopes if this is required for some reason
 	 *
 	 * @param scope    resolution scope

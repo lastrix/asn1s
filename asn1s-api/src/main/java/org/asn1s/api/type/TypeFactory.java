@@ -25,14 +25,14 @@
 
 package org.asn1s.api.type;
 
-import org.asn1s.api.Module;
-import org.asn1s.api.ModuleReference;
 import org.asn1s.api.Ref;
 import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagMethod;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;

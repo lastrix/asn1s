@@ -25,7 +25,7 @@
 
 package org.asn1s.databind.tests.chat;
 
-import org.asn1s.api.ModuleReference;
+import org.asn1s.api.module.ModuleReference;
 import org.asn1s.core.DefaultObjectFactory;
 import org.asn1s.core.module.ModuleImpl;
 import org.asn1s.core.module.ModuleSet;

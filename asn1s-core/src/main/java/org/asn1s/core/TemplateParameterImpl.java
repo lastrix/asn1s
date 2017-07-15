@@ -36,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 final class TemplateParameterImpl implements TemplateParameter
 {
-	public TemplateParameterImpl( int index, @NotNull Ref<?> reference, @Nullable Ref<Type> governor )
+	TemplateParameterImpl( int index, @NotNull Ref<?> reference, @Nullable Ref<Type> governor )
 	{
 		this.index = index;
 		this.reference = reference;

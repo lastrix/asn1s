@@ -56,26 +56,6 @@ public class DefaultTypeMapper implements TypeMapper
 
 	private final Asn1Context context;
 
-	@Override
-	public void bindClassToUniversalType( @NotNull Type type, @NotNull UniversalType universalType, boolean isDefault )
-	{
-		try
-		{
-			Ref<org.asn1s.api.type.Type> ref = universalType.ref();
-			DefinedType resolve = (DefinedType)ref.resolve( context.getContextModule().createScope() );
-			MappedType mappedType = new BuiltinMappedType( type, resolve );
-			context.putMappedType( type.getTypeName(), resolve.getName(), mappedType );
-			if( isDefault )
-			{
-				context.putMappedType( type.getTypeName(), "T-Java-Bind-" + type.getTypeName().replace( '.', '-' ), mappedType );
-				context.putDefinedTypeForClassName( type.getTypeName(), resolve );
-			}
-		} catch( ResolutionException e )
-		{
-			throw new IllegalStateException( "Unable to resolve universal type: " + universalType.name(), e );
-		}
-	}
-
 	@NotNull
 	@Override
 	public MappedType mapType( @NotNull Type type )
@@ -83,9 +63,18 @@ public class DefaultTypeMapper implements TypeMapper
 		return mapType( type, null );
 	}
 
+	/**
+	 * Map type into ASN.1 Schema, resolve ASN.1 type name (if parameter asn1TypeName is null)
+	 * using annotations or stub generation in form:
+	 * T-Java-Bind-{typeNameWithDotsReplacedByMinus}
+	 *
+	 * @param type         the type to map
+	 * @param asn1TypeName the asn.1 type name which should be used for mapping,
+	 *                     may be an existing ASN.1 Type loaded into context module
+	 * @return mapped type
+	 */
 	@NotNull
-	@Override
-	public MappedType mapType( @NotNull Type type, @Nullable String asn1TypeName )
+	private MappedType mapType( @NotNull Type type, @Nullable String asn1TypeName )
 	{
 		if( type instanceof Class<?> )
 			return mapClass( (Class<?>)type, asn1TypeName );
@@ -225,7 +214,7 @@ public class DefaultTypeMapper implements TypeMapper
 
 	private void bindSequenceTypeToAsn1Type( SequenceMappedType type, String asn1TypeName )
 	{
-		DefinedType definedType = context.getContextModule().getType( asn1TypeName );
+		DefinedType definedType = context.getContextModule().getTypeResolver().getType( asn1TypeName );
 		if( definedType == null )
 			generateAsn1Type( type, asn1TypeName );
 		else
@@ -252,7 +241,7 @@ public class DefaultTypeMapper implements TypeMapper
 
 	private void bindSequenceOfTypeToAsn1Type( SequenceOfMappedType type, String asn1TypeName )
 	{
-		DefinedType definedType = context.getContextModule().getType( asn1TypeName );
+		DefinedType definedType = context.getContextModule().getTypeResolver().getType( asn1TypeName );
 		if( definedType == null )
 			generateSequenceOfAsn1Type( type, asn1TypeName );
 		else
@@ -285,6 +274,35 @@ public class DefaultTypeMapper implements TypeMapper
 		bindClassToUniversalType( Double.class, UniversalType.Real, true );
 		bindClassToUniversalType( Instant.class, UniversalType.UTCTime, true );
 		bindClassToUniversalType( Instant.class, UniversalType.GeneralizedTime, false );
+	}
+
+	/**
+	 * Bind class for universal type, it will require special adapter to handle them.
+	 *
+	 * @param type          the type to be bound with universal type
+	 * @param universalType the universal type to bound with type
+	 * @param isDefault     set to true if binding must be default for type.
+	 *                      Example Instant=&gt;UTCTime and Instant=&gt;GeneralizedTime, only one of them
+	 *                      should have isDefault flag set to true. When true, the method will add
+	 *                      another binding if user don't know how target ASN.1 is called
+	 */
+	private void bindClassToUniversalType( @NotNull Type type, @NotNull UniversalType universalType, boolean isDefault )
+	{
+		try
+		{
+			Ref<org.asn1s.api.type.Type> ref = universalType.ref();
+			DefinedType resolve = (DefinedType)ref.resolve( context.getContextModule().createScope() );
+			MappedType mappedType = new BuiltinMappedType( type, resolve );
+			context.putMappedType( type.getTypeName(), resolve.getName(), mappedType );
+			if( isDefault )
+			{
+				context.putMappedType( type.getTypeName(), "T-Java-Bind-" + type.getTypeName().replace( '.', '-' ), mappedType );
+				context.putDefinedTypeForClassName( type.getTypeName(), resolve );
+			}
+		} catch( ResolutionException e )
+		{
+			throw new IllegalStateException( "Unable to resolve universal type: " + universalType.name(), e );
+		}
 	}
 
 	// *************************************** Class Field mapping ************************************************** //

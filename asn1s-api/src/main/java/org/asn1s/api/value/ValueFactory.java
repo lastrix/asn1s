@@ -108,9 +108,6 @@ public interface ValueFactory
 	ByteArrayValue byteArrayValue( int bits, @Nullable byte[] bytes );
 
 	@NotNull
-	ByteArrayValue byteArrayFromBitString( String content );
-
-	@NotNull
 	ByteArrayValue emptyByteArray();
 
 	@NotNull

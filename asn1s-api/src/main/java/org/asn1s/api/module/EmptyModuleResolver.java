@@ -23,13 +23,39 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.type;
+package org.asn1s.api.module;
 
-import org.asn1s.api.value.x680.StringValue;
+import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.exception.ResolutionException;
+import org.jetbrains.annotations.NotNull;
 
-public interface IRestrictedString
+import java.util.Collection;
+import java.util.Collections;
+
+public final class EmptyModuleResolver implements ModuleResolver
 {
-	String fromByteArray( byte[] bytes );
+	@Override
+	public Collection<Module> getAllModules()
+	{
+		return Collections.emptyList();
+	}
 
-	byte[] toByteArray( StringValue value );
+	@NotNull
+	@Override
+	public Module resolve( ModuleReference reference ) throws ResolutionException
+	{
+		throw new ResolutionException( "Unable to resolve module: " + reference );
+	}
+
+	@Override
+	public void registerModule( Module module )
+	{
+		// nothing to do
+	}
+
+	@Override
+	public ObjectFactory createObjectFactory()
+	{
+		throw new UnsupportedOperationException();
+	}
 }

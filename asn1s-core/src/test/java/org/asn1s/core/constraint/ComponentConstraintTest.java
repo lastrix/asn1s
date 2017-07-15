@@ -25,12 +25,12 @@
 
 package org.asn1s.core.constraint;
 
-import org.asn1s.api.Module;
 import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.constraint.Presence;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.Type;

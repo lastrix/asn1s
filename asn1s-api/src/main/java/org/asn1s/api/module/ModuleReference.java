@@ -23,38 +23,112 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api;
+package org.asn1s.api.module;
 
-import org.asn1s.api.exception.ResolutionException;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Arrays;
 
-public final class EmptyModuleResolver implements ModuleResolver
+public final class ModuleReference implements Comparable<ModuleReference>
 {
-	@Override
-	public Collection<Module> getAllModules()
+	public ModuleReference( String name )
 	{
-		return Collections.emptyList();
+		this( name, null, null );
 	}
 
-	@NotNull
-	@Override
-	public Module resolve( ModuleReference reference ) throws ResolutionException
+	public ModuleReference( @NotNull String name, @Nullable long[] oid, @Nullable String iri )
 	{
-		throw new ResolutionException( "Unable to resolve module: " + reference );
+		this.name = name;
+		this.oid = oid != null ? Arrays.copyOf( oid, oid.length ) : null;
+		oidString = oid != null ? StringUtils.join( oid, "-" ) : null;
+		this.iri = iri;
+	}
+
+	private final String name;
+	private final long[] oid;
+	private final String oidString;
+	private final String iri;
+
+	/**
+	 * Module name
+	 *
+	 * @return string
+	 */
+	public String getName()
+	{
+		return name;
+	}
+
+	/**
+	 * Returns copy of OID value;
+	 *
+	 * @return oid array
+	 * @see #getOidString()
+	 */
+	public long[] getOid()
+	{
+		return Arrays.copyOf( oid, oid.length );
+	}
+
+	/**
+	 * Returns oid array as string
+	 *
+	 * @return string
+	 * @see #getOid()
+	 */
+	public String getOidString()
+	{
+		return oidString;
+	}
+
+	/**
+	 * Returns International Resource Identifier (IRI)
+	 *
+	 * @return iri
+	 */
+	public String getIri()
+	{
+		return iri;
 	}
 
 	@Override
-	public void registerModule( Module module )
+	public int compareTo( @NotNull ModuleReference o )
 	{
-		// nothing to do
+		return getName().compareTo( o.getName() );
 	}
 
 	@Override
-	public ObjectFactory createObjectFactory()
+	public boolean equals( Object obj )
 	{
-		throw new UnsupportedOperationException();
+		if( this == obj ) return true;
+		if( !( obj instanceof ModuleReference ) ) return false;
+
+		ModuleReference reference = (ModuleReference)obj;
+		return getName().equals( reference.getName() );
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return getName().hashCode();
+	}
+
+	@Override
+	public String toString()
+	{
+		if( oid == null && iri == null )
+			return getName();
+
+		StringBuilder sb = new StringBuilder();
+		sb.append( getName() );
+		if( oid != null )
+			sb.append( " {" ).append( getOidString() ).append( '}' );
+
+		if( iri != null )
+			sb.append( ' ' ).append( getIri() );
+
+		return sb.toString();
 	}
 }

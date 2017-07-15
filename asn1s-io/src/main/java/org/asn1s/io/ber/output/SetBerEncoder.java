@@ -88,9 +88,9 @@ final class SetBerEncoder implements BerEncoder
 	{
 		if( values.isEmpty() )
 		{
-			if( !type.isAllComponentsOptional() )
-				throw new IllegalValueException( "Required components not found" );
-			return;
+			if( type.isAllComponentsOptional() )
+				return;
+			throw new IllegalValueException( "Required components not found" );
 		}
 		Collection<ComponentType> unusedComponents = new HashSet<>( type.getComponents( true ) );
 

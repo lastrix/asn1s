@@ -25,9 +25,9 @@
 
 package org.asn1s.io.tag;
 
-import org.asn1s.api.Module;
 import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Scope;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Enumerated;
 import org.asn1s.core.DefaultObjectFactory;

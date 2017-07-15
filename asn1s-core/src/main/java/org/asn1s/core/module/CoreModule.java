@@ -25,15 +25,15 @@
 
 package org.asn1s.core.module;
 
-import org.asn1s.api.EmptyModuleResolver;
-import org.asn1s.api.Module;
-import org.asn1s.api.ModuleReference;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.module.EmptyModuleResolver;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.type.Type;
 import org.asn1s.core.constraint.template.SettingsConstraintTemplate;
 import org.asn1s.core.type.ConstrainedType;
@@ -127,7 +127,7 @@ public final class CoreModule extends AbstractModule
 	private void registerClass( String name, Type aClass )
 	{
 		DefinedTypeImpl definedType = new DefinedTypeImpl( this, name, aClass );
-		addType( definedType );
+		getTypeResolver().add( definedType );
 		try
 		{
 			definedType.validate( createScope() );
@@ -157,7 +157,7 @@ public final class CoreModule extends AbstractModule
 	private void registerType( String name, Type type )
 	{
 		DefinedTypeImpl definedType = new DefinedTypeImpl( this, name, type );
-		addType( definedType );
+		getTypeResolver().add( definedType );
 
 		try
 		{
@@ -166,6 +166,12 @@ public final class CoreModule extends AbstractModule
 		{
 			throw new IllegalStateException( e );
 		}
+	}
+
+	@Override
+	public Module getCoreModule()
+	{
+		return this;
 	}
 
 	@Override

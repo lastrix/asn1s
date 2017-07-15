@@ -27,10 +27,10 @@ package org.asn1s.core.type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.Module;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.TypeFactory;
 import org.asn1s.core.DefaultObjectFactory;
 import org.junit.Assert;

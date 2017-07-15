@@ -27,10 +27,10 @@ package org.asn1s.integration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.Module;
-import org.asn1s.api.ModuleResolver;
 import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Scope;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.DefinedValue;
 import org.asn1s.core.DefaultObjectFactory;
@@ -110,7 +110,7 @@ public class SuiteTest
 		ModuleResolver resolver = new ModuleSet();
 		Module module = SchemaUtils.parsePdu( pdu, resolver, new DefaultObjectFactory( resolver ) );
 		Assert.assertNotNull( "Null result", module );
-		Assert.assertFalse( "No values parsed", module.getValues().isEmpty() );
+		Assert.assertFalse( "No values parsed", module.getValueResolver().getValues().isEmpty() );
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class SuiteTest
 		byte[] result = null;
 		try( Asn1Writer writer = new DefaultBerWriter( BerRules.Der ) )
 		{
-			for( DefinedValue value : module.getValues() )
+			for( DefinedValue value : module.getValueResolver().getValues() )
 				writer.write( value.getType().getScope( module.createScope() ), value.getType(), value.getValue() );
 			result = writer.toByteArray();
 		} catch( Exception e )
@@ -156,7 +156,7 @@ public class SuiteTest
 		Scope scope = module.createScope();
 		try( Asn1Reader reader = new DefaultBerReader( new ByteArrayInputStream( result ), objectFactory ) )
 		{
-			for( DefinedValue value : module.getValues() )
+			for( DefinedValue value : module.getValueResolver().getValues() )
 			{
 				scope = value.getType().getScope( scope );
 				Value actual = reader.read( scope, value.getType() );

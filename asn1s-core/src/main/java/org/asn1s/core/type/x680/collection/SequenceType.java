@@ -76,9 +76,9 @@ public class SequenceType extends AbstractCollectionType
 	{
 		if( collection.isEmpty() )
 		{
-			if( !isAllComponentsOptional() )
-				throw new IllegalValueException( "Type does not accepts empty collections" );
-			return collection;
+			if( isAllComponentsOptional() )
+				return collection;
+			throw new IllegalValueException( "Type does not accepts empty collections" );
 		}
 
 		ValueCollection result = new ValueCollectionImpl( true );
@@ -138,9 +138,9 @@ public class SequenceType extends AbstractCollectionType
 	{
 		if( collection.isEmpty() )
 		{
-			if( !isAllComponentsOptional() )
-				throw new IllegalValueException( "Type does not accepts empty collections" );
-			return;
+			if( isAllComponentsOptional() )
+				return;
+			throw new IllegalValueException( "Type does not accepts empty collections" );
 		}
 
 		scope.setValueLevel( collection );

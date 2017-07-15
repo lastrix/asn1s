@@ -25,10 +25,10 @@
 
 package org.asn1s.io.tag;
 
-import org.asn1s.api.Module;
 import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.DefinedType;

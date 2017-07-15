@@ -25,10 +25,10 @@
 
 package org.asn1s.core;
 
-import org.asn1s.api.Module;
-import org.asn1s.api.ModuleReference;
-import org.asn1s.api.ModuleResolver;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleReference;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.core.module.ModuleImpl;
 import org.asn1s.core.module.ModuleSet;
 import org.junit.Assert;

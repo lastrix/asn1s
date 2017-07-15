@@ -28,9 +28,9 @@ package org.asn1s.schema;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenSource;
-import org.asn1s.api.Module;
-import org.asn1s.api.ModuleResolver;
 import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.schema.parser.Asn1Lexer;
 import org.asn1s.schema.parser.Asn1Parser;
 

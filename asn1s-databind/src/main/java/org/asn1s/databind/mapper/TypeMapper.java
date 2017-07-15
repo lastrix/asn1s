@@ -25,9 +25,7 @@
 
 package org.asn1s.databind.mapper;
 
-import org.asn1s.api.UniversalType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
 
@@ -45,29 +43,4 @@ public interface TypeMapper
 	 */
 	@NotNull
 	MappedType mapType( @NotNull Type type );
-
-	/**
-	 * Map type into ASN.1 Schema, resolve ASN.1 type name (if parameter asn1TypeName is null)
-	 * using annotations or stub generation in form:
-	 * T-Java-Bind-{typeNameWithDotsReplacedByMinus}
-	 *
-	 * @param type         the type to map
-	 * @param asn1TypeName the asn.1 type name which should be used for mapping,
-	 *                     may be an existing ASN.1 Type loaded into context module
-	 * @return mapped type
-	 */
-	@NotNull
-	MappedType mapType( @NotNull Type type, @Nullable String asn1TypeName );
-
-	/**
-	 * Bind class for universal type, it will require special adapter to handle them.
-	 *
-	 * @param type          the type to be bound with universal type
-	 * @param universalType the universal type to bound with type
-	 * @param isDefault     set to true if binding must be default for type.
-	 *                      Example Instant=&gt;UTCTime and Instant=&gt;GeneralizedTime, only one of them
-	 *                      should have isDefault flag set to true. When true, the method will add
-	 *                      another binding if user don't know how target ASN.1 is called
-	 */
-	void bindClassToUniversalType( @NotNull Type type, @NotNull UniversalType universalType, boolean isDefault );
 }

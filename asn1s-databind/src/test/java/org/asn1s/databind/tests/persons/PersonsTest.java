@@ -30,7 +30,7 @@ import com.carrotsearch.junitbenchmarks.BenchmarkRule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import org.asn1s.api.ModuleReference;
+import org.asn1s.api.module.ModuleReference;
 import org.asn1s.core.DefaultObjectFactory;
 import org.asn1s.core.module.ModuleImpl;
 import org.asn1s.core.module.ModuleSet;

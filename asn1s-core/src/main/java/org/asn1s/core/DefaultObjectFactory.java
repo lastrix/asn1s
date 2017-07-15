@@ -32,6 +32,9 @@ import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleReference;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.type.*;
 import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.api.type.Type.Family;
@@ -110,7 +113,7 @@ public final class DefaultObjectFactory extends CoreValueFactory implements Obje
 		DefinedType type = parameters == null
 				? new DefinedTypeImpl( module, name, typeRef )
 				: new DefinedTypeTemplate( module, name, typeRef, parameters );
-		module.addType( type );
+		module.getTypeResolver().add( type );
 		return type;
 	}
 
@@ -121,7 +124,7 @@ public final class DefaultObjectFactory extends CoreValueFactory implements Obje
 		DefinedValue value = parameters == null
 				? new DefinedValueImpl( module, name, typeRef, valueRef )
 				: new DefinedValueTemplateImpl( module, name, typeRef, valueRef, parameters );
-		module.addValue( value );
+		module.getValueResolver().add( value );
 		return value;
 	}
 

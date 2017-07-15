@@ -25,7 +25,11 @@
 
 package org.asn1s.core.type;
 
-import org.asn1s.api.*;
+import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Ref;
+import org.asn1s.api.Scope;
+import org.asn1s.api.UniversalType;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;

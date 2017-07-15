@@ -25,15 +25,11 @@
 
 package org.asn1s.core.module;
 
-import org.asn1s.api.Module;
-import org.asn1s.api.ModuleReference;
-import org.asn1s.api.ModuleResolver;
 import org.asn1s.api.encoding.tag.TagMethod;
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleReference;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.type.DefinedType;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.type.TypeName;
 import org.asn1s.api.value.x680.DefinedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -57,33 +53,28 @@ public class ModuleImpl extends AbstractModule
 		super( name, resolver );
 	}
 
-	@NotNull
 	@Override
-	public Type resolveType( @NotNull TypeName typeName ) throws ResolutionException
+	public Module getCoreModule()
 	{
-		// Default types must be loaded from core module
-		DefinedType type = CoreModule.getInstance().getType( typeName.getName() );
-		if( type != null )
-			return type;
-
-		return super.resolveType( typeName );
+		return CoreModule.getInstance();
 	}
 
 	@Override
-	protected void onValidate() throws ValidationException, ResolutionException
+	protected void onValidate()
 	{
 		if( DUMMY.equals( getModuleName() ) && getModuleResolver() != null && getModuleResolver().getAllModules() != null )
 		{
 			for( Module module : getModuleResolver().getAllModules() )
 			{
 				Collection<String> exports = new HashSet<>();
-				for( DefinedType type : module.getTypes() )
+				for( DefinedType type : module.getTypeResolver().getTypes() )
 					exports.add( type.getName() );
 
-				for( DefinedValue value : module.getValues() )
+				for( DefinedValue value : module.getValueResolver().getValues() )
 					exports.add( value.getName() );
 
-				addImports( module.getModuleReference(), exports );
+				getTypeResolver().addImports( module.getModuleReference(), exports );
+				getValueResolver().addImports( module.getModuleReference(), exports );
 			}
 		}
 	}

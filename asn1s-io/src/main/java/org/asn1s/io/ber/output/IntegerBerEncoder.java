@@ -76,7 +76,6 @@ final class IntegerBerEncoder implements BerEncoder
 		return result;
 	}
 
-	@SuppressWarnings( "NumericCastThatLosesPrecision" )
 	private static int calculateByteCount( long value )
 	{
 		for( int i = 7; i >= 0; i-- )

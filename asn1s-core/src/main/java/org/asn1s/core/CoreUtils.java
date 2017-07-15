@@ -162,22 +162,4 @@ public final class CoreUtils
 			throw new IllegalStateException( e );
 		}
 	}
-
-	private static int calculateEmptyBits( byte value )
-	{
-		if( value == 0 )
-			return 8;
-
-		int empty = 0;
-		byte mask = 0x01;
-		while( empty < 8 )
-		{
-			if( ( value & mask ) != 0 )
-				break;
-
-			mask <<= 1;
-			empty++;
-		}
-		return empty;
-	}
 }

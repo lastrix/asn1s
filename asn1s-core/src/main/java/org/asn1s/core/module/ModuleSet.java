@@ -25,9 +25,14 @@
 
 package org.asn1s.core.module;
 
-import org.asn1s.api.*;
+import org.asn1s.api.Disposable;
+import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.module.EmptyModuleResolver;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleReference;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.core.DefaultObjectFactory;
 import org.jetbrains.annotations.NotNull;
 

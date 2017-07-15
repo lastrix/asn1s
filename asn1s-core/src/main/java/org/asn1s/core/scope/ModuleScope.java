@@ -26,9 +26,9 @@
 package org.asn1s.core.scope;
 
 
-import org.asn1s.api.Module;
 import org.asn1s.api.Ref;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.TypeName;
 import org.asn1s.api.value.Value;
@@ -58,25 +58,25 @@ public class ModuleScope extends AbstractScope
 	@Override
 	public Ref<Type> getTypeRef( @NotNull String ref, @Nullable String module )
 	{
-		return this.module.getTypeRef( ref, module );
+		return this.module.getTypeResolver().getTypeRef( ref, module );
 	}
 
 	@NotNull
 	@Override
 	public Ref<Value> getValueRef( @NotNull String ref, @Nullable String module )
 	{
-		return this.module.getValueRef( ref, module );
+		return this.module.getValueResolver().getValueRef( ref, module );
 	}
 
 	@Override
 	public Type resolveType( @NotNull TypeName typeName ) throws ResolutionException
 	{
-		return module.resolveType( typeName );
+		return module.getTypeResolver().resolve( typeName );
 	}
 
 	@Override
 	public Value resolveValue( @NotNull ValueName valueName ) throws ResolutionException
 	{
-		return module.resolveValue( valueName );
+		return module.getValueResolver().resolve( valueName );
 	}
 }

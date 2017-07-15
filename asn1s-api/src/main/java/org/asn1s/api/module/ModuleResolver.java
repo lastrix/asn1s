@@ -23,8 +23,9 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api;
+package org.asn1s.api.module;
 
+import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.exception.ResolutionException;
 import org.jetbrains.annotations.NotNull;
 

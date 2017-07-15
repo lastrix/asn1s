@@ -109,7 +109,6 @@ abstract class AbstractComponentInterpolator
 			assertExtensionGroupHasNoVersion();
 		else
 			assertExtensionVersions();
-		int k = 0;
 	}
 
 	private static void assertNames( Iterable<Type> items, Collection<String> names ) throws ValidationException

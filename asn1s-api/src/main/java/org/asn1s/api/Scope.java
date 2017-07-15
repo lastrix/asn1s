@@ -27,6 +27,8 @@ package org.asn1s.api;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.TypeName;
 import org.asn1s.api.value.Value;
@@ -43,10 +45,7 @@ public interface Scope
 	@NotNull
 	Module getModule();
 
-	@Nullable
 	Scope getParentScope();
-
-	boolean hasParentScope();
 
 	/**
 	 * Get or create reference by name
@@ -67,6 +66,9 @@ public interface Scope
 	 */
 	@NotNull
 	Ref<Value> getValueRef( @NotNull String ref, @Nullable String module );
+
+	@Nullable
+	DefinedType resolveBuiltinTypeOrNull( @NotNull TypeName name );
 
 	/**
 	 * Resolves type in this module

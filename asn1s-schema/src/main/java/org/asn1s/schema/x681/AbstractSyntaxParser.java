@@ -29,7 +29,11 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.PredictionMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.*;
+import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Ref;
+import org.asn1s.api.UniversalType;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.type.ClassFieldType;
 import org.asn1s.api.type.ClassType;
 import org.asn1s.api.type.Type.Family;
@@ -53,10 +57,7 @@ public class AbstractSyntaxParser
 	private final ObjectFactory factory;
 	private final Module module;
 	private final ClassType classType;
-	private final Map<String, Ref<?>> refMap = new HashMap<>();
-	private final Queue<SyntaxObject> queue = new LinkedList<>();
 	private final GroupSyntaxObject root;
-
 
 	public AbstractSyntaxParser( ModuleResolver resolver, ObjectFactory factory, Module module, ClassType classType )
 	{
@@ -75,10 +76,6 @@ public class AbstractSyntaxParser
 		{
 			TokenSource lexer = new Asn1Lexer( new ANTLRInputStream( r ) );
 			CommonTokenStream tokenStream = new CommonTokenStream( lexer );
-//			Asn1Parser parser = new Asn1Parser( tokenStream, resolver, factory );
-//			parser.addErrorListener( new Asn1ErrorListener() );
-//			parser.setBuildParseTree( false );
-//			parser.setModule( module );
 			return parseImpl( tokenStream );
 		}
 	}
@@ -278,43 +275,20 @@ public class AbstractSyntaxParser
 	private static boolean consumeTypeField( Map<String, Ref<?>> map, CommonTokenStream tokenStream, SyntaxObject object )
 	{
 		Token token = tokenStream.LT( 1 );
-		Token nextToken;
 		switch( token.getType() )
 		{
 			case Asn1Parser.EMBEDDED:
-				token = tokenStream.LT( 2 );
-				if( token.getType() != Asn1Parser.PDV )
-					throw new IllegalStateException( "Illegal type name: EMBEDDED" );
-				tokenStream.consume();
-				tokenStream.consume();
-				registerFieldRef( map, object.getText(), UniversalType.EmbeddedPdv.ref() );
-				return true;
+				return tryParseEmbeddedPdv( map, tokenStream, object );
 
 
 			case Asn1Parser.OCTET:
 			case Asn1Parser.BIT:
 			case Asn1Parser.CHARACTER:
-				nextToken = tokenStream.LT( 2 );
-				if( nextToken.getType() != Asn1Parser.STRING )
-					throw new IllegalStateException( "Illegal type name: " + token.getText() );
-				tokenStream.consume();
-				tokenStream.consume();
-				if( token.getType() == Asn1Parser.OCTET )
-					registerFieldRef( map, object.getText(), UniversalType.OctetString.ref() );
-				else
-					registerFieldRef( map, object.getText(), token.getType() == Asn1Parser.BIT ? UniversalType.BitString.ref() : UniversalType.CharacterString.ref() );
-				return true;
+				return tryParseOBCString( map, tokenStream, object, token );
 
 
 			case Asn1Parser.OBJECT:
-				nextToken = tokenStream.LT( 2 );
-				if( nextToken.getType() != Asn1Parser.IDENTIFIER )
-					throw new IllegalStateException( "Illegal type name: OBJECT" );
-				tokenStream.consume();
-				tokenStream.consume();
-				registerFieldRef( map, object.getText(), UniversalType.ObjectIdentifier.ref() );
-				return true;
-
+				return tryParseObjectIdentifier( map, tokenStream, object );
 
 			case Asn1Parser.RestrictedString:
 			case Asn1Parser.BOOLEAN:
@@ -338,40 +312,75 @@ public class AbstractSyntaxParser
 		}
 	}
 
+	private static boolean tryParseObjectIdentifier( Map<String, Ref<?>> map, CommonTokenStream tokenStream, SyntaxObject object )
+	{
+		Token nextToken = tokenStream.LT( 2 );
+		if( nextToken.getType() != Asn1Parser.IDENTIFIER )
+			throw new IllegalStateException( "Illegal type name: OBJECT" );
+		tokenStream.consume();
+		tokenStream.consume();
+		registerFieldRef( map, object.getText(), UniversalType.ObjectIdentifier.ref() );
+		return true;
+	}
+
+	private static boolean tryParseEmbeddedPdv( Map<String, Ref<?>> map, CommonTokenStream tokenStream, SyntaxObject object )
+	{
+		Token token = tokenStream.LT( 2 );
+		if( token.getType() != Asn1Parser.PDV )
+			throw new IllegalStateException( "Illegal type name: EMBEDDED" );
+		tokenStream.consume();
+		tokenStream.consume();
+		registerFieldRef( map, object.getText(), UniversalType.EmbeddedPdv.ref() );
+		return true;
+	}
+
+	private static boolean tryParseOBCString( Map<String, Ref<?>> map, CommonTokenStream tokenStream, SyntaxObject object, Token token )
+	{
+		Token nextToken = tokenStream.LT( 2 );
+		if( nextToken.getType() != Asn1Parser.STRING )
+			throw new IllegalStateException( "Illegal type name: " + token.getText() );
+
+		tokenStream.consume();
+		tokenStream.consume();
+
+		if( token.getType() == Asn1Parser.OCTET )
+			registerFieldRef( map, object.getText(), UniversalType.OctetString.ref() );
+		else if( token.getType() == Asn1Parser.BIT )
+			registerFieldRef( map, object.getText(), UniversalType.BitString.ref() );
+		else
+			registerFieldRef( map, object.getText(), UniversalType.CharacterString.ref() );
+		return true;
+	}
+
 	private static boolean tryParseReference( Map<String, Ref<?>> map, SyntaxObject object, CommonTokenStream tokenStream )
 	{
 		Token token = tokenStream.LT( 1 );
-		if( token.getType() == Asn1Parser.Identifier )
-		{
-			if( !RefUtils.isTypeRef( token.getText() ) )
-				return false;
+		if( token.getType() != Asn1Parser.Identifier )
+			return false;
 
-			Token nextToken = tokenStream.LT( 2 );
-			if( nextToken != null && nextToken.getType() == Asn1Parser.DOT )
-			{
-				nextToken = tokenStream.LT( 3 );
-				if( nextToken != null && nextToken.getType() == Asn1Parser.Identifier )
-				{
-					if( !RefUtils.isTypeRef( token.getText() ) )
-						return false;
+		if( !RefUtils.isTypeRef( token.getText() ) )
+			return false;
 
-					tokenStream.consume();
-					tokenStream.consume();
-					tokenStream.consume();
-					registerFieldRef( map, object.getText(), new TypeNameRef( nextToken.getText(), token.getText() ) );
-					return true;
-				}
-				else
-					return false;
-			}
-			else
-			{
-				registerFieldRef( map, object.getText(), new TypeNameRef( token.getText(), null ) );
-				tokenStream.consume();
-				return true;
-			}
-		}
-		return false;
+		Token nextToken = tokenStream.LT( 2 );
+		if( nextToken != null && nextToken.getType() == Asn1Parser.DOT )
+			return tryParseExternalReference( map, object, tokenStream, token );
+
+		registerFieldRef( map, object.getText(), new TypeNameRef( token.getText(), null ) );
+		tokenStream.consume();
+		return true;
+	}
+
+	private static boolean tryParseExternalReference( Map<String, Ref<?>> map, SyntaxObject object, CommonTokenStream tokenStream, Token token )
+	{
+		Token nextToken = tokenStream.LT( 3 );
+		if( nextToken == null || nextToken.getType() != Asn1Parser.Identifier || !RefUtils.isTypeRef( nextToken.getText() ) )
+			return false;
+
+		tokenStream.consume();
+		tokenStream.consume();
+		tokenStream.consume();
+		registerFieldRef( map, object.getText(), new TypeNameRef( nextToken.getText(), token.getText() ) );
+		return true;
 	}
 
 	private static void registerFieldRef( Map<String, Ref<?>> map, String name, Ref<?> ref )

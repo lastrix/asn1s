@@ -6,6 +6,7 @@ import org.asn1s.api.*;
 import org.asn1s.api.constraint.*;
 import org.asn1s.api.encoding.*;
 import org.asn1s.api.encoding.tag.*;
+import org.asn1s.api.module.*;
 import org.asn1s.api.type.*;
 import org.asn1s.api.util.*;
 import org.asn1s.api.value.*;
@@ -102,7 +103,7 @@ import java.util.HashMap;
 		if( moduleName != null )
 			RefUtils.assertTypeRef( moduleName );
 
-		return getModule().getTypeRef( name, moduleName );
+		return getModule().getTypeResolver().getTypeRef( name, moduleName );
 	}
 
 	public Ref<Value> getValueRef( String name, String moduleName )
@@ -111,7 +112,7 @@ import java.util.HashMap;
 		if( moduleName != null )
 			RefUtils.assertTypeRef( moduleName );
 
-		return getModule().getValueRef( name, moduleName );
+		return getModule().getValueResolver().getValueRef( name, moduleName );
 	}
 
 	////////////////////////////////////// Module setup ////////////////////////////////////////////////////////////////
@@ -216,7 +217,10 @@ moduleImports
     :   IMPORTS
         (
            symbolList FROM globalModuleReference
-           { getModule().addImports($globalModuleReference.result, $symbolList.result ); }
+           {
+                getModule().getTypeResolver().addImports($globalModuleReference.result, $symbolList.result );
+                getModule().getValueResolver().addImports($globalModuleReference.result, $symbolList.result );
+           }
         )*
         SEMI
     ;
