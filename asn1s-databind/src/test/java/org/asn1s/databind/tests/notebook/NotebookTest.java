@@ -50,6 +50,7 @@ public class NotebookTest
 		module.setTagMethod( TagMethod.Automatic );
 		Asn1Context context = new Asn1Context( module, new DefaultObjectFactory( moduleSet ) );
 		context.mapType( Note.class );
+		//noinspection unused
 		MappedType mappedType = context.mapType( Book.class );
 		module.validate();
 
