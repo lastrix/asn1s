@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lastrix/asn1s.svg?branch=master)](https://travis-ci.org/lastrix/asn1s)
+
 ASN.1 S
 ==
 ASN.1 Serialization library. Allows you to automatically map java classes to ASN.1 schemas and vice versa.
