@@ -43,11 +43,9 @@ import java.io.IOException;
  * Encodes integer in smallest amount of bytes.
  * See X.690, p 8.3
  */
-@SuppressWarnings( "NumericCastThatLosesPrecision" )
 final class IntegerBerEncoder implements BerEncoder
 {
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
-	private static final byte[] EMPTY_ARRAY = new byte[0];
 
 	@Override
 	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
@@ -58,65 +56,50 @@ final class IntegerBerEncoder implements BerEncoder
 		writeLong( os, value.toIntegerValue().asLong(), TAG, writeHeader );
 	}
 
-	public static void writeLong( @NotNull BerWriter os, long value, Tag tag, boolean writeHeader ) throws IOException
+	static void writeLong( @NotNull BerWriter os, long value, Tag tag, boolean writeHeader ) throws IOException
 	{
-		boolean skipping = true;
-		for( int i = 7; i >= 0; i-- )
-		{
-			int current = (int)( ( value >> ( i * 8 ) ) & BerUtils.BYTE_MASK );
-			if( skipping )
-			{
-				int next = i > 0 ? (int)( ( value >> ( ( i - 1 ) * 8 ) ) & BerUtils.BYTE_MASK ) : 0;
-				// if 9 zeros or ones follows each other - skip them all together
-				if( i > 0
-						&& (
-						current == BerUtils.BYTE_MASK && ( next & BerUtils.BYTE_SIGN_MASK ) != 0 || current == 0x00 && ( next & BerUtils.BYTE_SIGN_MASK ) == 0
-				) )
-					continue;
-			}
+		int size = calculateByteCount( value );
+		if( writeHeader )
+			os.writeHeader( tag, size );
 
-			if( skipping )
-			{
-				if( writeHeader )
-					os.writeHeader( tag, i + 1 );
-
-				skipping = false;
-			}
-
-			os.write( current );
-		}
+		for( int i = size - 1; i >= 0; i-- )
+			os.write( getByteByIndex( value, i ) );
 	}
 
 	public static byte[] toByteArray( long value )
 	{
-		boolean skipping = true;
-		byte[] result = null;
-		int position = 0;
+		int size = calculateByteCount( value );
+		byte[] result = new byte[size];
+		for( int i = size - 1, position = 0; i >= 0; i--, position++ )
+			result[position] = getByteByIndex( value, i );
+
+		return result;
+	}
+
+	@SuppressWarnings( "NumericCastThatLosesPrecision" )
+	private static int calculateByteCount( long value )
+	{
 		for( int i = 7; i >= 0; i-- )
 		{
-			int current = (int)( ( value >> ( i * 8 ) ) & BerUtils.BYTE_MASK );
-			if( skipping )
-			{
-				int next = i > 0 ? (int)( ( value >> ( ( i - 1 ) * 8 ) ) & BerUtils.BYTE_MASK ) : 0;
-				// if 9 zeros or ones follows each other - skip them all together
-				if( i > 0
-						&& (
-						current == BerUtils.BYTE_MASK && ( next & BerUtils.BYTE_SIGN_MASK ) != 0 || current == 0x00 && ( next & BerUtils.BYTE_SIGN_MASK ) == 0
-				) )
-					continue;
-			}
-
-			if( skipping )
-			{
-				result = new byte[i + 1];
-				skipping = false;
-			}
-
-			result[position] = (byte)current;
-			position++;
+			byte current = getByteByIndex( value, i );
+			byte next = i > 0 ? getByteByIndex( value, i - 1 ) : 0;
+			// if 9 zeros or ones follows each other - skip them all together
+			if( i > 0 && isSkipping( current, next ) )
+				continue;
+			return i + 1;
 		}
-		if( result == null )
-			result = EMPTY_ARRAY;
-		return result;
+		return 1;
+	}
+
+	private static byte getByteByIndex( long value, int index )
+	{
+		//noinspection NumericCastThatLosesPrecision
+		return (byte)( ( value >> ( index * 8 ) ) & BerUtils.BYTE_MASK );
+	}
+
+	private static boolean isSkipping( byte current, byte next )
+	{
+		return current == BerUtils.BYTE_MASK_B && ( next & BerUtils.BYTE_SIGN_MASK_B ) != 0
+				|| current == 0x00 && ( next & BerUtils.BYTE_SIGN_MASK_B ) == 0;
 	}
 }

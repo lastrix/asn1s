@@ -29,7 +29,9 @@ package org.asn1s.io.ber;
 public final class BerUtils
 {
 	public static final int BYTE_MASK = 0x00FF;
+	public static final byte BYTE_MASK_B = (byte)0xFF;
 	public static final int BYTE_SIGN_MASK = 0x0080;
+	public static final byte BYTE_SIGN_MASK_B = (byte)0x80;
 	public static final int UNSIGNED_BYTE_MASK = 0x007F;
 
 	public static final byte REAL_ISO_6093_NR1 = 0x01;
