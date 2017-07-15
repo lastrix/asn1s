@@ -113,7 +113,7 @@ public final class CoreModule extends AbstractModule
 		registerType( UniversalType.EmbeddedPdv, new EmbeddedPdvType() );
 		registerType( UniversalType.External, new ExternalType() );
 
-		registerClass( "TYPE-IDENTIFIER", new TypeIdentifierClass() );
+		registerType( "TYPE-IDENTIFIER", new TypeIdentifierClass() );
 
 		try
 		{
@@ -121,19 +121,6 @@ public final class CoreModule extends AbstractModule
 		} catch( ValidationException | ResolutionException e )
 		{
 			throw new IllegalStateException( "Unable to validate Core module: " + e.getMessage(), e );
-		}
-	}
-
-	private void registerClass( String name, Type aClass )
-	{
-		DefinedTypeImpl definedType = new DefinedTypeImpl( this, name, aClass );
-		getTypeResolver().add( definedType );
-		try
-		{
-			definedType.validate( createScope() );
-		} catch( ValidationException | ResolutionException e )
-		{
-			throw new IllegalStateException( e );
 		}
 	}
 
