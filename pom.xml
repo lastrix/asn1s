@@ -45,7 +45,7 @@
         <url>https://github.com/lastrix/asn1s.git</url>
         <connection>scm:git:ssh://git@github.com/lastrix/asn1s.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/lastrix/asn1s.git</developerConnection>
-        <tag>0.1-ALPHA</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
