@@ -34,7 +34,7 @@
     </parent>
     <artifactId>asn1s</artifactId>
     <groupId>com.github.lastrix</groupId>
-    <version>0.1-ALPHA-SNAPSHOT</version>
+    <version>0.2-ALPHA-SNAPSHOT</version>
     <packaging>pom</packaging>
     <url>https://github.com/lastrix/asn1s</url>
     <name>ASN.1 Serialization</name>
