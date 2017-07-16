@@ -25,7 +25,15 @@
 
 package org.asn1s.api.type;
 
+import org.apache.commons.lang3.StringUtils;
+
 public interface NamedType extends Type
 {
 	String getName();
+
+	default String getFullyQualifiedName()
+	{
+		String namespace = getNamespace();
+		return StringUtils.isBlank( namespace ) ? getName() : namespace + getName();
+	}
 }

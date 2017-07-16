@@ -34,6 +34,7 @@ import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.TaggedType;
 import org.asn1s.api.type.Type;
@@ -111,6 +112,8 @@ public final class TaggedTypeImpl extends AbstractType implements TaggedType
 		if( type == null )
 			type = reference.resolve( scope );
 
+		if( !( type instanceof DefinedType ) )
+			type.setNamespace( getNamespace() );
 		type.validate( scope );
 
 		TagEncoding enc = (TagEncoding)encoding;

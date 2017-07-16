@@ -39,9 +39,7 @@ import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public final class DefinedTypeTemplate extends DefinedTypeImpl implements Template<DefinedTypeTemplate>
 {
@@ -54,12 +52,17 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	{
 		super( module, name, reference );
 		this.template = template;
-
 		if( parameters != null )
 			parameters.forEach( this :: addParameter );
 	}
 
 	private final boolean template;
+
+	@Override
+	public String getFullyQualifiedName()
+	{
+		return super.getFullyQualifiedName() + '{' + getParametersString() + '}';
+	}
 
 	@NotNull
 	@Override
@@ -132,9 +135,10 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	}
 
 	@Override
-	public DefinedTypeTemplate newInstance( Scope scope ) throws ResolutionException
+	public DefinedTypeTemplate newInstance( Scope scope, String namespace ) throws ResolutionException
 	{
 		DefinedTypeTemplate copy = copy( false );
+		copy.setNamespace( namespace );
 		try
 		{
 			copy.validate( scope );
@@ -153,6 +157,26 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	////////////////////////////// Parameters //////////////////////////////////////////////////////////////////////////
 
 	private final Map<String, TemplateParameter> parameterMap = new HashMap<>();
+
+	private String getParametersString()
+	{
+		List<TemplateParameter> list = new ArrayList<>( parameterMap.values() );
+		list.sort( Comparator.comparingInt( TemplateParameter:: getIndex ) );
+		StringBuilder sb = new StringBuilder();
+		boolean first = true;
+		for( TemplateParameter parameter : list )
+		{
+			if( first )
+				first = false;
+			else
+				sb.append( ", " );
+
+			sb.append( parameter.getName() );
+			if( parameter.getGovernor() != null )
+				sb.append( ": " ).append( parameter.getGovernor() );
+		}
+		return sb.toString();
+	}
 
 	@Override
 	@Nullable

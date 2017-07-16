@@ -31,6 +31,7 @@ import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.Type;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractType implements Type
 {
@@ -40,6 +41,19 @@ public abstract class AbstractType implements Type
 	}
 
 	private State state = State.None;
+	private String namespace;
+
+	@Override
+	public String getNamespace()
+	{
+		return namespace;
+	}
+
+	@Override
+	public void setNamespace( @Nullable String namespace )
+	{
+		this.namespace = namespace;
+	}
 
 	@Override
 	public final State getState()

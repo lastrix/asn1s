@@ -141,7 +141,10 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 	{
 		scope = getScope( scope );
 		for( ClassFieldType field : fields )
+		{
+			field.setNamespace( getNamespace() );
 			field.validate( scope );
+		}
 
 		// TODO: syntax list validation
 	}

@@ -31,10 +31,12 @@ import org.jetbrains.annotations.Nullable;
 
 public interface Template<T>
 {
+	String getName();
+
 	@Nullable
 	TemplateParameter getParameter( @NotNull String name );
 
 	int getParameterCount();
 
-	T newInstance( Scope scope ) throws ResolutionException;
+	T newInstance( Scope scope, String namespace ) throws ResolutionException;
 }

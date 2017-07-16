@@ -216,12 +216,16 @@ abstract class AbstractComponentInterpolator
 						? TagMethod.Explicit
 						: TagMethod.Implicit;
 		TaggedTypeImpl subType = new TaggedTypeImpl( TagEncoding.context( tagNumber, method ), component.getComponentTypeRef() );
-		return new ComponentTypeImpl( component.getIndex(),
-		                              component.getVersion(),
-		                              component.getComponentName(),
-		                              subType,
-		                              component.isOptional(),
-		                              component.getDefaultValueRef() );
+		subType.setNamespace( component.getNamespace() );
+
+		ComponentType taggedComponent = new ComponentTypeImpl( component.getIndex(),
+		                                                       component.getVersion(),
+		                                                       component.getComponentName(),
+		                                                       subType,
+		                                                       component.isOptional(),
+		                                                       component.getDefaultValueRef() );
+		taggedComponent.setNamespace( component.getNamespace() );
+		return taggedComponent;
 	}
 
 	@NotNull
@@ -313,6 +317,7 @@ abstract class AbstractComponentInterpolator
 					                       source.getComponentTypeRef(),
 					                       source.isOptional(),
 					                       source.getDefaultValueRef() );
+			componentType.setNamespace( type.getNamespace() );
 			list.add( componentType );
 		}
 	}

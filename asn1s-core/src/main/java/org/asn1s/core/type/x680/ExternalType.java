@@ -35,6 +35,7 @@ import org.asn1s.api.constraint.Presence;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.constraint.template.ComponentConstraintTemplate;
@@ -107,6 +108,8 @@ public final class ExternalType extends BuiltinType
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
+		if( !( type instanceof DefinedType ) )
+			type.setNamespace( getNamespace() );
 		type.validate( scope );
 	}
 

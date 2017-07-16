@@ -32,6 +32,7 @@ import org.asn1s.api.exception.ConstraintViolationException;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
@@ -82,6 +83,11 @@ public class FixedValueSetFieldType extends AbstractFieldType
 
 		if( fieldType == null )
 			fieldType = fieldTypeRef.resolve( scope );
+
+		if( !( fieldType instanceof DefinedType ) )
+			fieldType.setNamespace( getFullyQualifiedName() + '.' );
+
+		fieldType.validate( scope );
 
 		if( defaultElementSetSpecs != null )
 		{

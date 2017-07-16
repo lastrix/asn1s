@@ -222,19 +222,23 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		for( Type component : components )
-			component.validate( scope );
-
-		for( Type component : componentsLast )
-			component.validate( scope );
-
-		for( Type component : extensions )
-			component.validate( scope );
+		validateComponents( scope, components );
+		validateComponents( scope, componentsLast );
+		validateComponents( scope, extensions );
 
 		interpolateComponents( scope );
 
 		for( ComponentType type : actualComponents )
 			type.validate( scope );
+	}
+
+	private void validateComponents( Scope scope, Iterable<Type> list ) throws ResolutionException, ValidationException
+	{
+		for( Type component : list )
+		{
+			component.setNamespace( getNamespace() );
+			component.validate( scope );
+		}
 	}
 
 	@NotNull

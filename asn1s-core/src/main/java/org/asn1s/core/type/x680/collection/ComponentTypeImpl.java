@@ -33,10 +33,7 @@ import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.NamedType;
-import org.asn1s.api.type.TaggedType;
-import org.asn1s.api.type.Type;
+import org.asn1s.api.type.*;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.NamedValue;
@@ -245,6 +242,8 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 		if( componentType == null )
 			componentType = componentTypeRef.resolve( scope );
 
+		if( !( componentType instanceof DefinedType ) )
+			componentType.setNamespace( getFullyQualifiedName() + '.' );
 		componentType.validate( scope );
 
 		if( defaultValueRef != null )

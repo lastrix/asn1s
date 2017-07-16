@@ -95,7 +95,8 @@ public final class TemplateTypeInstance extends AbstractType
 			throw new ValidationException( "TemplateTypeInstance sub type must be TemplateType" );
 
 		Template<DefinedTypeTemplate> template = (Template<DefinedTypeTemplate>)resolved;
-		type = template.newInstance( scope.templateInstanceScope( template, arguments ) );
+		String instanceNamespace = getNamespace() + template.getName() + '{' + StringUtils.join( arguments ) + "}.";
+		type = template.newInstance( scope.templateInstanceScope( template, arguments ), instanceNamespace );
 		if( type.getParameterCount() != arguments.size() )
 			throw new ValidationException( "Template does not have same amount of parameters" );
 	}

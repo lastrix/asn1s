@@ -69,7 +69,7 @@ public class TemplateValueInstance implements Value
 		if( template.getParameterCount() != refs.size() )
 			throw new ResolutionException( "Template does not have same amount of parameters" );
 		scope = scope.templateInstanceScope( template, refs );
-		return template.newInstance( scope );
+		return template.newInstance( scope, template.getName() + '{' + StringUtils.join( getRefs(), ", " ) + '}' );
 	}
 
 	@NotNull

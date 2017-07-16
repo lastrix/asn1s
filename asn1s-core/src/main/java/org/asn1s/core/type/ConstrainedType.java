@@ -34,6 +34,7 @@ import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
@@ -98,6 +99,8 @@ public final class ConstrainedType extends AbstractType
 		if( type == null )
 			type = reference.resolve( scope );
 
+		if( !( type instanceof DefinedType ) )
+			type.setNamespace( getNamespace() );
 		type.validate( scope );
 		constraint = constraintTemplate.build( scope, type );
 	}

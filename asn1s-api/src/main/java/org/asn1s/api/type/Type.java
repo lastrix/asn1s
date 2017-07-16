@@ -94,9 +94,9 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	 * @param scope    the resolution scope
 	 * @param valueRef the value ref to optimize
 	 * @return new object that is default for type
-	 * @see #accept(Scope, Ref)
 	 * @throws ValidationException if value is malformed for this type
 	 * @throws ResolutionException if reference was not resolved, or data can not be acquired
+	 * @see #accept(Scope, Ref)
 	 */
 	@NotNull
 	Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException;
@@ -167,6 +167,10 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	 */
 	@NotNull
 	Type copy();
+
+	String getNamespace();
+
+	void setNamespace( String namespace );
 
 	/**
 	 * Convert type to value set if possible

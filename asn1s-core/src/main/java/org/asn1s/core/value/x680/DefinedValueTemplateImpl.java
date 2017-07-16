@@ -117,7 +117,7 @@ public class DefinedValueTemplateImpl extends DefinedValueImpl implements Templa
 	}
 
 	@Override
-	public Value newInstance( Scope scope ) throws ResolutionException
+	public Value newInstance( Scope scope, String namespace ) throws ResolutionException
 	{
 		DefinedValue result = new DefinedValueTemplateImpl( getModule(), getName(), getTypeRef(), getValueRef(), parameterMap.values(), false );
 		try
