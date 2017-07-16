@@ -9,3 +9,8 @@ ASN.1 Serialization library. Allows you to automatically map java classes to ASN
 Notes
 --
 Library is not finished yet, through you may find some parts of it already working for you.
+
+Databind will be completely replaced by more refined impl (like jackson do). Current impl is garbage. 
+Right now it works as demonstration of framework possibility to pass Java-objects to ASN.1 model and back without any stub-class generation.
+ 
+No ETA on next update, may be half-year. Feel free to fork and try your own ideas.
