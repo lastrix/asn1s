@@ -94,7 +94,7 @@ public final class ExternalType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.External.typeName();
+		return UniversalType.External.typeName().toString();
 	}
 
 	@NotNull

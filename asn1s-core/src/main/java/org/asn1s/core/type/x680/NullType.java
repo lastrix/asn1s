@@ -83,7 +83,7 @@ public class NullType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.Null.typeName();
+		return UniversalType.Null.typeName().toString();
 	}
 
 	@NotNull

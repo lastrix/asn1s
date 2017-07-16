@@ -104,7 +104,7 @@ public final class GeneralizedTimeType extends BuiltinType implements GenericTim
 	@Override
 	public String toString()
 	{
-		return UniversalType.GeneralizedTime.typeName();
+		return UniversalType.GeneralizedTime.typeName().toString();
 	}
 
 	@NotNull

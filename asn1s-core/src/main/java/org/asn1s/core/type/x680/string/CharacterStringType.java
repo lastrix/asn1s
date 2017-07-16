@@ -75,7 +75,7 @@ public final class CharacterStringType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.CharacterString.typeName();
+		return UniversalType.CharacterString.typeName().toString();
 	}
 
 	@NotNull

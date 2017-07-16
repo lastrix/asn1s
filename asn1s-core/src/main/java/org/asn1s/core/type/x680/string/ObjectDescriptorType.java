@@ -82,7 +82,7 @@ public final class ObjectDescriptorType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.ObjectDescriptor.typeName();
+		return UniversalType.ObjectDescriptor.typeName().toString();
 	}
 
 	@NotNull

@@ -138,7 +138,7 @@ public final class CoreModule extends AbstractModule
 
 	private void registerType( UniversalType universalType, Type type )
 	{
-		registerType( universalType.typeName(), type );
+		registerType( universalType.typeName().toString(), type );
 	}
 
 	private void registerType( String name, Type type )

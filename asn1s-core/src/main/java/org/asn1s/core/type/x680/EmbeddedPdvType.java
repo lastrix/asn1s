@@ -95,7 +95,7 @@ public final class EmbeddedPdvType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.EmbeddedPdv.typeName();
+		return UniversalType.EmbeddedPdv.typeName().toString();
 	}
 
 	@NotNull

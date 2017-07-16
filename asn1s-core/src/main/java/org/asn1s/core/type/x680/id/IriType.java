@@ -67,7 +67,7 @@ public final class IriType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.OidIri.typeName();
+		return UniversalType.OidIri.typeName().toString();
 	}
 
 	@NotNull

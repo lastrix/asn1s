@@ -26,6 +26,7 @@
 package org.asn1s.api;
 
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.TypeName;
 import org.asn1s.api.type.TypeNameRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -76,7 +77,7 @@ public enum UniversalType
 	OidIri( "OID-IRI", 35 ),
 	RelativeOidIri( "RELATIVE-OID-IRI", 36 );
 
-	private final String typeName;
+	private final TypeName typeName;
 	private final int tagNumber;
 	private final Ref<Type> ref;
 	private final Charset charset;
@@ -94,11 +95,11 @@ public enum UniversalType
 
 	UniversalType( String typeName, int tagNumber, @Nullable Charset charset, @Nullable Pattern pattern )
 	{
-		this.typeName = typeName;
+		this.typeName = new TypeName( typeName, null );
 		this.tagNumber = tagNumber;
 		this.charset = charset;
 		this.pattern = pattern;
-		ref = new TypeNameRef( typeName, null );
+		ref = new TypeNameRef( this.typeName );
 	}
 
 	@Nullable
@@ -114,7 +115,7 @@ public enum UniversalType
 	}
 
 	@NotNull
-	public String typeName()
+	public TypeName typeName()
 	{
 		return typeName;
 	}

@@ -104,7 +104,7 @@ public final class UTCTimeType extends BuiltinType implements GenericTimeType
 	@Override
 	public String toString()
 	{
-		return UniversalType.UTCTime.typeName();
+		return UniversalType.UTCTime.typeName().toString();
 	}
 
 	@NotNull

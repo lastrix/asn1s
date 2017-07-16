@@ -68,7 +68,7 @@ public final class TimeType extends BuiltinType implements GenericTimeType
 	@Override
 	public String toString()
 	{
-		return UniversalType.Time.typeName();
+		return UniversalType.Time.typeName().toString();
 	}
 
 	@Override

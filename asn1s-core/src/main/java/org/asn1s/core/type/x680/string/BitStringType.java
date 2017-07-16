@@ -147,7 +147,7 @@ public class BitStringType extends BuiltinType
 	public String toString()
 	{
 		if( values == null )
-			return UniversalType.BitString.typeName();
+			return UniversalType.BitString.typeName().toString();
 
 		return UniversalType.BitString.typeName() + " { " + StringUtils.join( values, ", " ) + " }";
 	}

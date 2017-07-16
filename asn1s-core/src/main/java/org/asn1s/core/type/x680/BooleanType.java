@@ -97,7 +97,7 @@ public final class BooleanType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.Boolean.typeName();
+		return UniversalType.Boolean.typeName().toString();
 	}
 
 	@Override

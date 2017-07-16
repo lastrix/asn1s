@@ -67,7 +67,7 @@ public final class RelativeOidType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.RelativeOid.typeName();
+		return UniversalType.RelativeOid.typeName().toString();
 	}
 
 	@NotNull

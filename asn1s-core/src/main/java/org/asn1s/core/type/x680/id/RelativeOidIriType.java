@@ -67,7 +67,7 @@ public final class RelativeOidIriType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.RelativeOidIri.typeName();
+		return UniversalType.RelativeOidIri.typeName().toString();
 	}
 
 	@NotNull

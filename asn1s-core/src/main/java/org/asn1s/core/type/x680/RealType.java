@@ -93,7 +93,7 @@ public final class RealType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.Real.typeName();
+		return UniversalType.Real.typeName().toString();
 	}
 
 	@Override

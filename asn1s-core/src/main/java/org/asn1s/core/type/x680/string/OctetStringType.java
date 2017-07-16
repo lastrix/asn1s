@@ -82,7 +82,7 @@ public final class OctetStringType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.OctetString.typeName();
+		return UniversalType.OctetString.typeName().toString();
 	}
 
 	@NotNull

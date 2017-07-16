@@ -125,7 +125,7 @@ public class IntegerType extends BuiltinType
 	public String toString()
 	{
 		if( values == null )
-			return UniversalType.Integer.typeName();
+			return UniversalType.Integer.typeName().toString();
 
 		return UniversalType.Integer.typeName() + " { " + StringUtils.join( values, ", " ) + " }";
 	}

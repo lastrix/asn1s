@@ -128,7 +128,7 @@ public final class ObjectIdentifierType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.ObjectIdentifier.typeName();
+		return UniversalType.ObjectIdentifier.typeName().toString();
 	}
 
 	@NotNull

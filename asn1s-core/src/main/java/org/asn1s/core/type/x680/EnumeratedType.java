@@ -241,8 +241,8 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 	public String toString()
 	{
 		if( extensible )
-			return UniversalType.Enumerated.typeName() + '{' + StringUtils.join( enumeration, ", " ) + ", ...," + StringUtils.join( additionalEnumeration, ", " ) + '}';
-		return UniversalType.Enumerated.typeName() + '{' + StringUtils.join( enumeration, ", " ) + '}';
+			return UniversalType.Enumerated.typeName().toString() + '{' + StringUtils.join( enumeration, ", " ) + ", ...," + StringUtils.join( additionalEnumeration, ", " ) + '}';
+		return UniversalType.Enumerated.typeName().toString() + '{' + StringUtils.join( enumeration, ", " ) + '}';
 	}
 
 
