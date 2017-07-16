@@ -88,6 +88,9 @@ abstract class AbstractComponentInterpolator
 
 		List<ComponentType> components = buildComponentTypeList();
 
+		for( ComponentType component : components )
+			component.validate( getScope() );
+
 		if( isApplyAutomaticTags() )
 			components = applyAutomaticTags( components );
 

@@ -53,7 +53,7 @@ public class CoreModuleTypesTest
 		Collection<Object[]> list = new ArrayList<>();
 		for( UniversalType type : UniversalType.values() )
 			if( type != UniversalType.Enumerated && type != UniversalType.Sequence && type != UniversalType.Set && type != UniversalType.InstanceOf )
-				list.add( new Object[]{type.typeName()} );
+				list.add( new Object[]{type.typeName().getName()} );
 
 		return list;
 	}

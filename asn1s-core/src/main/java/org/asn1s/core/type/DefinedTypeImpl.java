@@ -41,7 +41,7 @@ import org.asn1s.api.type.TypeNameRef;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.NamedValue;
-import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,7 +59,7 @@ public class DefinedTypeImpl extends AbstractType implements DefinedType
 		this.reference = reference;
 
 		//noinspection ObjectEquality
-		if( getModule() == CoreModule.getInstance() )
+		if( CoreUtils.CORE_MODULE_NAME.equals( getModule().getModuleName() ) )
 			setNamespace( module.getModuleName() + ':' );
 		else
 			setNamespace( null );

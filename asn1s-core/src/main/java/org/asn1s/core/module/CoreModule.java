@@ -35,6 +35,7 @@ import org.asn1s.api.module.EmptyModuleResolver;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.type.Type;
+import org.asn1s.core.CoreUtils;
 import org.asn1s.core.constraint.template.SettingsConstraintTemplate;
 import org.asn1s.core.type.ConstrainedType;
 import org.asn1s.core.type.DefinedTypeImpl;
@@ -54,7 +55,7 @@ public final class CoreModule extends AbstractModule
 {
 	private CoreModule()
 	{
-		super( new ModuleReference( "ASN14J-CORE-MODULE" ), new EmptyModuleResolver() );
+		super( new ModuleReference( CoreUtils.CORE_MODULE_NAME ), new EmptyModuleResolver() );
 		registerType( UniversalType.Boolean, new BooleanType() );
 		registerType( UniversalType.Integer, new IntegerType() );
 		registerType( UniversalType.Null, new NullType() );

@@ -132,7 +132,7 @@ public enum UniversalType
 
 	private boolean isTypeNameEqualTo( @NotNull String name )
 	{
-		if( name.equals( typeName() ) )
+		if( name.equals( typeName().getName() ) )
 			return true;
 
 		switch( this )

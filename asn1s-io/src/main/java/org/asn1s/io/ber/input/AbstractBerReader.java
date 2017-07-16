@@ -207,7 +207,11 @@ abstract class AbstractBerReader implements BerReader
 
 		implicit = encoding.getTagMethod() == TagMethod.Implicit;
 		if( tag != null )
+		{
+			if( baseType.getFamily() == Family.Choice )
+				return readInternal( scope, baseType, null, -1, implicit );
 			return readInternal( scope, baseType, tag, length, implicit );
+		}
 
 
 		tag = readTag();

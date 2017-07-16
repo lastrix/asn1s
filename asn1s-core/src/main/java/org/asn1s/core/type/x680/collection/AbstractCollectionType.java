@@ -196,7 +196,11 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 	public List<ComponentType> getComponents( boolean withExtensions )
 	{
 		if( withExtensions )
+		{
+			if( actualComponents == null )
+				throw new IllegalStateException();
 			return Collections.unmodifiableList( actualComponents );
+		}
 
 		List<ComponentType> result = new ArrayList<>();
 		for( ComponentType component : actualComponents )

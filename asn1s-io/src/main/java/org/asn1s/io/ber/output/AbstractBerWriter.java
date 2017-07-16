@@ -35,10 +35,7 @@ import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.type.CollectionType;
-import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.TaggedType;
-import org.asn1s.api.type.Type;
+import org.asn1s.api.type.*;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
@@ -87,6 +84,17 @@ abstract class AbstractBerWriter implements BerWriter
 	@Override
 	public final void writeInternal( Scope scope, Type type, Value value, boolean writeHeader ) throws IOException, Asn1Exception
 	{
+		if( type instanceof ComponentType && !( (ComponentType)type ).isDummy() )
+		{
+			if( value.getKind() != Kind.Name )
+				throw new IllegalValueException( "Named value expected" );
+
+			if( !value.toNamedValue().getName().equals( ( (NamedType)type ).getName() ) )
+				throw new IllegalValueException( "Named value has illegal name: " + value.toNamedValue().getName() + ". Expected: " + ( (NamedType)type ).getName() );
+
+			value = value.toNamedValue().getValueRef().resolve( scope );
+		}
+
 		if( type.hasConstraint() )
 			writeConstrainedType( scope, type, value, writeHeader );
 
@@ -252,6 +260,6 @@ abstract class AbstractBerWriter implements BerWriter
 		scope.setValueLevel( namedValue );
 		scope = componentType.getScope( scope );
 
-		writeInternal( scope, componentType, namedValue.getValueRef().resolve( scope ), true );
+		writeInternal( scope, componentType, namedValue, true );
 	}
 }

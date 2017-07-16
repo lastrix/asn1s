@@ -186,6 +186,7 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 	@Override
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
+		scope = getScope( scope );
 		Value value = valueRef.resolve( scope );
 		if( value.getKind() == Value.Kind.Name )
 		{
@@ -298,6 +299,10 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 	@Override
 	public IEncoding getEncoding( EncodingInstructions instructions )
 	{
+		if( componentType == null )
+		{
+			int k = 0;
+		}
 		return componentType.getEncoding( instructions );
 	}
 

@@ -52,6 +52,7 @@ public final class CoreUtils
 	private static final byte[] EMPTY_ARRAY = new byte[0];
 	private static final int HEX_RADIX = 16;
 	private static final int BIN_RADIX = 2;
+	public static final String CORE_MODULE_NAME = "ASN14J-CORE-MODULE";
 
 	private CoreUtils()
 	{
