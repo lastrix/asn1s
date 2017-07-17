@@ -33,7 +33,7 @@
     </parent>
     <artifactId>asn1s</artifactId>
     <groupId>com.github.lastrix</groupId>
-    <version>0.2-ALPHA</version>
+    <version>0.3-ALPHA-SNAPSHOT</version>
     <packaging>pom</packaging>
     <url>https://github.com/lastrix/asn1s</url>
     <name>ASN.1 Serialization</name>
@@ -44,7 +44,7 @@
         <url>https://github.com/lastrix/asn1s.git</url>
         <connection>scm:git:ssh://git@github.com/lastrix/asn1s.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/lastrix/asn1s.git</developerConnection>
-        <tag>asn1s-0.2-ALPHA</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>

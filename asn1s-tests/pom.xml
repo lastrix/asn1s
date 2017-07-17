@@ -28,7 +28,7 @@
     <parent>
         <artifactId>asn1s</artifactId>
         <groupId>com.github.lastrix</groupId>
-        <version>0.2-ALPHA</version>
+        <version>0.3-ALPHA-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
