@@ -30,32 +30,72 @@ import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.Value.Kind;
-import org.jetbrains.annotations.NotNull;
+import org.asn1s.api.value.x680.BooleanValue;
+import org.asn1s.core.CoreUtils;
+import org.asn1s.core.module.CoreModule;
+import org.junit.Test;
 
-import java.io.IOException;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
-final class OctetStringBerEncoder implements BerEncoder
+public class OctetStringBerEncoderTest
 {
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.OctetString.tagNumber() );
 
-	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
+	@Test
+	public void testEncode_Empty() throws Exception
 	{
-		assert type.getFamily() == Family.OctetString;
-		assert value.getKind() == Kind.ByteArray;
-		writeOctetString( os, value.toByteArrayValue().asByteArray(), writeHeader );
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Value value = CoreUtils.byteArrayFromHexString( "''H" );
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new OctetStringBerEncoder().encode( writer, scope, type, value, true );
+			verify( writer ).writeHeader( TAG, 0 );
+			verifyNoMoreInteractions( writer );
+		}
 	}
 
-	private static void writeOctetString( BerWriter os, byte[] bytes, boolean writeHeader ) throws IOException
+	@Test
+	public void testEncode_AF() throws Exception
 	{
-		int length = bytes == null ? 0 : bytes.length;
-		if( writeHeader )
-			os.writeHeader( TAG, length );
-
-		if( length > 0 )
-			os.write( bytes );
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Value value = CoreUtils.byteArrayFromHexString( "'AF'H" );
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new OctetStringBerEncoder().encode( writer, scope, type, value, true );
+			verify( writer ).writeHeader( TAG, 1 );
+			verify( writer ).write( new byte[]{(byte)0xAF} );
+			verifyNoMoreInteractions( writer );
+		}
 	}
+
+	@Test( expected = AssertionError.class )
+	public void testEncode_fail_type() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Integer.ref().resolve( scope );
+		Value value = CoreUtils.byteArrayFromHexString( "'AF'H" );
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new OctetStringBerEncoder().encode( writer, scope, type, value, false );
+			fail( "Must fail" );
+		}
+	}
+
+	@Test( expected = AssertionError.class )
+	public void testEncode_fail_value() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Value value = BooleanValue.TRUE;
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new OctetStringBerEncoder().encode( writer, scope, type, value, false );
+			fail( "Must fail" );
+		}
+	}
+
 }

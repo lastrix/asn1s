@@ -58,26 +58,24 @@ final class SetBerEncoder implements BerEncoder
 		assert type.getFamily() == Family.Set;
 		assert value.getKind() == Kind.NamedCollection || value.getKind() == Kind.Collection && value.toValueCollection().isEmpty();
 
-		if( writeHeader )
+		List<NamedValue> values = value.toValueCollection().asNamedValueList();
+		if( !writeHeader )
+			writeSet( scope, os, (CollectionType)type, values );
+		else if( os.isBufferingAvailable() )
 		{
-			if( os.isBufferingAvailable() )
-			{
-				os.startBuffer( -1 );
-				writeSet( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
-				os.stopBuffer( TAG );
-			}
-			else if( os.getRules() == BerRules.Der )
-				throw new Asn1Exception( "Buffering is required for DER rules" );
-			else
-			{
-				os.writeHeader( TAG, -1 );
-				writeSet( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
-				os.write( 0 );
-				os.write( 0 );
-			}
+			os.startBuffer( -1 );
+			writeSet( scope, os, (CollectionType)type, values );
+			os.stopBuffer( TAG );
 		}
+		else if( os.getRules() == BerRules.Der )
+			throw new Asn1Exception( "Buffering is required for DER rules" );
 		else
-			writeSet( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
+		{
+			os.writeHeader( TAG, -1 );
+			writeSet( scope, os, (CollectionType)type, values );
+			os.write( 0 );
+			os.write( 0 );
+		}
 	}
 
 	private static void writeSet( Scope scope, BerWriter os, CollectionType type, Collection<NamedValue> values ) throws IOException, Asn1Exception
