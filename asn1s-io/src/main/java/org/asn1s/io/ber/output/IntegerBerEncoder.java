@@ -30,12 +30,13 @@ import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.io.ber.BerUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -45,19 +46,24 @@ import java.io.IOException;
  */
 final class IntegerBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
+	static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
 
 	@Override
 	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
 	{
-		if( value.getKind() != Kind.Integer )
-			throw new IllegalValueException( "Unable to encode values of kind: " + value.getKind() );
-
+		assert value.getKind() == Kind.Integer;
+		assert type.getFamily() == Family.Integer;
 		writeLong( os, value.toIntegerValue().asLong(), TAG, writeHeader );
 	}
 
-	static void writeLong( @NotNull BerWriter os, long value, Tag tag, boolean writeHeader ) throws IOException
+	static void writeLong( @NotNull BerWriter os, long value, @Nullable Tag tag, boolean writeHeader ) throws IOException
 	{
+		if( tag == null )
+		{
+			if( writeHeader )
+				throw new IOException( "Unable to write header: tag is unavailable." );
+		}
+
 		int size = calculateByteCount( value );
 		if( writeHeader )
 			os.writeHeader( tag, size );
@@ -66,7 +72,7 @@ final class IntegerBerEncoder implements BerEncoder
 			os.write( getByteByIndex( value, i ) );
 	}
 
-	public static byte[] toByteArray( long value )
+	static byte[] toByteArray( long value )
 	{
 		int size = calculateByteCount( value );
 		byte[] result = new byte[size];
@@ -78,16 +84,18 @@ final class IntegerBerEncoder implements BerEncoder
 
 	private static int calculateByteCount( long value )
 	{
-		for( int i = 7; i >= 0; i-- )
+		int i;
+		for( i = 7; i >= 0; i-- )
 		{
 			byte current = getByteByIndex( value, i );
 			byte next = i > 0 ? getByteByIndex( value, i - 1 ) : 0;
 			// if 9 zeros or ones follows each other - skip them all together
 			if( i > 0 && isSkipping( current, next ) )
 				continue;
-			return i + 1;
+
+			break;
 		}
-		return 1;
+		return i + 1;
 	}
 
 	private static byte getByteByIndex( long value, int index )

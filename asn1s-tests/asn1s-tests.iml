@@ -21,6 +21,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.jetbrains:annotations-java5:15.0" level="project" />
     <orderEntry type="module" module-name="asn1s-core" scope="TEST" />
     <orderEntry type="module" module-name="asn1s-io" scope="TEST" />
+    <orderEntry type="library" scope="TEST" name="Maven: org.mockito:mockito-all:1.9.5" level="project" />
     <orderEntry type="module" module-name="asn1s-databind" scope="TEST" />
     <orderEntry type="library" scope="TEST" name="Maven: commons-collections:commons-collections:3.2.2" level="project" />
     <orderEntry type="module" module-name="asn1s-schema" scope="TEST" />
