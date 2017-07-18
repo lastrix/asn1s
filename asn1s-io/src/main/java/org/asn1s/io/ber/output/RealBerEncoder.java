@@ -30,8 +30,8 @@ import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.NRxUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -47,20 +47,19 @@ import java.math.BigDecimal;
 @SuppressWarnings( "NumericCastThatLosesPrecision" )
 final class RealBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Real.tagNumber() );
+	static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Real.tagNumber() );
 	private static final long ZERO_DOUBLE_BITS = Double.doubleToLongBits( 0.0d );
 	private static final long NEGATIVE_ZERO_DOUBLE_BITS = Double.doubleToLongBits( -0.0d );
 
 	@Override
 	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
 	{
-		Kind kind = value.getKind();
-		if( kind == Kind.Real )
+		assert type.getFamily() == Family.Real;
+		assert value.getKind() == Kind.Real || value.getKind() == Kind.Integer;
+		if( value.getKind() == Kind.Real )
 			writeRealValue( os, value.toRealValue(), writeHeader );
-		else if( kind == Kind.Integer )
-			writeIntegerValue( os, value.toIntegerValue(), writeHeader );
 		else
-			throw new IllegalValueException( "Unable to write value of kind: " + kind );
+			writeIntegerValue( os, value.toIntegerValue(), writeHeader );
 	}
 
 	private static void writeRealValue( BerWriter os, RealValue realValue, boolean writeHeader ) throws IOException
