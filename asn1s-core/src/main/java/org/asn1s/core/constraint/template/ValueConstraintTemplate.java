@@ -93,7 +93,8 @@ public class ValueConstraintTemplate implements ConstraintTemplate
 							Family.SequenceOf,
 							Family.Set,
 							Family.SetOf,
-							//Family.GeneralizedTime,
+							Family.GeneralizedTime,
+							Family.UTCTime,
 							Family.Time,
 							Family.ObjectClass
 					)

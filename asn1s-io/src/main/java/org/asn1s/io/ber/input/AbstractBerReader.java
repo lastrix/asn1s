@@ -65,7 +65,8 @@ abstract class AbstractBerReader implements BerReader
 		DECODERS.put( Family.SetOf, new SetOfBerDecoder() );
 		DECODERS.put( Family.Set, new SetBerDecoder() );
 		DECODERS.put( Family.RestrictedString, new StringBerDecoder() );
-		DECODERS.put( Family.Time, new TimeBerDecoder() );
+		DECODERS.put( Family.UTCTime, new UTCTimeBerDecoder() );
+		DECODERS.put( Family.GeneralizedTime, new GeneralizedTimeBerDecoder() );
 		DECODERS.put( Family.Oid, new ObjectIDBerDecoder() );
 	}
 

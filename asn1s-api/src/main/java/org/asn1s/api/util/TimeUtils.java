@@ -25,8 +25,10 @@
 
 package org.asn1s.api.util;
 
+import org.asn1s.api.UniversalType;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.Charset;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -39,6 +41,9 @@ public final class TimeUtils
 {
 	public static final String UTC_TIME_FORMAT = "yyMMddHHmmss";
 	public static final String GENERALIZED_TIME_FORMAT = "yyyyMMddHHmmss.SSS";
+	@SuppressWarnings( "ConstantConditions" )
+	@NotNull
+	public static final Charset CHARSET = UniversalType.VisibleString.charset();
 
 	private TimeUtils()
 	{

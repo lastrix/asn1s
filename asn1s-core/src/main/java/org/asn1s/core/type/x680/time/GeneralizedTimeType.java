@@ -36,11 +36,11 @@ import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.GenericTimeType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.util.TimeUtils;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
 import org.asn1s.core.type.BuiltinType;
 import org.asn1s.core.value.x680.DateValueImpl;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +52,7 @@ import org.jetbrains.annotations.NotNull;
  * @author lastrix
  * @version 1.0
  */
-public final class GeneralizedTimeType extends BuiltinType implements GenericTimeType
+public final class GeneralizedTimeType extends BuiltinType
 {
 	private static final Log log = LogFactory.getLog( GeneralizedTimeType.class );
 
@@ -65,14 +65,14 @@ public final class GeneralizedTimeType extends BuiltinType implements GenericTim
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		Value.Kind kind = value.getKind();
-		if( kind == Value.Kind.CString )
+		Kind kind = value.getKind();
+		if( kind == Kind.CString )
 		{
 			String timeValueString = value.toStringValue().asString();
 			if( !TimeUtils.isGeneralizedTimeValue( timeValueString ) )
 				throw new IllegalValueException( "Is not GeneralizedTimeValue" );
 		}
-		else if( kind != Value.Kind.Time )
+		else if( kind != Kind.Time )
 			throw new IllegalValueException( "Unable to use value of kind: " + kind );
 	}
 
@@ -81,11 +81,11 @@ public final class GeneralizedTimeType extends BuiltinType implements GenericTim
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		Value.Kind kind = value.getKind();
-		if( kind == Value.Kind.Time )
+		Kind kind = value.getKind();
+		if( kind == Kind.Time )
 			return value;
 
-		if( kind == Value.Kind.CString )
+		if( kind == Kind.CString )
 		{
 			String timeValueString = value.toStringValue().asString();
 			if( TimeUtils.isGeneralizedTimeValue( timeValueString ) )
@@ -93,12 +93,6 @@ public final class GeneralizedTimeType extends BuiltinType implements GenericTim
 		}
 
 		throw new IllegalValueException( "Unable to optimize value: " + valueRef );
-	}
-
-	@Override
-	public Kind getKind()
-	{
-		return Kind.Generalized;
 	}
 
 	@Override
@@ -111,7 +105,7 @@ public final class GeneralizedTimeType extends BuiltinType implements GenericTim
 	@Override
 	public Family getFamily()
 	{
-		return Family.Time;
+		return Family.GeneralizedTime;
 	}
 
 	@NotNull
@@ -131,5 +125,4 @@ public final class GeneralizedTimeType extends BuiltinType implements GenericTim
 	protected void onDispose()
 	{
 	}
-
 }

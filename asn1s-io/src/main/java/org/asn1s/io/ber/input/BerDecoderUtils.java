@@ -23,44 +23,23 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.io.ber.output;
+package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.EncodingInstructions;
-import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.exception.IllegalValueException;
-import org.asn1s.api.type.StringType;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
-import org.asn1s.api.value.Value.Kind;
-import org.asn1s.api.value.x680.StringValue;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 
-public class StringBerEncoder implements BerEncoder
+final class BerDecoderUtils
 {
-	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	private BerDecoderUtils()
 	{
-		if( !( type instanceof StringType ) )
-			throw new IllegalStateException();
+	}
 
-		Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-
-		if( value.getKind() == Kind.CString )
-			BerEncoderUtils.writeString( os, ( (StringType)type ).getCharset(), tag, value.toStringValue().asString(), writeHeader );
-		else if( value.getKind() == Kind.Collection )
-		{
-			StringValue stringValue = ( (StringType)type ).tryBuildStringValue( scope, value.toValueCollection() );
-			if( stringValue != null )
-				BerEncoderUtils.writeString( os, ( (StringType)type ).getCharset(), tag, stringValue.asString(), writeHeader );
-			else
-				throw new IllegalValueException( "Unable to write value as string: " + value );
-		}
-		else
-			throw new IllegalValueException( "Unable to write value as string: " + value );
+	static byte[] readString( @NotNull BerReader is, int length ) throws IOException
+	{
+		byte[] content = new byte[length];
+		if( is.read( content ) != length )
+			throw new IOException( "Unexpected EOF" );
+		return content;
 	}
 }

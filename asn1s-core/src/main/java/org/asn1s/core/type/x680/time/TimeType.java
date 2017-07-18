@@ -31,7 +31,6 @@ import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.type.GenericTimeType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.type.BuiltinType;
@@ -43,7 +42,7 @@ import org.jetbrains.annotations.NotNull;
  * @author lastrix
  * @version 1.0
  */
-public final class TimeType extends BuiltinType implements GenericTimeType
+public final class TimeType extends BuiltinType
 {
 	private static final Log log = LogFactory.getLog( TimeType.class );
 
@@ -69,12 +68,6 @@ public final class TimeType extends BuiltinType implements GenericTimeType
 	public String toString()
 	{
 		return UniversalType.Time.typeName().toString();
-	}
-
-	@Override
-	public Kind getKind()
-	{
-		return Kind.Basic;
 	}
 
 	@NotNull

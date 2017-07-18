@@ -55,7 +55,7 @@ public class TimeTest
 		module.validate();
 		Scope scope = module.createScope();
 		type.accept( scope, value );
-		type.accept( scope, cString );
+		type.optimize( scope, cString );
 
 		Assert.assertEquals( "Optimized value is not Time.", Kind.Time, type.optimize( scope, cString ).getKind() );
 	}
@@ -73,7 +73,7 @@ public class TimeTest
 		module.validate();
 		Scope scope = module.createScope();
 		type.accept( scope, value );
-		type.accept( scope, cString );
+		type.optimize( scope, cString );
 
 		Assert.assertEquals( "Optimized value is not Time.", Kind.Time, type.optimize( scope, cString ).getKind() );
 	}

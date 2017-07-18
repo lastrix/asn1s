@@ -23,49 +23,24 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.io.ber.input;
+package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.GenericTimeType;
-import org.asn1s.api.type.GenericTimeType.Kind;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.util.TimeUtils;
-import org.asn1s.api.value.Value;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
-public class TimeBerDecoder implements BerDecoder
+final class BerEncoderUtils
 {
-	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	private BerEncoderUtils()
 	{
-		if( !( type instanceof GenericTimeType ) )
-			throw new IOException( "Unsupported type: " + type.getClass().getName() );
-
-		Kind kind = ( (GenericTimeType)type ).getKind();
-		if( kind == Kind.Generalized || kind == Kind.UTC )
-		{
-			byte[] content = readString( is, length );
-			//noinspection ConstantConditions
-			String timeString = new String( content, UniversalType.VisibleString.charset() );
-			return is.getValueFactory().timeValue(
-					kind == Kind.Generalized
-							? TimeUtils.parseGeneralizedTime( timeString )
-							: TimeUtils.parseUTCTime( timeString ) );
-		}
-
-		throw new UnsupportedOperationException();
 	}
 
-	private static byte[] readString( @NotNull BerReader is, int length ) throws IOException
+	static void writeString( BerWriter os, Charset charset, Tag tag, String value, boolean writeHeader ) throws IOException
 	{
-		byte[] content = new byte[length];
-		if( is.read( content ) != length )
-			throw new IOException( "Unexpected EOF" );
-		return content;
+		byte[] content = value.getBytes( charset );
+		if( writeHeader )
+			os.writeHeader( tag, content.length );
+		os.write( content );
 	}
 }

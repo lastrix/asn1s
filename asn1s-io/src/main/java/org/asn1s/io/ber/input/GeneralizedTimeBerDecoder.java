@@ -23,16 +23,26 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.type;
+package org.asn1s.io.ber.input;
 
-public interface GenericTimeType
+import org.asn1s.api.Scope;
+import org.asn1s.api.encoding.tag.Tag;
+import org.asn1s.api.exception.Asn1Exception;
+import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
+import org.asn1s.api.util.TimeUtils;
+import org.asn1s.api.value.Value;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+
+public class GeneralizedTimeBerDecoder implements BerDecoder
 {
-	Kind getKind();
-
-	enum Kind
+	@Override
+	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
 	{
-		Generalized,
-		UTC,
-		Basic
+		assert type.getFamily() == Family.GeneralizedTime;
+		String timeString = new String( BerDecoderUtils.readString( is, length ), TimeUtils.CHARSET );
+		return is.getValueFactory().timeValue( TimeUtils.parseGeneralizedTime( timeString ) );
 	}
 }

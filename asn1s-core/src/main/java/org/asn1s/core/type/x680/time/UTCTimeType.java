@@ -36,11 +36,11 @@ import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.GenericTimeType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.util.TimeUtils;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
 import org.asn1s.core.type.BuiltinType;
 import org.asn1s.core.value.x680.DateValueImpl;
 import org.jetbrains.annotations.NotNull;
@@ -52,7 +52,7 @@ import org.jetbrains.annotations.NotNull;
  * @author lastrix
  * @version 1.0
  */
-public final class UTCTimeType extends BuiltinType implements GenericTimeType
+public final class UTCTimeType extends BuiltinType
 {
 	private static final Log log = LogFactory.getLog( UTCTimeType.class );
 
@@ -65,15 +65,8 @@ public final class UTCTimeType extends BuiltinType implements GenericTimeType
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		Value value = valueRef.resolve( scope );
-		Value.Kind kind = value.getKind();
-		if( kind == Value.Kind.CString )
-		{
-			String timeValueString = value.toStringValue().asString();
-			if( !TimeUtils.isUTCTimeValue( timeValueString ) )
-				throw new IllegalValueException( "Is not UTCTimeValue" );
-		}
-		else if( kind != Value.Kind.Time )
-			throw new IllegalValueException( "Unable to use value of kind: " + kind );
+		if( value.getKind() != Kind.Time )
+			throw new IllegalValueException( "Unable to use value: " + value );
 	}
 
 	@NotNull
@@ -81,11 +74,11 @@ public final class UTCTimeType extends BuiltinType implements GenericTimeType
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		Value.Kind kind = value.getKind();
-		if( kind == Value.Kind.Time )
+		Kind kind = value.getKind();
+		if( kind == Kind.Time )
 			return value;
 
-		if( kind == Value.Kind.CString )
+		if( kind == Kind.CString )
 		{
 			String timeValueString = value.toStringValue().asString();
 			if( TimeUtils.isUTCTimeValue( timeValueString ) )
@@ -93,12 +86,6 @@ public final class UTCTimeType extends BuiltinType implements GenericTimeType
 		}
 
 		throw new IllegalValueException( "Unable to optimize value: " + valueRef );
-	}
-
-	@Override
-	public Kind getKind()
-	{
-		return Kind.UTC;
 	}
 
 	@Override
@@ -111,7 +98,7 @@ public final class UTCTimeType extends BuiltinType implements GenericTimeType
 	@Override
 	public Family getFamily()
 	{
-		return Family.Time;
+		return Family.UTCTime;
 	}
 
 	@NotNull

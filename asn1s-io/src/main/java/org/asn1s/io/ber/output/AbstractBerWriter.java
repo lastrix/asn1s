@@ -67,7 +67,8 @@ abstract class AbstractBerWriter implements BerWriter
 		ENCODERS.put( Family.Set, new SetBerEncoder() );
 		ENCODERS.put( Family.SetOf, new SetOfBerEncoder() );
 		ENCODERS.put( Family.RestrictedString, new StringBerEncoder() );
-		ENCODERS.put( Family.Time, new TimeBerEncoder() );
+		ENCODERS.put( Family.UTCTime, new UTCTimeBerEncoder() );
+		ENCODERS.put( Family.GeneralizedTime, new GeneralizedTimeBerEncoder() );
 		ENCODERS.put( Family.Oid, new ObjectIDBerEncoder() );
 	}
 

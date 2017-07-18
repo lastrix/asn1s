@@ -23,37 +23,33 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.io.tag;
+package org.asn1s.io.ber.output;
 
-import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Scope;
-import org.asn1s.api.module.Module;
+import org.asn1s.api.UniversalType;
+import org.asn1s.api.encoding.tag.Tag;
+import org.asn1s.api.encoding.tag.TagClass;
+import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.Type;
-import org.asn1s.core.DefaultObjectFactory;
-import org.junit.Test;
+import org.asn1s.api.type.Type.Family;
+import org.asn1s.api.util.TimeUtils;
+import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
+import org.asn1s.io.ber.BerRules;
+import org.jetbrains.annotations.NotNull;
 
-import java.time.Instant;
+import java.io.IOException;
 
-public class GeneralizedTest
+public class UTCTimeBerEncoder implements BerEncoder
 {
-	@SuppressWarnings( "MagicNumber" )
-	@Test
-	public void testWrite() throws Exception
-	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
-		Scope scope = module.createScope();
-		Type type = factory.builtin( "GeneralizedTime" ).resolve( scope );
-		Utils.performWriteTest( scope, "Failed to write GeneralizedTime", type, factory.cString( "20170601115700Z" ), new byte[]{0x18, 0x0F, 0x32, 0x30, 0x31, 0x37, 0x30, 0x36, 0x30, 0x31, 0x31, 0x31, 0x35, 0x37, 0x30, 0x30, 0x5A} );
-	}
+	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.UTCTime.tagNumber() );
 
-	@Test
-	public void testRead() throws Exception
+	@Override
+	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
-		Scope scope = module.createScope();
-		Type type = factory.builtin( "GeneralizedTime" ).resolve( scope );
-		Utils.performReadTest( scope, "Failed to read GeneralizedTime", type, factory.timeValue( Instant.now() ) );
+		assert type.getFamily() == Family.UTCTime;
+		assert value.getKind() == Kind.Time;
+		String content = TimeUtils.formatInstant( value.toDateValue().asInstant(), TimeUtils.UTC_TIME_FORMAT, os.getRules() != BerRules.Der );
+		BerEncoderUtils.writeString( os, TimeUtils.CHARSET, TAG, content, writeHeader );
 	}
 }

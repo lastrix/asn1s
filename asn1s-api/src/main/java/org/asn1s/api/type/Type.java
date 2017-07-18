@@ -220,6 +220,8 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 		Real,
 		RelativeOid,
 		RelativeOidIri,
+		UTCTime,
+		GeneralizedTime,
 		Time,
 		Enumerated,
 		Choice,
