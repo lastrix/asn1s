@@ -131,7 +131,6 @@ abstract class AbstractBerWriter implements BerWriter
 		writeTag( tag.getTagClass(), tag.isConstructed(), tag.getTagNumber() );
 	}
 
-	@SuppressWarnings( "NumericCastThatLosesPrecision" )
 	@Override
 	public void writeTag( @NotNull TagClass tagClass, boolean constructed, long tagNumber ) throws IOException
 	{
@@ -140,18 +139,7 @@ abstract class AbstractBerWriter implements BerWriter
 		else
 		{
 			write( (byte)( BerUtils.TAG_MASK | ( constructed ? BerUtils.PC_MASK : 0 ) | tagClass.getCode() ) );
-			boolean skipping = true;
-			for( int i = 8; i >= 0; i-- )
-			{
-				byte current = (byte)( ( i > 0 ? ( tagNumber & ~0x1 ) >> i * 7 : tagNumber ) & BerUtils.UNSIGNED_BYTE_MASK );
-				if( skipping && current == 0 )
-					continue;
-				skipping = false;
-
-				if( i > 0 )
-					current |= BerUtils.BYTE_SIGN_MASK;
-				write( current );
-			}
+			BerEncoderUtils.writeTagNumber( this, tagNumber );
 		}
 	}
 

@@ -26,6 +26,7 @@
 package org.asn1s.io.ber.output;
 
 import org.asn1s.api.encoding.tag.Tag;
+import org.asn1s.io.ber.BerUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -42,5 +43,21 @@ final class BerEncoderUtils
 		if( writeHeader )
 			os.writeHeader( tag, content.length );
 		os.write( content );
+	}
+
+	static void writeTagNumber( BerWriter writer, long tagNumber ) throws IOException
+	{
+		boolean skipping = true;
+		for( int i = 8; i >= 0; i-- )
+		{
+			byte current = (byte)( ( i > 0 ? ( tagNumber & ~0x1 ) >> i * 7 : tagNumber ) & BerUtils.UNSIGNED_BYTE_MASK );
+			if( skipping && current == 0 )
+				continue;
+			skipping = false;
+
+			if( i > 0 )
+				current |= BerUtils.BYTE_SIGN_MASK;
+			writer.write( current );
+		}
 	}
 }

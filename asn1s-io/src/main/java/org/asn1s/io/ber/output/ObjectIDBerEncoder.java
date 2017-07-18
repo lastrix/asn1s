@@ -51,26 +51,18 @@ public class ObjectIDBerEncoder implements BerEncoder
 	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
 	{
 		assert type.getFamily() == Family.Oid;
+		assert value.getKind() == Kind.Oid;
 
-		if( value.getKind() == Kind.Oid )
-			writeObjectID( os, value.toObjectIdentifierValue(), writeHeader );
-		else
-			throw new IOException( "Unable to handle kind: " + value.getKind() );
-	}
-
-	private static void writeObjectID( BerWriter os, ObjectIdentifierValue value, boolean writeHeader ) throws IOException
-	{
-		if( writeHeader )
+		if( !writeHeader )
+			writeObjectIDImpl( os, value.toObjectIdentifierValue() );
+		else if( os.isBufferingAvailable() )
 		{
-			if( !os.isBufferingAvailable() )
-				throw new IOException( "Unable to use DER rules. Buffering is not supported" );
-
 			os.startBuffer( -1 );
-			writeObjectIDImpl( os, value );
+			writeObjectIDImpl( os, value.toObjectIdentifierValue() );
 			os.stopBuffer( TAG );
 		}
 		else
-			writeObjectIDImpl( os, value );
+			throw new Asn1Exception( "Buffering is required for ObjectIdentifier" );
 	}
 
 	private static void writeObjectIDImpl( BerWriter os, ObjectIdentifierValue value ) throws IOException
