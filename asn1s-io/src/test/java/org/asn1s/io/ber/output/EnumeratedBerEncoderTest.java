@@ -29,24 +29,66 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.exception.Asn1Exception;
+import org.asn1s.api.type.Enumerated;
+import org.asn1s.api.type.Enumerated.ItemKind;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.Value.Kind;
-import org.jetbrains.annotations.NotNull;
+import org.asn1s.api.value.x680.BooleanValue;
+import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.type.x680.EnumeratedType;
+import org.asn1s.core.value.x680.IntegerValueInt;
+import org.asn1s.core.value.x680.NamedValueImpl;
+import org.junit.Test;
 
-import java.io.IOException;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
-final class EnumeratedBerEncoder implements BerEncoder
+public class EnumeratedBerEncoderTest
 {
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Enumerated.tagNumber() );
 
-	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	@Test
+	public void testEncode_0() throws Exception
 	{
-		assert type.getFamily() == Family.Enumerated;
-		assert value.getKind() == Kind.Name && value.toNamedValue().getReferenceKind() == Kind.Integer;
-		IntegerBerEncoder.writeLong( os, value.toIntegerValue().asLong(), TAG, writeHeader );
+		Scope scope = CoreModule.getInstance().createScope();
+		Enumerated type = new EnumeratedType();
+		type.addItem( ItemKind.Primary, "a", new IntegerValueInt( 0 ) );
+		type.validate( scope );
+		Value value = type.optimize( scope, new IntegerValueInt( 0 ) );
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new EnumeratedBerEncoder().encode( writer, scope, type, value, true );
+			verify( writer ).writeHeader( TAG, 1 );
+			verify( writer ).write( 0 );
+			verifyNoMoreInteractions( writer );
+		}
+	}
+
+	@Test( expected = AssertionError.class )
+	public void testEncode_fail_type() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Integer.ref().resolve( scope );
+		Value value = new NamedValueImpl( "abc", new IntegerValueInt( 0 ) );
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new EnumeratedBerEncoder().encode( writer, scope, type, value, false );
+			fail( "Must fail" );
+		}
+	}
+
+	@Test( expected = AssertionError.class )
+	public void testEncode_fail_value() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Enumerated type = new EnumeratedType();
+		type.addItem( ItemKind.Primary, "a", new IntegerValueInt( 0 ) );
+		type.validate( scope );
+		Value value = BooleanValue.TRUE;
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new EnumeratedBerEncoder().encode( writer, scope, type, value, false );
+			fail( "Must fail" );
+		}
 	}
 }
