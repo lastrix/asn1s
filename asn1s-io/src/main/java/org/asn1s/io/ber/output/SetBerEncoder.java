@@ -37,6 +37,7 @@ import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -54,34 +55,29 @@ final class SetBerEncoder implements BerEncoder
 	@Override
 	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
 	{
-		if( !( type instanceof CollectionType ) || ( (CollectionType)type ).getKind() != CollectionType.Kind.Set )
-			throw new IOException( "Only SetType is allowed." );
+		assert type.getFamily() == Family.Set;
+		assert value.getKind() == Kind.NamedCollection || value.getKind() == Kind.Collection && value.toValueCollection().isEmpty();
 
-		if( value.getKind() == Kind.NamedCollection )
+		if( writeHeader )
 		{
-			if( writeHeader )
+			if( os.isBufferingAvailable() )
 			{
-				if( os.isBufferingAvailable() )
-				{
-					os.startBuffer( -1 );
-					writeSet( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
-					os.stopBuffer( TAG );
-				}
-				else if( os.getRules() == BerRules.Der )
-					throw new IOException( "Buffering is required for DER rules" );
-				else
-				{
-					os.writeHeader( TAG, -1 );
-					writeSet( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
-					os.write( 0 );
-					os.write( 0 );
-				}
-			}
-			else
+				os.startBuffer( -1 );
 				writeSet( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
+				os.stopBuffer( TAG );
+			}
+			else if( os.getRules() == BerRules.Der )
+				throw new Asn1Exception( "Buffering is required for DER rules" );
+			else
+			{
+				os.writeHeader( TAG, -1 );
+				writeSet( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
+				os.write( 0 );
+				os.write( 0 );
+			}
 		}
 		else
-			throw new IllegalValueException( "Unable to write value of kind: " + value.getKind() );
+			writeSet( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
 	}
 
 	private static void writeSet( Scope scope, BerWriter os, CollectionType type, Collection<NamedValue> values ) throws IOException, Asn1Exception
