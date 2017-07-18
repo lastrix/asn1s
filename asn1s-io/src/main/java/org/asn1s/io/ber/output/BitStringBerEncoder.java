@@ -30,9 +30,8 @@ import org.asn1s.api.UniversalType;
 import org.asn1s.api.constraint.Constraint;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.ByteArrayValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -46,15 +45,12 @@ final class BitStringBerEncoder implements BerEncoder
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.BitString.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
 	{
-		if( value.getKind() == Kind.ByteArray )
-		{
-			ByteArrayValue arrayValue = value.toByteArrayValue();
-			writeBitString( os, !type.getNamedValues().isEmpty(), scope, arrayValue, writeHeader );
-		}
-		else
-			throw new IllegalValueException( "Unable to encode value of kind: " + value.getKind() );
+		assert type.getFamily() == Family.BitString;
+		assert value.getKind() == Kind.ByteArray;
+		ByteArrayValue arrayValue = value.toByteArrayValue();
+		writeBitString( os, !type.getNamedValues().isEmpty(), scope, arrayValue, writeHeader );
 	}
 
 	private static void writeBitString( BerWriter os, boolean hasNamedValues, Scope scope, ByteArrayValue arrayValue, boolean writeHeader ) throws IOException
