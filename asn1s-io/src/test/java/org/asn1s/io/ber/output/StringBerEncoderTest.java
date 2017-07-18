@@ -26,32 +26,62 @@
 package org.asn1s.io.ber.output;
 
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.EncodingInstructions;
+import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.StringType;
+import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.Value.Kind;
-import org.jetbrains.annotations.NotNull;
+import org.asn1s.api.value.x680.BooleanValue;
+import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.value.x680.StringValueImpl;
+import org.junit.Test;
 
-import java.io.IOException;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
-public class StringBerEncoder implements BerEncoder
+public class StringBerEncoderTest
 {
-	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.UTF8String.tagNumber() );
+
+	@Test
+	public void testEncode_0() throws Exception
 	{
-		assert type.getFamily() == Family.RestrictedString;
-		assert value.getKind() == Kind.CString;
-		while( !( type instanceof StringType ) )
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.UTF8String.ref().resolve( scope );
+		Value value = new StringValueImpl( "A" );
+		try( BerWriter writer = mock( BerWriter.class ) )
 		{
-			assert type != null;
-			type = type.getSibling();
+			new StringBerEncoder().encode( writer, scope, type, value, true );
+			verify( writer ).writeHeader( TAG, 1 );
+			verify( writer ).write( new byte[]{65} );
+			verifyNoMoreInteractions( writer );
 		}
-		Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-		BerEncoderUtils.writeString( os, ( (StringType)type ).getCharset(), tag, value.toStringValue().asString(), writeHeader );
 	}
+
+	@Test( expected = AssertionError.class )
+	public void testEncode_fail_type() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Integer.ref().resolve( scope );
+		Value value = new StringValueImpl( "Value" );
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new StringBerEncoder().encode( writer, scope, type, value, false );
+			fail( "Must fail" );
+		}
+	}
+
+	@Test( expected = AssertionError.class )
+	public void testEncode_fail_value() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.UTF8String.ref().resolve( scope );
+		Value value = BooleanValue.TRUE;
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new StringBerEncoder().encode( writer, scope, type, value, false );
+			fail( "Must fail" );
+		}
+	}
+
 }
