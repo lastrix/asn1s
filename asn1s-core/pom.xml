@@ -35,7 +35,7 @@
     <artifactId>asn1s-core</artifactId>
     <packaging>jar</packaging>
     <url>https://github.com/lastrix/asn1s</url>
-    <name>ASN1.S Core library</name>
+    <name>ASN.1 S Core library</name>
     <description>Supplies default implementation for working with ASN.1 model.</description>
 
     <dependencies>
