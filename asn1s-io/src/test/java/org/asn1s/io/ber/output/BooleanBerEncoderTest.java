@@ -29,37 +29,75 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.Value.Kind;
+import org.asn1s.api.value.x680.BooleanValue;
+import org.asn1s.api.value.x680.NullValue;
+import org.asn1s.core.module.CoreModule;
 import org.asn1s.io.ber.BerUtils;
-import org.jetbrains.annotations.NotNull;
+import org.junit.Test;
 
-import java.io.IOException;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.*;
 
-/**
- * Encodes boolean value into DER safe boolean value
- * See X.690, p 8.2
- */
-final class BooleanBerEncoder implements BerEncoder
+public class BooleanBerEncoderTest
 {
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Boolean.tagNumber() );
 
-	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	@Test
+	public void testEncode_true() throws Exception
 	{
-		assert type.getFamily() == Family.Boolean;
-		assert value.getKind() == Kind.Boolean;
-		writeBoolean( os, value.toBooleanValue().asBoolean(), writeHeader );
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Boolean.ref().resolve( scope );
+		Value value = BooleanValue.TRUE;
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new BooleanBerEncoder().encode( writer, scope, type, value, true );
+			verify( writer ).writeHeader( TAG, 1 );
+			verify( writer ).write( BerUtils.BOOLEAN_TRUE );
+			verifyNoMoreInteractions( writer );
+		}
 	}
 
-	private static void writeBoolean( BerWriter os, boolean value, boolean writeHeader ) throws IOException
+	@Test
+	public void testEncode_false() throws Exception
 	{
-		if( writeHeader )
-			os.writeHeader( TAG, 1 );
-
-		os.write( value ? BerUtils.BOOLEAN_TRUE : BerUtils.BOOLEAN_FALSE );
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Boolean.ref().resolve( scope );
+		Value value = BooleanValue.FALSE;
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new BooleanBerEncoder().encode( writer, scope, type, value, true );
+			verify( writer ).writeHeader( TAG, 1 );
+			verify( writer ).write( BerUtils.BOOLEAN_FALSE );
+			verifyNoMoreInteractions( writer );
+		}
 	}
+
+	@Test( expected = AssertionError.class )
+	public void testEncode_fail_type() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Integer.ref().resolve( scope );
+		Value value = BooleanValue.TRUE;
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new BooleanBerEncoder().encode( writer, scope, type, value, false );
+			fail( "Must fail" );
+		}
+	}
+
+	@Test( expected = AssertionError.class )
+	public void testEncode_fail_value() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Boolean.ref().resolve( scope );
+		Value value = NullValue.INSTANCE;
+		try( BerWriter writer = mock( BerWriter.class ) )
+		{
+			new BooleanBerEncoder().encode( writer, scope, type, value, false );
+			fail( "Must fail" );
+		}
+	}
+
 }
