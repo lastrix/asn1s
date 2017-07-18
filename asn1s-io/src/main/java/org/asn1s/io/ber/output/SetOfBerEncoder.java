@@ -27,10 +27,9 @@ package org.asn1s.io.ber.output;
 
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.CollectionOfType;
-import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.io.ber.BerRules;
@@ -43,33 +42,25 @@ final class SetOfBerEncoder implements BerEncoder
 	@Override
 	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
 	{
-		if( !( type instanceof CollectionOfType ) || ( (CollectionType)type ).getKind() != CollectionType.Kind.SetOf )
-			throw new IllegalStateException( "Only SetOf type is allowed" );
+		assert type.getFamily() == Family.SetOf;
+		assert value.getKind() == Kind.Collection || value.getKind() == Kind.NamedCollection;
 
-		if( value.getKind() == Kind.Collection || value.getKind() == Kind.NamedCollection )
+		if( !writeHeader )
+			SequenceOfBerEncoder.writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
+		else if( os.isBufferingAvailable() )
 		{
-			if( writeHeader )
-			{
-				if( os.isBufferingAvailable() )
-				{
-					os.startBuffer( -1 );
-					SequenceOfBerEncoder.writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
-					os.stopBuffer( SetBerEncoder.TAG );
-				}
-				else if( os.getRules() == BerRules.Der )
-					throw new IOException( "Buffering is required for DER rules" );
-				else
-				{
-					os.writeHeader( SetBerEncoder.TAG, -1 );
-					SequenceOfBerEncoder.writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
-					os.write( 0 );
-					os.write( 0 );
-				}
-			}
-			else
-				SequenceOfBerEncoder.writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
+			os.startBuffer( -1 );
+			SequenceOfBerEncoder.writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
+			os.stopBuffer( SetBerEncoder.TAG );
 		}
+		else if( os.getRules() == BerRules.Der )
+			throw new Asn1Exception( "Buffering is required for DER rules" );
 		else
-			throw new IllegalValueException( "Unable to write value of kind: " + value.getKind() );
+		{
+			os.writeHeader( SetBerEncoder.TAG, -1 );
+			SequenceOfBerEncoder.writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
+			os.write( 0 );
+			os.write( 0 );
+		}
 	}
 }
