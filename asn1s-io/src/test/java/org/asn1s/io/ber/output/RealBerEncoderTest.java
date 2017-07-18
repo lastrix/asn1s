@@ -27,6 +27,8 @@ package org.asn1s.io.ber.output;
 
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
+import org.asn1s.api.encoding.tag.Tag;
+import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.util.NRxUtils;
 import org.asn1s.api.value.Value;
@@ -40,9 +42,11 @@ import java.math.BigInteger;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
-@SuppressWarnings( {"NumericCastThatLosesPrecision", "MagicNumber", "resource", "Duplicates"} )
 public class RealBerEncoderTest
 {
+
+	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Real.tagNumber() );
+
 	@Test( expected = AssertionError.class )
 	public void testWrite_fail_type() throws Exception
 	{
@@ -79,7 +83,7 @@ public class RealBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new RealBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( RealBerEncoder.TAG, 0 );
+			verify( writer ).writeHeader( TAG, 0 );
 			verifyNoMoreInteractions( writer );
 		}
 	}
@@ -93,7 +97,7 @@ public class RealBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new RealBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( RealBerEncoder.TAG, 1 );
+			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 67 );
 			verifyNoMoreInteractions( writer );
 		}
@@ -108,7 +112,7 @@ public class RealBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new RealBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( RealBerEncoder.TAG, 1 );
+			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 65 );
 			verifyNoMoreInteractions( writer );
 		}
@@ -123,7 +127,7 @@ public class RealBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new RealBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( RealBerEncoder.TAG, 1 );
+			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 64 );
 			verifyNoMoreInteractions( writer );
 		}
@@ -138,7 +142,7 @@ public class RealBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new RealBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( RealBerEncoder.TAG, 1 );
+			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 66 );
 			verifyNoMoreInteractions( writer );
 		}
@@ -156,7 +160,7 @@ public class RealBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new RealBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( RealBerEncoder.TAG, 31396 );
+			verify( writer ).writeHeader( TAG, 31396 );
 			verify( writer ).write( 3 );
 			verify( writer ).write( bytes );
 			verifyNoMoreInteractions( writer );
@@ -174,7 +178,7 @@ public class RealBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new RealBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( RealBerEncoder.TAG, 31396 );
+			verify( writer ).writeHeader( TAG, 31396 );
 			verify( writer ).write( 3 );
 			verify( writer ).write( bytes );
 			verifyNoMoreInteractions( writer );
@@ -190,7 +194,7 @@ public class RealBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new RealBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( RealBerEncoder.TAG, 3 );
+			verify( writer ).writeHeader( TAG, 3 );
 			verify( writer ).write( -128 );
 			verify( writer ).write( new byte[]{-51} );
 			verify( writer ).write( new byte[]{0} );
@@ -207,7 +211,7 @@ public class RealBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new RealBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( RealBerEncoder.TAG, 3 );
+			verify( writer ).writeHeader( TAG, 3 );
 			verify( writer ).write( -128 );
 			verify( writer ).write( new byte[]{(byte)0xFB} );
 			verify( writer ).write( new byte[]{0x05} );

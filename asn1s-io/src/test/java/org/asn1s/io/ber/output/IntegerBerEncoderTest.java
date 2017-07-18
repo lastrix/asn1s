@@ -27,6 +27,8 @@ package org.asn1s.io.ber.output;
 
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
+import org.asn1s.api.encoding.tag.Tag;
+import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.module.CoreModule;
@@ -43,6 +45,9 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings( {"NumericCastThatLosesPrecision", "MagicNumber", "resource"} )
 public class IntegerBerEncoderTest
 {
+
+	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
+
 	@Test
 	public void testWriteLong_0() throws Exception
 	{
@@ -141,7 +146,7 @@ public class IntegerBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new IntegerBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( IntegerBerEncoder.TAG, 1 );
+			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 0 );
 			verifyNoMoreInteractions( writer );
 		}
@@ -156,7 +161,7 @@ public class IntegerBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new IntegerBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( IntegerBerEncoder.TAG, 1 );
+			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( -1 );
 			verifyNoMoreInteractions( writer );
 		}
@@ -171,7 +176,7 @@ public class IntegerBerEncoderTest
 		try( BerWriter writer = mock( BerWriter.class ) )
 		{
 			new IntegerBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).writeHeader( IntegerBerEncoder.TAG, 2 );
+			verify( writer ).writeHeader( TAG, 2 );
 			verify( writer ).write( 1 );
 			verify( writer ).write( 0 );
 			verifyNoMoreInteractions( writer );

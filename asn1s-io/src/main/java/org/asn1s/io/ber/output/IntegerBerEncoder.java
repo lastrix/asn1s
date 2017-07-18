@@ -46,7 +46,7 @@ import java.io.IOException;
  */
 final class IntegerBerEncoder implements BerEncoder
 {
-	static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
 
 	@Override
 	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception

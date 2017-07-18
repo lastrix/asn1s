@@ -47,7 +47,7 @@ import java.math.BigDecimal;
 @SuppressWarnings( "NumericCastThatLosesPrecision" )
 final class RealBerEncoder implements BerEncoder
 {
-	static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Real.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Real.tagNumber() );
 	private static final long ZERO_DOUBLE_BITS = Double.doubleToLongBits( 0.0d );
 	private static final long NEGATIVE_ZERO_DOUBLE_BITS = Double.doubleToLongBits( -0.0d );
 
