@@ -34,6 +34,7 @@ import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -43,6 +44,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 final class SequenceBerEncoder implements BerEncoder
 {
@@ -52,36 +54,29 @@ final class SequenceBerEncoder implements BerEncoder
 	@Override
 	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
 	{
-		if( !( type instanceof CollectionType ) || ( (CollectionType)type ).getKind() != CollectionType.Kind.Sequence )
-			throw new IOException( "Only SequenceType is allowed." );
+		assert type.getFamily() == Family.Sequence;
+		assert value.getKind() == Kind.NamedCollection || value.getKind() == Kind.Collection && value.toValueCollection().isEmpty();
 
-		if( value.getKind() == Kind.NamedCollection )
+		Tag tag = ( (CollectionType)type ).isInstanceOf() ? TAG_INSTANCE_OF : TAG;
+
+		List<NamedValue> values = value.toValueCollection().asNamedValueList();
+		if( !writeHeader )
+			writeSequence( scope, os, (CollectionType)type, values );
+		else if( os.isBufferingAvailable() )
 		{
-			Tag tag = ( (CollectionType)type ).isInstanceOf() ? TAG_INSTANCE_OF : TAG;
-
-			if( writeHeader )
-			{
-				if( os.isBufferingAvailable() )
-				{
-					os.startBuffer( -1 );
-					writeSequence( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
-					os.stopBuffer( tag );
-				}
-				else if( os.getRules() == BerRules.Der )
-					throw new IOException( "Buffering is required for DER rules" );
-				else
-				{
-					os.writeHeader( tag, -1 );
-					writeSequence( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
-					os.write( 0 );
-					os.write( 0 );
-				}
-			}
-			else
-				writeSequence( scope, os, (CollectionType)type, value.toValueCollection().asNamedValueList() );
+			os.startBuffer( -1 );
+			writeSequence( scope, os, (CollectionType)type, values );
+			os.stopBuffer( tag );
 		}
+		else if( os.getRules() == BerRules.Der )
+			throw new Asn1Exception( "Buffering is required for DER rules" );
 		else
-			throw new IllegalValueException( "Unable to write value of kind: " + value.getKind() );
+		{
+			os.writeHeader( tag, -1 );
+			writeSequence( scope, os, (CollectionType)type, values );
+			os.write( 0 );
+			os.write( 0 );
+		}
 	}
 
 	private static void writeSequence( Scope scope, BerWriter os, CollectionType type, Collection<NamedValue> values ) throws Asn1Exception, IOException

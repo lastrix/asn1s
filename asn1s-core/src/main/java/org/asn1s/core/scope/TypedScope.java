@@ -47,6 +47,11 @@ public final class TypedScope extends AbstractScope
 
 	private final Type type;
 
+	public Type getType()
+	{
+		return type;
+	}
+
 	@Override
 	public Type getTypeOrDie()
 	{
@@ -115,5 +120,22 @@ public final class TypedScope extends AbstractScope
 			return super.getValueLevelDepth();
 
 		return 1 + super.getValueLevelDepth();
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		if( this == obj ) return true;
+		if( !( obj instanceof TypedScope ) ) return false;
+
+		TypedScope scope = (TypedScope)obj;
+
+		return getType().equals( scope.getType() );
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return type.hashCode();
 	}
 }
