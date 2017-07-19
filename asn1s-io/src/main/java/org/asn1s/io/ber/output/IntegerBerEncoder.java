@@ -29,7 +29,6 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
@@ -49,7 +48,7 @@ final class IntegerBerEncoder implements BerEncoder
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
 	{
 		assert value.getKind() == Kind.Integer;
 		assert type.getFamily() == Family.Integer;

@@ -29,7 +29,6 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.NRxUtils;
@@ -52,7 +51,7 @@ final class RealBerEncoder implements BerEncoder
 	private static final long NEGATIVE_ZERO_DOUBLE_BITS = Double.doubleToLongBits( -0.0d );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
 	{
 		assert type.getFamily() == Family.Real;
 		assert value.getKind() == Kind.Real || value.getKind() == Kind.Integer;

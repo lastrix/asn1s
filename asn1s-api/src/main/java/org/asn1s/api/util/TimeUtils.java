@@ -251,7 +251,7 @@ public final class TimeUtils
 	private static final String G_FORMAT = "yyyyMMddHH";
 	private static final String G_FORMAT_M = "yyyyMMddHHmm";
 	private static final String G_FORMAT_M_S = "yyyyMMddHHmmss";
-	private static final Pattern G_PATTERN = Pattern.compile( "[0-9]{4}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])([0-1][0-9]|2[0-3])(([0-5][0-9])([0-5][0-9])?)?([.,][0-9]+)?(Z||[+\\-]([0-1][0-9]|2[0-3])([0-5][0-9]))?" );
+	private static final Pattern G_PATTERN = Pattern.compile( "[0-9]{4}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])([0-1][0-9]|2[0-3])(([0-5][0-9])([0-5][0-9])?)?([.,][0-9]+)?(Z|[+\\-]([0-1][0-9]|2[0-3])([0-5][0-9]))?" );
 
 	private static final String TIME_FORMAT = "HHmmss";
 	private static final String TIME_FORMAT_COLONS = "HH:mm:ss";

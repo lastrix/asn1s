@@ -299,10 +299,6 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 	@Override
 	public IEncoding getEncoding( EncodingInstructions instructions )
 	{
-		if( componentType == null )
-		{
-			int k = 0;
-		}
 		return componentType.getEncoding( instructions );
 	}
 

@@ -195,7 +195,6 @@ public class CoreValueFactory implements ValueFactory
 			long le = exponent.asLong();
 			if( le > Integer.MAX_VALUE || le < Integer.MIN_VALUE )
 				throw new IllegalArgumentException( "Exponent overflow" );
-			//noinspection NumericCastThatLosesPrecision
 			e = (int)le;
 		}
 		else

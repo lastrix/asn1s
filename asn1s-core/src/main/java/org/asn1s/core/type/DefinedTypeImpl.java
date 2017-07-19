@@ -58,7 +58,6 @@ public class DefinedTypeImpl extends AbstractType implements DefinedType
 		this.name = name;
 		this.reference = reference;
 
-		//noinspection ObjectEquality
 		if( CoreUtils.CORE_MODULE_NAME.equals( getModule().getModuleName() ) )
 			setNamespace( module.getModuleName() + ':' );
 		else

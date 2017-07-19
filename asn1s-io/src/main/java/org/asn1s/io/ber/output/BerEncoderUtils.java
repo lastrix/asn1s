@@ -50,6 +50,7 @@ final class BerEncoderUtils
 		boolean skipping = true;
 		for( int i = 8; i >= 0; i-- )
 		{
+			//noinspection NumericCastThatLosesPrecision
 			byte current = (byte)( ( i > 0 ? ( tagNumber & ~0x1 ) >> i * 7 : tagNumber ) & BerUtils.UNSIGNED_BYTE_MASK );
 			if( skipping && current == 0 )
 				continue;

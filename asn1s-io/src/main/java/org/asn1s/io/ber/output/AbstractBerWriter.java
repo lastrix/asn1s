@@ -93,6 +93,7 @@ abstract class AbstractBerWriter implements BerWriter
 			if( !value.toNamedValue().getName().equals( ( (NamedType)type ).getName() ) )
 				throw new IllegalValueException( "Named value has illegal name: " + value.toNamedValue().getName() + ". Expected: " + ( (NamedType)type ).getName() );
 
+			//noinspection ConstantConditions
 			value = value.toNamedValue().getValueRef().resolve( scope );
 		}
 
@@ -131,6 +132,7 @@ abstract class AbstractBerWriter implements BerWriter
 		writeTag( tag.getTagClass(), tag.isConstructed(), tag.getTagNumber() );
 	}
 
+	@SuppressWarnings( "NumericCastThatLosesPrecision" )
 	@Override
 	public void writeTag( @NotNull TagClass tagClass, boolean constructed, long tagNumber ) throws IOException
 	{
@@ -206,30 +208,25 @@ abstract class AbstractBerWriter implements BerWriter
 			throw new IllegalStateException();
 
 		scope = baseType.getScope( scope );
-		if( writeHeader )
-		{
-			boolean constructed = encoding.getTagMethod() != TagMethod.Implicit || type.isConstructedValue( scope, value );
-			Tag tag = new Tag( encoding.getTagClass(), constructed, encoding.getTagNumber() );
-
-			if( isBufferingAvailable() )
-			{
-				startBuffer( -1 );
-				writeInternal( scope, baseType, value, encoding.getTagMethod() != TagMethod.Implicit );
-				stopBuffer( tag );
-			}
-			else
-			{
-				if( getRules() == BerRules.Der )
-					throw new IOException( "Encoding rules requires definite length forms" );
-
-				writeHeader( tag, -1 );
-				writeInternal( scope, baseType, value, encoding.getTagMethod() != TagMethod.Implicit );
-				write( (byte)0 );
-				write( (byte)0 );
-			}
-		}
-		else
+		boolean constructed = encoding.getTagMethod() != TagMethod.Implicit || type.isConstructedValue( scope, value );
+		Tag tag = new Tag( encoding.getTagClass(), constructed, encoding.getTagNumber() );
+		if( !writeHeader )
 			writeInternal( scope, baseType, value, encoding.getTagMethod() == TagMethod.Explicit );
+		else if( isBufferingAvailable() )
+		{
+			startBuffer( -1 );
+			writeInternal( scope, baseType, value, encoding.getTagMethod() != TagMethod.Implicit );
+			stopBuffer( tag );
+		}
+		else if( getRules() == BerRules.Der )
+			throw new IOException( "Encoding rules requires definite length forms" );
+		else
+		{
+			writeHeader( tag, -1 );
+			writeInternal( scope, baseType, value, encoding.getTagMethod() != TagMethod.Implicit );
+			write( (byte)0 );
+			write( (byte)0 );
+		}
 	}
 
 	private void writeChoiceType( @NotNull Scope scope, @NotNull CollectionType type, @NotNull Value value ) throws IOException, Asn1Exception
