@@ -114,7 +114,7 @@ abstract class AbstractBerWriter implements BerWriter
 			if( encoder == null )
 				throw new IllegalStateException( "No encoder found for family: " + type.getFamily() );
 
-			encoder.encode( this, scope, type, RefUtils.toBasicValue( scope, value ), writeHeader );
+			encoder.encode( this, scope, type, value, writeHeader );
 		}
 	}
 

@@ -55,7 +55,7 @@ abstract class AbstractBerReader implements BerReader
 	{
 		DECODERS.put( Family.Boolean, new BooleanBerDecoder() );
 		DECODERS.put( Family.Integer, new IntegerBerDecoder() );
-		DECODERS.put( Family.Enumerated, new IntegerBerDecoder() );
+		DECODERS.put( Family.Enumerated, new EnumeratedBerDecoder() );
 		DECODERS.put( Family.Real, new RealBerDecoder() );
 		DECODERS.put( Family.BitString, new BitStringBerDecoder() );
 		DECODERS.put( Family.OctetString, new OctetStringBerDecoder() );
