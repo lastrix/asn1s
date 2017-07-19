@@ -33,9 +33,9 @@ import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.CollectionType;
-import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.jetbrains.annotations.NotNull;
@@ -52,12 +52,8 @@ public class SetBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
 	{
-		if( !( type instanceof CollectionType ) || ( (CollectionType)type ).getKind() != Kind.Set )
-			throw new IOException();
-
-		if( !tag.isConstructed() )
-			throw new IOException( "Must be constructed" );
-
+		assert type.getFamily() == Family.Set;
+		assert tag.isConstructed();
 		return readSet( is, scope, (CollectionType)type, length );
 	}
 

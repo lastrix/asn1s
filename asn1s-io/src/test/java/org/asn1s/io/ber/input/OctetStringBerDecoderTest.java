@@ -26,67 +26,66 @@
 package org.asn1s.io.ber.input;
 
 import org.asn1s.api.Scope;
+import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.CollectionOfType;
-import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.ValueFactory;
-import org.asn1s.api.value.x680.ValueCollection;
-import org.jetbrains.annotations.NotNull;
+import org.asn1s.core.CoreUtils;
+import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.module.CoreModule;
+import org.asn1s.io.Asn1Reader;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 
-final class SequenceOfBerDecoder implements BerDecoder
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+
+public class OctetStringBerDecoderTest
 {
-	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	@Test
+	public void testDecode_ber() throws Exception
 	{
-		assert type.getFamily() == Family.SequenceOf;
-		assert tag.isConstructed();
-		return readComponents( is, scope, (CollectionOfType)type, length );
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Value expected = CoreUtils.byteArrayFromHexString( "'AFF0'H" );
+		byte[] result = InputUtils.writeValue( scope, type, expected );
+		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
+		     Asn1Reader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		{
+			Value value = reader.read( scope, type );
+			Assert.assertEquals( "Values are not equal", expected, value );
+		}
 	}
 
-	static Value readComponents( BerReader is, Scope scope, CollectionOfType type, int collectionLength ) throws IOException, Asn1Exception
+	@Test
+	public void testDecode_cer() throws Exception
 	{
-		ValueFactory valueFactory = is.getValueFactory();
-		ComponentType componentType = type.getComponentType();
-		if( componentType == null )
-			throw new IllegalStateException();
-
-		boolean isDummy = !componentType.isDummy();
-		if( collectionLength == 0 )
-			return valueFactory.collection( isDummy );
-		TagEncoding encoding = (TagEncoding)componentType.getEncoding( EncodingInstructions.Tag );
-
-		int start = is.position();
-
-		ValueCollection collection = valueFactory.collection( isDummy );
-		scope.setValueLevel( collection );
-		scope = componentType.getScope( scope );
-		Tag tag = null;
-		while( collectionLength == -1 || start + collectionLength > is.position() )
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Value expected = CoreUtils.byteArrayFromHexString( "'AFF0'H" );
+		byte[] result = {0x04, (byte)0x80, (byte)0xAF, (byte)0xF0, 0x00, 0x00};
+		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
+		     Asn1Reader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
 		{
-			tag = is.readTag();
-			int length = is.readLength();
-
-			if( collectionLength == -1 && tag.isEoc() && length == 0 )
-				break;
-
-			if( tag.getTagClass() != encoding.getTagClass() || tag.getTagNumber() != encoding.getTagNumber() )
-				throw new Asn1Exception( "Unexpected tag found" );
-
-			Value componentValue = is.readInternal( scope, componentType, tag, length, false );
-			if( isDummy )
-				componentValue = valueFactory.named( componentType.getComponentName(), componentValue );
-			collection.add( componentValue );
+			Value value = reader.read( scope, type );
+			Assert.assertEquals( "Values are not equal", expected, value );
 		}
+	}
 
-		is.ensureConstructedRead( start, collectionLength, tag );
-		return collection;
+	@Test( expected = AssertionError.class )
+	public void testDecode_fail_type() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Integer.ref().resolve( scope );
+		try( BerReader reader = mock( BerReader.class ) )
+		{
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			new OctetStringBerDecoder().decode( reader, scope, type, tag, -1 );
+			fail( "Must fail" );
+		}
 	}
 }

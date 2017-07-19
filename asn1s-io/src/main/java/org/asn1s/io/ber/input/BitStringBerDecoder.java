@@ -30,6 +30,7 @@ import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,8 +41,8 @@ final class BitStringBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
 	{
-		if( tag.isConstructed() )
-			throw new IOException( "Unable to read constructed bit string values" );
+		assert type.getFamily() == Family.BitString;
+		assert !tag.isConstructed();
 
 		if( length == 0 )
 			return is.getValueFactory().emptyByteArray();
@@ -49,6 +50,8 @@ final class BitStringBerDecoder implements BerDecoder
 		byte unusedBits = is.read();
 		if( unusedBits < 0 || unusedBits > 7 )
 			throw new IllegalValueException( "Unused bits must be in range: [0,7]" );
+		if( length == -1 )
+			return OctetStringBerDecoder.readByteArrayValueIndefinite( is, unusedBits );
 		return OctetStringBerDecoder.readByteArrayValue( is, length - 1, unusedBits );
 	}
 }

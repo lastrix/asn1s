@@ -28,6 +28,7 @@ package org.asn1s.io.ber.input;
 import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.BooleanValue;
 import org.asn1s.io.ber.BerUtils;
@@ -40,16 +41,9 @@ final class BooleanBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException
 	{
-		if( length != 1 )
-			throw new IOException( "Boolean length must be 1, got: " + length );
-
+		assert type.getFamily() == Family.Boolean;
+		assert length == 1;
 		byte content = is.read();
-		if( content == BerUtils.BOOLEAN_TRUE )
-			return BooleanValue.TRUE;
-
-		if( content == BerUtils.BOOLEAN_FALSE )
-			return BooleanValue.FALSE;
-
-		throw new IOException( "Unable to convert to boolean: " + Integer.toHexString( content ) );
+		return content == BerUtils.BOOLEAN_FALSE ? BooleanValue.FALSE : BooleanValue.TRUE;
 	}
 }

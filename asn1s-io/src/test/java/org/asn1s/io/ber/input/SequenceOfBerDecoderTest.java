@@ -25,21 +25,43 @@
 
 package org.asn1s.io.ber.input;
 
+import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.type.Type.Family;
+import org.asn1s.api.UniversalType;
+import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.NullValue;
-import org.jetbrains.annotations.NotNull;
+import org.asn1s.api.value.x680.ValueCollection;
+import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.type.x680.collection.SequenceOfType;
+import org.asn1s.core.value.x680.IntegerValueInt;
+import org.asn1s.core.value.x680.ValueCollectionImpl;
+import org.junit.Assert;
+import org.junit.Test;
 
-final class NullBerDecoder implements BerDecoder
+import java.io.ByteArrayInputStream;
+
+public class SequenceOfBerDecoderTest
 {
-	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length )
+	@Test
+	public void testWriteSequenceOf_Buffered() throws Exception
 	{
-		assert type.getFamily() == Family.Null;
-		assert length == 0;
-		return NullValue.INSTANCE;
+		Scope scope = CoreModule.getInstance().createScope();
+		SequenceOfType type = new SequenceOfType();
+		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.validate( scope );
+		ComponentType component = type.getComponentType();
+		Assert.assertNotNull( "No component a", component );
+		ValueCollection expected = new ValueCollectionImpl( true );
+		Ref<Value> valueInt = new IntegerValueInt( 0 );
+		expected.addNamed( "a", valueInt );
+		byte[] result = InputUtils.writeValue( scope, type, expected );
+		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
+		     BerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		{
+			Value value = reader.read( scope, type );
+			Assert.assertEquals( "Values are not equal", expected, value );
+		}
 	}
 }

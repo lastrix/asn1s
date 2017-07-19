@@ -26,20 +26,59 @@
 package org.asn1s.io.ber.input;
 
 import org.asn1s.api.Scope;
+import org.asn1s.api.UniversalType;
+import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.tag.Tag;
+import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.NullValue;
-import org.jetbrains.annotations.NotNull;
+import org.asn1s.api.value.ValueFactory;
+import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.value.x680.StringValueImpl;
+import org.junit.Test;
 
-final class NullBerDecoder implements BerDecoder
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.*;
+
+public class StringBerDecoderTest
 {
-	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length )
+	@Test
+	public void testDecode() throws Exception
 	{
-		assert type.getFamily() == Family.Null;
-		assert length == 0;
-		return NullValue.INSTANCE;
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.UTF8String.ref().resolve( scope );
+		Value value = new StringValueImpl( "Example" );
+		byte[] result = InputUtils.writeValue( scope, type, value );
+		int totalWritten = result.length - 2;
+		byte[] noHeader = new byte[totalWritten];
+		System.arraycopy( result, 2, noHeader, 0, noHeader.length );
+		try( BerReader reader = mock( BerReader.class ) )
+		{
+			ValueFactory factory = mock( ValueFactory.class );
+			when( reader.getValueFactory() ).thenReturn( factory );
+			when( reader.read( any() ) ).then( invocationOnMock -> {
+				System.arraycopy( result, 2, invocationOnMock.getArguments()[0], 0, totalWritten );
+				return totalWritten;
+			} );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			new StringBerDecoder().decode( reader, scope, type, tag, totalWritten );
+			verify( reader ).getValueFactory();
+			verify( reader ).read( any( byte[].class ) );
+			verifyNoMoreInteractions( reader );
+		}
+	}
+
+	@Test( expected = AssertionError.class )
+	public void testDecode_fail_type() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Integer.ref().resolve( scope );
+		try( BerReader reader = mock( BerReader.class ) )
+		{
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			new StringBerDecoder().decode( reader, scope, type, tag, -1 );
+			fail( "Must fail" );
+		}
 	}
 }

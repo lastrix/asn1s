@@ -32,7 +32,7 @@ public final class NRxUtils
 {
 	private static final int MAX_LONG_DECIMALS = 16;
 	private static final BigInteger BIG_ZERO = new BigInteger( "0" );
-	private static final Pattern FORMAT_PATTERN = Pattern.compile( "^[+\\-]?(0|[1-9]\\d*)(\\.\\d+?([eE][+\\-]?\\d+)?)?$" );
+	private static final Pattern FORMAT_PATTERN = Pattern.compile( "^[+\\-]?(0|[1-9]\\d*)(\\.\\d*([eE][+\\-]?\\d+)?)?$" );
 
 	private NRxUtils()
 	{

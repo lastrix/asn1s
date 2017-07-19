@@ -28,6 +28,7 @@ package org.asn1s.io.ber.input;
 import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.IntegerValue;
 import org.asn1s.io.ber.BerUtils;
@@ -40,8 +41,8 @@ final class RealBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException
 	{
-		if( tag.isConstructed() )
-			throw new IOException( "Real must not be constructed" );
+		assert type.getFamily() == Family.Real;
+		assert !tag.isConstructed();
 
 		if( length == 0 )
 			return is.getValueFactory().rZero();

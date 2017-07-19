@@ -28,6 +28,7 @@ package org.asn1s.io.ber.input;
 import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.IntegerValue;
 import org.jetbrains.annotations.NotNull;
@@ -39,20 +40,15 @@ final class IntegerBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException
 	{
-		if( length == -1 )
-			throw new IOException( "Integer must not have INDEFINITE length form" );
-
-		if( length > 8 )
-			throw new IOException( "Unable to read integers bigger than 8 bytes" );
-
+		assert type.getFamily() == Family.Integer;
+		assert length >= 0;
 		return readInteger( is, length );
 	}
 
 	static IntegerValue readInteger( BerReader is, int length ) throws IOException
 	{
 		byte[] bytes = new byte[length];
-		int read = is.read( bytes );
-		if( read != length )
+		if( is.read( bytes ) != length )
 			throw new IOException( "Unexpected EOF" );
 
 		return is.getValueFactory().integer( bytes );

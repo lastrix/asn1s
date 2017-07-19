@@ -30,6 +30,7 @@ import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.StringType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,13 +41,13 @@ public class StringBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
 	{
-		if( !( type instanceof StringType ) )
-			throw new IllegalStateException();
-
-		byte[] content = new byte[length];
-		if( is.read( content ) != length )
-			throw new IOException( "Unexpected EOF" );
-
+		assert type.getFamily() == Family.RestrictedString;
+		while( !( type instanceof StringType ) )
+		{
+			assert type != null;
+			type = type.getSibling();
+		}
+		byte[] content = BerDecoderUtils.readString( is, length );
 		return is.getValueFactory().cString( new String( content, ( (StringType)type ).getCharset() ) );
 	}
 }

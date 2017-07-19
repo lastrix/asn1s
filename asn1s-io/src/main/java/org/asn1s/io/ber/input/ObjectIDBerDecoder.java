@@ -82,20 +82,17 @@ public class ObjectIDBerDecoder implements BerDecoder
 
 	private static void addOidToCollection( ValueFactory factory, Collection<Ref<Value>> collection, long value )
 	{
-		if( collection.isEmpty() )
+		if( !collection.isEmpty() )
+			collection.add( factory.integer( value ) );
+		else if( value < MAX_PLAIN_FIRST_OID )
 		{
-			if( value < MAX_PLAIN_FIRST_OID )
-			{
-				collection.add( factory.integer( value / BerUtils.OID_FIRST_BYTE_MULTIPLIER ) );
-				collection.add( factory.integer( value % BerUtils.OID_FIRST_BYTE_MULTIPLIER ) );
-			}
-			else
-			{
-				collection.add( factory.integer( 2 ) );
-				collection.add( factory.integer( value - MAX_PLAIN_FIRST_OID ) );
-			}
+			collection.add( factory.integer( value / BerUtils.OID_FIRST_BYTE_MULTIPLIER ) );
+			collection.add( factory.integer( value % BerUtils.OID_FIRST_BYTE_MULTIPLIER ) );
 		}
 		else
-			collection.add( factory.integer( value ) );
+		{
+			collection.add( factory.integer( 2 ) );
+			collection.add( factory.integer( value - MAX_PLAIN_FIRST_OID ) );
+		}
 	}
 }

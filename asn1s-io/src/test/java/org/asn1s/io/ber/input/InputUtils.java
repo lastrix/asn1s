@@ -25,21 +25,27 @@
 
 package org.asn1s.io.ber.input;
 
+import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.NullValue;
+import org.asn1s.io.Asn1Writer;
+import org.asn1s.io.ber.BerRules;
+import org.asn1s.io.ber.output.DefaultBerWriter;
 import org.jetbrains.annotations.NotNull;
 
-final class NullBerDecoder implements BerDecoder
+final class InputUtils
 {
-	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length )
+	private InputUtils()
 	{
-		assert type.getFamily() == Family.Null;
-		assert length == 0;
-		return NullValue.INSTANCE;
+	}
+
+	static byte[] writeValue( @NotNull Scope scope, @NotNull Ref<Type> type, @NotNull Value value ) throws Exception
+	{
+		try( Asn1Writer writer = new DefaultBerWriter( BerRules.Ber ) )
+		{
+			writer.write( scope, type, value );
+			return writer.toByteArray();
+		}
 	}
 }

@@ -26,20 +26,50 @@
 package org.asn1s.io.ber.input;
 
 import org.asn1s.api.Scope;
+import org.asn1s.api.UniversalType;
+import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.tag.Tag;
+import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.NullValue;
-import org.jetbrains.annotations.NotNull;
+import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.value.x680.IntegerValueInt;
+import org.junit.Assert;
+import org.junit.Test;
 
-final class NullBerDecoder implements BerDecoder
+import java.io.ByteArrayInputStream;
+
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+
+public class IntegerBerDecoderTest
 {
-	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length )
+	@Test
+	public void testDecode_1024() throws Exception
 	{
-		assert type.getFamily() == Family.Null;
-		assert length == 0;
-		return NullValue.INSTANCE;
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Integer.ref().resolve( scope );
+		Value expected = new IntegerValueInt( 1024 );
+		byte[] result = InputUtils.writeValue( scope, type, expected );
+		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
+		     BerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		{
+			Value value = reader.read( scope, type );
+			Assert.assertEquals( "Values are not equal", expected, value );
+		}
+	}
+
+	@Test( expected = AssertionError.class )
+	public void testDecode_fail_type() throws Exception
+	{
+		Scope scope = CoreModule.getInstance().createScope();
+		Type type = UniversalType.Real.ref().resolve( scope );
+		try( BerReader reader = mock( BerReader.class ) )
+		{
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			new IntegerBerDecoder().decode( reader, scope, type, tag, -1 );
+			fail( "Must fail" );
+		}
 	}
 }

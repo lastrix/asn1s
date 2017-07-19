@@ -29,6 +29,7 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,38 +41,35 @@ public class OctetStringBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
 	{
-		if( tag.isConstructed() )
-			throw new IOException( "Unable to read constructed octet strings" );
-
+		assert type.getFamily() == Family.OctetString;
+		assert !tag.isConstructed();
+		if( length == -1 )
+			return readByteArrayValueIndefinite( is, 0 );
+		if( length == 0 )
+			return is.getValueFactory().emptyByteArray();
 		return readByteArrayValue( is, length, 0 );
+	}
+
+	static Value readByteArrayValueIndefinite( BerReader is, int unusedBits ) throws IOException
+	{
+		byte[] bytes;
+		try( ByteArrayOutputStream stream = new ByteArrayOutputStream() )
+		{
+			byte b1 = is.read();
+			byte b2 = is.read();
+			while( b1 != 0 || b2 != 0 )
+			{
+				stream.write( b1 );
+				b1 = b2;
+				b2 = is.read();
+			}
+			bytes = stream.toByteArray();
+		}
+		return is.getValueFactory().byteArrayValue( bytes.length * 8 - unusedBits, bytes );
 	}
 
 	static Value readByteArrayValue( BerReader is, int length, int unusedBits ) throws IOException
 	{
-		if( length == -1 )
-		{
-			byte[] bytes;
-			try( ByteArrayOutputStream stream = new ByteArrayOutputStream() )
-			{
-				byte b1 = is.read();
-				while( true )
-				{
-					byte b2 = is.read();
-
-					if( b1 == 0 && b2 == 0 )
-						break;
-
-					stream.write( b1 );
-					b1 = b2;
-				}
-				bytes = stream.toByteArray();
-			}
-			return is.getValueFactory().byteArrayValue( bytes.length * 8 - unusedBits, bytes );
-		}
-
-		if( length == 0 )
-			return is.getValueFactory().emptyByteArray();
-
 		byte[] bytes = new byte[length];
 		if( is.read( bytes ) != length )
 			throw new IOException( "Unexpected EOF" );
