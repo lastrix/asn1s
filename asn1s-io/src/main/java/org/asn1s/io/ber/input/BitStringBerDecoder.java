@@ -25,11 +25,8 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.exception.IllegalValueException;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
@@ -39,19 +36,19 @@ import java.io.IOException;
 final class BitStringBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.BitString;
-		assert !tag.isConstructed();
+		assert context.getType().getFamily() == Family.BitString;
+		assert !context.getTag().isConstructed();
 
-		if( length == 0 )
-			return is.getValueFactory().emptyByteArray();
+		if( context.getLength() == 0 )
+			return context.getValueFactory().emptyByteArray();
 
-		byte unusedBits = is.read();
+		byte unusedBits = context.read();
 		if( unusedBits < 0 || unusedBits > 7 )
 			throw new IllegalValueException( "Unused bits must be in range: [0,7]" );
-		if( length == -1 )
-			return OctetStringBerDecoder.readByteArrayValueIndefinite( is, unusedBits );
-		return OctetStringBerDecoder.readByteArrayValue( is, length - 1, unusedBits );
+		if( context.getLength() == -1 )
+			return OctetStringBerDecoder.readByteArrayValueIndefinite( context.getReader(), unusedBits );
+		return OctetStringBerDecoder.readByteArrayValue( context.getReader(), context.getLength() - 1, unusedBits );
 	}
 }

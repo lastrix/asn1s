@@ -32,13 +32,11 @@ import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.ValueFactory;
 import org.asn1s.core.DefaultObjectFactory;
 import org.asn1s.core.module.CoreModule;
-import org.asn1s.core.value.CoreValueFactory;
 import org.asn1s.core.value.x680.RealValueBig;
 import org.asn1s.core.value.x680.RealValueDouble;
-import org.asn1s.io.ber.BerUtils;
+import org.asn1s.core.value.x680.RealValueFloat;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -46,7 +44,7 @@ import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 public class RealBerDecoderTest
 {
@@ -58,7 +56,7 @@ public class RealBerDecoderTest
 		RealValueDouble expected = new RealValueDouble( 0.15625d );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     BerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
 		{
 			Value value = reader.read( scope, type );
 			Assert.assertEquals( "Values are not equal", expected, value );
@@ -72,26 +70,11 @@ public class RealBerDecoderTest
 		Type type = UniversalType.Real.ref().resolve( scope );
 		RealValueBig expected = new RealValueBig( BigDecimal.valueOf( 4.25d ) );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
-		try( BerReader reader = mock( BerReader.class ) )
+		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
+		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
 		{
-			ValueFactory factory = mock( CoreValueFactory.class );
-			when( reader.getValueFactory() ).thenReturn( factory );
-			when( reader.read() ).thenReturn( BerUtils.REAL_ISO_6093_NR3 );
-			when( reader.read( any( byte[].class ) ) ).thenAnswer( invocationOnMock -> {
-				System.arraycopy( result, 3, invocationOnMock.getArguments()[0], 0, result.length - 3 );
-				return result.length - 3;
-			} );
-			when( factory.real( any( String.class ) ) )
-					.then( invocationOnMock -> new RealValueBig( BigDecimal.valueOf( Double.parseDouble( (String)invocationOnMock.getArguments()[0] ) ) ) );
-
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			Value value = new RealBerDecoder().decode( reader, scope, type, tag, result.length - 2 );
-			verify( reader ).read();
-			verify( reader ).read( any( byte[].class ) );
-			verify( reader ).getValueFactory();
-			verify( factory ).real( any( String.class ) );
-			verifyNoMoreInteractions( reader );
-			Assert.assertEquals( "Values are not equal", expected, value );
+			Value value = reader.read( scope, type );
+			Assert.assertTrue( "Values are not equal", expected.isEqualTo( value ) );
 		}
 	}
 
@@ -100,46 +83,26 @@ public class RealBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Real.ref().resolve( scope );
-		try( BerReader reader = mock( BerReader.class ) )
+		Value expected = new RealValueFloat( 0.0f );
+		byte[] result = InputUtils.writeValue( scope, type, expected );
+		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
+		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
 		{
-			ValueFactory factory = mock( ValueFactory.class );
-			when( reader.getValueFactory() ).thenReturn( factory );
-			when( reader.read() ).thenReturn( (byte)0 );
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			new RealBerDecoder().decode( reader, scope, type, tag, 1 );
-			verify( reader ).read();
-			verify( reader ).getValueFactory();
-			verify( factory ).rZero();
-			verifyNoMoreInteractions( reader );
+			Value value = reader.read( scope, type );
+			Assert.assertTrue( "Values are not equal", expected.isEqualTo( value ) );
 		}
 	}
 
-	@Test
-	public void testDecode_Zero_Empty() throws Exception
-	{
-		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
-		try( BerReader reader = mock( BerReader.class ) )
-		{
-			ValueFactory factory = mock( ValueFactory.class );
-			when( reader.getValueFactory() ).thenReturn( factory );
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			new RealBerDecoder().decode( reader, scope, type, tag, 0 );
-			verify( reader ).getValueFactory();
-			verify( factory ).rZero();
-			verifyNoMoreInteractions( reader );
-		}
-	}
 
 	@Test( expected = AssertionError.class )
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
-		try( BerReader reader = mock( BerReader.class ) )
+		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
 			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			new RealBerDecoder().decode( reader, scope, type, tag, -1 );
+			new RealBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}
 	}

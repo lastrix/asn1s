@@ -27,14 +27,12 @@ package org.asn1s.io.ber.input;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
@@ -50,49 +48,51 @@ final class SequenceBerDecoder implements BerDecoder
 	private static final Log log = LogFactory.getLog( SequenceBerDecoder.class );
 
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.Sequence;
-		assert tag.isConstructed();
-		return readSequence( is, scope, (CollectionType)type, length );
+		assert context.getType().getFamily() == Family.Sequence;
+		assert context.getTag().isConstructed();
+
+		if( context.getLength() == 0 )
+			return context.getValueFactory().collection( true );
+
+		return readSequence( context );
 	}
 
-	private static Value readSequence( BerReader is, Scope scope, CollectionType type, int seqLength ) throws IOException, Asn1Exception
+	@NotNull
+	private static Value readSequence( @NotNull ReaderContext ctx ) throws IOException, Asn1Exception
 	{
-		if( seqLength == 0 )
-			return is.getValueFactory().collection( true );
-
+		CollectionType type = (CollectionType)ctx.getType();
 		Iterable<ComponentType> components = new LinkedList<>( type.getComponents( true ) );
-		int start = is.position();
-		ValueCollection collection = is.getValueFactory().collection( true );
-		scope.setValueLevel( collection );
+		int start = ctx.position();
+		ValueCollection collection = ctx.getValueFactory().collection( true );
+		ctx.getScope().setValueLevel( collection );
 		int lastIndex = -1;
-		Tag tag = null;
-		while( seqLength == -1 || start + seqLength > is.position() )
+		int ctxLength = ctx.getLength();
+		boolean indefinite = ctxLength == -1;
+		while( indefinite || start + ctxLength > ctx.position() )
 		{
-			tag = is.readTag();
-			int length = is.readLength();
-
-			if( seqLength == -1 && tag.isEoc() && length == 0 )
+			if( ctx.readTagInfoEocPossible( !indefinite ) )
 				break;
 
-			ComponentType component = chooseComponentByEncoding( components, tag, lastIndex );
+			ComponentType component = chooseComponentByEncoding( components, ctx.getTag(), lastIndex );
 			if( component == null )
 			{
-				log.warn( "Unable to find sequence component for tag: " + tag + ", skipping." );
-				if( length == -1 )
-					is.skipToEoc();
+				log.warn( "Unable to find sequence component for tag: " + ctx.getTag() + ", skipping." );
+				if( ctx.getLength() == -1 )
+					ctx.skipToEoc();
 				else
-					is.skip( length );
+					ctx.skip( ctx.getLength() );
 				continue;
 			}
-			collection.addNamed( component.getComponentName(), is.readInternal( component.getScope( scope ), component, tag, length, false ) );
+			collection.addNamed( component.getComponentName(), ctx.readComponentType( component, ctx.getTag(), ctx.getLength() ) );
 			lastIndex = component.getIndex();
 		}
 
-		is.ensureConstructedRead( start, seqLength, tag );
+		ctx.ensureConstructedRead( start, ctxLength, ctx.getTag() );
 		return collection;
 	}
+
 
 	@Nullable
 	private static ComponentType chooseComponentByEncoding( Iterable<ComponentType> components, Tag tag, int lastIndex )
@@ -112,5 +112,4 @@ final class SequenceBerDecoder implements BerDecoder
 		}
 		return null;
 	}
-
 }

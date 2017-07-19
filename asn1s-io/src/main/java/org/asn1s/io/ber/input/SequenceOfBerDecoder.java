@@ -25,14 +25,9 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.EncodingInstructions;
-import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.CollectionOfType;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.ValueFactory;
@@ -44,49 +39,43 @@ import java.io.IOException;
 final class SequenceOfBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.SequenceOf;
-		assert tag.isConstructed();
-		return readComponents( is, scope, (CollectionOfType)type, length );
+		assert context.getType().getFamily() == Family.SequenceOf;
+		assert context.getTag().isConstructed();
+		return readComponents( context );
 	}
 
-	static Value readComponents( BerReader is, Scope scope, CollectionOfType type, int collectionLength ) throws IOException, Asn1Exception
+	static Value readComponents( @NotNull ReaderContext ctx ) throws IOException, Asn1Exception
 	{
-		ValueFactory valueFactory = is.getValueFactory();
+		int ctxLength = ctx.getLength();
+		CollectionOfType type = (CollectionOfType)ctx.getType();
+		ValueFactory valueFactory = ctx.getValueFactory();
 		ComponentType componentType = type.getComponentType();
 		if( componentType == null )
 			throw new IllegalStateException();
 
 		boolean isDummy = !componentType.isDummy();
-		if( collectionLength == 0 )
+		if( ctxLength == 0 )
 			return valueFactory.collection( isDummy );
-		TagEncoding encoding = (TagEncoding)componentType.getEncoding( EncodingInstructions.Tag );
 
-		int start = is.position();
-
+		int start = ctx.position();
 		ValueCollection collection = valueFactory.collection( isDummy );
-		scope.setValueLevel( collection );
-		scope = componentType.getScope( scope );
-		Tag tag = null;
-		while( collectionLength == -1 || start + collectionLength > is.position() )
+		ctx.getScope().setValueLevel( collection );
+		ctx = ctx.toSiblingContext( componentType );
+		boolean indefinite = ctxLength == -1;
+		while( indefinite || start + ctxLength > ctx.position() )
 		{
-			tag = is.readTag();
-			int length = is.readLength();
-
-			if( collectionLength == -1 && tag.isEoc() && length == 0 )
+			if( ctx.readTagInfoEocPossible( !indefinite ) )
 				break;
 
-			if( tag.getTagClass() != encoding.getTagClass() || tag.getTagNumber() != encoding.getTagNumber() )
-				throw new Asn1Exception( "Unexpected tag found" );
-
-			Value componentValue = is.readInternal( scope, componentType, tag, length, false );
+			Value componentValue = ctx.readInternal( ctx.clone() );
 			if( isDummy )
 				componentValue = valueFactory.named( componentType.getComponentName(), componentValue );
 			collection.add( componentValue );
 		}
 
-		is.ensureConstructedRead( start, collectionLength, tag );
+		ctx.ensureConstructedRead( start, ctxLength, ctx.getTag() );
 		return collection;
 	}
 }

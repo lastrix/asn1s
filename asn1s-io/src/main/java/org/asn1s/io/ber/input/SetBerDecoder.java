@@ -27,14 +27,12 @@ package org.asn1s.io.ber.input;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
@@ -50,45 +48,44 @@ public class SetBerDecoder implements BerDecoder
 	private static final Log log = LogFactory.getLog( SetBerDecoder.class );
 
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.Set;
-		assert tag.isConstructed();
-		return readSet( is, scope, (CollectionType)type, length );
+		assert context.getType().getFamily() == Family.Set;
+		assert context.getTag().isConstructed();
+		return readSet( context );
 	}
 
-	private static Value readSet( BerReader is, Scope scope, CollectionType type, int setLength ) throws IOException, Asn1Exception
+	private static Value readSet( @NotNull ReaderContext ctx ) throws IOException, Asn1Exception
 	{
+		CollectionType type = (CollectionType)ctx.getType();
+		int setLength = ctx.getLength();
 		if( setLength == 0 )
-			return is.getValueFactory().collection( true );
+			return ctx.getValueFactory().collection( true );
 
 		Iterable<ComponentType> components = new LinkedList<>( type.getComponents( true ) );
-		int start = is.position();
-		ValueCollection collection = is.getValueFactory().collection( true );
-		scope.setValueLevel( collection );
-		Tag tag = null;
-		while( setLength == -1 || start + setLength > is.position() )
+		int start = ctx.position();
+		ValueCollection collection = ctx.getValueFactory().collection( true );
+		ctx.getScope().setValueLevel( collection );
+		boolean indefinite = setLength == -1;
+		while( indefinite || start + setLength > ctx.position() )
 		{
-			tag = is.readTag();
-			int length = is.readLength();
-
-			if( setLength == -1 && tag.isEoc() && length == 0 )
+			if( ctx.readTagInfoEocPossible( !indefinite ) )
 				break;
 
-			ComponentType component = chooseComponentByEncoding( components, tag );
+			ComponentType component = chooseComponentByEncoding( components, ctx.getTag() );
 			if( component == null )
 			{
-				log.warn( "Unable to find set component for tag: " + tag + ", skipping." );
-				if( length == -1 )
-					is.skipToEoc();
+				log.warn( "Unable to find set component for tag: " + ctx.getTag() + ", skipping." );
+				if( ctx.getLength() == -1 )
+					ctx.skipToEoc();
 				else
-					is.skip( length );
+					ctx.skip( ctx.getLength() );
 				continue;
 			}
-			collection.addNamed( component.getComponentName(), is.readInternal( component.getScope( scope ), component, tag, length, false ) );
+			collection.addNamed( component.getComponentName(), ctx.readComponentType( component, ctx.getTag(), ctx.getLength() ) );
 		}
 
-		is.ensureConstructedRead( start, setLength, tag );
+		ctx.ensureConstructedRead( start, setLength, ctx.getTag() );
 		return collection;
 	}
 

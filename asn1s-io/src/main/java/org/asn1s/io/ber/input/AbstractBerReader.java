@@ -38,7 +38,7 @@ import org.asn1s.api.type.*;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.ValueFactory;
-import org.asn1s.api.value.x680.NamedValue;
+import org.asn1s.io.Asn1Reader;
 import org.asn1s.io.ber.BerUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,7 +47,7 @@ import java.io.IOException;
 import java.util.EnumMap;
 import java.util.Map;
 
-abstract class AbstractBerReader implements BerReader
+abstract class AbstractBerReader implements Asn1Reader
 {
 	private static final Map<Family, BerDecoder> DECODERS = new EnumMap<>( Family.class );
 
@@ -88,57 +88,52 @@ abstract class AbstractBerReader implements BerReader
 	public Value read( @NotNull Scope scope, @NotNull Ref<Type> typeRef ) throws IOException, Asn1Exception
 	{
 		Type type = typeRef.resolve( scope );
-		Value value = readInternal( scope, type, null, -1, false );
+		Value value = readInternal( new ReaderContext( this, scope, type, null, -1, false ) );
 		type.accept( scope, value );
 		return value;
 	}
 
-	@Override
 	@NotNull
-	public Value readInternal( @NotNull Scope scope, @NotNull Type type, @Nullable Tag tag, int length, boolean implicit ) throws IOException, Asn1Exception
+	Value readInternal( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		if( type.hasConstraint() )
-			return readConstrainedType( scope, type, tag, length, implicit );
+		if( context.getType().hasConstraint() )
+			return readInternal( context.toSiblingContext() );
 
-		if( type.isTagged() && ( (TaggedType)type ).getInstructions() == EncodingInstructions.Tag )
-			return readTaggedType( scope, type, tag, length, implicit );
+		if( context.getType().isTagged() && ( (TaggedType)context.getType() ).getInstructions() == EncodingInstructions.Tag )
+			return readTaggedType( context );
 
-		if( type.getSibling() != null )
-			return readInternal( type.getSibling().getScope( scope ), type.getSibling(), tag, length, implicit );
+		if( context.getType().getSibling() != null )
+			return readInternal( context.toSiblingContext() );
 
-		if( type.getFamily() == Family.Choice )
-			return readChoiceType( scope, (CollectionType)type, tag, length, implicit );
+		if( context.getType().getFamily() == Family.Choice )
+			return readChoiceType( context );
 
-		if( type.getFamily() == Family.OpenType )
-			return readOpenType( scope, length );
+		if( context.getType().getFamily() == Family.OpenType )
+			return readOpenType( context );
 
-		if( tag == null )
-		{
-			tag = readTag();
-			assertTag( type, tag );
+		if( context.getTag() == null )
+			context.readTagInfo( true );
 
-			length = readLength();
-		}
-
-		return DECODERS.get( type.getFamily() ).decode( this, scope, type, tag, length );
+		return DECODERS.get( context.getType().getFamily() ).decode( context );
 	}
 
-	private Value readOpenType( @NotNull Scope scope, int length ) throws Asn1Exception, IOException
+	private Value readOpenType( @NotNull ReaderContext context ) throws Asn1Exception, IOException
 	{
-		InstanceOfTypeSelector selector = scope.getScopeOption( InstanceOfTypeSelector.KEY );
+		InstanceOfTypeSelector selector = context.getScope().getScopeOption( InstanceOfTypeSelector.KEY );
 		if( selector == null )
 			throw new ResolutionException( "Unable to locate InstanceOfTypeSelector." );
 
-		Type openTypeType = selector.resolveInstanceOfType( scope );
-		Value openTypeValue = readInternal( openTypeType.getScope( scope ), openTypeType, null, -1, false );
-		if( length == -1 )
+		int contextLength = context.getLength();
+		Type openTypeType = selector.resolveInstanceOfType( context.getScope() );
+		context.resetTagInfo( false );
+		Value openTypeValue = readInternal( context.toSiblingContext( openTypeType ) );
+		if( contextLength == -1 )
 			skipToEoc();
-		return getValueFactory().openTypeValue( openTypeType, openTypeValue ).resolve( scope );
+		return getValueFactory().openTypeValue( openTypeType, openTypeValue ).resolve( context.getScope() );
 	}
 
 	@SuppressWarnings( "NumericCastThatLosesPrecision" )
-	@Override
-	public Tag readTag() throws IOException
+	Tag readTag() throws IOException
 	{
 		byte value = read();
 		TagClass tagClass = TagClass.findByCode( (byte)( value & BerUtils.CLASS_MASK ) );
@@ -160,8 +155,7 @@ abstract class AbstractBerReader implements BerReader
 		return new Tag( tagClass, constructed, tag );
 	}
 
-	@Override
-	public int readLength() throws IOException
+	int readLength() throws IOException
 	{
 		byte value = read();
 		if( value == BerUtils.FORM_INDEFINITE )
@@ -178,93 +172,85 @@ abstract class AbstractBerReader implements BerReader
 		return result;
 	}
 
-	private Value readConstrainedType( Scope scope, @NotNull Type type, @Nullable Tag tag, int length, boolean implicit ) throws IOException, Asn1Exception
+	private Value readTaggedType( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		if( type.getSibling() == null )
-			throw new IOException( "Constrained type must have non null sibling type" );
-
-		scope = type.getSibling().getScope( scope );
-		return readInternal( scope, type.getSibling(), tag, length, implicit );
-	}
-
-	private Value readTaggedType( Scope scope, @NotNull Type type, @Nullable Tag tag, int length, boolean implicit ) throws IOException, Asn1Exception
-	{
-		TagEncoding encoding = (TagEncoding)type.getEncoding( EncodingInstructions.Tag );
+		TagEncoding encoding = (TagEncoding)context.getType().getEncoding( EncodingInstructions.Tag );
 		if( encoding == null )
 			throw new IllegalStateException();
 
-		Type baseType = type.getSibling();
+		Type baseType = context.getType().getSibling();
 		if( baseType == null )
 			throw new IllegalStateException();
 
-		scope = baseType.getScope( scope );
-		if( implicit )
+		//context = context.toSiblingContext();
+		if( context.isImplicit() )
 		{
 			if( encoding.getTagMethod() == TagMethod.Implicit )
-				return readInternal( scope, baseType, tag, length, true );
+				return readInternal( context.toSiblingContext() );
 
-			return readInternal( scope, baseType, null, -1, false );
+			context.resetTagInfo( false );
+			return readInternal( context.toSiblingContext() );
 		}
 
-		implicit = encoding.getTagMethod() == TagMethod.Implicit;
-		if( tag != null )
+		context.setImplicit( encoding.getTagMethod() == TagMethod.Implicit );
+		if( context.hasTag() )
 		{
-			if( baseType.getFamily() == Family.Choice )
-				return readInternal( scope, baseType, null, -1, implicit );
-			return readInternal( scope, baseType, tag, length, implicit );
+			if( baseType.getFamily() != Family.Choice )
+				return readInternal( context.toSiblingContext() );
+
+			context.resetTagInfo( context.isImplicit() );
+			return readInternal( context.toSiblingContext() );
 		}
 
-
-		tag = readTag();
-		assertTag( type, tag );
-		length = readLength();
+		context.readTagInfo( true );
 		// if constructed then enclosed type has it's own tag
-		if( tag.isConstructed() )
+		if( context.getTag().isConstructed() && !context.isImplicit() )
 		{
-			if( !implicit )
-				return readInternal( scope, baseType, null, -1, false );
-
-			return readInternal( scope, baseType, tag, length, true );
+			context.resetTagInfo( false );
+			return readInternal( context.toSiblingContext() );
 		}
 
-		return readInternal( scope, baseType, tag, length, implicit );
+		return readInternal( context.toSiblingContext() );
 	}
 
 	@NotNull
-	private Value readChoiceType( Scope scope, @NotNull CollectionType type, @Nullable Tag tag, int length, boolean implicit ) throws IOException, Asn1Exception
+	private Value readChoiceType( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		if( tag == null )
-		{
-			tag = readTag();
-			length = readLength();
-		}
+		if( !context.hasTag() )
+			context.readTagInfo( false );
 
+		CollectionType type = (CollectionType)context.getType();
 		for( ComponentType component : type.getComponents( true ) )
 		{
 			TagEncoding encoding = (TagEncoding)component.getEncoding( EncodingInstructions.Tag );
-			if( encoding.getTagClass() == tag.getTagClass() && encoding.getTagNumber() == tag.getTagNumber() )
+			if( context.isSameTagEncoding( encoding ) )
 			{
-				scope = component.getScope( scope );
-				Value value = readInternal( component.getScope( scope ), component, tag, length, implicit );
-				NamedValue named = factory.named( component.getName(), value );
-				scope.setValueLevel( named );
-				return named;
+				context = context.toSiblingContext( component );
+				Value value = readInternal( context );
+				return factory.named( component.getName(), value );
 			}
 		}
 
-		throw new IOException( "Unable to read choice value, unexpected tag: " + tag );
+		throw new IOException( "Unable to read choice value, unexpected tag: " + context.getTag() );
 	}
 
-	private static void assertTag( @NotNull Type type, @Nullable Tag tag ) throws IOException
+	void ensureConstructedRead( int start, int length, @Nullable Tag tag ) throws IOException
 	{
-		if( tag == null )
-			throw new IllegalStateException();
-
-		TagEncoding encoding = (TagEncoding)type.getEncoding( EncodingInstructions.Tag );
-		if( encoding == null )
-			throw new IllegalStateException( "No encoding for type: " + type );
-
-		if( tag.getTagClass() != encoding.getTagClass() || tag.getTagNumber() != encoding.getTagNumber() )
-			throw new IOException( "Invalid tag: " + tag );
+		int end = length == -1 ? 0 : start + length;
+		int position = position();
+		if( length == -1 && tag != null && !tag.isEoc() )
+			skipToEoc();
+		else if( length != -1 && position != end )
+			skip( end - position );
 	}
+
+	protected abstract void skipToEoc() throws IOException;
+
+	protected abstract void skip( int amount ) throws IOException;
+
+	protected abstract int position();
+
+	protected abstract byte read() throws IOException;
+
+	protected abstract int read( byte[] buffer ) throws IOException;
 }

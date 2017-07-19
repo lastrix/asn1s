@@ -25,9 +25,6 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.IntegerValue;
@@ -39,46 +36,46 @@ import java.io.IOException;
 final class RealBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException
+	public Value decode( @NotNull ReaderContext context ) throws IOException
 	{
-		assert type.getFamily() == Family.Real;
-		assert !tag.isConstructed();
+		assert context.getType().getFamily() == Family.Real;
+		assert !context.getTag().isConstructed();
 
-		if( length == 0 )
-			return is.getValueFactory().rZero();
+		if( context.getLength() == 0 )
+			return context.getValueFactory().rZero();
 
-		byte first = is.read();
+		byte first = context.read();
 		if( first == 0 )
-			return is.getValueFactory().rZero();
+			return context.getValueFactory().rZero();
 
 		if( ( first & BerUtils.BYTE_SIGN_MASK ) != 0 )
-			return readBinary( is, first, length );
+			return readBinary( context.getReader(), first, context.getLength() );
 
 		switch( first )
 		{
 			case BerUtils.REAL_ISO_6093_NR1:
 			case BerUtils.REAL_ISO_6093_NR2:
 			case BerUtils.REAL_ISO_6093_NR3:
-				return is.getValueFactory().real( readString( is, length - 1 ) );
+				return context.getValueFactory().real( readString( context.getReader(), context.getLength() - 1 ) );
 
 			case BerUtils.REAL_NEGATIVE_INF:
-				return is.getValueFactory().rNegativeInfinity();
+				return context.getValueFactory().rNegativeInfinity();
 
 			case BerUtils.REAL_POSITIVE_INF:
-				return is.getValueFactory().rPositiveInfinity();
+				return context.getValueFactory().rPositiveInfinity();
 
 			case BerUtils.REAL_NAN:
-				return is.getValueFactory().rNan();
+				return context.getValueFactory().rNan();
 
 			case BerUtils.REAL_MINUS_ZERO:
-				return is.getValueFactory().rNegativeZero();
+				return context.getValueFactory().rNegativeZero();
 
 			default:
 				throw new IllegalStateException( String.format( "Illegal real configuration byte: %02X", first ) );
 		}
 	}
 
-	private static Value readBinary( BerReader is, byte first, int length ) throws IOException
+	private static Value readBinary( AbstractBerReader is, byte first, int length ) throws IOException
 	{
 		int size = ( first & 0x03 ) + 1;
 		if( size == 4 )
@@ -113,10 +110,10 @@ final class RealBerDecoder implements BerDecoder
 		return is.getValueFactory().real( mantissaValue, false, is.getValueFactory().integer( exponent ), negative );
 	}
 
-	private static String readString( BerReader is, int length ) throws IOException
+	private static String readString( AbstractBerReader reader, int length ) throws IOException
 	{
 		byte[] bytes = new byte[length];
-		if( length != is.read( bytes ) )
+		if( length != reader.read( bytes ) )
 			throw new IOException( "Unexpected EOF" );
 		return new String( bytes, "UTF-8" ).trim();
 	}

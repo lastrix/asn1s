@@ -25,10 +25,7 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
@@ -38,9 +35,9 @@ import java.io.IOException;
 public class EnumeratedBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.Enumerated;
-		return type.optimize( scope, IntegerBerDecoder.readInteger( is, length ) );
+		assert context.getType().getFamily() == Family.Enumerated;
+		return context.getType().optimize( context.getScope(), IntegerBerDecoder.readInteger( context.getReader(), context.getLength() ) );
 	}
 }

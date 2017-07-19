@@ -94,10 +94,10 @@ public class ObjectIDBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
-		try( BerReader reader = mock( BerReader.class ) )
+		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
 			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			new ObjectIDBerDecoder().decode( reader, scope, type, tag, -1 );
+			new ObjectIDBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}
 	}

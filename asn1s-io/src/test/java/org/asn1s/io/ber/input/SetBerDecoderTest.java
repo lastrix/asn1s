@@ -61,7 +61,7 @@ public class SetBerDecoderTest
 
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     BerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
 		{
 			Value value = reader.read( scope, type );
 			Assert.assertEquals( "Values are not equal", expected, value );

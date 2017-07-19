@@ -25,10 +25,7 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
@@ -39,18 +36,18 @@ import java.io.IOException;
 public class OctetStringBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.OctetString;
-		assert !tag.isConstructed();
-		if( length == -1 )
-			return readByteArrayValueIndefinite( is, 0 );
-		if( length == 0 )
-			return is.getValueFactory().emptyByteArray();
-		return readByteArrayValue( is, length, 0 );
+		assert context.getType().getFamily() == Family.OctetString;
+		assert !context.getTag().isConstructed();
+		if( context.getLength() == -1 )
+			return readByteArrayValueIndefinite( context.getReader(), 0 );
+		if( context.getLength() == 0 )
+			return context.getValueFactory().emptyByteArray();
+		return readByteArrayValue( context.getReader(), context.getLength(), 0 );
 	}
 
-	static Value readByteArrayValueIndefinite( BerReader is, int unusedBits ) throws IOException
+	static Value readByteArrayValueIndefinite( AbstractBerReader is, int unusedBits ) throws IOException
 	{
 		byte[] bytes;
 		try( ByteArrayOutputStream stream = new ByteArrayOutputStream() )
@@ -68,7 +65,7 @@ public class OctetStringBerDecoder implements BerDecoder
 		return is.getValueFactory().byteArrayValue( bytes.length * 8 - unusedBits, bytes );
 	}
 
-	static Value readByteArrayValue( BerReader is, int length, int unusedBits ) throws IOException
+	static Value readByteArrayValue( AbstractBerReader is, int length, int unusedBits ) throws IOException
 	{
 		byte[] bytes = new byte[length];
 		if( is.read( bytes ) != length )

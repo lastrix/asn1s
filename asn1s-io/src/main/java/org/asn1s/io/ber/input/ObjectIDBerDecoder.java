@@ -26,10 +26,7 @@
 package org.asn1s.io.ber.input;
 
 import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.ValueFactory;
@@ -50,20 +47,21 @@ public class ObjectIDBerDecoder implements BerDecoder
 	private static final long MAX_PLAIN_FIRST_OID = 80L;
 
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.Oid;
-		assert length > 0;
+		assert context.getType().getFamily() == Family.Oid;
+		assert context.getLength() > 0;
 
 		List<Ref<Value>> list = new ArrayList<>();
+		int length = context.getLength();
 		while( length > 0 )
-			length = readObjectIDItem( is, length, list );
+			length = readObjectIDItem( context.getReader(), length, list );
 
-		ObjectIdentifierValue objectIdentifierValue = is.getValueFactory().objectIdentifier( list );
-		return type.optimize( scope, objectIdentifierValue );
+		ObjectIdentifierValue objectIdentifierValue = context.getValueFactory().objectIdentifier( list );
+		return context.getType().optimize( context.getScope(), objectIdentifierValue );
 	}
 
-	private static int readObjectIDItem( BerReader is, int length, Collection<Ref<Value>> collection ) throws IOException
+	private static int readObjectIDItem( AbstractBerReader is, int length, Collection<Ref<Value>> collection ) throws IOException
 	{
 		long value = 0;
 		while( true )

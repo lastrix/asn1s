@@ -25,10 +25,7 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.TimeUtils;
 import org.asn1s.api.value.Value;
@@ -39,10 +36,10 @@ import java.io.IOException;
 public class GeneralizedTimeBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.GeneralizedTime;
-		String timeString = new String( BerDecoderUtils.readString( is, length ), TimeUtils.CHARSET );
-		return is.getValueFactory().timeValue( TimeUtils.parseGeneralizedTime( timeString ) );
+		assert context.getType().getFamily() == Family.GeneralizedTime;
+		String timeString = new String( BerDecoderUtils.readString( context.getReader(), context.getLength() ), TimeUtils.CHARSET );
+		return context.getValueFactory().timeValue( TimeUtils.parseGeneralizedTime( timeString ) );
 	}
 }

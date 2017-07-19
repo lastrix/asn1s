@@ -35,10 +35,10 @@ final class BerDecoderUtils
 	{
 	}
 
-	static byte[] readString( @NotNull BerReader is, int length ) throws IOException
+	static byte[] readString( @NotNull AbstractBerReader reader, int length ) throws IOException
 	{
 		byte[] content = new byte[length];
-		if( is.read( content ) != length )
+		if( reader.read( content ) != length )
 			throw new IOException( "Unexpected EOF" );
 		return content;
 	}

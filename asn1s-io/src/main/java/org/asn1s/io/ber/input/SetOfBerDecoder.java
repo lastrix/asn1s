@@ -25,11 +25,7 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.CollectionOfType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
@@ -39,10 +35,10 @@ import java.io.IOException;
 final class SetOfBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.SetOf;
-		assert tag.isConstructed();
-		return SequenceOfBerDecoder.readComponents( is, scope, (CollectionOfType)type, length );
+		assert context.getType().getFamily() == Family.SetOf;
+		assert context.getTag().isConstructed();
+		return SequenceOfBerDecoder.readComponents( context );
 	}
 }

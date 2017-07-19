@@ -25,9 +25,6 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.IntegerValue;
@@ -38,19 +35,19 @@ import java.io.IOException;
 final class IntegerBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException
+	public Value decode( @NotNull ReaderContext context ) throws IOException
 	{
-		assert type.getFamily() == Family.Integer;
-		assert length >= 0;
-		return readInteger( is, length );
+		assert context.getType().getFamily() == Family.Integer;
+		assert context.getLength() >= 0;
+		return readInteger( context.getReader(), context.getLength() );
 	}
 
-	static IntegerValue readInteger( BerReader is, int length ) throws IOException
+	static IntegerValue readInteger( AbstractBerReader reader, int length ) throws IOException
 	{
 		byte[] bytes = new byte[length];
-		if( is.read( bytes ) != length )
+		if( reader.read( bytes ) != length )
 			throw new IOException( "Unexpected EOF" );
 
-		return is.getValueFactory().integer( bytes );
+		return reader.getValueFactory().integer( bytes );
 	}
 }

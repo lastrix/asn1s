@@ -61,7 +61,7 @@ public class DefaultBerReaderTest
 		Value expected = new RealValueBig( new BigDecimal( BigInteger.valueOf( 34645 ).pow( 16663 ) ) );
 		byte[] result = InputUtils.writeValue( scope, defined, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     BerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
 		{
 			Value value = reader.read( scope, defined );
 			Assert.assertEquals( "Values are not equal", expected, value );
@@ -81,7 +81,7 @@ public class DefaultBerReaderTest
 		Value expected = new IntegerValueInt( 0 );
 		byte[] result = InputUtils.writeValue( scope, defined, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     BerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
 		{
 			Value value = reader.read( scope, defined );
 			Assert.assertEquals( "Values are not equal", expected, value );

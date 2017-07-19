@@ -25,8 +25,6 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.StringType;
 import org.asn1s.api.type.Type;
@@ -39,15 +37,16 @@ import java.io.IOException;
 public class StringBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception
+	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.RestrictedString;
+		assert context.getType().getFamily() == Family.RestrictedString;
+		Type type = context.getType();
 		while( !( type instanceof StringType ) )
 		{
 			assert type != null;
 			type = type.getSibling();
 		}
-		byte[] content = BerDecoderUtils.readString( is, length );
-		return is.getValueFactory().cString( new String( content, ( (StringType)type ).getCharset() ) );
+		byte[] content = BerDecoderUtils.readString( context.getReader(), context.getLength() );
+		return context.getValueFactory().cString( new String( content, ( (StringType)type ).getCharset() ) );
 	}
 }

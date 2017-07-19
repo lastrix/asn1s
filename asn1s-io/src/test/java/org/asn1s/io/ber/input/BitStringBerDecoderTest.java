@@ -66,10 +66,10 @@ public class BitStringBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
-		try( BerReader reader = mock( BerReader.class ) )
+		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
 			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			new BitStringBerDecoder().decode( reader, scope, type, tag, -1 );
+			new BitStringBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}
 	}

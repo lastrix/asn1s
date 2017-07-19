@@ -53,7 +53,7 @@ public class NullBerDecoderTest
 		Value expected = NullValue.INSTANCE;
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     BerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
 		{
 			Value value = reader.read( scope, type );
 			Assert.assertEquals( "Values are not equal", expected, value );
@@ -65,10 +65,10 @@ public class NullBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
-		try( BerReader reader = mock( BerReader.class ) )
+		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
 			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			new NullBerDecoder().decode( reader, scope, type, tag, 0 );
+			new NullBerDecoder().decode( new ReaderContext( reader, scope, type, tag, 0, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -78,10 +78,10 @@ public class NullBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Null.ref().resolve( scope );
-		try( BerReader reader = mock( BerReader.class ) )
+		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
 			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			new NullBerDecoder().decode( reader, scope, type, tag, 1 );
+			new NullBerDecoder().decode( new ReaderContext( reader, scope, type, tag, 1, false ) );
 			fail( "Must fail" );
 		}
 	}

@@ -55,7 +55,7 @@ public class UTCTimeBerDecoderTest
 		int totalWritten = result.length - 2;
 		byte[] noHeader = new byte[totalWritten];
 		System.arraycopy( result, 2, noHeader, 0, noHeader.length );
-		try( BerReader reader = mock( BerReader.class ) )
+		try( AbstractBerReader reader = mock( AbstractBerReader.class ) )
 		{
 			ValueFactory factory = mock( ValueFactory.class );
 			when( reader.getValueFactory() ).thenReturn( factory );
@@ -64,7 +64,7 @@ public class UTCTimeBerDecoderTest
 				return totalWritten;
 			} );
 			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			new UTCTimeBerDecoder().decode( reader, scope, type, tag, totalWritten );
+			new UTCTimeBerDecoder().decode( new ReaderContext( reader, scope, type, tag, totalWritten, false ) );
 			verify( reader ).getValueFactory();
 			verify( reader ).read( any( byte[].class ) );
 			verifyNoMoreInteractions( reader );
@@ -76,10 +76,10 @@ public class UTCTimeBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
-		try( BerReader reader = mock( BerReader.class ) )
+		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
 			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-			new UTCTimeBerDecoder().decode( reader, scope, type, tag, -1 );
+			new UTCTimeBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}
 	}

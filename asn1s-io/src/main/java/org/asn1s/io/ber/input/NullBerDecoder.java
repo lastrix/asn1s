@@ -25,9 +25,6 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.NullValue;
@@ -36,10 +33,10 @@ import org.jetbrains.annotations.NotNull;
 final class NullBerDecoder implements BerDecoder
 {
 	@Override
-	public Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length )
+	public Value decode( @NotNull ReaderContext context )
 	{
-		assert type.getFamily() == Family.Null;
-		assert length == 0;
+		assert context.getType().getFamily() == Family.Null;
+		assert context.getLength() == 0;
 		return NullValue.INSTANCE;
 	}
 }

@@ -25,10 +25,7 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,5 +33,5 @@ import java.io.IOException;
 
 interface BerDecoder
 {
-	Value decode( @NotNull BerReader is, @NotNull Scope scope, @NotNull Type type, @NotNull Tag tag, int length ) throws IOException, Asn1Exception;
+	Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception;
 }
