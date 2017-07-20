@@ -37,6 +37,7 @@ import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
@@ -143,16 +144,6 @@ public class WriterContext
 		return this;
 	}
 
-	public WriterContext toComponentContext( ComponentType componentType, @NotNull NamedValue namedValue ) throws IllegalValueException
-	{
-		return new WriterContext( writer, componentType.getScope( scope ), componentType, namedValue, true );
-	}
-
-	public WriterContext toSiblingContext()
-	{
-		return toSiblingContext( isWriteHeader() );
-	}
-
 	public WriterContext toSiblingContext( boolean writeHeader )
 	{
 		this.writeHeader = writeHeader;
@@ -196,26 +187,21 @@ public class WriterContext
 		writer.write( aByte );
 	}
 
-	public void write( byte[] bytes ) throws IOException
+	public void write( @Nullable byte[] bytes ) throws IOException
 	{
-		writer.write( bytes );
+		if( bytes != null && bytes.length > 0 )
+			writer.write( bytes );
 	}
 
 	public void writeComponent( ComponentType component, NamedValue value ) throws Asn1Exception, IOException
 	{
-		writer.writeInternal( toComponentContext( component, value ) );
+		writer.writeInternal( new WriterContext( writer, component.getScope( scope ), component, value, true ) );
 	}
 
 	public void writeHeader( Tag tag, int length ) throws IOException
 	{
-		writer.writeHeader( tag, length );
-	}
-
-	public void writeString( byte[] content, Tag tag ) throws IOException
-	{
 		if( isWriteHeader() )
-			writeHeader( tag, content.length );
-		write( content );
+			writer.writeHeader( tag, length );
 	}
 
 	public void writeInternal() throws IOException, Asn1Exception

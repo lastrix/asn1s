@@ -83,25 +83,19 @@ final class RealBerEncoder implements BerEncoder
 		long bits = Double.doubleToLongBits( value );
 		if( Double.isInfinite( value ) )
 		{
-			if( ctx.isWriteHeader() )
-				ctx.writeHeader( TAG, 1 );
+			ctx.writeHeader( TAG, 1 );
 			ctx.write( value < 0 ? BerUtils.REAL_NEGATIVE_INF : BerUtils.REAL_POSITIVE_INF );
 		}
 		else if( Double.isNaN( value ) )
 		{
-			if( ctx.isWriteHeader() )
-				ctx.writeHeader( TAG, 1 );
+			ctx.writeHeader( TAG, 1 );
 			ctx.write( BerUtils.REAL_NAN );
 		}
 		else if( bits == ZERO_DOUBLE_BITS )
-		{
-			if( ctx.isWriteHeader() )
-				ctx.writeHeader( TAG, 0 );
-		}
+			ctx.writeHeader( TAG, 0 );
 		else if( bits == NEGATIVE_ZERO_DOUBLE_BITS )
 		{
-			if( ctx.isWriteHeader() )
-				ctx.writeHeader( TAG, 1 );
+			ctx.writeHeader( TAG, 1 );
 			ctx.write( BerUtils.REAL_MINUS_ZERO );
 		}
 		else
@@ -136,8 +130,7 @@ final class RealBerEncoder implements BerEncoder
 			byte[] mantisBytes = IntegerBerEncoder.toByteArray( mantissa );
 			byte first = (byte)( BerUtils.REAL_BINARY_FLAG | sign | Math.min( 3, exponentBytes.length - 1 ) );
 
-			if( ctx.isWriteHeader() )
-				ctx.writeHeader( TAG, 1 + exponentBytes.length + mantisBytes.length );
+			ctx.writeHeader( TAG, 1 + exponentBytes.length + mantisBytes.length );
 			ctx.write( first );
 			if( exponentBytes.length >= 4 )
 				ctx.write( exponentBytes.length );
@@ -157,8 +150,7 @@ final class RealBerEncoder implements BerEncoder
 		{
 			throw new IllegalStateException( e );
 		}
-		if( ctx.isWriteHeader() )
-			ctx.writeHeader( TAG, 1 + bytes.length );
+		ctx.writeHeader( TAG, 1 + bytes.length );
 
 		ctx.write( 3 );
 		ctx.write( bytes );

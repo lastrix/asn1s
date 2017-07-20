@@ -47,8 +47,7 @@ final class NullBerEncoder implements BerEncoder
 	{
 		assert context.getType().getFamily() == Family.Null;
 		assert context.getValue().getKind() == Kind.Null;
-		if( context.isWriteHeader() )
-			context.writeHeader( TAG, 0 );
+		context.writeHeader( TAG, 0 );
 		// nothing to do, null value is always empty
 	}
 }

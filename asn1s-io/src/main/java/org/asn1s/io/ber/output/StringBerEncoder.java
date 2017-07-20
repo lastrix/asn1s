@@ -52,6 +52,7 @@ public class StringBerEncoder implements BerEncoder
 		}
 		Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
 		byte[] bytes = context.getValue().toStringValue().asString().getBytes( ( (StringType)type ).getCharset() );
-		context.writeString( bytes, tag );
+		context.writeHeader( tag, bytes.length );
+		context.write( bytes );
 	}
 }

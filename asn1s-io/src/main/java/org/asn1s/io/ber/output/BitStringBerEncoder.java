@@ -68,8 +68,7 @@ final class BitStringBerEncoder implements BerEncoder
 		}
 
 		int length = bytes.length == 0 ? 1 : 1 + bytes.length;
-		if( context.isWriteHeader() )
-			context.writeHeader( TAG, length );
+		context.writeHeader( TAG, length );
 
 		if( length > 1 )
 		{

@@ -48,6 +48,7 @@ public class UTCTimeBerEncoder implements BerEncoder
 		assert context.getValue().getKind() == Kind.Time;
 		String content = TimeUtils.formatInstant( context.getValue().toDateValue().asInstant(), TimeUtils.UTC_TIME_FORMAT, context.getRules() != BerRules.Der );
 		byte[] bytes = content.getBytes( TimeUtils.CHARSET );
-		context.writeString( bytes, TAG );
+		context.writeHeader( TAG, bytes.length );
+		context.write( bytes );
 	}
 }

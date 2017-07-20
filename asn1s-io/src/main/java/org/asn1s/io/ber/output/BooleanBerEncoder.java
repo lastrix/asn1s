@@ -48,10 +48,8 @@ final class BooleanBerEncoder implements BerEncoder
 	{
 		assert context.getType().getFamily() == Family.Boolean;
 		assert context.getValue().getKind() == Kind.Boolean;
-
-		if( context.isWriteHeader() )
-			context.writeHeader( TAG, 1 );
-
-		context.write( context.getValue().toBooleanValue().asBoolean() ? BerUtils.BOOLEAN_TRUE : BerUtils.BOOLEAN_FALSE );
+		context.writeHeader( TAG, 1 );
+		boolean value = context.getValue().toBooleanValue().asBoolean();
+		context.write( value ? BerUtils.BOOLEAN_TRUE : BerUtils.BOOLEAN_FALSE );
 	}
 }

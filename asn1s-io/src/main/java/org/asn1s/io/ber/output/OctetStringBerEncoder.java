@@ -45,10 +45,7 @@ final class OctetStringBerEncoder implements BerEncoder
 		assert context.getValue().getKind() == Kind.ByteArray;
 		byte[] bytes = context.getValue().toByteArrayValue().asByteArray();
 		int length = bytes == null ? 0 : bytes.length;
-		if( context.isWriteHeader() )
-			context.writeHeader( TAG, length );
-
-		if( length > 0 )
-			context.write( bytes );
+		context.writeHeader( TAG, length );
+		context.write( bytes );
 	}
 }

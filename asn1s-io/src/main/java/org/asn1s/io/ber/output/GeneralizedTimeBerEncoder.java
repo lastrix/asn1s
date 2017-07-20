@@ -36,6 +36,7 @@ import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.time.Instant;
 
 public class GeneralizedTimeBerEncoder implements BerEncoder
 {
@@ -46,7 +47,11 @@ public class GeneralizedTimeBerEncoder implements BerEncoder
 	{
 		assert context.getType().getFamily() == Family.GeneralizedTime;
 		assert context.getValue().getKind() == Kind.Time;
-		String content = TimeUtils.formatInstant( context.getValue().toDateValue().asInstant(), TimeUtils.GENERALIZED_TIME_FORMAT, context.getRules() != BerRules.Der );
-		context.writeString( content.getBytes( TimeUtils.CHARSET ), TAG );
+		Instant instant = context.getValue().toDateValue().asInstant();
+		boolean optimize = context.getRules() != BerRules.Der;
+		String content = TimeUtils.formatInstant( instant, TimeUtils.GENERALIZED_TIME_FORMAT, optimize );
+		byte[] bytes = content.getBytes( TimeUtils.CHARSET );
+		context.writeHeader( TAG, bytes.length );
+		context.write( bytes );
 	}
 }

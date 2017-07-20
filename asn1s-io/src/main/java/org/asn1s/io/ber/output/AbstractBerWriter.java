@@ -121,10 +121,6 @@ abstract class AbstractBerWriter implements Asn1Writer
 
 	public final void writeInternal( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		if( context == null )
-		{
-			int k = 0;
-		}
 		context = context.narrow();
 		Type type = context.getType();
 
@@ -133,7 +129,7 @@ abstract class AbstractBerWriter implements Asn1Writer
 		else if( type instanceof CollectionType && ( (CollectionType)type ).getKind() == Kind.Choice )
 			writeChoiceType( context );
 		else if( type.getSibling() != null )
-			writeInternal( context.toSiblingContext() );
+			writeInternal( context.toSiblingContext( context.isWriteHeader() ) );
 		else if( type.getFamily() == Family.OpenType )
 			writeOpenType( context );
 		else
@@ -243,7 +239,7 @@ abstract class AbstractBerWriter implements Asn1Writer
 		}
 	}
 
-	private void writeChoiceType( @NotNull WriterContext context ) throws IOException, Asn1Exception
+	private static void writeChoiceType( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
 		assert context.getType().getFamily() == Family.Choice;
 		context.getScope().setValueLevel( context.getValue() );
@@ -253,6 +249,6 @@ abstract class AbstractBerWriter implements Asn1Writer
 		if( componentType == null )
 			throw new ResolutionException( "Unknown component: " + namedValue.getName() );
 
-		writeInternal( context.toComponentContext( componentType, namedValue ) );
+		context.writeComponent( componentType, namedValue );
 	}
 }
