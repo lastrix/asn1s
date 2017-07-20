@@ -63,8 +63,8 @@ final class InterpolatorUtils
 			{
 				if( component.getFamily() == Family.Choice )
 					assertTagsImpl( name, tagClass, tagNumber, component.getNamedTypes() );
-
-				throw new IllegalStateException();
+				else
+					throw new IllegalStateException();
 			}
 			else
 			{

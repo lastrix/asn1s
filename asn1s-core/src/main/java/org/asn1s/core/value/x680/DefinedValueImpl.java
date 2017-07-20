@@ -58,7 +58,7 @@ public class DefinedValueImpl implements DefinedValue
 	private Value value;
 	private State state = State.None;
 
-	Module getModule()
+	public Module getModule()
 	{
 		return module;
 	}

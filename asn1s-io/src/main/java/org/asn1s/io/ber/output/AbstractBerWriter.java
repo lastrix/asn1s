@@ -218,14 +218,15 @@ abstract class AbstractBerWriter implements Asn1Writer
 
 		boolean constructed =
 				encoding.getTagMethod() != TagMethod.Implicit
-						|| context.getType().isConstructedValue( context.getScope(), context.getValue() );
+						|| context.getType().isConstructedValue( context.getScope(), context.getValue() )
+						|| context.getValue().getKind() == Value.Kind.OpenType;
 		Tag tag = new Tag( encoding.getTagClass(), constructed, encoding.getTagNumber() );
 		if( !context.isWriteHeader() )
 			writeInternal( context.toSiblingContext( encoding.getTagMethod() == TagMethod.Explicit ) );
 		else if( isBufferingAvailable() )
 		{
 			startBuffer( -1 );
-			writeInternal( context.toSiblingContext( encoding.getTagMethod() != TagMethod.Implicit ) );
+			writeInternal( context.toSiblingContext( encoding.getTagMethod() != TagMethod.Implicit || context.getValue().getKind() == Value.Kind.OpenType ) );
 			stopBuffer( tag );
 		}
 		else if( getRules() == BerRules.Der )

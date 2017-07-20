@@ -108,6 +108,14 @@ public class OpenTypeValueImpl implements OpenTypeValue
 			if( !type.isValidated() )
 				type.validate( scope );
 
+			try
+			{
+				type.optimize( scope, valueRef );
+			} catch( Exception e )
+			{
+				int k = 0;
+			}
+
 			return new OpenTypeValueImpl( type, type.optimize( scope, valueRef ), true );
 		} catch( ValidationException e )
 		{

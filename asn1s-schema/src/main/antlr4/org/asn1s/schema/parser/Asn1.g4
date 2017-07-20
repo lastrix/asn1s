@@ -254,23 +254,23 @@ symbolList returns [List<String> result]
     @init{ $result = new ArrayList<>(); }
 	:
 		symbol
-		{ $result.add($symbol.text); }
+		{ $result.add($symbol.result); }
 		(
 		    COMMA symbol
-		    { $result.add($symbol.text); }
+		    { $result.add($symbol.result); }
 		)*
 	;
 
-symbol
-	:   reference
+symbol returns [String result]
+	:   reference (OPEN_BRACE CLOSE_BRACE)? { $result = $reference.text; }
 	//|   parameterizedReference // TODO: parameterizedReference
 	;
 
 definition
     :   typeAssignment
     |   valueAssignment
-    |   objectAssignment
     |   objectSetAssignment
+    |   objectAssignment
     |   valueSetTypeAssignment
     |   objectClassAssignment
     //|   xmlValueAssignment TODO: xmlValueAssignment
@@ -562,12 +562,9 @@ templateTypeParameterList returns [List<TemplateParameter> result]
 
 templateTypeParameter[List<TemplateParameter> paramList]
     :
-        templateTypeParameterGovernor
-        valueReference
-        { $paramList.add(factory.templateParameter( paramList.size(), new ValueNameRef($valueReference.text, null), $templateTypeParameterGovernor.governor )); }
-    |   templateTypeParameterGovernor?
-        typeReference
-        { $paramList.add(factory.templateParameter( paramList.size(), new TypeNameRef($typeReference.text, null), $templateTypeParameterGovernor.governor )); }
+        templateTypeParameterGovernor?
+        Identifier
+        { $paramList.add(factory.templateParameter( paramList.size(), $Identifier.getText(), $templateTypeParameterGovernor.governor )); }
     ;
 
 templateTypeParameterGovernor returns [Ref<Type> governor]
@@ -590,6 +587,7 @@ actualTemplateTypeParameterList returns[List<Ref<?>> result]
 
 actualTemplateTypeParameter[List<Ref<?>> result]
     :   definedType          { $result.add($definedType.result); }
+    |   OPEN_BRACE definedType CLOSE_BRACE { $result.add($definedType.result); }
     |   definedValue         { $result.add($definedValue.result); }
     ;
 
@@ -918,7 +916,35 @@ elementSetSpecs returns [ConstraintTemplate result]
 	    ( COMMA ext = elementSetSpec )?
 	)?
 	{ $result = factory.elementSetSpecs($root.result, $extensible, $ext.ctx == null ? null : $ext.result); }
+	| ELLIPSIS
+	{ $result = factory.elementSetSpecs(null, true, null); }
 	;
+
+objectSetElementSpecs returns [ConstraintTemplate result]
+    locals[ boolean extensible = false; ]
+    :
+        root = objectSetElementSpec
+        (
+            COMMA ELLIPSIS { $extensible = true; }
+            ( COMMA ext = objectSetElementSpec )?
+        )?
+	{ $result = factory.elementSetSpecs($root.result, $extensible, $ext.ctx == null ? null : $ext.result); }
+    |   ELLIPSIS
+	{ $result = factory.elementSetSpecs(null, true, null); }
+    ;
+
+objectSetElementSpec returns [ConstraintTemplate result]
+    locals [List<ConstraintTemplate> list]
+    @init { $list = new ArrayList<>(); }
+    :   objectSetElementSpecItem { $list.add($objectSetElementSpecItem.result); }
+        ( ( UNION| OR ) objectSetElementSpecItem { $list.add($objectSetElementSpecItem.result); })*
+        { $result = factory.elementSetSpec($list); }
+    ;
+
+objectSetElementSpecItem returns [ConstraintTemplate result]
+    :   object { $result = factory.value( $object.result ); }
+    |   definedObjectSet { $result = factory.type($definedObjectSet.result); }
+    ;
 
 elementSetSpec returns [ConstraintTemplate result]
 	:
@@ -1128,7 +1154,7 @@ typeFieldSpec returns [ClassFieldType result]
 fixedTypeValueFieldSpec returns [ClassFieldType result]
     locals [boolean optional = false, boolean unique = false, Ref<Value> defaultValue = null;]
     :   valueFieldReference type
-        (   UNIQUE { $unique = true; } OPTIONAL { $optional = true; }
+        (   UNIQUE { $unique = true; } (OPTIONAL { $optional = true; })?
         |   (OPTIONAL { $optional = true; } | DEFAULT value { $defaultValue = $value.result; } )
         )?
         { $result = factory.fixedTypeValueField($valueFieldReference.text, $type.result, $unique, $optional, $defaultValue); }
@@ -1229,7 +1255,9 @@ definedObject returns [Ref<Value> result]
     ;
 
 objectSet returns [ConstraintTemplate result]
-    :   valueSet { $result = $valueSet.result; }
+    :
+        OPEN_BRACE objectSetElementSpecs CLOSE_BRACE { $result = $objectSetElementSpecs.result; }
+    |   valueSet { $result = $valueSet.result; }
     ;
 
 definedObjectSet returns [Ref<Type> result]

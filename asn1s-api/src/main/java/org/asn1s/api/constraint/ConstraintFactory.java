@@ -37,7 +37,7 @@ import java.util.List;
 public interface ConstraintFactory
 {
 	@NotNull
-	ConstraintTemplate elementSetSpecs( @NotNull ConstraintTemplate setSpec, boolean extensible, @Nullable ConstraintTemplate additionalSetSpec );
+	ConstraintTemplate elementSetSpecs( @Nullable ConstraintTemplate setSpec, boolean extensible, @Nullable ConstraintTemplate additionalSetSpec );
 
 	@NotNull
 	ConstraintTemplate elementSetSpec( @NotNull List<ConstraintTemplate> unions );

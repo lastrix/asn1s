@@ -101,13 +101,13 @@ public class AbstractSyntaxParser
 			else if( object.getKind() == Kind.Keyword )
 			{
 				Token token = tokenStream.LT( 1 );
-				tokenStream.consume();
 				if( !token.getText().equals( object.getText() ) )
 				{
 					if( !start )
 						throw new IllegalStateException( "Expected token does not found: " + object.getText() + ", got: " + token.getText() );
 					break;
 				}
+				tokenStream.consume();
 			}
 			else if( object.getKind() == Kind.TypeField )
 			{

@@ -26,11 +26,14 @@
 package org.asn1s.api;
 
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.module.Module;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface Template<T>
 {
+	Module getModule();
+
 	String getName();
 
 	@Nullable

@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ElementSetSpecsTemplate implements ConstraintTemplate
 {
-	public ElementSetSpecsTemplate( @NotNull ConstraintTemplate setSpec, boolean extensible, @Nullable ConstraintTemplate additionalSetSpecs )
+	public ElementSetSpecsTemplate( @Nullable ConstraintTemplate setSpec, boolean extensible, @Nullable ConstraintTemplate additionalSetSpecs )
 	{
 		this.setSpec = setSpec;
 		this.extensible = extensible;
@@ -51,7 +51,7 @@ public class ElementSetSpecsTemplate implements ConstraintTemplate
 	@Override
 	public Constraint build( @NotNull Scope scope, @NotNull Type type ) throws ResolutionException, ValidationException
 	{
-		Constraint setSpecBuilt = setSpec.build( scope, type );
+		Constraint setSpecBuilt = setSpec == null ? null : setSpec.build( scope, type );
 		Constraint additionalSetSpecBuilt = additionalSetSpecs == null ? null : additionalSetSpecs.build( scope, type );
 		return new ElementSetSpecsImpl( type, setSpecBuilt, extensible, additionalSetSpecBuilt );
 	}

@@ -39,7 +39,6 @@ import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.TypeNameRef;
 import org.asn1s.api.value.ValueFactory;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.DefaultObjectFactory;
@@ -82,7 +81,6 @@ public class SequenceTest
 		ObjectFactory factory = new DefaultObjectFactory();
 		Module module = factory.dummyModule();
 
-		Ref<?> reference = new TypeNameRef( "S-Type", null );
 		Ref<Type> intType = factory.builtin( "INTEGER" );
 		CollectionType sequenceType = factory.collection( CollectionType.Kind.Sequence );
 		sequenceType.addComponent( Kind.Primary, "a", intType, true, null );
@@ -93,7 +91,7 @@ public class SequenceTest
 		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
 		DefinedType templateType =
 				factory.define( "MyType", factory.tagged( encoding, sequenceType ),
-				                Collections.singletonList( factory.templateParameter( 0, reference, null ) ) );
+				                Collections.singletonList( factory.templateParameter( 0, "S-Type", null ) ) );
 
 
 		Ref<Type> instance = factory.typeTemplateInstance( templateType.toRef(), Collections.singletonList( intType ) );

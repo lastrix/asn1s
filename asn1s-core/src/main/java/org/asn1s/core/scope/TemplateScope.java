@@ -80,12 +80,42 @@ final class TemplateScope extends AbstractScope
 	@Override
 	public Type resolveType( @NotNull TypeName typeName ) throws ResolutionException
 	{
-		return getParentScope().resolveType( typeName );
+		try
+		{
+			return getParentScope().resolveType( typeName );
+		} catch( ResolutionException ignored )
+		{
+			return type.getModule().getTypeResolver().resolve( typeName );
+		}
 	}
 
 	@Override
 	public Value resolveValue( @NotNull ValueName valueName ) throws ResolutionException
 	{
-		return getParentScope().resolveValue( valueName );
+		try
+		{
+			return getParentScope().resolveValue( valueName );
+		} catch( ResolutionException ignored )
+		{
+			return type.getModule().getValueResolver().resolve( valueName );
+		}
+	}
+
+	@Override
+	protected void fillValueLevels( Type[] types, Value[] values, int depth )
+	{
+		if( getValueLevel() != null )
+		{
+			types[depth - 1] = (Type)type;
+			values[depth - 1] = getValueLevel();
+			depth--;
+		}
+		assert depth == 0;
+	}
+
+	@Override
+	protected int getValueLevelDepth()
+	{
+		return getValueLevel() == null ? 0 : 1;
 	}
 }

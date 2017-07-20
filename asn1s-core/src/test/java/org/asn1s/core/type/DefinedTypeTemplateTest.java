@@ -62,7 +62,7 @@ public class DefinedTypeTemplateTest
 
 		DefinedType templateType =
 				factory.define( "TemplateInteger", integerType,
-				                Collections.singletonList( factory.templateParameter( 0, nameRef, intType ) ) );
+				                Collections.singletonList( factory.templateParameter( 0, "value-X-TYPE", intType ) ) );
 
 		Ref<Type> typeInstance = factory.typeTemplateInstance( templateType.toRef(), Collections.singletonList( factory.integer( 2 ) ) );
 		DefinedType singleInteger = factory.define( "SingleInteger", typeInstance, null );
@@ -88,7 +88,7 @@ public class DefinedTypeTemplateTest
 
 		DefinedType templateType =
 				factory.define( "MyTemplate", new TypeNameRef( "X-Type", null ),
-				                Collections.singletonList( factory.templateParameter( 0, new TypeNameRef( "X-Type", null ), null ) ) );
+				                Collections.singletonList( factory.templateParameter( 0, "X-Type", null ) ) );
 
 		Type typeInstance = factory.typeTemplateInstance( templateType.toRef(), Collections.singletonList( myType.toRef() ) );
 		DefinedType typeInstanceType = factory.define( "MyInstanceType", typeInstance, null );
@@ -119,7 +119,7 @@ public class DefinedTypeTemplateTest
 		Ref<Value> xValue = module.getValueResolver().getValueRef( "x-Value", null );
 		collection.addNamed( "a", xValue );
 		collection.addNamed( "b", factory.integer( 3 ) );
-		DefinedValue valueTemplate = factory.define( "value-Template", type, collection, Collections.singletonList( factory.templateParameter( 0, xValue, intType ) ) );
+		DefinedValue valueTemplate = factory.define( "value-Template", type, collection, Collections.singletonList( factory.templateParameter( 0, "x-Value", intType ) ) );
 
 		IntegerValue integerValue = factory.integer( 10 );
 		Value templateInstance = factory.valueTemplateInstance( valueTemplate.toRef(), Collections.singletonList( integerValue ) );

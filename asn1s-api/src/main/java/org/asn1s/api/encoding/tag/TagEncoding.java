@@ -121,6 +121,11 @@ public abstract class TagEncoding implements IEncoding
 		return toString().hashCode();
 	}
 
+	public boolean isEqualToTag( @NotNull Tag tag )
+	{
+		return tag.getTagClass() == getTagClass() && tag.getTagNumber() == getTagNumber();
+	}
+
 	@Override
 	public String toString()
 	{

@@ -78,13 +78,11 @@ final class SequenceOfBerEncoder implements BerEncoder
 			throw new IllegalStateException();
 
 		ctx.getScope().setValueLevel( collection );
-		ctx = new WriterContext( ctx.getWriter(), componentType.getScope( ctx.getScope() ), componentType, null, true );
 		for( Ref<Value> ref : collection.asValueList() )
 		{
 			if( !( ref instanceof Value ) )
 				throw new IllegalValueException( "Unable to use references: " + ref );
-			ctx.setValue( (Value)ref );
-			ctx.writeInternal();
+			ctx.writeComponent( componentType, (Value)ref );
 		}
 	}
 }

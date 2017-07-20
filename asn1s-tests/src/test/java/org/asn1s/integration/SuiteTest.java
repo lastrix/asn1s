@@ -64,7 +64,7 @@ public class SuiteTest
 	{
 		List<Object[]> list = new ArrayList<>();
 		Utils.createDataFromFolder( list, "asn1s.tests.a", "a" );
-		Utils.createDataFromFolder( list, "asn1s.tests.b", "b" );
+		Utils.createDataFromFolder( list, "asn1s.tests.special", "Special" );
 		list.sort( Comparator.comparing( o -> (String)o[0] ) );
 		return list;
 	}

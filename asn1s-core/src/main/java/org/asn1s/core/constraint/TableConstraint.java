@@ -34,10 +34,7 @@ import org.asn1s.api.exception.ConstraintViolationException;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.ClassFieldType;
-import org.asn1s.api.type.NamedType;
-import org.asn1s.api.type.RelationItem;
-import org.asn1s.api.type.Type;
+import org.asn1s.api.type.*;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -47,7 +44,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collection;
 import java.util.List;
 
-public class TableConstraint implements Constraint
+public class TableConstraint implements Constraint, InstanceOfTypeSelector
 {
 	private final ClassFieldType type;
 	private final String name;
@@ -69,17 +66,29 @@ public class TableConstraint implements Constraint
 	{
 		Value checkValue = RefUtils.toBasicValue( scope, valueRef );
 
+		if( values.isEmpty() )
+			return;
+
 		for( Value value : values )
 		{
 			assert value.getKind() == Kind.Object;
 			if( isFiltered( value.toObjectValue(), scope ) )
 				continue;
 			Ref<?> ref = value.toObjectValue().getFields().get( name );
-			if( !( ref instanceof Value ) )
-				throw new ResolutionException( "Unable to use non-value ref: " + ref );
-
-			if( ( (Value)ref ).isEqualTo( checkValue ) )
-				return;
+			if( ref instanceof Type )
+			{
+				assert checkValue.getKind() == Kind.OpenType;
+				Ref<Type> openType = checkValue.toOpenTypeValue().getType();
+				assert openType instanceof Type;
+				//noinspection ObjectEquality
+				if( openType == ref )
+					return;
+			}
+			else if( ref instanceof Value )
+			{
+				if( ( (Value)ref ).isEqualTo( checkValue ) )
+					return;
+			}
 		}
 
 		throw new ConstraintViolationException( "Table constraint failure for value: " + valueRef + ". Type: " + type );
@@ -141,5 +150,44 @@ public class TableConstraint implements Constraint
 	public void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException
 	{
 		throw new ValidationException();
+	}
+
+	@NotNull
+	@Override
+	public Type resolveInstanceOfType( @NotNull Scope scope ) throws ResolutionException
+	{
+		for( Value value : values )
+		{
+			assert value.getKind() == Kind.Object;
+			if( isFilteredOrResolutionException( value.toObjectValue(), scope ) )
+				continue;
+			Ref<?> ref = value.toObjectValue().getFields().get( name );
+			if( ref instanceof Type )
+				return (Type)ref;
+		}
+		throw new ResolutionException( "Unable to resolve type" );
+	}
+
+	private boolean isFilteredOrResolutionException( ObjectValue objectValue, Scope scope ) throws ResolutionException
+	{
+		try
+		{
+			return isFiltered( objectValue, scope );
+		} catch( ValidationException e )
+		{
+			throw new ResolutionException( e );
+		}
+	}
+
+	@Override
+	public void setScopeOptions( Scope scope )
+	{
+		scope.setScopeOption( InstanceOfTypeSelector.KEY, this );
+	}
+
+	@Override
+	public String toString()
+	{
+		return "{" + type + "}{" + relationItems + '}';
 	}
 }

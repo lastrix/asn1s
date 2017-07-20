@@ -57,7 +57,7 @@ public interface TypeFactory
 
 	//////////////////////////////// Types /////////////////////////////////////////////////////////////////////////////
 	@NotNull
-	TemplateParameter templateParameter( int index, @NotNull Ref<?> ref, @Nullable Ref<Type> governor );
+	TemplateParameter templateParameter( int index, @NotNull String reference, @Nullable Ref<Type> governor );
 
 	@NotNull
 	DefinedType define( @NotNull String name, @NotNull Ref<Type> typeRef, @Nullable Collection<TemplateParameter> parameters );

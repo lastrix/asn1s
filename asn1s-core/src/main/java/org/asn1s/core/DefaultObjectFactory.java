@@ -38,7 +38,9 @@ import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.type.*;
 import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.api.type.Type.Family;
+import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.ValueNameRef;
 import org.asn1s.api.value.x680.DefinedValue;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x681.ObjectValue;
@@ -101,8 +103,12 @@ public final class DefaultObjectFactory extends CoreValueFactory implements Obje
 
 	@NotNull
 	@Override
-	public TemplateParameter templateParameter( int index, @NotNull Ref<?> ref, @Nullable Ref<Type> governor )
+	public TemplateParameter templateParameter( int index, @NotNull String reference, @Nullable Ref<Type> governor )
 	{
+		Ref<?> ref = RefUtils.isTypeRef( reference )
+				? new TypeNameRef( reference, null )
+				: new ValueNameRef( reference, null );
+
 		return new TemplateParameterImpl( index, ref, governor );
 	}
 
@@ -332,7 +338,7 @@ public final class DefaultObjectFactory extends CoreValueFactory implements Obje
 	///////////////////////////////////// Constraints //////////////////////////////////////////////////////////////////
 	@NotNull
 	@Override
-	public ConstraintTemplate elementSetSpecs( @NotNull ConstraintTemplate setSpec, boolean extensible, @Nullable ConstraintTemplate additionalSetSpec )
+	public ConstraintTemplate elementSetSpecs( @Nullable ConstraintTemplate setSpec, boolean extensible, @Nullable ConstraintTemplate additionalSetSpec )
 	{
 		return new ElementSetSpecsTemplate( setSpec, extensible, additionalSetSpec );
 	}

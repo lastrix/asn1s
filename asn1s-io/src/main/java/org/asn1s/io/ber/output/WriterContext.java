@@ -34,7 +34,6 @@ import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
-import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -193,7 +192,7 @@ public class WriterContext
 			writer.write( bytes );
 	}
 
-	public void writeComponent( ComponentType component, NamedValue value ) throws Asn1Exception, IOException
+	public void writeComponent( ComponentType component, Value value ) throws Asn1Exception, IOException
 	{
 		writer.writeInternal( new WriterContext( writer, component.getScope( scope ), component, value, true ) );
 	}

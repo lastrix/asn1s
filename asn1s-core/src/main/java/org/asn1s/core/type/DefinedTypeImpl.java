@@ -86,7 +86,7 @@ public class DefinedTypeImpl extends AbstractType implements DefinedType
 		return createScope();
 	}
 
-	Module getModule()
+	public Module getModule()
 	{
 		return module;
 	}

@@ -191,11 +191,15 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 		if( value.getKind() == Value.Kind.Name )
 		{
 			NamedValue namedValue = value.toNamedValue();
-			if( !namedValue.getName().equals( getComponentName() ) )
-				throw new IllegalValueException( "Illegal component: " + valueRef );
+			Ref<Value> referenced = namedValue;
+			if( !isDummy() )
+			{
+				if( !namedValue.getName().equals( getComponentName() ) )
+					throw new IllegalValueException( "Illegal component: " + valueRef );
 
-			Ref<Value> referenced = namedValue.getValueRef();
-			assert referenced != null;
+				referenced = namedValue.getValueRef();
+				assert referenced != null;
+			}
 
 			Value referencedOptimized = componentType.optimize( scope, referenced );
 			//noinspection ObjectEquality

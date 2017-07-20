@@ -37,6 +37,7 @@ import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
+import org.asn1s.api.value.x680.NullValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +45,7 @@ import java.util.Collection;
 
 public class ElementSetSpecsImpl implements ElementSetSpecs
 {
-	public ElementSetSpecsImpl( @NotNull Type type, @NotNull Constraint setSpec, boolean extensible, @Nullable Constraint additionalSetSpec )
+	public ElementSetSpecsImpl( @NotNull Type type, @Nullable Constraint setSpec, boolean extensible, @Nullable Constraint additionalSetSpec )
 	{
 		if( !extensible && additionalSetSpec != null )
 			throw new IllegalArgumentException( "'extensible' must be true when 'additionalSetSpec' is not null." );
@@ -65,13 +66,16 @@ public class ElementSetSpecsImpl implements ElementSetSpecs
 	{
 		Value value = valueRef.resolve( scope );
 		type.accept( scope, value );
-		try
+		if( setSpec != null )
 		{
-			setSpec.check( scope, value );
-		} catch( ConstraintViolationException e )
-		{
-			if( !extensible )
-				throw e;
+			try
+			{
+				setSpec.check( scope, value );
+			} catch( ConstraintViolationException e )
+			{
+				if( !extensible )
+					throw e;
+			}
 		}
 
 		if( additionalSetSpec != null )
@@ -90,17 +94,20 @@ public class ElementSetSpecsImpl implements ElementSetSpecs
 	@Override
 	public Constraint copyForType( @NotNull Scope scope, @NotNull Type type ) throws ResolutionException, ValidationException
 	{
-		return new ElementSetSpecsImpl( type, setSpec.copyForType( scope, type ), extensible, additionalSetSpec == null ? null : additionalSetSpec.copyForType( scope, type ) );
+		return new ElementSetSpecsImpl( type, setSpec == null ? null : setSpec.copyForType( scope, type ), extensible, additionalSetSpec == null ? null : additionalSetSpec.copyForType( scope, type ) );
 	}
 
 	@NotNull
 	@Override
 	public Value getMinimumValue( @NotNull Scope scope ) throws ResolutionException
 	{
-		Value minimumValue = setSpec.getMinimumValue( scope );
+		Value minimumValue = setSpec == null ? NullValue.INSTANCE : setSpec.getMinimumValue( scope );
 		if( additionalSetSpec != null )
 		{
 			Value additionalMinimumValue = additionalSetSpec.getMinimumValue( scope );
+			//noinspection ObjectEquality
+			if( minimumValue == NullValue.INSTANCE )
+				return additionalMinimumValue;
 			return minimumValue.compareTo( additionalMinimumValue ) <= 0 ? minimumValue : additionalMinimumValue;
 		}
 		return minimumValue;
@@ -110,10 +117,13 @@ public class ElementSetSpecsImpl implements ElementSetSpecs
 	@Override
 	public Value getMaximumValue( @NotNull Scope scope ) throws ResolutionException
 	{
-		Value maximumValue = setSpec.getMaximumValue( scope );
+		Value maximumValue = setSpec == null ? NullValue.INSTANCE : setSpec.getMaximumValue( scope );
 		if( additionalSetSpec != null )
 		{
 			Value additionalMaximumValue = additionalSetSpec.getMinimumValue( scope );
+			//noinspection ObjectEquality
+			if( maximumValue == NullValue.INSTANCE )
+				return additionalMaximumValue;
 			return maximumValue.compareTo( additionalMaximumValue ) >= 0 ? maximumValue : additionalMaximumValue;
 		}
 		return maximumValue;
@@ -134,7 +144,8 @@ public class ElementSetSpecsImpl implements ElementSetSpecs
 	@Override
 	public void setScopeOptions( Scope scope )
 	{
-		setSpec.setScopeOptions( scope );
+		if( setSpec != null )
+			setSpec.setScopeOptions( scope );
 		if( additionalSetSpec != null )
 			additionalSetSpec.setScopeOptions( scope );
 	}
@@ -142,7 +153,8 @@ public class ElementSetSpecsImpl implements ElementSetSpecs
 	@Override
 	public void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException
 	{
-		setSpec.assertConstraintTypes( allowedTypes );
+		if( setSpec != null )
+			setSpec.assertConstraintTypes( allowedTypes );
 		if( additionalSetSpec != null )
 			additionalSetSpec.assertConstraintTypes( allowedTypes );
 	}
@@ -150,7 +162,8 @@ public class ElementSetSpecsImpl implements ElementSetSpecs
 	@Override
 	public void collectValues( @NotNull Collection<Value> values, @NotNull Collection<Kind> requiredKinds ) throws IllegalValueException
 	{
-		setSpec.collectValues( values, requiredKinds );
+		if( setSpec != null )
+			setSpec.collectValues( values, requiredKinds );
 		if( additionalSetSpec != null )
 			additionalSetSpec.collectValues( values, requiredKinds );
 	}
