@@ -25,14 +25,11 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.ObjectIdentifierValue;
 import org.asn1s.io.ber.BerUtils;
@@ -48,24 +45,24 @@ public class ObjectIDBerEncoder implements BerEncoder
 	private static final int MASK_NO_BYTES = 0x0;
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.Oid;
-		assert value.getKind() == Kind.Oid;
+		assert context.getType().getFamily() == Family.Oid;
+		assert context.getValue().getKind() == Kind.Oid;
 
-		if( !writeHeader )
-			writeObjectIDImpl( os, value.toObjectIdentifierValue() );
-		else if( os.isBufferingAvailable() )
+		if( !context.isWriteHeader() )
+			writeObjectIDImpl( context.getWriter(), context.getValue().toObjectIdentifierValue() );
+		else if( context.isBufferingAvailable() )
 		{
-			os.startBuffer( -1 );
-			writeObjectIDImpl( os, value.toObjectIdentifierValue() );
-			os.stopBuffer( TAG );
+			context.startBuffer( -1 );
+			writeObjectIDImpl( context.getWriter(), context.getValue().toObjectIdentifierValue() );
+			context.stopBuffer( TAG );
 		}
 		else
 			throw new Asn1Exception( "Buffering is required for ObjectIdentifier" );
 	}
 
-	private static void writeObjectIDImpl( BerWriter os, ObjectIdentifierValue value ) throws IOException
+	private static void writeObjectIDImpl( AbstractBerWriter os, ObjectIdentifierValue value ) throws IOException
 	{
 		Long[] array = value.asIDArray();
 		long first = array[0] * BerUtils.OID_FIRST_BYTE_MULTIPLIER + array[1];
@@ -75,7 +72,7 @@ public class ObjectIDBerEncoder implements BerEncoder
 			writeObjectIDItem( array[i], os );
 	}
 
-	private static void writeObjectIDItem( long item, BerWriter os ) throws IOException
+	private static void writeObjectIDItem( long item, AbstractBerWriter os ) throws IOException
 	{
 		assert item >= 0;
 		if( item == 0 )

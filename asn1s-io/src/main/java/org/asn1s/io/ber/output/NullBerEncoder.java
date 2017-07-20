@@ -25,13 +25,10 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.jetbrains.annotations.NotNull;
 
@@ -46,12 +43,12 @@ final class NullBerEncoder implements BerEncoder
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Null.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
+	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert type.getFamily() == Family.Null;
-		assert value.getKind() == Kind.Null;
-		if( writeHeader )
-			os.writeHeader( TAG, 0 );
+		assert context.getType().getFamily() == Family.Null;
+		assert context.getValue().getKind() == Kind.Null;
+		if( context.isWriteHeader() )
+			context.writeHeader( TAG, 0 );
 		// nothing to do, null value is always empty
 	}
 }

@@ -53,9 +53,9 @@ public class RealBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new IntegerValueInt( 0 );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			fail( "Must fail" );
 		}
 	}
@@ -66,9 +66,9 @@ public class RealBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new StringValueImpl( "Value" );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			fail( "Must fail" );
 		}
 	}
@@ -80,9 +80,9 @@ public class RealBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Real.ref().resolve( scope );
 		Value value = new IntegerValueInt( 0 );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 0 );
 			verifyNoMoreInteractions( writer );
 		}
@@ -94,9 +94,9 @@ public class RealBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Real.ref().resolve( scope );
 		Value value = new RealValueFloat( -0.0f );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 67 );
 			verifyNoMoreInteractions( writer );
@@ -109,9 +109,9 @@ public class RealBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Real.ref().resolve( scope );
 		Value value = new RealValueFloat( Float.NEGATIVE_INFINITY );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 65 );
 			verifyNoMoreInteractions( writer );
@@ -124,9 +124,9 @@ public class RealBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Real.ref().resolve( scope );
 		Value value = new RealValueFloat( Float.POSITIVE_INFINITY );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 64 );
 			verifyNoMoreInteractions( writer );
@@ -139,9 +139,9 @@ public class RealBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Real.ref().resolve( scope );
 		Value value = new RealValueFloat( Float.NaN );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 66 );
 			verifyNoMoreInteractions( writer );
@@ -157,9 +157,9 @@ public class RealBerEncoderTest
 		BigDecimal decimal = new BigDecimal( BigInteger.valueOf( 1023234L ).pow( 5223 ) );
 		byte[] bytes = NRxUtils.toCanonicalNR3( decimal.toString() ).getBytes( "UTF-8" );
 		Value value = new RealValueBig( decimal );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 31396 );
 			verify( writer ).write( 3 );
 			verify( writer ).write( bytes );
@@ -175,9 +175,9 @@ public class RealBerEncoderTest
 		BigInteger bigInteger = BigInteger.valueOf( 1023234L ).pow( 5223 );
 		byte[] bytes = NRxUtils.toCanonicalNR3( new BigDecimal( bigInteger ).toString() ).getBytes( "UTF-8" );
 		Value value = new IntegerValueBig( bigInteger );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 31396 );
 			verify( writer ).write( 3 );
 			verify( writer ).write( bytes );
@@ -191,9 +191,9 @@ public class RealBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Real.ref().resolve( scope );
 		Value value = new RealValueFloat( 1.0f );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 3 );
 			verify( writer ).write( -128 );
 			verify( writer ).write( new byte[]{-51} );
@@ -208,9 +208,9 @@ public class RealBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Real.ref().resolve( scope );
 		Value value = new RealValueDouble( 0.15625d );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new RealBerEncoder().encode( writer, scope, type, value, true );
+			new RealBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 3 );
 			verify( writer ).write( -128 );
 			verify( writer ).write( new byte[]{(byte)0xFB} );

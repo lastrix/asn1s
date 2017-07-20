@@ -53,10 +53,10 @@ public class GeneralizedTimeBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.GeneralizedTime.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseGeneralizedTime( TIME_VALUE ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new GeneralizedTimeBerEncoder().encode( writer, scope, type, value, true );
+			new GeneralizedTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 15 );
 			verify( writer ).write( new byte[]{0x32, 0x30, 0x31, 0x37, 0x30, 0x36, 0x30, 0x31, 0x31, 0x31, 0x35, 0x37, 0x30, 0x30, 0x5A} );
@@ -70,10 +70,10 @@ public class GeneralizedTimeBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.GeneralizedTime.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseGeneralizedTime( TIME_VALUE ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new GeneralizedTimeBerEncoder().encode( writer, scope, type, value, true );
+			new GeneralizedTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 13 );
 			verify( writer ).write( new byte[]{0x32, 0x30, 0x31, 0x37, 0x30, 0x36, 0x30, 0x31, 0x31, 0x31, 0x35, 0x37, 0x5A} );
@@ -87,9 +87,9 @@ public class GeneralizedTimeBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseGeneralizedTime( TIME_VALUE ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new GeneralizedTimeBerEncoder().encode( writer, scope, type, value, false );
+			new GeneralizedTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -100,9 +100,9 @@ public class GeneralizedTimeBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.GeneralizedTime.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new GeneralizedTimeBerEncoder().encode( writer, scope, type, value, false );
+			new GeneralizedTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

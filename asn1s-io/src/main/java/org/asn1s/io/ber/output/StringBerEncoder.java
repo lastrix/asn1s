@@ -25,7 +25,6 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagEncoding;
@@ -33,7 +32,6 @@ import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.StringType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,16 +40,18 @@ import java.io.IOException;
 public class StringBerEncoder implements BerEncoder
 {
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.RestrictedString;
-		assert value.getKind() == Kind.CString;
+		assert context.getType().getFamily() == Family.RestrictedString;
+		assert context.getValue().getKind() == Kind.CString;
+		Type type = context.getType();
 		while( !( type instanceof StringType ) )
 		{
 			assert type != null;
 			type = type.getSibling();
 		}
 		Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
-		BerEncoderUtils.writeString( os, ( (StringType)type ).getCharset(), tag, value.toStringValue().asString(), writeHeader );
+		byte[] bytes = context.getValue().toStringValue().asString().getBytes( ( (StringType)type ).getCharset() );
+		context.writeString( bytes, tag );
 	}
 }

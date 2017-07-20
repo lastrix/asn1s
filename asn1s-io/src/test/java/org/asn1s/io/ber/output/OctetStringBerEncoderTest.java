@@ -49,9 +49,9 @@ public class OctetStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.OctetString.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromHexString( "''H" );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new OctetStringBerEncoder().encode( writer, scope, type, value, true );
+			new OctetStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 0 );
 			verifyNoMoreInteractions( writer );
 		}
@@ -63,9 +63,9 @@ public class OctetStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.OctetString.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromHexString( "'AF'H" );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new OctetStringBerEncoder().encode( writer, scope, type, value, true );
+			new OctetStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( new byte[]{(byte)0xAF} );
 			verifyNoMoreInteractions( writer );
@@ -78,9 +78,9 @@ public class OctetStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromHexString( "'AF'H" );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new OctetStringBerEncoder().encode( writer, scope, type, value, false );
+			new OctetStringBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -91,9 +91,9 @@ public class OctetStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.OctetString.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new OctetStringBerEncoder().encode( writer, scope, type, value, false );
+			new OctetStringBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

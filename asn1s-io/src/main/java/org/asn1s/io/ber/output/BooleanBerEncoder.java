@@ -25,13 +25,10 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.io.ber.BerUtils;
 import org.jetbrains.annotations.NotNull;
@@ -47,18 +44,14 @@ final class BooleanBerEncoder implements BerEncoder
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Boolean.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
+	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert type.getFamily() == Family.Boolean;
-		assert value.getKind() == Kind.Boolean;
-		writeBoolean( os, value.toBooleanValue().asBoolean(), writeHeader );
-	}
+		assert context.getType().getFamily() == Family.Boolean;
+		assert context.getValue().getKind() == Kind.Boolean;
 
-	private static void writeBoolean( BerWriter os, boolean value, boolean writeHeader ) throws IOException
-	{
-		if( writeHeader )
-			os.writeHeader( TAG, 1 );
+		if( context.isWriteHeader() )
+			context.writeHeader( TAG, 1 );
 
-		os.write( value ? BerUtils.BOOLEAN_TRUE : BerUtils.BOOLEAN_FALSE );
+		context.write( context.getValue().toBooleanValue().asBoolean() ? BerUtils.BOOLEAN_TRUE : BerUtils.BOOLEAN_FALSE );
 	}
 }

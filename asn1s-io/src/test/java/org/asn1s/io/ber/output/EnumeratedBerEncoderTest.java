@@ -55,9 +55,9 @@ public class EnumeratedBerEncoderTest
 		type.addItem( ItemKind.Primary, "a", new IntegerValueInt( 0 ) );
 		type.validate( scope );
 		Value value = type.optimize( scope, new IntegerValueInt( 0 ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new EnumeratedBerEncoder().encode( writer, scope, type, value, true );
+			new EnumeratedBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 0 );
 			verifyNoMoreInteractions( writer );
@@ -70,9 +70,9 @@ public class EnumeratedBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new NamedValueImpl( "abc", new IntegerValueInt( 0 ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new EnumeratedBerEncoder().encode( writer, scope, type, value, false );
+			new EnumeratedBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -85,9 +85,9 @@ public class EnumeratedBerEncoderTest
 		type.addItem( ItemKind.Primary, "a", new IntegerValueInt( 0 ) );
 		type.validate( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new EnumeratedBerEncoder().encode( writer, scope, type, value, false );
+			new EnumeratedBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

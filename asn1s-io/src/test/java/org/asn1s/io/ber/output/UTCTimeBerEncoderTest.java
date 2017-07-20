@@ -52,10 +52,10 @@ public class UTCTimeBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.UTCTime.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseUTCTime( TIME_VALUE ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new UTCTimeBerEncoder().encode( writer, scope, type, value, true );
+			new UTCTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 13 );
 			verify( writer ).write( new byte[]{0x31, 0x37, 0x30, 0x36, 0x30, 0x31, 0x31, 0x31, 0x35, 0x37, 0x30, 0x30, 0x5A} );
@@ -69,10 +69,10 @@ public class UTCTimeBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.UTCTime.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseUTCTime( TIME_VALUE ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new UTCTimeBerEncoder().encode( writer, scope, type, value, true );
+			new UTCTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 11 );
 			verify( writer ).write( new byte[]{0x31, 0x37, 0x30, 0x36, 0x30, 0x31, 0x31, 0x31, 0x35, 0x37, 0x5A} );
@@ -86,9 +86,9 @@ public class UTCTimeBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseUTCTime( TIME_VALUE ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new UTCTimeBerEncoder().encode( writer, scope, type, value, false );
+			new UTCTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -99,9 +99,9 @@ public class UTCTimeBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.UTCTime.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new UTCTimeBerEncoder().encode( writer, scope, type, value, false );
+			new UTCTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

@@ -25,15 +25,12 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.TimeUtils;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
@@ -45,11 +42,11 @@ public class GeneralizedTimeBerEncoder implements BerEncoder
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.GeneralizedTime.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.GeneralizedTime;
-		assert value.getKind() == Kind.Time;
-		String content = TimeUtils.formatInstant( value.toDateValue().asInstant(), TimeUtils.GENERALIZED_TIME_FORMAT, os.getRules() != BerRules.Der );
-		BerEncoderUtils.writeString( os, TimeUtils.CHARSET, TAG, content, writeHeader );
+		assert context.getType().getFamily() == Family.GeneralizedTime;
+		assert context.getValue().getKind() == Kind.Time;
+		String content = TimeUtils.formatInstant( context.getValue().toDateValue().asInstant(), TimeUtils.GENERALIZED_TIME_FORMAT, context.getRules() != BerRules.Der );
+		context.writeString( content.getBytes( TimeUtils.CHARSET ), TAG );
 	}
 }

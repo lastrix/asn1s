@@ -25,12 +25,8 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.CollectionOfType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
@@ -40,27 +36,27 @@ import java.io.IOException;
 final class SetOfBerEncoder implements BerEncoder
 {
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.SetOf;
-		assert value.getKind() == Kind.Collection || value.getKind() == Kind.NamedCollection;
+		assert context.getType().getFamily() == Family.SetOf;
+		assert context.getValue().getKind() == Kind.Collection || context.getValue().getKind() == Kind.NamedCollection;
 
-		if( !writeHeader )
-			SequenceOfBerEncoder.writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
-		else if( os.isBufferingAvailable() )
+		if( !context.isWriteHeader() )
+			SequenceOfBerEncoder.writeCollection( context );
+		else if( context.isBufferingAvailable() )
 		{
-			os.startBuffer( -1 );
-			SequenceOfBerEncoder.writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
-			os.stopBuffer( SetBerEncoder.TAG );
+			context.startBuffer( -1 );
+			SequenceOfBerEncoder.writeCollection( context );
+			context.stopBuffer( SetBerEncoder.TAG );
 		}
-		else if( os.getRules() == BerRules.Der )
+		else if( context.getRules() == BerRules.Der )
 			throw new Asn1Exception( "Buffering is required for DER rules" );
 		else
 		{
-			os.writeHeader( SetBerEncoder.TAG, -1 );
-			SequenceOfBerEncoder.writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
-			os.write( 0 );
-			os.write( 0 );
+			context.writeHeader( SetBerEncoder.TAG, -1 );
+			SequenceOfBerEncoder.writeCollection( context );
+			context.write( 0 );
+			context.write( 0 );
 		}
 	}
 }

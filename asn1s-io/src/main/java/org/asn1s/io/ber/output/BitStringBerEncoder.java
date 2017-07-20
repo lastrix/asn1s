@@ -25,15 +25,12 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.constraint.Constraint;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.ByteArrayValue;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
@@ -45,22 +42,19 @@ final class BitStringBerEncoder implements BerEncoder
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.BitString.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
+	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert type.getFamily() == Family.BitString;
-		assert value.getKind() == Kind.ByteArray;
-		ByteArrayValue arrayValue = value.toByteArrayValue();
-		writeBitString( os, !type.getNamedValues().isEmpty(), scope, arrayValue, writeHeader );
-	}
+		assert context.getType().getFamily() == Family.BitString;
+		assert context.getValue().getKind() == Kind.ByteArray;
+		ByteArrayValue arrayValue = context.getValue().toByteArrayValue();
+		boolean hasNamedValues = !context.getType().getNamedValues().isEmpty();
 
-	private static void writeBitString( BerWriter os, boolean hasNamedValues, Scope scope, ByteArrayValue arrayValue, boolean writeHeader ) throws IOException
-	{
 		byte[] bytes = arrayValue.asByteArray();
 		int usedBits = arrayValue.getUsedBits();
 		int emptyBits = bytes.length * 8 - usedBits;
-		if( os.getRules() == BerRules.Der )
+		if( context.getRules() == BerRules.Der )
 		{
-			boolean hasSizeConstraint = Boolean.TRUE.equals( scope.getScopeOption( Constraint.OPTION_HAS_SIZE_CONSTRAINT ) );
+			boolean hasSizeConstraint = Boolean.TRUE.equals( context.getScope().getScopeOption( Constraint.OPTION_HAS_SIZE_CONSTRAINT ) );
 
 			if( !hasSizeConstraint && hasNamedValues )
 			{
@@ -74,16 +68,16 @@ final class BitStringBerEncoder implements BerEncoder
 		}
 
 		int length = bytes.length == 0 ? 1 : 1 + bytes.length;
-		if( writeHeader )
-			os.writeHeader( TAG, length );
+		if( context.isWriteHeader() )
+			context.writeHeader( TAG, length );
 
 		if( length > 1 )
 		{
-			os.write( emptyBits );
-			os.write( bytes );
+			context.write( emptyBits );
+			context.write( bytes );
 		}
 		else
-			os.write( 0 );
+			context.write( 0 );
 	}
 
 	private static int getTrailingZerosCount( byte last )

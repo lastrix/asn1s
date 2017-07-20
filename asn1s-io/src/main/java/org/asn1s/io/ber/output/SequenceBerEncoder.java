@@ -25,7 +25,6 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
@@ -33,17 +32,14 @@ import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.RefUtils;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 
 final class SequenceBerEncoder implements BerEncoder
@@ -52,35 +48,36 @@ final class SequenceBerEncoder implements BerEncoder
 	private static final Tag TAG_INSTANCE_OF = new Tag( TagClass.Universal, true, UniversalType.InstanceOf.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.Sequence;
-		assert value.getKind() == Kind.NamedCollection || value.getKind() == Kind.Collection && value.toValueCollection().isEmpty();
+		assert context.getType().getFamily() == Family.Sequence;
+		assert context.getValue().getKind() == Kind.NamedCollection || context.getValue().getKind() == Kind.Collection && context.getValue().toValueCollection().isEmpty();
 
-		Tag tag = ( (CollectionType)type ).isInstanceOf() ? TAG_INSTANCE_OF : TAG;
+		Tag tag = ( (CollectionType)context.getType() ).isInstanceOf() ? TAG_INSTANCE_OF : TAG;
 
-		List<NamedValue> values = value.toValueCollection().asNamedValueList();
-		if( !writeHeader )
-			writeSequence( scope, os, (CollectionType)type, values );
-		else if( os.isBufferingAvailable() )
+		if( !context.isWriteHeader() )
+			writeSequence( context );
+		else if( context.isBufferingAvailable() )
 		{
-			os.startBuffer( -1 );
-			writeSequence( scope, os, (CollectionType)type, values );
-			os.stopBuffer( tag );
+			context.startBuffer( -1 );
+			writeSequence( context );
+			context.stopBuffer( tag );
 		}
-		else if( os.getRules() == BerRules.Der )
+		else if( context.getRules() == BerRules.Der )
 			throw new Asn1Exception( "Buffering is required for DER rules" );
 		else
 		{
-			os.writeHeader( tag, -1 );
-			writeSequence( scope, os, (CollectionType)type, values );
-			os.write( 0 );
-			os.write( 0 );
+			context.writeHeader( tag, -1 );
+			writeSequence( context );
+			context.write( 0 );
+			context.write( 0 );
 		}
 	}
 
-	private static void writeSequence( Scope scope, BerWriter os, CollectionType type, Collection<NamedValue> values ) throws Asn1Exception, IOException
+	private static void writeSequence( WriterContext ctx ) throws Asn1Exception, IOException
 	{
+		List<NamedValue> values = ctx.getValue().toValueCollection().asNamedValueList();
+		CollectionType type = (CollectionType)ctx.getType();
 		if( values.isEmpty() )
 		{
 			if( type.isAllComponentsOptional() )
@@ -111,10 +108,10 @@ final class SequenceBerEncoder implements BerEncoder
 			previousComponentIndex = component.getIndex();
 
 			// do not write default values, it's just a waste of time and memory
-			if( RefUtils.isSameAsDefaultValue( scope, component, value ) )
+			if( RefUtils.isSameAsDefaultValue( ctx.getScope(), component, value ) )
 				continue;
 
-			os.writeInternal( component.getScope( scope ), component, value, true );
+			ctx.writeComponent( component, value );
 		}
 
 		type.assertComponentsOptionalityInRange( previousComponentIndex, -1, version );

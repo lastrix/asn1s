@@ -25,13 +25,10 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.io.ber.BerUtils;
 import org.jetbrains.annotations.NotNull;
@@ -48,14 +45,14 @@ final class IntegerBerEncoder implements BerEncoder
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
+	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert value.getKind() == Kind.Integer;
-		assert type.getFamily() == Family.Integer;
-		writeLong( os, value.toIntegerValue().asLong(), TAG, writeHeader );
+		assert context.getType().getFamily() == Family.Integer;
+		assert context.getValue().getKind() == Kind.Integer;
+		writeLong( context.getWriter(), context.getValue().toIntegerValue().asLong(), TAG, context.isWriteHeader() );
 	}
 
-	static void writeLong( @NotNull BerWriter os, long value, @Nullable Tag tag, boolean writeHeader ) throws IOException
+	static void writeLong( @NotNull AbstractBerWriter os, long value, @Nullable Tag tag, boolean writeHeader ) throws IOException
 	{
 		if( tag == null )
 		{

@@ -58,10 +58,10 @@ public class BitStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.BitString.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromBitString( VALUE_0101B );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new BitStringBerEncoder().encode( writer, scope, type, value, true );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 2 );
 			verify( writer ).write( 4 );
@@ -76,10 +76,10 @@ public class BitStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.BitString.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromBitString( VALUE_0101B );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new BitStringBerEncoder().encode( writer, scope, type, value, true );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 2 );
 			verify( writer ).write( 4 );
@@ -94,10 +94,10 @@ public class BitStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.BitString.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromBitString( VALUE_01010000000000B );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new BitStringBerEncoder().encode( writer, scope, type, value, true );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 3 );
 			verify( writer ).write( 2 );
@@ -117,10 +117,10 @@ public class BitStringBerEncoderTest
 				new NamedValueImpl( "d", new IntegerValueInt( 4 ) ) ) );
 		type.validate( scope );
 		Value value = CoreUtils.byteArrayFromBitString( VALUE_01010000000000B );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new BitStringBerEncoder().encode( writer, scope, type, value, true );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 2 );
 			verify( writer ).write( 4 );
@@ -140,10 +140,10 @@ public class BitStringBerEncoderTest
 				new NamedValueImpl( "d", new IntegerValueInt( 4 ) ) ) );
 		type.validate( scope );
 		Value value = CoreUtils.byteArrayFromBitString( VALUE_0000B );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new BitStringBerEncoder().encode( writer, scope, type, value, true );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 2 );
 			verify( writer ).write( 1 );
@@ -158,10 +158,10 @@ public class BitStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.BitString.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromBitString( VALUE_0000B );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new BitStringBerEncoder().encode( writer, scope, type, value, true );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 2 );
 			verify( writer ).write( 4 );
@@ -176,10 +176,10 @@ public class BitStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.BitString.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromBitString( "''B" );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new BitStringBerEncoder().encode( writer, scope, type, value, true );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 0 );
@@ -193,10 +193,10 @@ public class BitStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.BitString.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromBitString( VALUE_01010000000000B );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new BitStringBerEncoder().encode( writer, scope, type, value, true );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 3 );
 			verify( writer ).write( 2 );
@@ -211,9 +211,9 @@ public class BitStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromBitString( VALUE_0101B );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new BitStringBerEncoder().encode( writer, scope, type, value, false );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -224,9 +224,9 @@ public class BitStringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.BitString.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new BitStringBerEncoder().encode( writer, scope, type, value, false );
+			new BitStringBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

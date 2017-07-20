@@ -49,7 +49,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SetBerEncoderTest
 {
@@ -68,17 +69,11 @@ public class SetBerEncoderTest
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
 		{
-			when( writer.isBufferingAvailable() ).thenReturn( true );
-			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new SetBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).isBufferingAvailable();
-			verify( writer ).startBuffer( -1 );
-			verify( writer ).getRules();
-			verify( writer ).writeInternal( scope, componentA, namedValue, true );
-			verify( writer ).stopBuffer( TAG );
-			verifyNoMoreInteractions( writer );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{0x31, 0x03, (byte)0x80, 0x01, 0x00}, bytes );
 		}
 	}
 
@@ -95,17 +90,18 @@ public class SetBerEncoderTest
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
 		{
-			when( writer.isBufferingAvailable() ).thenReturn( false );
-			when( writer.getRules() ).thenReturn( BerRules.Ber, BerRules.Ber );
-			new SetBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).isBufferingAvailable();
-			verify( writer, times( 2 ) ).getRules();
-			verify( writer ).writeHeader( TAG, -1 );
-			verify( writer ).writeInternal( scope, componentA, namedValue, true );
-			verify( writer, times( 2 ) ).write( 0 );
-			verifyNoMoreInteractions( writer );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, true )
+			{
+				@Override
+				public boolean isBufferingAvailable()
+				{
+					return false;
+				}
+			} );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{0x31, (byte)0x80, (byte)0x80, 0x01, 0x00, 0x00, 0x00}, bytes );
 		}
 	}
 
@@ -122,11 +118,11 @@ public class SetBerEncoderTest
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.isBufferingAvailable() ).thenReturn( false );
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new SetBerEncoder().encode( writer, scope, type, value, true );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			fail( "Must fail" );
 		}
 	}
@@ -144,13 +140,11 @@ public class SetBerEncoderTest
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new SetBerEncoder().encode( writer, scope, type, value, false );
-			verify( writer, times( 1 ) ).getRules();
-			verify( writer ).writeInternal( scope, componentA, namedValue, true );
-			verifyNoMoreInteractions( writer );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{(byte)0x80, 0x01, 0x00}, bytes );
 		}
 	}
 
@@ -168,10 +162,10 @@ public class SetBerEncoderTest
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
 		value.addNamed( "c", new RealValueFloat( 0.0f ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new SetBerEncoder().encode( writer, scope, type, value, false );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -191,13 +185,11 @@ public class SetBerEncoderTest
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
 		value.addNamed( "c", new RealValueFloat( 0.0f ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new SetBerEncoder().encode( writer, scope, type, value, false );
-			verify( writer, times( 1 ) ).getRules();
-			verify( writer ).writeInternal( scope, componentA, namedValue, true );
-			verifyNoMoreInteractions( writer );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{(byte)0x80, 0x01, 0x00}, bytes );
 		}
 	}
 
@@ -216,13 +208,11 @@ public class SetBerEncoderTest
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
 		value.addNamed( "b", new IntegerValueInt( 1 ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new SetBerEncoder().encode( writer, scope, type, value, false );
-			verify( writer, times( 1 ) ).getRules();
-			verify( writer ).writeInternal( scope, componentA, namedValue, true );
-			verifyNoMoreInteractions( writer );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{(byte)0x80, 0x01, 0x00}, bytes );
 		}
 	}
 
@@ -244,14 +234,11 @@ public class SetBerEncoderTest
 		value.add( namedValue );
 		NamedValue bValue = new NamedValueImpl( "b", new IntegerValueInt( 0 ) );
 		value.add( bValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new SetBerEncoder().encode( writer, scope, type, value, false );
-			verify( writer, times( 1 ) ).getRules();
-			verify( writer ).writeInternal( scope, componentA, namedValue, true );
-			verify( writer ).writeInternal( scope, componentB, bValue, true );
-			verifyNoMoreInteractions( writer );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{(byte)0x80, 0x01, 0x00, (byte)0x81, 0x01, 0x00}, bytes );
 		}
 	}
 
@@ -269,10 +256,10 @@ public class SetBerEncoderTest
 		ComponentType componentB = type.getNamedType( "b" );
 		Assert.assertNotNull( "No component b", componentB );
 		ValueCollection value = new ValueCollectionImpl( true );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new SetBerEncoder().encode( writer, scope, type, value, false );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -283,9 +270,9 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new ValueCollectionImpl( true );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new SetBerEncoder().encode( writer, scope, type, value, false );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -296,9 +283,9 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = new SetType( true );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new SetBerEncoder().encode( writer, scope, type, value, false );
+			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

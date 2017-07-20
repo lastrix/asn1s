@@ -58,9 +58,9 @@ public class ObjectIDBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.ObjectIdentifier.ref().resolve( scope );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new ObjectIDBerEncoder().encode( writer, scope, type, OPTIMIZED_OID_VALUE, false );
+			new ObjectIDBerEncoder().encode( new WriterContext( writer, scope, type, OPTIMIZED_OID_VALUE, false ) );
 			verify( writer, times( 2 ) ).write( 0 );
 			verify( writer ).write( 1 );
 			verify( writer ).write( (byte)0x82 );
@@ -73,10 +73,10 @@ public class ObjectIDBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.ObjectIdentifier.ref().resolve( scope );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.isBufferingAvailable() ).thenReturn( true );
-			new ObjectIDBerEncoder().encode( writer, scope, type, OPTIMIZED_OID_VALUE, true );
+			new ObjectIDBerEncoder().encode( new WriterContext( writer, scope, type, OPTIMIZED_OID_VALUE, true ) );
 			verify( writer ).isBufferingAvailable();
 			verify( writer ).startBuffer( -1 );
 			verify( writer, times( 2 ) ).write( 0 );
@@ -92,9 +92,9 @@ public class ObjectIDBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new ObjectIDBerEncoder().encode( writer, scope, type, OPTIMIZED_OID_VALUE, false );
+			new ObjectIDBerEncoder().encode( new WriterContext( writer, scope, type, OPTIMIZED_OID_VALUE, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -105,9 +105,9 @@ public class ObjectIDBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.ObjectIdentifier.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new ObjectIDBerEncoder().encode( writer, scope, type, value, false );
+			new ObjectIDBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

@@ -25,10 +25,7 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -39,13 +36,9 @@ interface BerEncoder
 	 * Write value to Ber OutputStream.
 	 * Encoders MUST NOT write TAG, only length is allowed to be written by one.
 	 *
-	 * @param os          the tag output stream
-	 * @param scope       the resolution scope
-	 * @param type        type info
-	 * @param value       value to write
-	 * @param writeHeader if true encoder must write the object header
+	 * @param context the writer context
 	 * @throws IOException   if io fails
 	 * @throws Asn1Exception if resolution fails, value can not be encoded
 	 */
-	void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception;
+	void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception;
 }

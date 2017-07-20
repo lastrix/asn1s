@@ -25,13 +25,10 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,20 +39,16 @@ final class OctetStringBerEncoder implements BerEncoder
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.OctetString.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
+	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert type.getFamily() == Family.OctetString;
-		assert value.getKind() == Kind.ByteArray;
-		writeOctetString( os, value.toByteArrayValue().asByteArray(), writeHeader );
-	}
-
-	private static void writeOctetString( BerWriter os, byte[] bytes, boolean writeHeader ) throws IOException
-	{
+		assert context.getType().getFamily() == Family.OctetString;
+		assert context.getValue().getKind() == Kind.ByteArray;
+		byte[] bytes = context.getValue().toByteArrayValue().asByteArray();
 		int length = bytes == null ? 0 : bytes.length;
-		if( writeHeader )
-			os.writeHeader( TAG, length );
+		if( context.isWriteHeader() )
+			context.writeHeader( TAG, length );
 
 		if( length > 0 )
-			os.write( bytes );
+			context.write( bytes );
 	}
 }

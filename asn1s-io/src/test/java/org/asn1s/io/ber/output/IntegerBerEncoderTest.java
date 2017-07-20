@@ -51,7 +51,7 @@ public class IntegerBerEncoderTest
 	@Test
 	public void testWriteLong_0() throws Exception
 	{
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			IntegerBerEncoder.writeLong( writer, 0L, null, false );
 			verify( writer ).write( 0 );
@@ -62,7 +62,7 @@ public class IntegerBerEncoderTest
 	@Test
 	public void testWriteLong_minus_1() throws Exception
 	{
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			IntegerBerEncoder.writeLong( writer, -1L, null, false );
 			verify( writer ).write( -1 );
@@ -73,7 +73,7 @@ public class IntegerBerEncoderTest
 	@Test
 	public void testWriteLong_256() throws Exception
 	{
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			IntegerBerEncoder.writeLong( writer, 256L, null, false );
 			verify( writer ).write( 1 );
@@ -85,7 +85,7 @@ public class IntegerBerEncoderTest
 	@Test
 	public void testWriteLong_300000() throws Exception
 	{
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			IntegerBerEncoder.writeLong( writer, 300000L, null, false );
 			verify( writer ).write( (byte)0x04 );
@@ -98,7 +98,7 @@ public class IntegerBerEncoderTest
 	@Test( expected = IOException.class )
 	public void testWriteLong_fail() throws Exception
 	{
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			IntegerBerEncoder.writeLong( writer, 0L, null, true );
 			fail( "This method must fail." );
@@ -143,9 +143,9 @@ public class IntegerBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new IntegerValueInt( 0 );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new IntegerBerEncoder().encode( writer, scope, type, value, true );
+			new IntegerBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( 0 );
 			verifyNoMoreInteractions( writer );
@@ -158,9 +158,9 @@ public class IntegerBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new IntegerValueInt( -1 );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new IntegerBerEncoder().encode( writer, scope, type, value, true );
+			new IntegerBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( -1 );
 			verifyNoMoreInteractions( writer );
@@ -173,9 +173,9 @@ public class IntegerBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new IntegerValueInt( 256 );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new IntegerBerEncoder().encode( writer, scope, type, value, true );
+			new IntegerBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 2 );
 			verify( writer ).write( 1 );
 			verify( writer ).write( 0 );
@@ -189,9 +189,9 @@ public class IntegerBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Real.ref().resolve( scope );
 		Value value = new IntegerValueInt( 256 );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new IntegerBerEncoder().encode( writer, scope, type, value, true );
+			new IntegerBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			fail( "Must fail" );
 		}
 	}
@@ -202,9 +202,9 @@ public class IntegerBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new RealValueFloat( 0.0f );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new IntegerBerEncoder().encode( writer, scope, type, value, true );
+			new IntegerBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			fail( "Must fail" );
 		}
 	}

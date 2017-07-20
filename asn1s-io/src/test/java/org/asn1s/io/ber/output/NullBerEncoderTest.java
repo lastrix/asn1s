@@ -51,9 +51,9 @@ public class NullBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Null.ref().resolve( scope );
 		Value value = NullValue.INSTANCE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new NullBerEncoder().encode( writer, scope, type, value, false );
+			new NullBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			verifyNoMoreInteractions( writer );
 		}
 	}
@@ -64,9 +64,9 @@ public class NullBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Null.ref().resolve( scope );
 		Value value = NullValue.INSTANCE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new NullBerEncoder().encode( writer, scope, type, value, true );
+			new NullBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 0 );
 			verifyNoMoreInteractions( writer );
 		}
@@ -78,9 +78,9 @@ public class NullBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = NullValue.INSTANCE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new NullBerEncoder().encode( writer, scope, type, value, false );
+			new NullBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -91,9 +91,9 @@ public class NullBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Null.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new NullBerEncoder().encode( writer, scope, type, value, false );
+			new NullBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

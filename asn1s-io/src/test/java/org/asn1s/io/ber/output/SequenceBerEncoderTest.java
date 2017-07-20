@@ -61,23 +61,26 @@ public class SequenceBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceType type = new SequenceType( true );
-		type.addComponent( ComponentType.Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( ComponentType.Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
 		{
-			when( writer.isBufferingAvailable() ).thenReturn( true );
-			new SequenceBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).isBufferingAvailable();
-			verify( writer ).startBuffer( -1 );
-			verify( writer ).writeInternal( scope.typedScope( type ).typedScope( componentA ), componentA, namedValue, true );
-			verify( writer ).stopBuffer( TAG );
-			verifyNoMoreInteractions( writer );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, true )
+			{
+				@Override
+				public boolean isBufferingAvailable()
+				{
+					return false;
+				}
+			} );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{0x30, (byte)0x80, (byte)0x80, 0x01, 0x00, 0x00, 0x00}, bytes );
 		}
 	}
 
@@ -86,25 +89,26 @@ public class SequenceBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceType type = new SequenceType( true );
-		type.addComponent( ComponentType.Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( ComponentType.Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
 		{
-			when( writer.isBufferingAvailable() ).thenReturn( false );
-			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new SequenceBerEncoder().encode( writer, scope, type, value, true );
-			verify( writer ).isBufferingAvailable();
-			verify( writer ).getRules();
-			verify( writer ).writeHeader( TAG, -1 );
-			verify( writer ).writeInternal( scope.typedScope( type ).typedScope( componentA ), componentA, namedValue, true );
-			verify( writer, times( 2 ) ).write( 0 );
-			verifyNoMoreInteractions( writer );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, true )
+			{
+				@Override
+				public boolean isBufferingAvailable()
+				{
+					return false;
+				}
+			} );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{0x30, (byte)0x80, (byte)0x80, 0x01, 0x00, 0x00, 0x00}, bytes );
 		}
 	}
 
@@ -113,19 +117,19 @@ public class SequenceBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceType type = new SequenceType( true );
-		type.addComponent( ComponentType.Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( ComponentType.Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.isBufferingAvailable() ).thenReturn( false );
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new SequenceBerEncoder().encode( writer, scope, type, value, true );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			fail( "Must fail" );
 		}
 	}
@@ -143,11 +147,11 @@ public class SequenceBerEncoderTest
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
 		{
-			new SequenceBerEncoder().encode( writer, scope, type, value, false );
-			verify( writer ).writeInternal( scope.typedScope( type ).typedScope( componentA ), componentA, namedValue, true );
-			verifyNoMoreInteractions( writer );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{(byte)0x80, 0x01, 0x00}, bytes );
 		}
 	}
 
@@ -156,8 +160,8 @@ public class SequenceBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceType type = new SequenceType( true );
-		type.addComponent( ComponentType.Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( ComponentType.Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -165,10 +169,10 @@ public class SequenceBerEncoderTest
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
 		value.addNamed( "c", new RealValueFloat( 0.0f ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new SequenceBerEncoder().encode( writer, scope, type, value, false );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -178,8 +182,8 @@ public class SequenceBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceType type = new SequenceType( true );
-		type.addComponent( ComponentType.Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( ComponentType.Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
 		type.setExtensible( true );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -188,12 +192,12 @@ public class SequenceBerEncoderTest
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
 		value.addNamed( "c", new RealValueFloat( 0.0f ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new SequenceBerEncoder().encode( writer, scope, type, value, false );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			verify( writer, times( 1 ) ).getRules();
-			verify( writer ).writeInternal( scope, componentA, namedValue, true );
+			verify( writer ).writeInternal( any() );
 			verifyNoMoreInteractions( writer );
 		}
 	}
@@ -203,8 +207,8 @@ public class SequenceBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceType type = new SequenceType( true );
-		type.addComponent( ComponentType.Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( ComponentType.Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
+		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -213,11 +217,11 @@ public class SequenceBerEncoderTest
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
 		value.addNamed( "b", new IntegerValueInt( 1 ) );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
 		{
-			new SequenceBerEncoder().encode( writer, scope, type, value, false );
-			verify( writer ).writeInternal( scope.typedScope( type ).typedScope( componentA ), componentA, namedValue, true );
-			verifyNoMoreInteractions( writer );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{(byte)0x80, 0x01, 0x00}, bytes );
 		}
 	}
 
@@ -226,8 +230,8 @@ public class SequenceBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceType type = new SequenceType( true );
-		type.addComponent( ComponentType.Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( ComponentType.Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
+		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -239,12 +243,11 @@ public class SequenceBerEncoderTest
 		value.add( namedValue );
 		NamedValue bValue = new NamedValueImpl( "b", new IntegerValueInt( 0 ) );
 		value.add( bValue );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
 		{
-			new SequenceBerEncoder().encode( writer, scope, type, value, false );
-			verify( writer ).writeInternal( scope.typedScope( componentA ), componentA, namedValue, true );
-			verify( writer ).writeInternal( scope.typedScope( componentB ), componentB, bValue, true );
-			verifyNoMoreInteractions( writer );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{(byte)0x80, 0x01, 0x00, (byte)0x81, 0x01, 0x00}, bytes );
 		}
 	}
 
@@ -253,8 +256,8 @@ public class SequenceBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceType type = new SequenceType( true );
-		type.addComponent( ComponentType.Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( ComponentType.Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
+		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -262,10 +265,10 @@ public class SequenceBerEncoderTest
 		ComponentType componentB = type.getNamedType( "b" );
 		Assert.assertNotNull( "No component b", componentB );
 		ValueCollection value = new ValueCollectionImpl( true );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.getRules() ).thenReturn( BerRules.Der );
-			new SequenceBerEncoder().encode( writer, scope, type, value, false );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -276,9 +279,9 @@ public class SequenceBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new ValueCollectionImpl( true );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new NullBerEncoder().encode( writer, scope, type, value, false );
+			new NullBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -289,9 +292,9 @@ public class SequenceBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = new SequenceType( true );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new SequenceBerEncoder().encode( writer, scope, type, value, false );
+			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

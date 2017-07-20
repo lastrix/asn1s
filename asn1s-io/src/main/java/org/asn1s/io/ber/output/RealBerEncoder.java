@@ -25,14 +25,11 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.NRxUtils;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.IntegerValue;
 import org.asn1s.api.value.x680.RealValue;
@@ -51,59 +48,61 @@ final class RealBerEncoder implements BerEncoder
 	private static final long NEGATIVE_ZERO_DOUBLE_BITS = Double.doubleToLongBits( -0.0d );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException
+	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert type.getFamily() == Family.Real;
-		assert value.getKind() == Kind.Real || value.getKind() == Kind.Integer;
-		if( value.getKind() == Kind.Real )
-			writeRealValue( os, value.toRealValue(), writeHeader );
+		assert context.getType().getFamily() == Family.Real;
+		assert context.getValue().getKind() == Kind.Real || context.getValue().getKind() == Kind.Integer;
+		if( context.getValue().getKind() == Kind.Real )
+			writeRealValue( context );
 		else
-			writeIntegerValue( os, value.toIntegerValue(), writeHeader );
+			writeIntegerValue( context );
 	}
 
-	private static void writeRealValue( BerWriter os, RealValue realValue, boolean writeHeader ) throws IOException
+	private static void writeRealValue( @NotNull WriterContext context ) throws IOException
 	{
-		if( realValue.isDouble() )
-			writeDouble( os, realValue.asDouble(), writeHeader );
+		RealValue value = context.getValue().toRealValue();
+		if( value.isDouble() )
+			writeDouble( context, value.asDouble() );
 		else
-			writeNR3( os, realValue.asBigDecimal(), writeHeader );
+			writeNR3( context, value.asBigDecimal() );
 	}
 
-	private static void writeIntegerValue( BerWriter os, IntegerValue integerValue, boolean writeHeader ) throws IOException
+	private static void writeIntegerValue( WriterContext context ) throws IOException
 	{
+		IntegerValue integerValue = context.getValue().toIntegerValue();
 		if( integerValue.isDouble() )
-			writeDouble( os, integerValue.asDouble(), writeHeader );
+			writeDouble( context, integerValue.asDouble() );
 		else
-			writeNR3( os, integerValue.asBigDecimal(), writeHeader );
+			writeNR3( context, integerValue.asBigDecimal() );
 	}
 
 	@SuppressWarnings( "MagicNumber" )
-	private static void writeDouble( BerWriter os, double value, boolean writeHeader ) throws IOException
+	private static void writeDouble( WriterContext ctx, double value ) throws IOException
 	{
 		// encode binary value
 		long bits = Double.doubleToLongBits( value );
 		if( Double.isInfinite( value ) )
 		{
-			if( writeHeader )
-				os.writeHeader( TAG, 1 );
-			os.write( value < 0 ? BerUtils.REAL_NEGATIVE_INF : BerUtils.REAL_POSITIVE_INF );
+			if( ctx.isWriteHeader() )
+				ctx.writeHeader( TAG, 1 );
+			ctx.write( value < 0 ? BerUtils.REAL_NEGATIVE_INF : BerUtils.REAL_POSITIVE_INF );
 		}
 		else if( Double.isNaN( value ) )
 		{
-			if( writeHeader )
-				os.writeHeader( TAG, 1 );
-			os.write( BerUtils.REAL_NAN );
+			if( ctx.isWriteHeader() )
+				ctx.writeHeader( TAG, 1 );
+			ctx.write( BerUtils.REAL_NAN );
 		}
 		else if( bits == ZERO_DOUBLE_BITS )
 		{
-			if( writeHeader )
-				os.writeHeader( TAG, 0 );
+			if( ctx.isWriteHeader() )
+				ctx.writeHeader( TAG, 0 );
 		}
 		else if( bits == NEGATIVE_ZERO_DOUBLE_BITS )
 		{
-			if( writeHeader )
-				os.writeHeader( TAG, 1 );
-			os.write( BerUtils.REAL_MINUS_ZERO );
+			if( ctx.isWriteHeader() )
+				ctx.writeHeader( TAG, 1 );
+			ctx.write( BerUtils.REAL_MINUS_ZERO );
 		}
 		else
 		{
@@ -137,17 +136,17 @@ final class RealBerEncoder implements BerEncoder
 			byte[] mantisBytes = IntegerBerEncoder.toByteArray( mantissa );
 			byte first = (byte)( BerUtils.REAL_BINARY_FLAG | sign | Math.min( 3, exponentBytes.length - 1 ) );
 
-			if( writeHeader )
-				os.writeHeader( TAG, 1 + exponentBytes.length + mantisBytes.length );
-			os.write( first );
+			if( ctx.isWriteHeader() )
+				ctx.writeHeader( TAG, 1 + exponentBytes.length + mantisBytes.length );
+			ctx.write( first );
 			if( exponentBytes.length >= 4 )
-				os.write( exponentBytes.length );
-			os.write( exponentBytes );
-			os.write( mantisBytes );
+				ctx.write( exponentBytes.length );
+			ctx.write( exponentBytes );
+			ctx.write( mantisBytes );
 		}
 	}
 
-	private static void writeNR3( BerWriter os, BigDecimal bigDecimal, boolean writeHeader ) throws IOException
+	private static void writeNR3( WriterContext ctx, BigDecimal bigDecimal ) throws IOException
 	{
 		String content = NRxUtils.toCanonicalNR3( bigDecimal.toString() );
 		byte[] bytes;
@@ -158,10 +157,10 @@ final class RealBerEncoder implements BerEncoder
 		{
 			throw new IllegalStateException( e );
 		}
-		if( writeHeader )
-			os.writeHeader( TAG, 1 + bytes.length );
+		if( ctx.isWriteHeader() )
+			ctx.writeHeader( TAG, 1 + bytes.length );
 
-		os.write( 3 );
-		os.write( bytes );
+		ctx.write( 3 );
+		ctx.write( bytes );
 	}
 }

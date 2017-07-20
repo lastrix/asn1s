@@ -49,9 +49,9 @@ public class StringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.UTF8String.ref().resolve( scope );
 		Value value = new StringValueImpl( "A" );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new StringBerEncoder().encode( writer, scope, type, value, true );
+			new StringBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( new byte[]{65} );
 			verifyNoMoreInteractions( writer );
@@ -64,9 +64,9 @@ public class StringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = new StringValueImpl( "Value" );
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new StringBerEncoder().encode( writer, scope, type, value, false );
+			new StringBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -77,9 +77,9 @@ public class StringBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.UTF8String.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new StringBerEncoder().encode( writer, scope, type, value, false );
+			new StringBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

@@ -25,7 +25,6 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
@@ -36,10 +35,8 @@ import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.RefUtils;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.io.ber.BerRules;
@@ -53,33 +50,34 @@ final class SetBerEncoder implements BerEncoder
 	static final Tag TAG = new Tag( TagClass.Universal, true, UniversalType.Set.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.Set;
-		assert value.getKind() == Kind.NamedCollection || value.getKind() == Kind.Collection && value.toValueCollection().isEmpty();
+		assert context.getType().getFamily() == Family.Set;
+		assert context.getValue().getKind() == Kind.NamedCollection || context.getValue().getKind() == Kind.Collection && context.getValue().toValueCollection().isEmpty();
 
-		List<NamedValue> values = value.toValueCollection().asNamedValueList();
-		if( !writeHeader )
-			writeSet( scope, os, (CollectionType)type, values );
-		else if( os.isBufferingAvailable() )
+		if( !context.isWriteHeader() )
+			writeSet( context );
+		else if( context.isBufferingAvailable() )
 		{
-			os.startBuffer( -1 );
-			writeSet( scope, os, (CollectionType)type, values );
-			os.stopBuffer( TAG );
+			context.startBuffer( -1 );
+			writeSet( context );
+			context.stopBuffer( TAG );
 		}
-		else if( os.getRules() == BerRules.Der )
+		else if( context.getRules() == BerRules.Der )
 			throw new Asn1Exception( "Buffering is required for DER rules" );
 		else
 		{
-			os.writeHeader( TAG, -1 );
-			writeSet( scope, os, (CollectionType)type, values );
-			os.write( 0 );
-			os.write( 0 );
+			context.writeHeader( TAG, -1 );
+			writeSet( context );
+			context.write( 0 );
+			context.write( 0 );
 		}
 	}
 
-	private static void writeSet( Scope scope, BerWriter os, CollectionType type, Collection<NamedValue> values ) throws IOException, Asn1Exception
+	private static void writeSet( WriterContext ctx ) throws IOException, Asn1Exception
 	{
+		List<NamedValue> values = ctx.getValue().toValueCollection().asNamedValueList();
+		CollectionType type = (CollectionType)ctx.getType();
 		if( values.isEmpty() )
 		{
 			if( type.isAllComponentsOptional() )
@@ -88,7 +86,7 @@ final class SetBerEncoder implements BerEncoder
 		}
 		Collection<ComponentType> unusedComponents = new HashSet<>( type.getComponents( true ) );
 
-		if( os.getRules() == BerRules.Der )
+		if( ctx.getRules() == BerRules.Der )
 			values = sortByTag( type, values );
 
 		int version = 1;
@@ -110,10 +108,10 @@ final class SetBerEncoder implements BerEncoder
 			if( !unusedComponents.remove( component ) )
 				throw new IllegalValueException( "Component occurs more than once: " + component.getName() );
 
-			if( RefUtils.isSameAsDefaultValue( scope, component, value ) )
+			if( RefUtils.isSameAsDefaultValue( ctx.getScope(), component, value ) )
 				continue;
 
-			os.writeInternal( scope, component, value, true );
+			ctx.writeComponent( component, value );
 		}
 
 		for( ComponentType component : unusedComponents )
@@ -124,7 +122,7 @@ final class SetBerEncoder implements BerEncoder
 			throw new IllegalValueException( "Unable to accept components: " + extensibleRequired );
 	}
 
-	private static Collection<NamedValue> sortByTag( CollectionType type, Collection<NamedValue> values )
+	private static List<NamedValue> sortByTag( CollectionType type, Collection<NamedValue> values )
 	{
 		List<NamedValue> result = new ArrayList<>( values );
 		Map<String, TagEncoding> encodingMap = new HashMap<>();

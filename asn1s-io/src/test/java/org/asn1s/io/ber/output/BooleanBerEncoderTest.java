@@ -50,9 +50,9 @@ public class BooleanBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Boolean.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new BooleanBerEncoder().encode( writer, scope, type, value, true );
+			new BooleanBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( BerUtils.BOOLEAN_TRUE );
 			verifyNoMoreInteractions( writer );
@@ -65,9 +65,9 @@ public class BooleanBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Boolean.ref().resolve( scope );
 		Value value = BooleanValue.FALSE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new BooleanBerEncoder().encode( writer, scope, type, value, true );
+			new BooleanBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).writeHeader( TAG, 1 );
 			verify( writer ).write( BerUtils.BOOLEAN_FALSE );
 			verifyNoMoreInteractions( writer );
@@ -80,9 +80,9 @@ public class BooleanBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Integer.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new BooleanBerEncoder().encode( writer, scope, type, value, false );
+			new BooleanBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}
@@ -93,9 +93,9 @@ public class BooleanBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		Type type = UniversalType.Boolean.ref().resolve( scope );
 		Value value = NullValue.INSTANCE;
-		try( BerWriter writer = mock( BerWriter.class ) )
+		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			new BooleanBerEncoder().encode( writer, scope, type, value, false );
+			new BooleanBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
 	}

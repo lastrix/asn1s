@@ -26,11 +26,10 @@
 package org.asn1s.io.ber.output;
 
 import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
 import org.asn1s.api.exception.Asn1Exception;
+import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.CollectionOfType;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -43,32 +42,34 @@ import java.io.IOException;
 final class SequenceOfBerEncoder implements BerEncoder
 {
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.SequenceOf;
-		assert value.getKind() == Kind.Collection || value.getKind() == Kind.NamedCollection;
+		assert context.getType().getFamily() == Family.SequenceOf;
+		assert context.getValue().getKind() == Kind.Collection || context.getValue().getKind() == Kind.NamedCollection;
 
-		if( !writeHeader )
-			writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
-		else if( os.isBufferingAvailable() )
+		if( !context.isWriteHeader() )
+			writeCollection( context );
+		else if( context.isBufferingAvailable() )
 		{
-			os.startBuffer( -1 );
-			writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
-			os.stopBuffer( SequenceBerEncoder.TAG );
+			context.startBuffer( -1 );
+			writeCollection( context );
+			context.stopBuffer( SequenceBerEncoder.TAG );
 		}
-		else if( os.getRules() == BerRules.Der )
+		else if( context.getRules() == BerRules.Der )
 			throw new Asn1Exception( "Buffering is required for DER rules" );
 		else
 		{
-			os.writeHeader( SequenceBerEncoder.TAG, -1 );
-			writeCollection( scope, os, (CollectionOfType)type, value.toValueCollection() );
-			os.write( 0 );
-			os.write( 0 );
+			context.writeHeader( SequenceBerEncoder.TAG, -1 );
+			writeCollection( context );
+			context.write( 0 );
+			context.write( 0 );
 		}
 	}
 
-	static void writeCollection( Scope scope, BerWriter os, CollectionOfType type, ValueCollection collection ) throws IOException, Asn1Exception
+	static void writeCollection( WriterContext ctx ) throws IOException, Asn1Exception
 	{
+		ValueCollection collection = ctx.getValue().toValueCollection();
+		CollectionOfType type = (CollectionOfType)ctx.getType();
 		if( collection.isEmpty() )
 			return;
 
@@ -76,9 +77,14 @@ final class SequenceOfBerEncoder implements BerEncoder
 		if( componentType == null )
 			throw new IllegalStateException();
 
-		scope.setValueLevel( collection );
-		scope = componentType.getScope( scope );
+		ctx.getScope().setValueLevel( collection );
+		ctx = new WriterContext( ctx.getWriter(), componentType.getScope( ctx.getScope() ), componentType, null, true );
 		for( Ref<Value> ref : collection.asValueList() )
-			os.writeInternal( scope, componentType, ref.resolve( scope ), true );
+		{
+			if( !( ref instanceof Value ) )
+				throw new IllegalValueException( "Unable to use references: " + ref );
+			ctx.setValue( (Value)ref );
+			ctx.writeInternal();
+		}
 	}
 }

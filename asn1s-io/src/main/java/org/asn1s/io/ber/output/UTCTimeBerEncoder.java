@@ -25,15 +25,12 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.TimeUtils;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
@@ -45,11 +42,12 @@ public class UTCTimeBerEncoder implements BerEncoder
 	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.UTCTime.tagNumber() );
 
 	@Override
-	public void encode( @NotNull BerWriter os, @NotNull Scope scope, @NotNull Type type, @NotNull Value value, boolean writeHeader ) throws IOException, Asn1Exception
+	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert type.getFamily() == Family.UTCTime;
-		assert value.getKind() == Kind.Time;
-		String content = TimeUtils.formatInstant( value.toDateValue().asInstant(), TimeUtils.UTC_TIME_FORMAT, os.getRules() != BerRules.Der );
-		BerEncoderUtils.writeString( os, TimeUtils.CHARSET, TAG, content, writeHeader );
+		assert context.getType().getFamily() == Family.UTCTime;
+		assert context.getValue().getKind() == Kind.Time;
+		String content = TimeUtils.formatInstant( context.getValue().toDateValue().asInstant(), TimeUtils.UTC_TIME_FORMAT, context.getRules() != BerRules.Der );
+		byte[] bytes = content.getBytes( TimeUtils.CHARSET );
+		context.writeString( bytes, TAG );
 	}
 }
