@@ -23,32 +23,100 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.value.x680;
+package org.asn1s.api.value;
 
-import org.asn1s.api.Disposable;
 import org.asn1s.api.Ref;
-import org.asn1s.api.Scoped;
-import org.asn1s.api.Validation;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
+import org.asn1s.api.Scope;
+import org.asn1s.api.State;
+import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.module.Module;
+import org.jetbrains.annotations.NotNull;
 
-public interface DefinedValue extends Value, Validation, Disposable, Scoped
+public abstract class AbstractDefinedValue implements DefinedValue
 {
-	String getName();
-
-	Type getType();
-
-	Value getValue();
-
-	Ref<Value> toRef();
-
-	/**
-	 * Returns true if this value is template
-	 *
-	 * @return boolean
-	 */
-	default boolean isTemplate()
+	protected AbstractDefinedValue( Module module, String name )
 	{
-		return false;
+		this.module = module;
+		this.name = name;
 	}
+
+	private State state = State.None;
+	private Module module;
+	private final String name;
+
+	public Module getModule()
+	{
+		return module;
+	}
+
+	@NotNull
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+
+	@Override
+	public State getState()
+	{
+		return state;
+	}
+
+	@Override
+	public Value resolve( Scope scope ) throws ResolutionException
+	{
+		if( !isValidated() )
+			try
+			{
+				validate( scope );
+			} catch( ValidationException e )
+			{
+				throw new ResolutionException( "Unable to validate", e );
+			}
+
+		return getValue();
+	}
+
+	@Override
+	public void validate( @NotNull Scope scope ) throws ValidationException, ResolutionException
+	{
+		if( state != State.None )
+			return;
+
+		state = State.Validating;
+
+		try
+		{
+			onValidate( scope );
+			state = State.Done;
+		} catch( Throwable e )
+		{
+			state = State.Failed;
+			//noinspection ProhibitedExceptionThrown
+			throw e;
+		}
+	}
+
+	@Override
+	public void dispose()
+	{
+		if( isDisposed() )
+			return;
+
+		state = State.Disposed;
+
+		onDispose();
+		module = null;
+	}
+
+	@Override
+	public Ref<Value> toRef()
+	{
+		return new ValueNameRef( getName(), module.getModuleName() );
+	}
+
+	protected abstract void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException;
+
+	protected abstract void onDispose();
 }

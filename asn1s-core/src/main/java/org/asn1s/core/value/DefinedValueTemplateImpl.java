@@ -23,7 +23,7 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.value.x680;
+package org.asn1s.core.value;
 
 import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
@@ -34,8 +34,8 @@ import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.DefinedValue;
 import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -86,12 +86,8 @@ public class DefinedValueTemplateImpl extends DefinedValueImpl implements Templa
 	}
 
 	@Override
-	protected void onValidate( Scope scope ) throws ValidationException, ResolutionException
+	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		// FIXME: abstract syntax objects
-		if( !( getValueRef() instanceof Value ) )
-			throw new ValidationException( "Right hand side can not be reference for templates" );
-
 		setType( getTypeRef().resolve( getModule().createScope() ) );
 		getType().validate( scope );
 		scope = getScope( scope );
@@ -99,6 +95,13 @@ public class DefinedValueTemplateImpl extends DefinedValueImpl implements Templa
 
 		if( !isTemplate() )
 			setValue( getType().optimize( scope, getValueRef() ) );
+	}
+
+	@Override
+	protected void onDispose()
+	{
+		parameterMap.clear();
+		super.onDispose();
 	}
 
 	@Override

@@ -28,7 +28,7 @@ package org.asn1s.core.value;
 import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.module.Module;
-import org.asn1s.api.value.x680.DefinedValue;
+import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.DefaultObjectFactory;
 import org.junit.Assert;

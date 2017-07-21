@@ -27,9 +27,9 @@ package org.asn1s.api.module;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.ValueName;
-import org.asn1s.api.value.x680.DefinedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -35,10 +35,10 @@ import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.module.ValueResolver;
 import org.asn1s.api.util.RefUtils;
+import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.ValueName;
 import org.asn1s.api.value.ValueNameRef;
-import org.asn1s.api.value.x680.DefinedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

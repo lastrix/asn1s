@@ -23,59 +23,106 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.module;
+package org.asn1s.api.value;
 
-import org.asn1s.api.encoding.tag.TagMethod;
-import org.asn1s.api.module.Module;
-import org.asn1s.api.module.ModuleReference;
-import org.asn1s.api.module.ModuleResolver;
-import org.asn1s.api.type.DefinedType;
-import org.asn1s.api.value.DefinedValue;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.asn1s.api.Disposable;
+import org.asn1s.api.Ref;
+import org.asn1s.api.Scoped;
+import org.asn1s.api.Validation;
+import org.asn1s.api.type.Type;
+import org.asn1s.api.value.x680.*;
+import org.asn1s.api.value.x681.ObjectValue;
 
-import java.util.Collection;
-import java.util.HashSet;
-
-public class ModuleImpl extends AbstractModule
+public interface DefinedValue extends Value, Validation, Disposable, Scoped
 {
-	private static final String DUMMY = "Dummy-Module";
+	String getName();
 
-	public static ModuleImpl newDummy( ModuleResolver resolver )
-	{
-		ModuleImpl module = new ModuleImpl( new ModuleReference( DUMMY ), resolver );
-		module.setTagMethod( TagMethod.Automatic );
-		return module;
-	}
+	Type getType();
 
-	public ModuleImpl( @NotNull ModuleReference name, @Nullable ModuleResolver resolver )
+	Value getValue();
+
+	Ref<Value> toRef();
+
+	/**
+	 * Returns true if this value is template
+	 *
+	 * @return boolean
+	 */
+	default boolean isTemplate()
 	{
-		super( name, resolver );
+		return false;
 	}
 
 	@Override
-	public Module getCoreModule()
+	default BooleanValue toBooleanValue()
 	{
-		return CoreModule.getInstance();
+		return getValue().toBooleanValue();
 	}
 
 	@Override
-	protected void onValidate()
+	default IntegerValue toIntegerValue()
 	{
-		if( DUMMY.equals( getModuleName() ) && getModuleResolver() != null && getModuleResolver().getAllModules() != null )
-		{
-			for( Module module : getModuleResolver().getAllModules() )
-			{
-				Collection<String> exports = new HashSet<>();
-				for( DefinedType type : module.getTypeResolver().getTypes() )
-					exports.add( type.getName() );
-
-				for( DefinedValue value : module.getValueResolver().getValues() )
-					exports.add( value.getName() );
-
-				getTypeResolver().addImports( module.getModuleReference(), exports );
-				getValueResolver().addImports( module.getModuleReference(), exports );
-			}
-		}
+		return getValue().toIntegerValue();
 	}
+
+	@Override
+	default RealValue toRealValue()
+	{
+		return getValue().toRealValue();
+	}
+
+	@Override
+	default NullValue toNullValue()
+	{
+		return getValue().toNullValue();
+	}
+
+	@Override
+	default NamedValue toNamedValue()
+	{
+		return getValue().toNamedValue();
+	}
+
+	@Override
+	default ValueCollection toValueCollection()
+	{
+		return getValue().toValueCollection();
+	}
+
+	@Override
+	default StringValue toStringValue()
+	{
+		return getValue().toStringValue();
+	}
+
+	@Override
+	default ByteArrayValue toByteArrayValue()
+	{
+		return getValue().toByteArrayValue();
+	}
+
+	@Override
+	default DateValue toDateValue()
+	{
+		return getValue().toDateValue();
+	}
+
+	@Override
+	default ObjectValue toObjectValue()
+	{
+		return getValue().toObjectValue();
+	}
+
+	@Override
+	default ObjectIdentifierValue toObjectIdentifierValue()
+	{
+		return getValue().toObjectIdentifierValue();
+	}
+
+	@Override
+	default OpenTypeValue toOpenTypeValue()
+	{
+		return getValue().toOpenTypeValue();
+	}
+
 }
