@@ -160,26 +160,16 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		scope = getScope( scope );
-		if( isDummy() )
+		Value value = valueRef.resolve( scope );
+		Value componentValue = value;
+		if( !isDummy() && value.getKind() == Value.Kind.Name )
 		{
-			Value value = valueRef.resolve( scope );
-			componentType.accept( scope, value );
+			NamedValue namedValue = value.toNamedValue();
+			if( !getComponentName().equals( namedValue.getName() ) || !( namedValue.getValueRef() instanceof Value ) )
+				throw new IllegalValueException( "Illegal component: " + value );
+			componentValue = (Value)namedValue.getValueRef();
 		}
-		else
-		{
-			Value value = valueRef.resolve( scope );
-			if( value.getKind() == Value.Kind.Name )
-			{
-				NamedValue namedValue = value.toNamedValue();
-				if( !name.equals( namedValue.getName() ) )
-					throw new IllegalValueException( "Unexpected value name: " + namedValue.getName() );
-				if( namedValue.getValueRef() == null )
-					throw new IllegalStateException();
-				componentType.accept( scope, namedValue.getValueRef() );
-			}
-			else
-				componentType.accept( scope, value );
-		}
+		componentType.accept( scope, componentValue );
 	}
 
 	@NotNull
@@ -188,32 +178,25 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 	{
 		scope = getScope( scope );
 		Value value = valueRef.resolve( scope );
-		if( value.getKind() == Value.Kind.Name )
+		Value componentValue = optimizeComponentValue( scope, value );
+		return componentValue == null || isDummy() ? value : new NamedValueImpl( getComponentName(), componentValue );
+	}
+
+	@Nullable
+	private Value optimizeComponentValue( Scope scope, Value value ) throws ResolutionException, ValidationException
+	{
+		Ref<Value> referenced = value;
+		if( !isDummy() && value.getKind() == Value.Kind.Name )
 		{
 			NamedValue namedValue = value.toNamedValue();
-			Ref<Value> referenced = namedValue;
-			if( !isDummy() )
-			{
-				if( !namedValue.getName().equals( getComponentName() ) )
-					throw new IllegalValueException( "Illegal component: " + valueRef );
-
-				referenced = namedValue.getValueRef();
-				assert referenced != null;
-			}
-
-			Value referencedOptimized = componentType.optimize( scope, referenced );
-			//noinspection ObjectEquality
-			if( referencedOptimized == referenced )
-				return value;
-
-			return isDummy()
-					? referencedOptimized
-					: new NamedValueImpl( getComponentName(), referencedOptimized );
+			referenced = namedValue.getValueRef();
+			if( !namedValue.getName().equals( getComponentName() ) || referenced == null )
+				throw new IllegalValueException( "Illegal component: " + value );
 		}
-		else
-			return isDummy()
-					? componentType.optimize( scope, value )
-					: new NamedValueImpl( getComponentName(), componentType.optimize( scope, value ) );
+
+		Value referencedOptimized = componentType.optimize( scope, referenced );
+		//noinspection ObjectEquality
+		return referencedOptimized == referenced ? null : referencedOptimized;
 	}
 
 	@Override
