@@ -85,24 +85,23 @@ abstract class AbstractComponentInterpolator
 	List<ComponentType> interpolate() throws ValidationException, ResolutionException
 	{
 		new CollectionValidator( getType() ).validate();
-
-		List<ComponentType> components = new ComponentsBuilder( getType(), componentFamilyMap ).build();
-
-		for( ComponentType component : components )
-			component.validate( getScope() );
-
-		if( isApplyAutomaticTags() )
-			components = applyAutomaticTags( components );
-
-		for( ComponentType component : components )
-			component.validate( getScope() );
-
+		List<ComponentType> components = interpolateComponents();
 		assertTagAmbiguity( components );
 		return components;
 	}
 
 	@NotNull
-	private List<ComponentType> applyAutomaticTags( @NotNull Collection<ComponentType> components )
+	private List<ComponentType> interpolateComponents() throws ValidationException, ResolutionException
+	{
+		List<ComponentType> components = new ComponentsBuilder( getType(), componentFamilyMap ).build();
+		for( ComponentType component : components )
+			component.validate( getScope() );
+
+		return isApplyAutomaticTags() ? applyAutomaticTags( components ) : components;
+	}
+
+	@NotNull
+	private List<ComponentType> applyAutomaticTags( @NotNull Collection<ComponentType> components ) throws ResolutionException, ValidationException
 	{
 		int tagNumber = 0;
 		List<ComponentType> result = new ArrayList<>( components.size() );
@@ -127,7 +126,7 @@ abstract class AbstractComponentInterpolator
 		return result;
 	}
 
-	private ComponentType applyTagNumber( int tagNumber, ComponentType component )
+	private ComponentType applyTagNumber( int tagNumber, ComponentType component ) throws ResolutionException, ValidationException
 	{
 		TagMethod method =
 				componentFamilyMap.get( component.getComponentName() ) == Family.Choice && component.getEncoding( EncodingInstructions.Tag ) == null
@@ -143,6 +142,7 @@ abstract class AbstractComponentInterpolator
 		                                                       component.isOptional(),
 		                                                       component.getDefaultValueRef() );
 		taggedComponent.setNamespace( component.getNamespace() );
+		taggedComponent.validate( getScope() );
 		return taggedComponent;
 	}
 
@@ -155,9 +155,11 @@ abstract class AbstractComponentInterpolator
 	{
 		private final AbstractCollectionType type;
 		private final Map<String, Family> componentFamilyMap;
-		private final Collection<ComponentType> _components = new ArrayList<>();
-		private final Collection<ComponentType> _componentsLast = new ArrayList<>();
-		private final Collection<ComponentType> _extensions = new ArrayList<>();
+		@SuppressWarnings( "unchecked" )
+		// 0 - components, 1 - componentsLast, 2 - extensions
+		private final Collection<ComponentType>[] _comps = new Collection[]{new ArrayList<ComponentType>(), new ArrayList<ComponentType>(), new ArrayList<ComponentType>()};
+		private final List<ComponentType> result = new ArrayList<>();
+		private int index;
 
 		private ComponentsBuilder( AbstractCollectionType type, Map<String, Family> componentFamilyMap )
 		{
@@ -165,26 +167,22 @@ abstract class AbstractComponentInterpolator
 			this.componentFamilyMap = componentFamilyMap;
 		}
 
-		public List<ComponentType> build() throws ValidationException
+		private List<ComponentType> build() throws ValidationException
 		{
-			resolveComponentsImpl( _components, type.getComponents(), -1 );
-			resolveComponentsImpl( _componentsLast, type.getComponentsLast(), -1 );
-			resolveComponentsImpl( _extensions, type.getExtensions(), 2 );
-
-			List<ComponentType> result = new ArrayList<>();
-			int index = 0;
-			index = registerComponents( result, _components, index );
-			index = registerComponents( result, _extensions, index );
-			registerComponents( result, _componentsLast, index );
+			resolveComponentsImpl( _comps[0], type.getComponents(), -1 );
+			resolveComponentsImpl( _comps[1], type.getComponentsLast(), -1 );
+			resolveComponentsImpl( _comps[2], type.getExtensions(), 2 );
+			registerComponents( _comps[0] );
+			registerComponents( _comps[2] );
+			registerComponents( _comps[1] );
 			return result;
 		}
 
-		private int registerComponents( Collection<ComponentType> result, Iterable<ComponentType> source, int index )
+		private void registerComponents( Iterable<ComponentType> source )
 		{
 			for( ComponentType component : source )
 				//noinspection ValueOfIncrementOrDecrementUsed
 				addComponentType( result, component, component.getVersion(), index++ );
-			return index;
 		}
 
 		private void resolveComponentsImpl( Collection<ComponentType> list, Iterable<Type> sources, int version ) throws ValidationException
@@ -234,20 +232,26 @@ abstract class AbstractComponentInterpolator
 			if( source.getState() == State.Done )
 				componentFamilyMap.put( source.getComponentName(), source.getFamily() );
 
-			if( source.getVersion() == version && index != -1 && source.getIndex() == index )
-				list.add( source );
-			else
-			{
-				ComponentType componentType =
-						new ComponentTypeImpl( index == -1 ? source.getIndex() : index,
-						                       version,
-						                       source.getComponentName(),
-						                       source.getComponentTypeRef(),
-						                       source.isOptional(),
-						                       source.getDefaultValueRef() );
-				componentType.setNamespace( type.getNamespace() );
-				list.add( componentType );
-			}
+			list.add( isShouldKeep( source, version, index ) ? source : createComponentType( source, version, index ) );
+		}
+
+		private static boolean isShouldKeep( ComponentType source, int version, int index )
+		{
+			return source.getVersion() == version && index != -1 && source.getIndex() == index;
+		}
+
+		@NotNull
+		private ComponentType createComponentType( ComponentType source, int version, int index )
+		{
+			ComponentType componentType =
+					new ComponentTypeImpl( index == -1 ? source.getIndex() : index,
+					                       version,
+					                       source.getComponentName(),
+					                       source.getComponentTypeRef(),
+					                       source.isOptional(),
+					                       source.getDefaultValueRef() );
+			componentType.setNamespace( type.getNamespace() );
+			return componentType;
 		}
 	}
 
