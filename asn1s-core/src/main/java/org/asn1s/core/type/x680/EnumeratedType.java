@@ -163,12 +163,6 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 		return values;
 	}
 
-	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
-	{
-		optimize( scope, valueRef );
-	}
-
 	@NotNull
 	@Override
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
@@ -192,21 +186,14 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 		throw new IllegalValueException( "Unable to optimize value: " + valueRef );
 	}
 
-	@NotNull
-	@Override
-	public Family getFamily()
-	{
-		return Family.Enumerated;
-	}
-
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		actualEnumeration = new ArrayList<>( enumeration.size() );
 		Collection<Long> uniqueCheck = new HashSet<>();
-		validateCollection( scope, enumeration, actualEnumeration, uniqueCheck );
-		actualAdditionalEnumeration = new ArrayList<>( additionalEnumeration.size() );
-		validateCollection( scope, additionalEnumeration, actualAdditionalEnumeration, uniqueCheck );
+		actualEnumeration = new EnumerationValidator( scope, enumeration, uniqueCheck )
+				.validate();
+		actualAdditionalEnumeration = new EnumerationValidator( scope, additionalEnumeration, uniqueCheck )
+				.validate();
 	}
 
 	@Override
@@ -245,37 +232,62 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 		return UniversalType.Enumerated.typeName().toString() + '{' + StringUtils.join( enumeration, ", " ) + '}';
 	}
 
-
-	private static void validateCollection( Scope scope, Iterable<NamedValue> iterable, Collection<NamedValue> result, Collection<Long> uniqueCheck ) throws ResolutionException, ValidationException
+	private static final class EnumerationValidator
 	{
-		Collection<NamedValue> preprocessed = new ArrayList<>();
-		for( NamedValue value : iterable )
+		private final Scope scope;
+		private final List<NamedValue> enumeration;
+		private final Collection<Long> uniqueCheck;
+
+		private EnumerationValidator( Scope scope, List<NamedValue> enumeration, Collection<Long> uniqueCheck )
 		{
-			value = value.resolve( scope ).toNamedValue();
-			if( value.getReferenceKind() == Kind.Integer || value.getReferenceKind() == Kind.Empty )
-				preprocessed.add( value );
-			else throw new ValidationException( "Illegal value: " + value );
+			this.scope = scope;
+			this.enumeration = enumeration;
+			this.uniqueCheck = uniqueCheck;
 		}
 
-		Long counter = 0L;
-		for( NamedValue value : preprocessed )
+		List<NamedValue> validate() throws ResolutionException, ValidationException
 		{
-			if( value.getReferenceKind() == Kind.Integer )
+			List<NamedValue> list = new ArrayList<>( enumeration.size() );
+			validateCollection( list );
+			return list;
+		}
+
+		private void validateCollection( Collection<NamedValue> result ) throws ResolutionException, ValidationException
+		{
+			Long counter = 0L;
+			for( NamedValue value : preProcessValues() )
 			{
-				result.add( value );
-				continue;
+				if( value.getReferenceKind() == Kind.Integer )
+				{
+					result.add( value );
+					continue;
+				}
+
+				counter = detectFreeId( uniqueCheck, counter );
+				uniqueCheck.add( counter );
+				result.add( new NamedValueImpl( value.getName(), new IntegerValueLong( counter ) ) );
 			}
-
-			counter = detectFreeId( uniqueCheck, counter );
-			uniqueCheck.add( counter );
-			result.add( new NamedValueImpl( value.getName(), new IntegerValueLong( counter ) ) );
 		}
-	}
 
-	private static Long detectFreeId( Collection<Long> uniqueCheck, Long counter )
-	{
-		while( uniqueCheck.contains( counter ) )
-			counter++;
-		return counter;
+		@NotNull
+		private Iterable<NamedValue> preProcessValues() throws ResolutionException, ValidationException
+		{
+			Collection<NamedValue> preprocessed = new ArrayList<>();
+			for( NamedValue value : enumeration )
+			{
+				value = value.resolve( scope ).toNamedValue();
+				if( value.getReferenceKind() == Kind.Integer || value.getReferenceKind() == Kind.Empty )
+					preprocessed.add( value );
+				else throw new ValidationException( "Illegal value: " + value );
+			}
+			return preprocessed;
+		}
+
+		private static Long detectFreeId( Collection<Long> uniqueCheck, Long counter )
+		{
+			while( uniqueCheck.contains( counter ) )
+				counter++;
+			return counter;
+		}
 	}
 }

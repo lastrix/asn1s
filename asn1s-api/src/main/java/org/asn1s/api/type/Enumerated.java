@@ -26,6 +26,9 @@
 package org.asn1s.api.type;
 
 import org.asn1s.api.Ref;
+import org.asn1s.api.Scope;
+import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +38,29 @@ public interface Enumerated extends Type
 	void setExtensible( boolean value );
 
 	void addItem( @NotNull ItemKind kind, @NotNull String name, @Nullable Ref<Value> valueRef );
+
+	/**
+	 * By default Enumerated type should optimize values,
+	 * since there would be no object creation
+	 *
+	 * @param scope    resolution scope
+	 * @param valueRef value reference
+	 * @throws ValidationException if value is illegal
+	 * @throws ResolutionException if value is not resolved
+	 */
+	@Override
+	default void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
+	{
+		optimize( scope, valueRef );
+	}
+
+
+	@NotNull
+	@Override
+	default Family getFamily()
+	{
+		return Family.Enumerated;
+	}
 
 	enum ItemKind
 	{
