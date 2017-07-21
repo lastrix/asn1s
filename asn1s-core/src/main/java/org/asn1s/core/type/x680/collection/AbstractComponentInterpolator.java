@@ -97,53 +97,7 @@ abstract class AbstractComponentInterpolator
 		for( ComponentType component : components )
 			component.validate( getScope() );
 
-		return isApplyAutomaticTags() ? applyAutomaticTags( components ) : components;
-	}
-
-	@NotNull
-	private List<ComponentType> applyAutomaticTags( @NotNull Collection<ComponentType> components ) throws ResolutionException, ValidationException
-	{
-		int tagNumber = 0;
-		List<ComponentType> result = new ArrayList<>( components.size() );
-		for( ComponentType component : components )
-		{
-			if( component.getVersion() == 1 )
-			{
-				result.add( applyTagNumber( tagNumber, component ) );
-				tagNumber++;
-			}
-		}
-
-		for( ComponentType component : components )
-		{
-			if( component.getVersion() > 1 )
-			{
-				result.add( applyTagNumber( tagNumber, component ) );
-				tagNumber++;
-			}
-		}
-		result.sort( Comparator.comparingInt( ComponentType:: getIndex ) );
-		return result;
-	}
-
-	private ComponentType applyTagNumber( int tagNumber, ComponentType component ) throws ResolutionException, ValidationException
-	{
-		TagMethod method =
-				componentFamilyMap.get( component.getComponentName() ) == Family.Choice && component.getEncoding( EncodingInstructions.Tag ) == null
-						? TagMethod.Explicit
-						: TagMethod.Implicit;
-		TaggedTypeImpl subType = new TaggedTypeImpl( TagEncoding.context( tagNumber, method ), component.getComponentTypeRef() );
-		subType.setNamespace( component.getNamespace() );
-
-		ComponentType taggedComponent = new ComponentTypeImpl( component.getIndex(),
-		                                                       component.getVersion(),
-		                                                       component.getComponentName(),
-		                                                       subType,
-		                                                       component.isOptional(),
-		                                                       component.getDefaultValueRef() );
-		taggedComponent.setNamespace( component.getNamespace() );
-		taggedComponent.validate( getScope() );
-		return taggedComponent;
+		return isApplyAutomaticTags() ? new ComponentTagger( componentFamilyMap, components, getScope() ).applyAutomaticTags() : components;
 	}
 
 	private boolean isApplyAutomaticTags()
@@ -349,5 +303,64 @@ abstract class AbstractComponentInterpolator
 					|| extension instanceof ComponentsFromType
 					|| extension instanceof CollectionTypeExtensionGroup && ( (CollectionTypeExtensionGroup)extension ).getVersion() == -1;
 		}
+	}
+
+	private static final class ComponentTagger
+	{
+		private final Map<String, Family> componentFamilyMap;
+		private final List<ComponentType> components;
+		private final Scope scope;
+		private final List<ComponentType> result;
+		private int tagNumber;
+
+		private ComponentTagger( Map<String, Family> componentFamilyMap, List<ComponentType> components, Scope scope )
+		{
+			this.componentFamilyMap = componentFamilyMap;
+			this.components = components;
+			this.scope = scope;
+			result = new ArrayList<>( components.size() );
+		}
+
+		@NotNull
+		private List<ComponentType> applyAutomaticTags() throws ResolutionException, ValidationException
+		{
+			applyTags( true );
+			applyTags( false );
+			result.sort( Comparator.comparingInt( ComponentType:: getIndex ) );
+			return result;
+		}
+
+		private void applyTags( boolean main ) throws ResolutionException, ValidationException
+		{
+			for( ComponentType component : components )
+				if( component.getVersion() == 1 && main || component.getVersion() > 1 )
+					result.add( applyTagNumber( component ) );
+		}
+
+		private ComponentType applyTagNumber( ComponentType component ) throws ResolutionException, ValidationException
+		{
+			TagMethod method = selectTagMethod( component );
+			TaggedTypeImpl subType = new TaggedTypeImpl( TagEncoding.context( tagNumber, method ), component.getComponentTypeRef() );
+			subType.setNamespace( component.getNamespace() );
+			tagNumber++;
+			ComponentType taggedComponent = new ComponentTypeImpl( component.getIndex(),
+			                                                       component.getVersion(),
+			                                                       component.getComponentName(),
+			                                                       subType,
+			                                                       component.isOptional(),
+			                                                       component.getDefaultValueRef() );
+			taggedComponent.setNamespace( component.getNamespace() );
+			taggedComponent.validate( scope );
+			return taggedComponent;
+		}
+
+		@NotNull
+		private TagMethod selectTagMethod( ComponentType component )
+		{
+			boolean isChoice = componentFamilyMap.get( component.getComponentName() ) == Family.Choice;
+			boolean noEncodingAvailable = component.getEncoding( EncodingInstructions.Tag ) == null;
+			return isChoice && noEncodingAvailable ? TagMethod.Explicit : TagMethod.Implicit;
+		}
+
 	}
 }
