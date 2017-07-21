@@ -33,6 +33,7 @@ import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.type.AbstractType;
 import org.asn1s.api.type.ClassFieldType;
 import org.asn1s.api.type.ClassType;
 import org.asn1s.api.type.Type;
@@ -40,7 +41,6 @@ import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x681.ObjectValue;
-import org.asn1s.core.type.AbstractType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

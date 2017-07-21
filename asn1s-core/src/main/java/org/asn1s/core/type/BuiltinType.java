@@ -27,6 +27,7 @@ package org.asn1s.core.type;
 
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
+import org.asn1s.api.type.AbstractType;
 
 import java.util.EnumMap;
 import java.util.Map;

@@ -28,8 +28,8 @@ package org.asn1s.core.type.x681;
 import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
+import org.asn1s.api.type.AbstractType;
 import org.asn1s.api.type.ClassFieldType;
-import org.asn1s.core.type.AbstractType;
 import org.jetbrains.annotations.NotNull;
 
 abstract class AbstractFieldType extends AbstractType implements ClassFieldType

@@ -23,7 +23,7 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.type.x680.collection;
+package org.asn1s.api.type;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
@@ -31,122 +31,166 @@ import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.AbstractType;
-import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.NamedType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.x680.NamedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
-final class ComponentsFromType extends AbstractType
+public abstract class AbstractComponentType extends AbstractType implements ComponentType
 {
-	ComponentsFromType( @NotNull Ref<Type> ref, Family requiredFamily )
+	protected AbstractComponentType( int index, int version, String name, boolean optional )
 	{
-		this.ref = ref;
-		this.requiredFamily = requiredFamily;
-
-		if( ref instanceof Type )
-			type = (Type)ref;
+		this.index = index;
+		this.version = version;
+		this.name = name;
+		this.optional = optional;
 	}
 
-	private List<ComponentType> components;
-	private Ref<Type> ref;
-	private final Family requiredFamily;
-	private Type type;
+	private final int index;
+	private final int version;
+	private final String name;
+	private final boolean optional;
+	private Ref<Type> componentTypeRef;
+	private Type componentType;
+	private Ref<Value> defaultValueRef;
+	private Value defaultValue;
+
+	@Override
+	public int getIndex()
+	{
+		return index;
+	}
+
+	@Override
+	public int getVersion()
+	{
+		return version;
+	}
+
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+
+	@Override
+	public boolean isOptional()
+	{
+		return optional;
+	}
+
+	@NotNull
+	@Override
+	public Ref<Type> getComponentTypeRef()
+	{
+		return componentTypeRef;
+	}
+
+	protected void setComponentTypeRef( Ref<Type> componentTypeRef )
+	{
+		this.componentTypeRef = componentTypeRef;
+	}
+
+	@NotNull
+	@Override
+	public Type getComponentType()
+	{
+		return componentType;
+	}
 
 	@Nullable
 	@Override
-	public Type getSibling()
+	public Ref<Value> getDefaultValueRef()
 	{
-		return type;
+		return defaultValueRef;
 	}
 
-	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
+	protected void setDefaultValueRef( @Nullable Ref<Value> defaultValueRef )
 	{
-		throw new UnsupportedOperationException();
+		this.defaultValueRef = defaultValueRef;
+	}
+
+	@Nullable
+	@Override
+	public Value getDefaultValue()
+	{
+		return defaultValue;
+	}
+
+	@Nullable
+	@Override
+	public NamedType getNamedType( @NotNull String name )
+	{
+		return getComponentType().getNamedType( name );
 	}
 
 	@NotNull
 	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
+	public List<? extends NamedType> getNamedTypes()
 	{
-		throw new UnsupportedOperationException();
+		return getComponentType().getNamedTypes();
 	}
 
-	public List<ComponentType> getComponents()
-	{
-		return Collections.unmodifiableList( components );
-	}
-
+	@Nullable
 	@Override
-	public boolean equals( Object obj )
+	public NamedValue getNamedValue( @NotNull String name )
 	{
-		return obj == this || obj instanceof ComponentsFromType && toString().equals( obj.toString() );
-	}
-
-	@Override
-	public int hashCode()
-	{
-		return toString().hashCode();
-	}
-
-	@Override
-	public String toString()
-	{
-		return "COMPONENTS FROM " + ref;
-	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
-	{
-		if( type == null )
-			type = ref.resolve( scope );
-
-		if( type.getFamily() != requiredFamily )
-			throw new ValidationException( "ComponentsFromType should point to: " + requiredFamily );
-
-		type.validate( scope );
-
-		components = new ArrayList<>();
-		for( NamedType namedType : type.getNamedTypes() )
-			if( namedType instanceof ComponentType && ( (ComponentType)namedType ).getVersion() == 1 )
-				components.add( (ComponentType)namedType );
+		return getComponentType().getNamedValue( name );
 	}
 
 	@NotNull
 	@Override
-	public Type copy()
+	public Collection<NamedValue> getNamedValues()
 	{
-		Ref<Type> sub = Objects.equals( ref, type ) ? type.copy() : ref;
-		return new ComponentsFromType( sub, requiredFamily );
+		return getComponentType().getNamedValues();
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		throw new UnsupportedOperationException();
+		return getComponentType().getFamily();
 	}
 
 	@Override
 	public IEncoding getEncoding( EncodingInstructions instructions )
 	{
-		throw new UnsupportedOperationException();
+		return getComponentType().getEncoding( instructions );
+	}
+
+	@Nullable
+	@Override
+	public Type getSibling()
+	{
+		return componentType;
+	}
+
+	@Override
+	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
+	{
+		scope = getScope( scope );
+		if( componentType == null )
+			componentType = componentTypeRef.resolve( scope );
+
+		if( !( componentType instanceof DefinedType ) )
+			componentType.setNamespace( getFullyQualifiedName() + '.' );
+		componentType.validate( scope );
+
+		if( defaultValueRef != null )
+			defaultValue = defaultValueRef.resolve( scope );
 	}
 
 	@Override
 	protected void onDispose()
 	{
-		ref = null;
-		type = null;
-		components.clear();
-		components = null;
+		componentTypeRef = null;
+		if( componentType != null && !( componentType instanceof DefinedType ) )
+			componentType.dispose();
+		componentType = null;
+		defaultValueRef = null;
+		defaultValue = null;
 	}
 }

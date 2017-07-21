@@ -27,58 +27,38 @@ package org.asn1s.core.type.x680.collection;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.State;
 import org.asn1s.api.encoding.EncodingInstructions;
-import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.*;
+import org.asn1s.api.type.AbstractComponentType;
+import org.asn1s.api.type.TaggedType;
+import org.asn1s.api.type.Type;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.NamedValue;
-import org.asn1s.core.type.AbstractType;
 import org.asn1s.core.value.x680.NamedValueImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 /**
  * X.680, p 25.1
  * Defines component type
  */
-final class ComponentTypeImpl extends AbstractType implements ComponentType
+final class ComponentTypeImpl extends AbstractComponentType
 {
 	ComponentTypeImpl( int index, int version, @NotNull String name, @NotNull Ref<Type> componentTypeRef, boolean optional, @Nullable Ref<Value> defaultValueRef )
 	{
+		super( index, version, name, optional );
 		RefUtils.assertValueRef( name );
 		if( optional && defaultValueRef != null )
 			throw new IllegalArgumentException( "Either optional or default value must be used, not both" );
 
-		this.index = index;
-		this.version = version;
-		this.name = name;
-		this.componentTypeRef = componentTypeRef;
-		if( componentTypeRef instanceof Type )
-			componentType = (Type)componentTypeRef;
-
-		this.optional = optional;
-		this.defaultValueRef = defaultValueRef;
-		if( defaultValueRef instanceof Value )
-			defaultValue = (Value)defaultValueRef;
+		setComponentTypeRef( componentTypeRef );
+		setDefaultValueRef( defaultValueRef );
 	}
-
-	private final int index;
-	private final int version;
-	private final String name;
-	private Ref<Type> componentTypeRef;
-	private Type componentType;
-	private final boolean optional;
-	private Ref<Value> defaultValueRef;
-	private Value defaultValue;
 
 	@NotNull
 	@Override
@@ -88,72 +68,9 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 	}
 
 	@Override
-	public int getIndex()
-	{
-		return index;
-	}
-
-	@Override
-	public int getVersion()
-	{
-		return version;
-	}
-
-	@Override
-	public String getName()
-	{
-		return name;
-	}
-
-	@NotNull
-	@Override
-	public Ref<Type> getComponentTypeRef()
-	{
-		return componentTypeRef;
-	}
-
-	@NotNull
-	@Override
-	public Type getComponentType()
-	{
-		if( getState() != State.Done )
-			throw new IllegalStateException();
-		return componentType;
-	}
-
-	@Override
-	public boolean isOptional()
-	{
-		return optional;
-	}
-
-	@Nullable
-	@Override
-	public Ref<Value> getDefaultValueRef()
-	{
-		return defaultValueRef;
-	}
-
-	@Nullable
-	@Override
-	public Value getDefaultValue()
-	{
-		if( getState() != State.Done )
-			throw new IllegalStateException();
-		return defaultValue;
-	}
-
-	@Nullable
-	@Override
-	public Type getSibling()
-	{
-		return componentType;
-	}
-
-	@Override
 	public boolean isExplicitlyTagged()
 	{
-		return componentType.isTagged() && ( (TaggedType)componentType ).getInstructions() == EncodingInstructions.Tag;
+		return getComponentType().isTagged() && ( (TaggedType)getComponentType() ).getInstructions() == EncodingInstructions.Tag;
 	}
 
 	@Override
@@ -169,7 +86,7 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 				throw new IllegalValueException( "Illegal component: " + value );
 			componentValue = (Value)namedValue.getValueRef();
 		}
-		componentType.accept( scope, componentValue );
+		getComponentType().accept( scope, componentValue );
 	}
 
 	@NotNull
@@ -185,18 +102,22 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 	@Nullable
 	private Value optimizeComponentValue( Scope scope, Value value ) throws ResolutionException, ValidationException
 	{
-		Ref<Value> referenced = value;
-		if( !isDummy() && value.getKind() == Value.Kind.Name )
-		{
-			NamedValue namedValue = value.toNamedValue();
-			referenced = namedValue.getValueRef();
-			if( !namedValue.getName().equals( getComponentName() ) || referenced == null )
-				throw new IllegalValueException( "Illegal component: " + value );
-		}
+		Ref<Value> referenced = isDummy() || value.getKind() != Value.Kind.Name
+				? value
+				: getReferencedValueOrDie( value );
 
-		Value referencedOptimized = componentType.optimize( scope, referenced );
+		Value referencedOptimized = getComponentType().optimize( scope, referenced );
 		//noinspection ObjectEquality
 		return referencedOptimized == referenced ? null : referencedOptimized;
+	}
+
+	@NotNull
+	private Ref<Value> getReferencedValueOrDie( Value value ) throws IllegalValueException
+	{
+		NamedValue namedValue = value.toNamedValue();
+		if( !namedValue.getName().equals( getComponentName() ) || namedValue.getValueRef() == null )
+			throw new IllegalValueException( "Illegal component: " + value );
+		return namedValue.getValueRef();
 	}
 
 	@Override
@@ -211,90 +132,23 @@ final class ComponentTypeImpl extends AbstractType implements ComponentType
 		return toString().hashCode();
 	}
 
-	@Override
-	public String toString()
-	{
-		if( isOptional() )
-			return name + ' ' + componentTypeRef + " OPTIONAL";
-
-		if( defaultValueRef != null )
-			return name + ' ' + componentTypeRef + " DEFAULT " + defaultValueRef;
-
-		return name + ' ' + componentTypeRef;
-	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
-	{
-		scope = getScope( scope );
-		if( componentType == null )
-			componentType = componentTypeRef.resolve( scope );
-
-		if( !( componentType instanceof DefinedType ) )
-			componentType.setNamespace( getFullyQualifiedName() + '.' );
-		componentType.validate( scope );
-
-		if( defaultValueRef != null )
-			defaultValue = defaultValueRef.resolve( scope );
-	}
-
 	@NotNull
 	@Override
 	public Type copy()
 	{
-		Ref<Type> subTypeRef = Objects.equals( componentType, componentTypeRef ) ? componentType.copy() : componentTypeRef;
-		return new ComponentTypeImpl( index, version, name, subTypeRef, optional, defaultValueRef );
-	}
-
-	@Nullable
-	@Override
-	public NamedType getNamedType( @NotNull String name )
-	{
-		if( componentType == null )
-			return null;
-		return componentType.getNamedType( name );
-	}
-
-	@NotNull
-	@Override
-	public List<? extends NamedType> getNamedTypes()
-	{
-		return componentType.getNamedTypes();
-	}
-
-	@Nullable
-	@Override
-	public NamedValue getNamedValue( @NotNull String name )
-	{
-		return componentType.getNamedValue( name );
-	}
-
-	@NotNull
-	@Override
-	public Collection<NamedValue> getNamedValues()
-	{
-		return componentType.getNamedValues();
-	}
-
-	@NotNull
-	@Override
-	public Family getFamily()
-	{
-		return componentType.getFamily();
+		Ref<Type> subTypeRef = Objects.equals( getComponentType(), getComponentTypeRef() ) ? getComponentType().copy() : getComponentTypeRef();
+		return new ComponentTypeImpl( getIndex(), getVersion(), getName(), subTypeRef, isOptional(), getDefaultValueRef() );
 	}
 
 	@Override
-	public IEncoding getEncoding( EncodingInstructions instructions )
+	public String toString()
 	{
-		return componentType.getEncoding( instructions );
-	}
+		if( isOptional() )
+			return getComponentName() + ' ' + getComponentTypeRef() + " OPTIONAL";
 
-	@Override
-	protected void onDispose()
-	{
-		componentTypeRef = null;
-		componentType = null;
-		defaultValueRef = null;
-		defaultValue = null;
+		if( getDefaultValueRef() != null )
+			return getComponentName() + ' ' + getComponentTypeRef() + " DEFAULT " + getDefaultValueRef();
+
+		return getComponentName() + ' ' + getComponentTypeRef();
 	}
 }
