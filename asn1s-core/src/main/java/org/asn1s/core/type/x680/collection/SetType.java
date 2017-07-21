@@ -60,10 +60,11 @@ public final class SetType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Value.Kind.NamedCollection )
-			assertNamedCollection( scope, value.toValueCollection() );
-		else
+		if( value.getKind() != Value.Kind.NamedCollection )
 			throw new IllegalValueException( "Illegal Set value: " + value );
+
+		new SetValidator( scope, this, value.toValueCollection() )
+				.validate();
 	}
 
 	@NotNull
@@ -72,96 +73,10 @@ public final class SetType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Value.Kind.NamedCollection )
-			return optimizeNamedCollection( scope, value.toValueCollection() );
+		if( value.getKind() != Value.Kind.NamedCollection )
+			throw new IllegalValueException( "Illegal Set value: " + value );
 
-		throw new IllegalValueException( "Illegal Set value: " + value );
-	}
-
-	private Value optimizeNamedCollection( Scope scope, ValueCollection collection ) throws ValidationException, ResolutionException
-	{
-		if( collection.isEmpty() )
-		{
-			if( isAllComponentsOptional() )
-				return collection;
-			throw new IllegalValueException( "Components required" );
-		}
-
-		Collection<ComponentType> unusedComponents = new HashSet<>( getComponents( true ) );
-
-		ValueCollection result = new ValueCollectionImpl( true );
-		scope.setValueLevel( result );
-		int version = 1;
-		Collection<String> extensibleRequired = new HashSet<>();
-		for( NamedValue value : collection.asNamedValueList() )
-		{
-			ComponentType component = getComponent( value.getName(), true );
-			if( component == null )
-			{
-				if( !isExtensible() )
-					throw new IllegalValueException( "Type has no components with name: " + value.getName() );
-
-				extensibleRequired.add( value.getName() );
-				continue;
-			}
-
-			version = Math.max( version, component.getVersion() );
-			Value optimize = component.optimize( scope, value );
-			if( !RefUtils.isSameAsDefaultValue( scope, component, optimize ) )
-				result.add( optimize );
-
-			if( !unusedComponents.remove( component ) )
-				throw new IllegalValueException( "Component occurs more than once: " + component.getName() );
-		}
-
-		for( ComponentType component : unusedComponents )
-			if( component.isRequired() && component.getVersion() <= version )
-				throw new IllegalValueException( "Required component is not used: " + component.getName() );
-
-		if( !extensibleRequired.isEmpty() && version < getMaxVersion() )
-			throw new IllegalValueException( "Unable to accept components: " + extensibleRequired );
-
-		return result;
-	}
-
-	private void assertNamedCollection( Scope scope, ValueCollection collection ) throws ValidationException, ResolutionException
-	{
-		if( collection.isEmpty() )
-		{
-			if( isAllComponentsOptional() )
-				return;
-			throw new IllegalValueException( "Components required" );
-		}
-		scope.setValueLevel( collection );
-		Collection<ComponentType> unusedComponents = new HashSet<>( getComponents( true ) );
-
-		Collection<String> extensibleRequired = new HashSet<>();
-
-		int version = 1;
-		for( NamedValue value : collection.asNamedValueList() )
-		{
-			ComponentType component = getComponent( value.getName(), true );
-			if( component == null )
-			{
-				if( !isExtensible() )
-					throw new IllegalValueException( "Type has no components with name: " + value.getName() );
-
-				extensibleRequired.add( value.getName() );
-				continue;
-			}
-
-			version = Math.max( version, component.getVersion() );
-			component.accept( scope, value );
-			if( !unusedComponents.remove( component ) )
-				throw new IllegalValueException( "Component occurs more than once: " + component.getName() );
-		}
-
-		for( ComponentType component : unusedComponents )
-			if( component.isRequired() && component.getVersion() <= version )
-				throw new IllegalValueException( "Required component is not used: " + component.getName() );
-
-		if( !extensibleRequired.isEmpty() && version < getMaxVersion() )
-			throw new IllegalValueException( "Unable to accept components: " + extensibleRequired );
+		return new SetOptimizer( scope, this, value.toValueCollection() ).optimize();
 	}
 
 	@NotNull
@@ -183,5 +98,151 @@ public final class SetType extends AbstractCollectionType
 		if( !isExtensible() )
 			return "SET { " + StringUtils.join( getComponents(), ", " ) + '}';
 		return "SET { " + StringUtils.join( getComponents(), ", " ) + ", ..., " + StringUtils.join( getExtensions(), ", " ) + ", ..., " + StringUtils.join( getComponentsLast(), ", " ) + '}';
+	}
+
+	private static final class SetOptimizer
+	{
+		private final Scope scope;
+		private final SetType type;
+		private final ValueCollection collection;
+		private int version = 1;
+		private final ValueCollection result = new ValueCollectionImpl( true );
+		private final Collection<ComponentType> unusedComponents;
+		private final Collection<String> extensibleRequired;
+
+		private SetOptimizer( Scope scope, SetType type, ValueCollection collection )
+		{
+			this.scope = scope;
+			this.type = type;
+			this.collection = collection;
+			unusedComponents = new HashSet<>( type.getComponents( true ) );
+			extensibleRequired = new HashSet<>();
+			scope.setValueLevel( result );
+		}
+
+		public Value optimize() throws ResolutionException, ValidationException
+		{
+			if( collection.isEmpty() )
+			{
+				if( type.isAllComponentsOptional() )
+					return collection;
+				throw new IllegalValueException( "Components required" );
+			}
+
+			for( NamedValue value : collection.asNamedValueList() )
+				optimizeComponentValue( value );
+
+			assertLeftoverComponents();
+			return result;
+		}
+
+		private void assertLeftoverComponents() throws IllegalValueException
+		{
+			for( ComponentType component : unusedComponents )
+				if( component.isRequired() && component.getVersion() <= version )
+					throw new IllegalValueException( "Required component is not used: " + component.getName() );
+
+			if( !extensibleRequired.isEmpty() && version < type.getMaxVersion() )
+				throw new IllegalValueException( "Unable to accept components: " + extensibleRequired );
+		}
+
+		private void optimizeComponentValue( NamedValue value ) throws ResolutionException, ValidationException
+		{
+			ComponentType component = type.getComponent( value.getName(), true );
+			if( component == null )
+				assertExtensibleValue( value );
+			else
+				optimizeComponentValueImpl( value, component );
+		}
+
+		private void optimizeComponentValueImpl( Ref<Value> value, ComponentType component ) throws ResolutionException, ValidationException
+		{
+			version = Math.max( version, component.getVersion() );
+			Value optimize = component.optimize( scope, value );
+			if( !RefUtils.isSameAsDefaultValue( scope, component, optimize ) )
+				result.add( optimize );
+
+			if( !unusedComponents.remove( component ) )
+				throw new IllegalValueException( "Component occurs more than once: " + component.getName() );
+		}
+
+		private void assertExtensibleValue( NamedValue value ) throws IllegalValueException
+		{
+			if( !type.isExtensible() )
+				throw new IllegalValueException( "Type has no components with name: " + value.getName() );
+
+			extensibleRequired.add( value.getName() );
+		}
+	}
+
+	private static final class SetValidator
+	{
+		private final Scope scope;
+		private final SetType type;
+		private final ValueCollection collection;
+		private final Collection<ComponentType> unusedComponents;
+		private final Collection<String> extensibleRequired;
+		private int version = 1;
+
+		private SetValidator( Scope scope, SetType type, ValueCollection collection )
+		{
+			this.scope = scope;
+			this.type = type;
+			this.collection = collection;
+			unusedComponents = new HashSet<>( type.getComponents( true ) );
+			extensibleRequired = new HashSet<>();
+			scope.setValueLevel( collection );
+		}
+
+		public void validate() throws ValidationException, ResolutionException
+		{
+			if( collection.isEmpty() )
+			{
+				if( !type.isAllComponentsOptional() )
+					throw new IllegalValueException( "Components required" );
+			}
+			else
+			{
+				for( NamedValue value : collection.asNamedValueList() )
+					validateComponentValue( value );
+
+				assertLeftoverComponentValues();
+			}
+		}
+
+		private void assertLeftoverComponentValues() throws IllegalValueException
+		{
+			for( ComponentType component : unusedComponents )
+				if( component.isRequired() && component.getVersion() <= version )
+					throw new IllegalValueException( "Required component is not used: " + component.getName() );
+
+			if( !extensibleRequired.isEmpty() && version < type.getMaxVersion() )
+				throw new IllegalValueException( "Unable to accept components: " + extensibleRequired );
+		}
+
+		private void validateComponentValue( NamedValue value ) throws ValidationException, ResolutionException
+		{
+			ComponentType component = type.getComponent( value.getName(), true );
+			if( component == null )
+				validateExtensibleValue( value );
+			else
+				acceptComponentValue( value, component );
+		}
+
+		private void acceptComponentValue( Ref<Value> value, ComponentType component ) throws ValidationException, ResolutionException
+		{
+			version = Math.max( version, component.getVersion() );
+			component.accept( scope, value );
+			if( !unusedComponents.remove( component ) )
+				throw new IllegalValueException( "Component occurs more than once: " + component.getName() );
+		}
+
+		private void validateExtensibleValue( NamedValue value ) throws IllegalValueException
+		{
+			if( !type.isExtensible() )
+				throw new IllegalValueException( "Type has no components with name: " + value.getName() );
+
+			extensibleRequired.add( value.getName() );
+		}
 	}
 }
