@@ -69,7 +69,7 @@ public class DefinedValueTemplateImpl extends DefinedValueImpl implements Templa
 	@Override
 	public Scope getScope( @NotNull Scope parentScope )
 	{
-		return super.getScope( parentScope ).templateScope( this );
+		return parentScope.templateScope( this );
 	}
 
 	@Nullable

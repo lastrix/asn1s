@@ -55,7 +55,7 @@ public class DefinedValueImpl extends AbstractDefinedValue
 	@Override
 	public Scope getScope( @NotNull Scope parentScope )
 	{
-		return parentScope.typedScope( type );
+		return getModule().createScope().typedScope( getType() );
 	}
 
 

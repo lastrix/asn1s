@@ -333,7 +333,7 @@ abstract class AbstractComponentInterpolator
 		private void applyTags( boolean main ) throws ResolutionException, ValidationException
 		{
 			for( ComponentType component : components )
-				if( component.getVersion() == 1 && main || component.getVersion() > 1 )
+				if( main ^ component.getVersion() > 1 )
 					result.add( applyTagNumber( component ) );
 		}
 

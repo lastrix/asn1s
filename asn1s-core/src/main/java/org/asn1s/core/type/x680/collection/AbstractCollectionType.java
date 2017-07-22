@@ -226,6 +226,7 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
+		scope = getScope( scope );
 		validateComponents( scope, components );
 		validateComponents( scope, componentsLast );
 		validateComponents( scope, extensions );

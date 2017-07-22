@@ -33,6 +33,7 @@ import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.CoreUtils;
@@ -87,10 +88,15 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
+		if( isTemplate() )
+			throw new ValidationException( "Unable to validate templates" );
+
 		scope = getScope( scope );
 		if( getType() == null )
 			setType( getReference().resolve( scope ) );
 
+		if( !( getType() instanceof DefinedType ) )
+			getType().setNamespace( getFullyQualifiedName() + '.' );
 		getType().validate( scope );
 
 		CoreUtils.assertParameterMap( scope, parameterMap );

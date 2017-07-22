@@ -163,4 +163,10 @@ public class StringTypeImpl extends BuiltinType implements StringType
 		if( pattern != null && !pattern.matcher( value.toStringValue().asString() ).matches() )
 			throw new ConstraintViolationException( "Unable to match input to pattern: " + type.pattern() );
 	}
+
+	@Override
+	public String toString()
+	{
+		return type.name();
+	}
 }

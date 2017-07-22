@@ -31,6 +31,7 @@ import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.type.AbstractType;
 import org.asn1s.api.type.ClassFieldType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 abstract class AbstractFieldType extends AbstractType implements ClassFieldType
 {
@@ -56,10 +57,11 @@ abstract class AbstractFieldType extends AbstractType implements ClassFieldType
 		return name;
 	}
 
+	@Nullable
 	@Override
 	public IEncoding getEncoding( EncodingInstructions instructions )
 	{
-		throw new UnsupportedOperationException();
+		return null;
 	}
 
 	@NotNull

@@ -155,7 +155,7 @@ public final class TemplateTypeInstance extends AbstractType
 	@Override
 	public String toString()
 	{
-		return type.getName() + '{' + StringUtils.join( arguments, ", " ) + '}';
+		return ref + "{" + StringUtils.join( arguments, ", " ) + '}';
 	}
 
 	@Override

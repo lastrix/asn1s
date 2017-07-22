@@ -62,4 +62,10 @@ public abstract class BuiltinType extends AbstractType
 	{
 		return toString().hashCode();
 	}
+
+	@Override
+	public String toString()
+	{
+		throw new UnsupportedOperationException();
+	}
 }

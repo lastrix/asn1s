@@ -101,6 +101,11 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 		return componentType;
 	}
 
+	protected Type getComponentTypeOrNull()
+	{
+		return componentType;
+	}
+
 	@Nullable
 	@Override
 	public Ref<Value> getDefaultValueRef()

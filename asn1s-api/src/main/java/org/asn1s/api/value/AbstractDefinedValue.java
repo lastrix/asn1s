@@ -69,7 +69,7 @@ public abstract class AbstractDefinedValue implements DefinedValue
 		if( !isValidated() )
 			try
 			{
-				validate( scope );
+				validate( getScope( scope ) );
 			} catch( ValidationException e )
 			{
 				throw new ResolutionException( "Unable to validate", e );

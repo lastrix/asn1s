@@ -32,6 +32,7 @@ import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.AbstractComponentType;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.TaggedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.util.RefUtils;
@@ -40,8 +41,6 @@ import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.core.value.x680.NamedValueImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Objects;
 
 /**
  * X.680, p 25.1
@@ -96,7 +95,9 @@ final class ComponentTypeImpl extends AbstractComponentType
 		scope = getScope( scope );
 		Value value = valueRef.resolve( scope );
 		Value componentValue = optimizeComponentValue( scope, value );
-		return componentValue == null || isDummy() ? value : new NamedValueImpl( getComponentName(), componentValue );
+		if( componentValue == null )
+			return value;
+		return isDummy() ? componentValue : new NamedValueImpl( getComponentName(), componentValue );
 	}
 
 	@Nullable
@@ -136,7 +137,11 @@ final class ComponentTypeImpl extends AbstractComponentType
 	@Override
 	public Type copy()
 	{
-		Ref<Type> subTypeRef = Objects.equals( getComponentType(), getComponentTypeRef() ) ? getComponentType().copy() : getComponentTypeRef();
+		Type type = getComponentTypeOrNull();
+		if( type == null && getComponentTypeRef() instanceof Type && !( getComponentTypeRef() instanceof DefinedType ) )
+			type = (Type)getComponentTypeRef();
+
+		Ref<Type> subTypeRef = type == null ? getComponentTypeRef() : type.copy();
 		return new ComponentTypeImpl( getIndex(), getVersion(), getName(), subTypeRef, isOptional(), getDefaultValueRef() );
 	}
 
