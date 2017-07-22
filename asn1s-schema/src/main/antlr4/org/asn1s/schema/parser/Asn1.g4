@@ -268,9 +268,9 @@ symbol returns [String result]
 
 definition
     :   typeAssignment
-    |   valueAssignment
+    |   objectOrValueAssignment
+    //|   objectAssignment
     |   objectSetAssignment
-    |   objectAssignment
     |   valueSetTypeAssignment
     |   objectClassAssignment
     //|   xmlValueAssignment TODO: xmlValueAssignment
@@ -589,6 +589,7 @@ actualTemplateTypeParameter[List<Ref<?>> result]
     :   definedType          { $result.add($definedType.result); }
     |   OPEN_BRACE definedType CLOSE_BRACE { $result.add($definedType.result); }
     |   definedValue         { $result.add($definedValue.result); }
+    |   builtinScalarValue   { $result.add($builtinScalarValue.result); }
     ;
 
 integerTypeValueList returns [List<NamedValue> result]
@@ -721,6 +722,21 @@ valueAssignment returns [DefinedValue result]
 	    { $result = factory.define( $valueReference.text, $type.result, $value.result, $params.ctx == null ? null : $params.result ); }
 	;
 
+objectOrValueAssignment returns [DefinedValue result]
+	:
+    valueReference params=templateTypeParameterList?
+    (
+	    OBJECT IDENTIFIER ASSIGN objectIdentifierValue
+	    { $result = factory.define( $valueReference.text, factory.builtin("OBJECT IDENTIFIER" ), $objectIdentifierValue.result, $params.ctx == null ? null : $params.result ); }
+
+	|   definedObjectClass ASSIGN object
+	    { $result = factory.define( $valueReference.text, $definedObjectClass.result, $object.result, $params.ctx == null ? null : $params.result ); }
+
+	|   type ASSIGN value
+	    { $result = factory.define( $valueReference.text, $type.result, $value.result, $params.ctx == null ? null : $params.result ); }
+	)
+	;
+
 valueSetTypeAssignment returns[DefinedType result]
 	:
 	    typeReference
@@ -737,7 +753,8 @@ valueSetTypeAssignment returns[DefinedType result]
 
 // X.680, p 17.7
 value returns [Ref<Value> result]
-	:   builtinValue            { $result = $builtinValue.result; }
+	:   builtinScalarValue      { $result = $builtinScalarValue.result; }
+	|   builtinValue            { $result = $builtinValue.result; }
 
     // X.680, p 17.11 referenced values
 	|   definedValue        { $result = $definedValue.result; }
@@ -758,24 +775,27 @@ valueSet returns [ConstraintTemplate result]
     ;
 
 builtinValue returns [Value result]
-	:   CString                 { $result = factory.cString($CString.text); }
-	|   HString                 { $result = factory.hString($HString.text); }
-	|   BString                 { $result = factory.bString($BString.text); }
-	|   integerValue            { $result = $integerValue.result; }
-	// X.680, p 12.9
-	|   RealLiteral             { $result = factory.real($RealLiteral.text); }
-    |   SpecialRealValue        { $result = factory.real($SpecialRealValue.text); }
-
-	|   TRUE                    { $result = BooleanValue.TRUE; }
-	|   FALSE                   { $result = BooleanValue.FALSE; }
-	//|   CONTAINING value        { /*$result = new ContainingValue( $value.result );*/ }// TODO: CONTAINING value
+	:
 	// X.680, p 23
-	|   NULL                    { $result = NullValue.INSTANCE; }
+        namedValueCollection    { $result = $namedValueCollection.result; }
     |   valueCollection         { $result = $valueCollection.result; }
-    |   namedValueCollection    { $result = $namedValueCollection.result; }
 	|   choiceValue             { $result = $choiceValue.result; }
 	|   objectIdentifierValue   { $result = $objectIdentifierValue.result; }
+	//|   CONTAINING value        { /*$result = new ContainingValue( $value.result );*/ }// TODO: CONTAINING value
 	;
+
+builtinScalarValue returns [Value result]
+    :   CString                 { $result = factory.cString($CString.text); }
+    |   HString                 { $result = factory.hString($HString.text); }
+    |   BString                 { $result = factory.bString($BString.text); }
+    |   integerValue            { $result = $integerValue.result; }
+    // X.680, p 12.9
+    |   RealLiteral             { $result = factory.real($RealLiteral.text); }
+    |   SpecialRealValue        { $result = factory.real($SpecialRealValue.text); }
+    |   TRUE                    { $result = BooleanValue.TRUE; }
+    |   FALSE                   { $result = BooleanValue.FALSE; }
+	|   NULL                    { $result = NullValue.INSTANCE; }
+    ;
 
 definedValue returns [Ref<Value> result]
 	:   // X.680, p 14
@@ -1675,6 +1695,6 @@ SmallLetter         : [a-z];
 
 // X.680, p 12.6
 MULTI_LINE_COMMENT  : '/*' .*? '*/' -> skip;
-SINGLE_LINE_COMMENT : '--'  ~[\r\n]* -> skip;
+SINGLE_LINE_COMMENT : '--'  ( ~[\-] '-' | ~[\-\r\n])* ('\r'?'\n' | '--' ) -> skip;
 
 WS                  :  [ \t\r\n\u000C]+ -> skip;

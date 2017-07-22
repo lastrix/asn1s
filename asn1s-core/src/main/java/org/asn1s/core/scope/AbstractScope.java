@@ -60,7 +60,9 @@ abstract class AbstractScope implements Scope
 	@Override
 	public Type getTypeOrDie()
 	{
-		throw new IllegalStateException( "No Type available" );
+		if( parent == null )
+			throw new IllegalStateException( "No Type available" );
+		return parent.getTypeOrDie();
 	}
 
 	@Override

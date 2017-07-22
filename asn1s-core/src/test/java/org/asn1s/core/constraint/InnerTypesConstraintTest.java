@@ -33,6 +33,7 @@ import org.asn1s.api.constraint.Presence;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType.Kind;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.DefaultObjectFactory;
@@ -56,7 +57,7 @@ public class InnerTypesConstraintTest
 		sequenceType.addComponent( Kind.Primary, "a", factory.builtin( "INTEGER" ), true, null );
 		sequenceType.addComponent( Kind.Primary, "b", factory.builtin( "REAL" ), false, null );
 
-		factory.define( "My-Type", sequenceType, null );
+		DefinedType type = factory.define( "My-Type", sequenceType, null );
 		module.validate();
 
 		Ref<Value> realValueRef = factory.real( 0.0f );
@@ -67,7 +68,7 @@ public class InnerTypesConstraintTest
 		ValueCollection value = factory.collection( true );
 		value.addNamed( "b", realValueRef );
 
-		Scope scope = module.createScope();
+		Scope scope = type.createScope();
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint, value, sequenceType, scope ) );
 
 		ValueCollection value1 = factory.collection( true );

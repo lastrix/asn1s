@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PCCH-Message>
+    <message>
+        <c1>
+            <paging>
+                <systemInfoModification>
+                    <true/>
+                </systemInfoModification>
+                <nonCriticalExtension/>
+            </paging>
+        </c1>
+    </message>
+</PCCH-Message><?xml version="1.0" encoding="UTF-8"?>
+<PCCH-Message>
+<message>
+    <c1>
+        <paging/>
+    </c1>
+</message>
+</PCCH-Message>

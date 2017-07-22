@@ -28,6 +28,8 @@ package org.asn1s.core.value.x680;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.type.Type;
 import org.asn1s.api.value.ByteArrayValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.*;
@@ -46,9 +48,17 @@ public class NamedValueImpl implements NamedValue
 
 	public NamedValueImpl( @NotNull String name, @Nullable Ref<Value> valueRef )
 	{
+		this( name, valueRef, false );
+	}
+
+	private NamedValueImpl( @NotNull String name, @Nullable Ref<Value> valueRef, boolean resolved )
+	{
 		this.name = name;
 		this.valueRef = valueRef;
+		this.resolved = valueRef == null;
 	}
+
+	private final boolean resolved;
 
 	@NotNull
 	private final String name;
@@ -94,10 +104,18 @@ public class NamedValueImpl implements NamedValue
 	public Value resolve( Scope scope ) throws ResolutionException
 	{
 		//noinspection ObjectEquality
-		if( valueRef == null || valueRef == valueRef.resolve( scope ) )
+		if( resolved )
 			return this;
 
-		return new NamedValueImpl( name, valueRef.resolve( scope ) );
+		assert valueRef != null;
+		if( valueRef instanceof Value )
+			return new NamedValueImpl( name, valueRef.resolve( scope ), true );
+
+		Type type = scope.getTypeOrDie();
+		NamedType namedType = type.getNamedType( name );
+		if( namedType != null )
+			scope = namedType.getScope( scope );
+		return new NamedValueImpl( name, valueRef.resolve( scope ), true );
 	}
 
 	@Override

@@ -1,0 +1,59 @@
+value1 CAM ::= {
+  header {
+    protocolVersion currentVersion,
+    messageID cam,
+    stationID 0
+  },
+  cam {
+    generationDeltaTime oneMilliSec,
+    camParameters {
+      basicContainer {
+        stationType unknown,
+        referencePosition {
+          latitude oneMicrodegreeNorth,
+          longitude oneMicrodegreeEast,
+          positionConfidenceEllipse {
+            semiMajorConfidence oneCentimeter,
+            semiMinorConfidence oneCentimeter,
+            semiMajorOrientation wgs84North
+          },
+          altitude {
+            altitudeValue referenceEllipsoidSurface,
+            altitudeConfidence alt-000-01
+          }
+        }
+      },
+      highFrequencyContainer basicVehicleContainerHighFrequency : {
+        heading {
+          headingValue wgs84North,
+          headingConfidence equalOrWithinZeroPointOneDegree
+        },
+        speed {
+          speedValue standstill,
+          speedConfidence equalOrWithinOneCentimeterPerSec
+        },
+        driveDirection forward,
+        vehicleLength {
+          vehicleLengthValue tenCentimeters,
+          vehicleLengthConfidenceIndication noTrailerPresent
+        },
+        vehicleWidth tenCentimeters,
+        longitudinalAcceleration {
+          longitudinalAccelerationValue pointOneMeterPerSecSquaredForward,
+          longitudinalAccelerationConfidence pointOneMeterPerSecSquared
+        },
+        curvature {
+          curvatureValue straight,
+          curvatureConfidence onePerMeter-0-00002
+        },
+        curvatureCalculationMode yawRateUsed,
+        yawRate {
+          yawRateValue straight,
+          yawRateConfidence degSec-000-01
+        },
+        lanePosition offTheRoad
+      }
+    }
+  }
+}
+ 

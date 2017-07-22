@@ -56,7 +56,7 @@ import org.asn1s.core.type.x681.*;
 import org.asn1s.core.value.CoreValueFactory;
 import org.asn1s.core.value.DefinedValueImpl;
 import org.asn1s.core.value.DefinedValueTemplateImpl;
-import org.asn1s.core.value.x680.TemplateValueInstance;
+import org.asn1s.core.value.TemplateValueInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

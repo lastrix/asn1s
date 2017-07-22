@@ -1,0 +1,40 @@
+value1 BasicSafetyMessage ::= {
+  msgID basicSafetyMessage,
+  blob1 '01C0A801154A3818BC4D4F21CB39EDC15B0000000000002C8DB6000000000000000000208939'H,
+  safetyExt {
+    events 0,
+    pathHistory {
+      initialPosition {
+        utcTime {
+          year 2010,
+          month 1,
+          day 16,
+          hour 21,
+          minute 5,
+          second 30000
+        },
+        long -887008270,
+        lat -154554887,
+        elevation 'BFBA'H,
+        heading 11441,
+        speed '0000'H,
+        posAccuracy '00000000'H,
+        timeConfidence unavailable,
+        posConfidence '00'H,
+        speedConfidence '00'H
+      },
+      itemCnt 2,
+      crumbData pathHistoryPointSets-03 : '000102030405060708090A0B0C0D0E0F1011121314151617'H
+    },
+    pathPrediction {
+      radiusOfCurve 0,
+      confidence 0
+    },
+    theRTCM {
+      rtcmHeader '0000000000'H
+    }
+  },
+  status {
+  }
+}
+ 

@@ -1,0 +1,173 @@
+rec1value X2AP-PDU ::= initiatingMessage : 
+  {
+    procedureCode 0,
+    criticality reject,
+    value HandoverRequest : 
+    {
+      protocolIEs 
+      {
+        {
+          id 10,
+          criticality reject,
+          value UE-X2AP-ID : 1
+        },
+        {
+          id 5,
+          criticality ignore,
+          value Cause : misc : control-processing-overload
+        },
+        {
+          id 11,
+          criticality reject,
+          value ECGI : 
+          {
+            pLMN-Identity '123456'H,
+            eUTRANcellIdentifier '00000000 00000000 00001111 1111'B
+          }
+        },
+        {
+          id 23,
+          criticality reject,
+          value GUMMEI : 
+          {
+            gU-Group-ID 
+            {
+              pLMN-Identity '123456'H,
+              mME-Group-ID '1234'H
+            },
+            mME-Code '11'H
+          }
+        },
+        {
+          id 14,
+          criticality reject,
+          value UE-ContextInformation : 
+          {
+            mME-UE-S1AP-ID 12,
+            uESecurityCapabilities 
+            {
+              encryptionAlgorithms '00000000 11101001'B,
+              integrityProtectionAlgorithms '00000000 01010101'B
+            },
+            aS-SecurityInformation 
+            {
+              key-eNodeB-star '00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00001111'B,
+              nextHopChainingCount 1
+            },
+            uEaggregateMaximumBitRate 
+            {
+              uEaggregateMaximumBitRateDownlink 10,
+              uEaggregateMaximumBitRateUplink 10
+            },
+            subscriberProfileIDforRFP 1,
+            e-RABs-ToBeSetup-List 
+            {
+              {
+                id 4,
+                criticality ignore,
+                value E-RABs-ToBeSetup-Item : 
+                {
+                  e-RAB-ID 10,
+                  e-RAB-Level-QoS-Parameters 
+                  {
+                    qCI 1,
+                    allocationAndRetentionPriority 
+                    {
+                      priorityLevel spare,
+                      pre-emptionCapability shall-not-trigger-pre-emption,
+                      pre-emptionVulnerability not-pre-emptable
+                    },
+                    gbrQosInformation 
+                    {
+                      e-RAB-MaximumBitrateDL 111,
+                      e-RAB-MaximumBitrateUL 11,
+                      e-RAB-GuaranteedBitrateDL 1,
+                      e-RAB-GuaranteedBitrateUL 1
+                    }
+                  },
+                  dL-Forwarding dL-forwardingProposed,
+                  uL-GTPtunnelEndpoint 
+                  {
+                    transportLayerAddress '1'B,
+                    gTP-TEID '12345678'H
+                  }
+                }
+              }
+            },
+            rRC-Context '11'H,
+            handoverRestrictionList 
+            {
+              servingPLMN '123456'H,
+              equivalentPLMNs 
+              {
+                '123456'H
+              },
+              forbiddenTAs 
+              {
+                {
+                  pLMN-Identity '123456'H,
+                  forbiddenTACs 
+                  {
+                    '1234'H
+                  }
+                }
+              },
+              forbiddenLAs 
+              {
+                {
+                  pLMN-Identity '123456'H,
+                  forbiddenLACs 
+                  {
+                    '1234'H
+                  }
+                }
+              },
+              forbiddenInterRATs all
+            },
+            locationReportingInformation 
+            {
+              eventType change-of-serving-cell,
+              reportArea ecgi
+            }
+          }
+        },
+        {
+          id 15,
+          criticality ignore,
+          value UE-HistoryInformation : 
+          {
+            e-UTRAN-Cell : 
+              {
+                global-Cell-ID 
+                {
+                  pLMN-Identity '123456'H,
+                  eUTRANcellIdentifier '00000000 00000000 00000000 1111'B
+                },
+                cellType 
+                {
+                  cell-Size verysmall
+                },
+                time-UE-StayedInCell 1
+              }
+          }
+        },
+        {
+          id 13,
+          criticality ignore,
+          value TraceActivation : 
+          {
+            eUTRANTraceID '1212121212121212'H,
+            interfacesToTrace '00001111'B,
+            traceDepth minimum,
+            traceCollectionEntityIPAddress '1'B
+          }
+        },
+        {
+          id 36,
+          criticality ignore,
+          value SRVCCOperationPossible : possible
+        }
+      }
+    }
+  }
+ 

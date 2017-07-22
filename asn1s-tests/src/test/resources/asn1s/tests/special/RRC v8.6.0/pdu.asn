@@ -1,0 +1,16 @@
+rec1value PCCH-Message ::= 
+{
+  message c1 : paging : 
+      {
+        systemInfoModification true,
+        nonCriticalExtension 
+        {
+        }
+      }
+}
+rec2value PCCH-Message ::= 
+{
+  message c1 : paging : 
+      {
+      }
+} 

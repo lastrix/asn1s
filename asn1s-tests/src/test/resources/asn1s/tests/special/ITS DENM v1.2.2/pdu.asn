@@ -1,0 +1,72 @@
+value1 DENM ::= {
+  header {
+    protocolVersion currentVersion,
+    messageID denm,
+    stationID 0
+  },
+  denm {
+    management {
+      actionID {
+        originatingStationID 0,
+        sequenceNumber 0
+      },
+      detectionTime utcStartOf2004,
+      referenceTime utcStartOf2004,
+      termination isCancellation,
+      eventPosition {
+        latitude oneMicrodegreeNorth,
+        longitude oneMicrodegreeEast,
+        positionConfidenceEllipse {
+          semiMajorConfidence oneCentimeter,
+          semiMinorConfidence oneCentimeter,
+          semiMajorOrientation wgs84North
+        },
+        altitude {
+          altitudeValue referenceEllipsoidSurface,
+          altitudeConfidence alt-000-01
+        }
+      },
+      relevanceDistance lessThan50m,
+      validityDuration 600,
+      stationType unknown
+    },
+    location {
+      traces {
+        {
+          {
+            pathPosition {
+              deltaLatitude oneMicrodegreeNorth,
+              deltaLongitude oneMicrodegreeEast,
+              deltaAltitude oneCentimeterUp
+            }
+          }
+        }
+      },
+      roadType urban-NoStructuralSeparationToOppositeLanes
+    },
+    alacarte {
+      lanePosition offTheRoad,
+      roadWorks {
+        recommendedPath {
+          {
+            latitude oneMicrodegreeNorth,
+            longitude oneMicrodegreeEast,
+            positionConfidenceEllipse {
+              semiMajorConfidence oneCentimeter,
+              semiMinorConfidence oneCentimeter,
+              semiMajorOrientation wgs84North
+            },
+            altitude {
+              altitudeValue referenceEllipsoidSurface,
+              altitudeConfidence alt-000-01
+            }
+          }
+        }
+      },
+      stationaryVehicle {
+        numberOfOccupants oneOccupant
+      }
+    }
+  }
+}
+ 

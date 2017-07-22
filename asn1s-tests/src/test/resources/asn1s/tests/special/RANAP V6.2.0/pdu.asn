@@ -1,0 +1,96 @@
+rec1value RANAP-PDU ::= initiatingMessage : {
+  procedureCode 0,
+  criticality reject,
+  value RAB-AssignmentRequest : {
+    protocolIEs {
+      {
+        id 54,
+        criticality ignore,
+        value RAB-SetupOrModifyList : {
+          {
+            {
+              id 53,
+              firstCriticality reject,
+              firstValue RAB-SetupOrModifyItemFirst : {
+                rAB-ID '11011110'B,
+                rAB-Parameters {
+                  trafficClass conversational,
+                  rAB-AsymmetryIndicator symmetric-bidirectional,
+                  maxBitrate {
+                    2
+                  },
+                  guaranteedBitRate {
+                    3
+                  },
+                  deliveryOrder delivery-order-requested,
+                  maxSDU-Size 4,
+                  sDU-Parameters {
+                    {
+                      sDU-ErrorRatio {
+                        mantissa 5,
+                        exponent 6
+                      },
+                      residualBitErrorRatio {
+                        mantissa 7,
+                        exponent 8
+                      },
+                      deliveryOfErroneousSDU yes,
+                      sDU-FormatInformationParameters {
+                        {
+                          subflowSDU-Size 9,
+                          rAB-SubflowCombinationBitRate 10
+                        }
+                      }
+                    }
+                  },
+                  transferDelay 11,
+                  trafficHandlingPriority lowest,
+                  allocationOrRetentionPriority {
+                    priorityLevel no-priority,
+                    pre-emptionCapability shall-not-trigger-pre-emption,
+                    pre-emptionVulnerability not-pre-emptable,
+                    queuingAllowed queueing-not-allowed
+                  },
+                  sourceStatisticsDescriptor speech
+                },
+                userPlaneInformation {
+                  userPlaneMode support-mode-for-predefined-SDU-sizes,
+                  uP-ModeVersions '0010001000100010'B
+                },
+                transportLayerInformation {
+                  transportLayerAddress '00110011'B,
+                  iuTransportAssociation bindingID : '44444444'H
+                }
+              },
+              secondCriticality ignore,
+              secondValue RAB-SetupOrModifyItemSecond : {
+                dataVolumeReportingIndication do-report,
+                dl-GTP-PDU-SequenceNumber 5,
+                ul-GTP-PDU-SequenceNumber 6,
+                dl-N-PDU-SequenceNumber 7,
+                ul-N-PDU-SequenceNumber 8
+              }
+            }
+          }
+        }
+      },
+      {
+        id 41,
+        criticality ignore,
+        value RAB-ReleaseList : {
+          {
+            {
+              id 40,
+              criticality ignore,
+              value RAB-ReleaseItem : {
+                rAB-ID '01011011'B,
+                cause radioNetwork : trelocoverall-expiry
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+ 

@@ -27,7 +27,9 @@ package org.asn1s.api.value;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
+import org.asn1s.api.Validation;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.exception.ValidationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -58,7 +60,16 @@ public final class ValueNameRef implements Ref<Value>
 	@Override
 	public Value resolve( Scope scope ) throws ResolutionException
 	{
-		return scope.resolveValue( valueName );
+		Value value = scope.resolveValue( valueName );
+		if( value instanceof DefinedValue )
+			try
+			{
+				( (Validation)value ).validate( scope );
+			} catch( ValidationException e )
+			{
+				throw new ResolutionException( "Unable to validate value: " + value, e );
+			}
+		return value;
 	}
 
 	@Override

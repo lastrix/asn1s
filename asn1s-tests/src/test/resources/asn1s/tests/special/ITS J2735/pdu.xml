@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BasicSafetyMessage>
+    <msgID>
+        <basicSafetyMessage/>
+    </msgID>
+    <blob1>
+        01C0A801 154A3818 BC4D4F21 CB39EDC1 5B000000 0000002C 8DB60000 00000000
+        00000020 8939
+    </blob1>
+    <safetyExt>
+        <events>0</events>
+        <pathHistory>
+            <initialPosition>
+                <utcTime>
+                    <year>2010</year>
+                    <month>1</month>
+                    <day>16</day>
+                    <hour>21</hour>
+                    <minute>5</minute>
+                    <second>30000</second>
+                </utcTime>
+                <long>-887008270</long>
+                <lat>-154554887</lat>
+                <elevation>BFBA</elevation>
+                <heading>11441</heading>
+                <speed>0000</speed>
+                <posAccuracy>00000000</posAccuracy>
+                <timeConfidence>
+                    <unavailable/>
+                </timeConfidence>
+                <posConfidence>00</posConfidence>
+                <speedConfidence>00</speedConfidence>
+            </initialPosition>
+            <itemCnt>2</itemCnt>
+            <crumbData>
+                <pathHistoryPointSets-03>
+                    00010203 04050607 08090A0B 0C0D0E0F 10111213 14151617
+                </pathHistoryPointSets-03>
+            </crumbData>
+        </pathHistory>
+        <pathPrediction>
+            <radiusOfCurve>0</radiusOfCurve>
+            <confidence>0</confidence>
+        </pathPrediction>
+        <theRTCM>
+            <rtcmHeader>00000000 00</rtcmHeader>
+        </theRTCM>
+    </safetyExt>
+    <status/>
+</BasicSafetyMessage>

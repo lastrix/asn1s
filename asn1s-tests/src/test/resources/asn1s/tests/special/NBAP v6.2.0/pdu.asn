@@ -1,0 +1,177 @@
+ 
+
+vInit NBAP-PDU ::= initiatingMessage : 
+{
+  procedureID
+  {
+    procedureCode id-synchronisedRadioLinkReconfigurationPreparation,
+    ddMode fdd
+  },
+  criticality		reject,
+  messageDiscriminator	dedicated,
+  transactionID		longTransActionId : 1,
+  value			RadioLinkReconfigurationPrepareFDD : 
+  {
+    protocolIEs 
+    {
+      {
+	id		id-NodeB-CommunicationContextID,
+	criticality	reject,
+	value		NodeB-CommunicationContextID : 2
+      },
+      {
+	id		id-UL-DPCH-Information-RL-ReconfPrepFDD,
+	criticality	reject,
+	value		UL-DPCH-Information-RL-ReconfPrepFDD : 
+	{
+	  ul-ScramblingCode 
+	  {
+	    uL-ScramblingCodeNumber 1234,
+	    uL-ScramblingCodeLength short
+	  },
+	  ul-SIR-Target 11,
+	  minUL-ChannelisationCodeLength v4,
+	  maxNrOfUL-DPDCHs 5,
+	  ul-PunctureLimit 8,
+	  tFCS 
+	  { tFCSvalues no-Split-in-TFCI :
+	    {
+	      {
+		cTFC ctfc2bit : 0,
+		tFC-Beta signalledGainFactors : 
+		{
+		  gainFactor fdd : 
+		  {
+		    betaC 1,
+		    betaD 2
+		  }
+		}
+	      },
+	      {
+		cTFC ctfc2bit : 1,
+		tFC-Beta signalledGainFactors : 
+		{
+		  gainFactor fdd : 
+		  {
+		    betaC 3,
+		    betaD 4
+		  }
+		}
+	      },
+	      {
+		cTFC ctfc4bit : 4,
+		tFC-Beta signalledGainFactors : 
+		{
+		  gainFactor fdd : 
+		  {
+		    betaC 5,
+		    betaD 6
+		  }
+		}
+	      }
+	    }
+	  },
+	  ul-DPCCH-SlotFormat 2,
+	  sSDT-CellIDLength short,
+	  s-FieldLength v2
+	}
+      },
+      {
+	id		id-DL-DPCH-Information-RL-ReconfPrepFDD,
+	criticality	reject,
+	value		DL-DPCH-Information-RL-ReconfPrepFDD : 
+	{
+	  tFCS 
+	  { tFCSvalues no-Split-in-TFCI :
+	    {
+	      {
+		cTFC ctfc2bit : 0,
+		tFC-Beta signalledGainFactors : 
+		{
+		  gainFactor fdd : 
+		  {
+		    betaC 8,
+		    betaD 7
+		  }
+		}
+	      },
+	      {
+		cTFC ctfc2bit : 1,
+		tFC-Beta signalledGainFactors : 
+		{
+		  gainFactor fdd : 
+		  {
+		    betaC 6,
+		    betaD 5
+		  }
+		}
+	      },
+	      {
+		cTFC ctfc4bit : 4,
+		tFC-Beta signalledGainFactors : 
+		{
+		  gainFactor fdd : 
+		  {
+		    betaC 4,
+		    betaD 3
+		  }
+		}
+	      }
+	    }
+	  },
+	  dl-DPCH-SlotFormat 10,
+	  tFCI-SignallingMode
+	  {
+	    tFCI-SignallingOption split
+	  },
+	  tFCI-Presence present,
+	  multiplexingPosition fixed
+	}
+      },
+      {
+	id		id-DSCH-ModifyList-RL-ReconfPrepFDD,
+	criticality	reject,
+	value		DSCH-ModifyList-RL-ReconfPrepFDD :
+	{
+	  {
+	    id	id-DSCH-ModifyItem-RL-ReconfPrepFDD,
+	    criticality reject,
+	    value DSCH-ModifyItem-RL-ReconfPrepFDD : 
+	    {
+	      dSCH-ID 2,
+	      dl-TransportFormatSet 
+	      {
+		dynamicParts 
+		{
+		  {
+		    nrOfTransportBlocks 1,
+		    transportBlockSize 25,
+		    mode notApplicable : NULL
+		  },
+		  {
+		    nrOfTransportBlocks 5,
+		    transportBlockSize 280,
+		    mode notApplicable : NULL
+		  }
+		},
+		semi-staticPart 
+		{
+		  transmissionTimeInterval msec-20,
+		  channelCoding convolutional-coding,
+		  codingRate half,
+		  rateMatchingAttribute 3,
+		  cRC-Size v8,
+		  mode notApplicable : NULL
+		}
+	      },
+	      frameHandlingPriority 3,
+	      toAWS 123,
+	      toAWE 456,
+	      transportBearerRequestIndicator bearerRequested
+	    }
+	  }
+	}
+      }
+    }
+  }
+}

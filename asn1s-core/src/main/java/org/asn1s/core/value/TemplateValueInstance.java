@@ -23,7 +23,7 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.value.x680;
+package org.asn1s.core.value;
 
 import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;

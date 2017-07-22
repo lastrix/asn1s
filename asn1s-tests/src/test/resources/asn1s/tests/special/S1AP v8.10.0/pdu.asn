@@ -1,0 +1,58 @@
+rec1value S1AP-PDU ::= initiatingMessage : 
+  {
+    procedureCode 0,
+    criticality reject,
+    value HandoverRequired : 
+    {
+      protocolIEs 
+      {
+        {
+          id 0,
+          criticality reject,
+          value MME-UE-S1AP-ID : 123456
+        },
+        {
+          id 8,
+          criticality reject,
+          value ENB-UE-S1AP-ID : 123456
+        },
+        {
+          id 1,
+          criticality reject,
+          value HandoverType : intralte
+        },
+        {
+          id 2,
+          criticality ignore,
+          value Cause : misc : unspecified
+        },
+        {
+          id 4,
+          criticality reject,
+          value TargetID : cGI : 
+            {
+              pLMNidentity '123456'H,
+              lAC '1234'H,
+              cI '1234'H,
+              rAC '55'H
+            }
+        },
+        {
+          id 79,
+          criticality ignore,
+          value Direct-Forwarding-Path-Availability : directPathAvailable
+        },
+        {
+          id 125,
+          criticality reject,
+          value SRVCCHOIndication : pSandCS
+        },
+        {
+          id 104,
+          criticality reject,
+          value Source-ToTarget-TransparentContainer : '12'H
+        }
+      }
+    }
+  }
+ 

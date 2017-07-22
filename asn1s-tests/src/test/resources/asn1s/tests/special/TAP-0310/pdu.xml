@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DataInterChange>
+    <transferBatch>
+        <batchControlInfo>
+            <sender>50525948 54</sender>
+            <recipient>484B4748 54</recipient>
+            <fileSequenceNumber>30303030 33</fileSequenceNumber>
+            <fileCreationTimeStamp>
+                <localTimeStamp>32303034 30323034 31313434 3438</localTimeStamp>
+                <utcTimeOffset>2D303430 30</utcTimeOffset>
+            </fileCreationTimeStamp>
+            <transferCutOffTimeStamp>
+                <localTimeStamp>32303034 30323034 31313434 3438</localTimeStamp>
+                <utcTimeOffset>2D303430 30</utcTimeOffset>
+            </transferCutOffTimeStamp>
+            <fileAvailableTimeStamp>
+                <localTimeStamp>32303034 30323034 31313434 3438</localTimeStamp>
+                <utcTimeOffset>2D303430 30</utcTimeOffset>
+            </fileAvailableTimeStamp>
+            <specificationVersionNumber>3</specificationVersionNumber>
+            <releaseVersionNumber>10</releaseVersionNumber>
+            <fileTypeIndicator>54</fileTypeIndicator>
+        </batchControlInfo>
+        <accountingInfo>
+            <taxation>
+                <Taxation>
+                    <taxCode>1</taxCode>
+                    <taxType>3133</taxType>
+                    <taxRate>31303030 303030</taxRate>
+                </Taxation>
+            </taxation>
+            <localCurrency>555344</localCurrency>
+            <currencyConversionInfo>
+                <CurrencyConversion>
+                    <exchangeRateCode>1</exchangeRateCode>
+                    <numberOfDecimalPlaces>3</numberOfDecimalPlaces>
+                    <exchangeRate>1477</exchangeRate>
+                </CurrencyConversion>
+            </currencyConversionInfo>
+            <tapDecimalPlaces>5</tapDecimalPlaces>
+        </accountingInfo>
+        <networkInfo>
+            <utcTimeOffsetInfo>
+                <UtcTimeOffsetInfo>
+                    <utcTimeOffsetCode>1</utcTimeOffsetCode>
+                    <utcTimeOffset>2D303430 30</utcTimeOffset>
+                </UtcTimeOffsetInfo>
+            </utcTimeOffsetInfo>
+            <recEntityInfo>
+                <RecEntityInformation>
+                    <recEntityCode>0</recEntityCode>
+                    <recEntityType>1</recEntityType>
+                    <recEntityId>
+                        <mscId>35393539 39313739 39353033</mscId>
+                    </recEntityId>
+                </RecEntityInformation>
+                <RecEntityInformation>
+                    <recEntityCode>1</recEntityCode>
+                    <recEntityType>1</recEntityType>
+                    <recEntityId>
+                        <mscId>35393539 39333236 39353033</mscId>
+                    </recEntityId>
+                </RecEntityInformation>
+            </recEntityInfo>
+            <networkType>1</networkType>
+            <calledNumAnalysis>
+                <CalledNumAnalysis>
+                    <countryCodeTable>
+                        <CountryCode>353935</CountryCode>
+                    </countryCodeTable>
+                    <iacTable>
+                        <Iac>303032</Iac>
+                    </iacTable>
+                </CalledNumAnalysis>
+            </calledNumAnalysis>
+        </networkInfo>
+        <vasInfo>
+            <VasInformation>
+                <vasCode>1</vasCode>
+                <vasShortDesc>5644</vasShortDesc>
+                <vasDesc>566F6963 65204D61 696C2020 52657472 6965</vasDesc>
+            </VasInformation>
+            <VasInformation>
+                <vasCode>2</vasCode>
+                <vasShortDesc>5652</vasShortDesc>
+                <vasDesc>566F6963 65204D61 696C2020 52657472 69657661 6C</vasDesc>
+            </VasInformation>
+        </vasInfo>
+        <callEventDetails>
+            <mobileTerminatedCall>
+                <basicCallInformation>
+                    <chargeableSubscriber>
+                        <simChargeableSubscriber>
+                            <imsi>45404200 5885455F</imsi>
+                            <msisdn>85290469 641F</msisdn>
+                        </simChargeableSubscriber>
+                    </chargeableSubscriber>
+                    <callOriginator>
+                        <callingNumber>0F</callingNumber>
+                    </callOriginator>
+                    <callEventStartTimeStamp>
+                        <localTimeStamp>32303034 30313330 31363037 3031</localTimeStamp>
+                        <utcTimeOffsetCode>1</utcTimeOffsetCode>
+                    </callEventStartTimeStamp>
+                    <totalCallEventDuration>91</totalCallEventDuration>
+                </basicCallInformation>
+                <locationInformation>
+                    <networkLocation>
+                        <recEntityCode>0</recEntityCode>
+                        <locationArea>101</locationArea>
+                        <cellId>11011</cellId>
+                    </networkLocation>
+                </locationInformation>
+                <equipmentInformation>
+                    <mobileStationClassMark>2</mobileStationClassMark>
+                </equipmentInformation>
+                <basicServiceUsedList>
+                    <BasicServiceUsed>
+                        <basicService>
+                            <serviceCode>
+                                <teleServiceCode>3131</teleServiceCode>
+                            </serviceCode>
+                            <radioChannelRequested>0</radioChannelRequested>
+                            <radioChannelUsed>1</radioChannelUsed>
+                            <speechVersionRequested>1</speechVersionRequested>
+                            <speechVersionUsed>1</speechVersionUsed>
+                            <transparencyIndicator>1</transparencyIndicator>
+                        </basicService>
+                        <chargeInformationList>
+                            <ChargeInformation>
+                                <chargedItem>44</chargedItem>
+                                <exchangeRateCode>1</exchangeRateCode>
+                                <callTypeGroup>
+                                    <callTypeLevel1>1</callTypeLevel1>
+                                    <callTypeLevel2>0</callTypeLevel2>
+                                    <callTypeLevel3>1</callTypeLevel3>
+                                </callTypeGroup>
+                                <chargeDetailList>
+                                    <ChargeDetail>
+                                        <chargeType>3030</chargeType>
+                                        <charge>0</charge>
+                                        <chargeableUnits>91</chargeableUnits>
+                                        <chargedUnits>120</chargedUnits>
+                                        <dayCategory>4E</dayCategory>
+                                        <timeBand>49</timeBand>
+                                    </ChargeDetail>
+                                    <ChargeDetail>
+                                        <chargeType>3031</chargeType>
+                                        <charge>0</charge>
+                                        <chargeableUnits>91</chargeableUnits>
+                                        <chargedUnits>120</chargedUnits>
+                                        <dayCategory>4E</dayCategory>
+                                        <timeBand>49</timeBand>
+                                    </ChargeDetail>
+                                </chargeDetailList>
+                                <taxInformation>
+                                    <TaxInformation>
+                                        <taxCode>1</taxCode>
+                                        <taxValue>0</taxValue>
+                                    </TaxInformation>
+                                </taxInformation>
+                            </ChargeInformation>
+                        </chargeInformationList>
+                    </BasicServiceUsed>
+                </basicServiceUsedList>
+            </mobileTerminatedCall>
+        </callEventDetails>
+        <auditControlInfo>
+            <earliestCallTimeStamp>
+                <localTimeStamp>32303034 30313330 31363037 3031</localTimeStamp>
+                <utcTimeOffset>2D303430 30</utcTimeOffset>
+            </earliestCallTimeStamp>
+            <latestCallTimeStamp>
+                <localTimeStamp>32303034 30313330 31373238 3035</localTimeStamp>
+                <utcTimeOffset>2D303430 30</utcTimeOffset>
+            </latestCallTimeStamp>
+            <totalChargeValueList>
+                <TotalChargeValue>
+                    <chargeType>3030</chargeType>
+                    <totalCharge>1161135</totalCharge>
+                </TotalChargeValue>
+                <TotalChargeValue>
+                    <chargeType>3031</chargeType>
+                    <totalCharge>322273</totalCharge>
+                </TotalChargeValue>
+                <TotalChargeValue>
+                    <chargeType>3032</chargeType>
+                    <totalCharge>838862</totalCharge>
+                </TotalChargeValue>
+            </totalChargeValueList>
+            <totalTaxValue>116113</totalTaxValue>
+            <totalDiscountValue>0</totalDiscountValue>
+            <callEventDetailsCount>7</callEventDetailsCount>
+        </auditControlInfo>
+    </transferBatch>
+</DataInterChange>

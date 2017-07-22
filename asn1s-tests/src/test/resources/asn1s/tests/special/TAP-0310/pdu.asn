@@ -1,0 +1,221 @@
+tap-value DataInterChange ::= transferBatch : 
+  {
+    batchControlInfo 
+    {
+      sender '5052594854'H,
+      recipient '484B474854'H,
+      fileSequenceNumber '3030303033'H,
+      fileCreationTimeStamp 
+      {
+        localTimeStamp '3230303430323034313134343438'H,
+        utcTimeOffset '2D30343030'H
+      },
+      transferCutOffTimeStamp 
+      {
+        localTimeStamp '3230303430323034313134343438'H,
+        utcTimeOffset '2D30343030'H
+      },
+      fileAvailableTimeStamp 
+      {
+        localTimeStamp '3230303430323034313134343438'H,
+        utcTimeOffset '2D30343030'H
+      },
+      specificationVersionNumber 3,
+      releaseVersionNumber 10,
+      fileTypeIndicator '54'H
+    },
+    accountingInfo 
+    {
+      taxation 
+      {
+        {
+          taxCode 1,
+          taxType '3133'H,
+          taxRate '31303030303030'H
+        }
+      },
+      localCurrency '555344'H,
+      currencyConversionInfo 
+      {
+        {
+          exchangeRateCode 1,
+          numberOfDecimalPlaces 3,
+          exchangeRate 1477
+        }
+      },
+      tapDecimalPlaces 5
+    },
+    networkInfo 
+    {
+      utcTimeOffsetInfo 
+      {
+        {
+          utcTimeOffsetCode 1,
+          utcTimeOffset '2D30343030'H
+        }
+      },
+      recEntityInfo 
+      {
+        {
+          recEntityCode 0,
+          recEntityType 1,
+          recEntityId mscId : '353935393931373939353033'H
+        },
+        {
+          recEntityCode 1,
+          recEntityType 1,
+          recEntityId mscId : '353935393933323639353033'H
+        }
+      },
+      networkType 1,
+      calledNumAnalysis 
+      {
+        {
+          countryCodeTable 
+          {
+            '353935'H
+          },
+          iacTable 
+          {
+            '303032'H
+          }
+        }
+      }
+    },
+    vasInfo 
+    {
+      {
+        vasCode 1,
+        vasShortDesc '5644'H,
+        vasDesc '566F696365204D61696C2020526574726965'H
+      },
+      {
+        vasCode 2,
+        vasShortDesc '5652'H,
+        vasDesc '566F696365204D61696C202052657472696576616C'H
+      }
+    },
+    callEventDetails 
+    {
+      mobileTerminatedCall : 
+        {
+          basicCallInformation 
+          {
+            chargeableSubscriber simChargeableSubscriber : 
+              {
+                imsi '454042005885455F'H,
+                msisdn '85290469641F'H
+              },
+            callOriginator 
+            {
+              callingNumber '0F'H
+            },
+            callEventStartTimeStamp 
+            {
+              localTimeStamp '3230303430313330313630373031'H,
+              utcTimeOffsetCode 1
+            },
+            totalCallEventDuration 91
+          },
+          locationInformation 
+          {
+            networkLocation 
+            {
+              recEntityCode 0,
+              locationArea 101,
+              cellId 11011
+            }
+          },
+          equipmentInformation 
+          {
+            mobileStationClassMark 2
+          },
+          basicServiceUsedList 
+          {
+            {
+              basicService 
+              {
+                serviceCode teleServiceCode : '3131'H,
+                radioChannelRequested 0,
+                radioChannelUsed 1,
+                speechVersionRequested 1,
+                speechVersionUsed 1,
+                transparencyIndicator 1
+              },
+              chargeInformationList 
+              {
+                {
+                  chargedItem '44'H,
+                  exchangeRateCode 1,
+                  callTypeGroup 
+                  {
+                    callTypeLevel1 1,
+                    callTypeLevel2 0,
+                    callTypeLevel3 1
+                  },
+                  chargeDetailList 
+                  {
+                    {
+                      chargeType '3030'H,
+                      charge 0,
+                      chargeableUnits 91,
+                      chargedUnits 120,
+                      dayCategory '4E'H,
+                      timeBand '49'H
+                    },
+                    {
+                      chargeType '3031'H,
+                      charge 0,
+                      chargeableUnits 91,
+                      chargedUnits 120,
+                      dayCategory '4E'H,
+                      timeBand '49'H
+                    }
+                  },
+                  taxInformation 
+                  {
+                    {
+                      taxCode 1,
+                      taxValue 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+    },
+    auditControlInfo 
+    {
+      earliestCallTimeStamp 
+      {
+        localTimeStamp '3230303430313330313630373031'H,
+        utcTimeOffset '2D30343030'H
+      },
+      latestCallTimeStamp 
+      {
+        localTimeStamp '3230303430313330313732383035'H,
+        utcTimeOffset '2D30343030'H
+      },
+      totalChargeValueList 
+      {
+        {
+          chargeType '3030'H,
+          totalCharge 1161135
+        },
+        {
+          chargeType '3031'H,
+          totalCharge 322273
+        },
+        {
+          chargeType '3032'H,
+          totalCharge 838862
+        }
+      },
+      totalTaxValue 116113,
+      totalDiscountValue 0,
+      callEventDetailsCount 7
+    }
+  }
+
+ 
