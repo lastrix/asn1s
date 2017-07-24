@@ -25,7 +25,6 @@
 
 package org.asn1s.core.value;
 
-import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Scope;
 import org.asn1s.api.Template;
 import org.asn1s.api.TemplateParameter;
@@ -37,7 +36,8 @@ import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DefinedValueTemplateImpl extends DefinedValueImpl implements Template<Value>
 {
@@ -157,15 +157,8 @@ public class DefinedValueTemplateImpl extends DefinedValueImpl implements Templa
 	public String toString()
 	{
 		if( isValidated() )
-			return getName() + ' ' + getType() + " {" + paramsAsString() + "} ::= " + getValue();
+			return getName() + ' ' + getType() + " {" + CoreUtils.paramMapToString( parameterMap ) + "} ::= " + getValue();
 
 		return getName();
-	}
-
-	private String paramsAsString()
-	{
-		List<TemplateParameter> parameters = new ArrayList<>( parameterMap.values() );
-		parameters.sort( Comparator.comparingInt( TemplateParameter:: getIndex ) );
-		return StringUtils.join( parameters, ", " );
 	}
 }

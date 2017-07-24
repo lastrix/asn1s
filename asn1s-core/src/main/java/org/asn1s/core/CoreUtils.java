@@ -25,6 +25,7 @@
 
 package org.asn1s.core;
 
+import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Scope;
 import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.exception.ResolutionException;
@@ -40,6 +41,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -162,5 +166,12 @@ public final class CoreUtils
 		{
 			throw new IllegalStateException( e );
 		}
+	}
+
+	public static String paramMapToString( Map<String, TemplateParameter> parameterMap )
+	{
+		List<TemplateParameter> parameters = new ArrayList<>( parameterMap.values() );
+		parameters.sort( Comparator.comparingInt( TemplateParameter:: getIndex ) );
+		return StringUtils.join( parameters, ", " );
 	}
 }
