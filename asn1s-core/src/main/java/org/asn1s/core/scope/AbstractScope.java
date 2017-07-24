@@ -32,7 +32,6 @@ import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.Template;
-import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.TypeName;
@@ -77,13 +76,6 @@ abstract class AbstractScope implements Scope
 	public final DefinedType resolveBuiltinTypeOrNull( @NotNull TypeName name )
 	{
 		return getModule().getCoreModule().getTypeResolver().getType( name.getName() );
-	}
-
-	@NotNull
-	@Override
-	public Module getModule()
-	{
-		return getParentScope().getModule();
 	}
 
 	@Override

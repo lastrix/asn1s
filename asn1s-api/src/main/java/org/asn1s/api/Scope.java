@@ -43,7 +43,10 @@ public interface Scope
 	Type getTypeOrDie();
 
 	@NotNull
-	Module getModule();
+	default Module getModule()
+	{
+		return getParentScope().getModule();
+	}
 
 	Scope getParentScope();
 
