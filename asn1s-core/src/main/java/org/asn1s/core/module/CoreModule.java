@@ -34,6 +34,7 @@ import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.EmptyModuleResolver;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleReference;
+import org.asn1s.api.module.TypeResolver;
 import org.asn1s.api.type.Type;
 import org.asn1s.core.CoreUtils;
 import org.asn1s.core.constraint.template.SettingsConstraintTemplate;
@@ -53,106 +54,123 @@ import org.asn1s.core.type.x681.TypeIdentifierClass;
 
 public final class CoreModule extends AbstractModule
 {
-	private CoreModule()
+	private enum CoreType
 	{
-		super( new ModuleReference( CoreUtils.CORE_MODULE_NAME ), new EmptyModuleResolver() );
-		registerType( UniversalType.Boolean, new BooleanType() );
-		registerType( UniversalType.Integer, new IntegerType() );
-		registerType( UniversalType.Null, new NullType() );
-		registerType( UniversalType.Real, new RealType() );
+		Boolean( UniversalType.Boolean, new BooleanType() ),
+		Integer( UniversalType.Integer, new IntegerType() ),
+		Null( UniversalType.Null, new NullType() ),
+		Real( UniversalType.Real, new RealType() ),
 
-		registerType( UniversalType.OidIri, new IriType() );
-		registerType( UniversalType.ObjectIdentifier, new ObjectIdentifierType() );
-		registerType( UniversalType.RelativeOidIri, new RelativeOidIriType() );
-		registerType( UniversalType.RelativeOid, new RelativeOidType() );
+		OidIri( UniversalType.OidIri, new IriType() ),
+		ObjectIdentifier( UniversalType.ObjectIdentifier, new ObjectIdentifierType() ),
+		RelativeOidIri( UniversalType.RelativeOidIri, new RelativeOidIriType() ),
+		RelativeOid( UniversalType.RelativeOid, new RelativeOidType() ),
 
-		registerStringType( UniversalType.BMPString );
-		registerStringType( UniversalType.GeneralString );
-		registerStringType( UniversalType.GraphicString );
-		registerStringType( UniversalType.IA5String );
-		registerStringType( UniversalType.NumericString );
-		registerStringType( UniversalType.PrintableString );
-		registerStringType( UniversalType.T61String );
-		registerStringType( UniversalType.UniversalString );
-		registerStringType( UniversalType.UTF8String );
-		registerStringType( UniversalType.VideotexString );
-		registerStringType( UniversalType.VisibleString );
+		BMPString( UniversalType.BMPString ),
+		GeneralString( UniversalType.GeneralString ),
+		GraphicString( UniversalType.GraphicString ),
+		IA5String( UniversalType.IA5String ),
+		NumericString( UniversalType.NumericString ),
+		PrintableString( UniversalType.PrintableString ),
+		T61String( UniversalType.T61String ),
+		UniversalString( UniversalType.UniversalString ),
+		UTF8String( UniversalType.UTF8String ),
+		VideotexString( UniversalType.VideotexString ),
+		VisibleString( UniversalType.VisibleString ),
 
-		registerStringType( UniversalType.Teletex );
-		registerStringType( UniversalType.ISO646String );
+		Teletex( UniversalType.Teletex ),
+		ISO646String( UniversalType.ISO646String ),
 
-		registerType( UniversalType.BitString, new BitStringType() );
-		registerType( UniversalType.CharacterString, new CharacterStringType() );
-		registerType( UniversalType.OctetString, new OctetStringType() );
-		registerType( UniversalType.ObjectDescriptor, new ObjectDescriptorType() );
+		BitString( UniversalType.BitString, new BitStringType() ),
+		CharacterString( UniversalType.CharacterString, new CharacterStringType() ),
+		OctetString( UniversalType.OctetString, new OctetStringType() ),
+		ObjectDescriptor( UniversalType.ObjectDescriptor, new ObjectDescriptorType() ),
 
-		registerType( UniversalType.Time, new TimeType() );
+		Time( UniversalType.Time, new TimeType() ),
+
 		/*
 		 * X.680, p 38.4.3
 		 * DATE-TIME ::= [UNIVERSAL 33] IMPLICIT TIME (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=L"
 		 */
-		registerTimeType( UniversalType.DateTime, new SettingsConstraintTemplate( "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=L" ) );
+		DateTime( UniversalType.DateTime, new SettingsConstraintTemplate( "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=L" ) ),
 		/*
 		 * X.680, p 38.4.2
 		 * DATE ::= [UNIVERSAL 31] IMPLICIT TIME (SETTINGS "Basic=Date Date=YMD Year=Basic")
 		 */
-		registerTimeType( UniversalType.Date, new SettingsConstraintTemplate( "Basic=Date Date=YMD Year=Basic" ) );
+		Date( UniversalType.Date, new SettingsConstraintTemplate( "Basic=Date Date=YMD Year=Basic" ) ),
 		/*
 		 * X.680, p 38.4.4
 		 * DURATION ::= [UNIVERSAL 34] IMPLICIT TIME (SETTINGS "Basic=Interval Interval-type=D")
 		 */
-		registerTimeType( UniversalType.Duration, new SettingsConstraintTemplate( "Basic=Interval Interval-type=D" ) );
+		Duration( UniversalType.Duration, new SettingsConstraintTemplate( "Basic=Interval Interval-type=D" ) ),
 		/*
 		 * X.680, p 38.4.2
 		 * TIME-OF-DAY ::= [UNIVERSAL 32] IMPLICIT TIME (SETTINGS "Basic=Time Time=HMS Local-or-UTC=L")
 		 */
-		registerTimeType( UniversalType.TimeOfDay, new SettingsConstraintTemplate( "Basic=Time Time=HMS Local-or-UTC=L" ) );
+		TimeOfDay( UniversalType.TimeOfDay, new SettingsConstraintTemplate( "Basic=Time Time=HMS Local-or-UTC=L" ) ),
 
-		registerType( UniversalType.GeneralizedTime, new GeneralizedTimeType() );
-		registerType( UniversalType.UTCTime, new UTCTimeType() );
+		GeneralizedTime( UniversalType.GeneralizedTime, new GeneralizedTimeType() ),
+		UTCTime( UniversalType.UTCTime, new UTCTimeType() ),
 
-		registerType( UniversalType.EmbeddedPdv, new EmbeddedPdvType() );
-		registerType( UniversalType.External, new ExternalType() );
+		EmbeddedPdv( UniversalType.EmbeddedPdv, new EmbeddedPdvType() ),
+		External( UniversalType.External, new ExternalType() ),
+		TypeIdentifier( "TYPE-IDENTIFIER", new TypeIdentifierClass() );
 
-		registerType( "TYPE-IDENTIFIER", new TypeIdentifierClass() );
+		private final String typeName;
+		private final Type instanceType;
 
+		CoreType( UniversalType universalType, Type instanceType )
+		{
+			this( universalType.typeName().getName(), instanceType );
+		}
+
+		CoreType( UniversalType universalType )
+		{
+			this( universalType.typeName().getName(), new StringTypeImpl( universalType ) );
+		}
+
+		CoreType( String typeName, Type instanceType )
+		{
+			this.typeName = typeName;
+			this.instanceType = instanceType;
+		}
+
+		CoreType( UniversalType universalType, SettingsConstraintTemplate constraintTemplate )
+		{
+			typeName = universalType.typeName().getName();
+			TagEncoding encoding = TagEncoding.create( TagMethod.Unknown, TagMethod.Implicit, TagClass.Universal, universalType.tagNumber() );
+			instanceType = new ConstrainedType( constraintTemplate, new TaggedTypeImpl( encoding, UniversalType.Time.ref() ) );
+		}
+
+		public String getName()
+		{
+			return typeName;
+		}
+
+		public Type getInstanceType()
+		{
+			return instanceType;
+		}
+	}
+
+	private CoreModule()
+	{
+		super( new ModuleReference( CoreUtils.CORE_MODULE_NAME ), new EmptyModuleResolver() );
+		TypeResolver typeResolver = getTypeResolver();
+		for( CoreType type : CoreType.values() )
+			typeResolver.add( new DefinedTypeImpl( this, type.getName(), type.getInstanceType() ) );
+
+		onConstructionComplete();
+	}
+
+	private void onConstructionComplete()
+	{
 		try
 		{
 			validate();
 		} catch( ValidationException | ResolutionException e )
 		{
 			throw new IllegalStateException( "Unable to validate Core module: " + e.getMessage(), e );
-		}
-	}
-
-	private void registerTimeType( UniversalType typeKind, SettingsConstraintTemplate constraintTemplate )
-	{
-		TagEncoding encoding = TagEncoding.create( TagMethod.Unknown, TagMethod.Implicit, TagClass.Universal, typeKind.tagNumber() );
-		Type type = new ConstrainedType( constraintTemplate, new TaggedTypeImpl( encoding, UniversalType.Time.ref() ) );
-		registerType( typeKind, new DefinedTypeImpl( this, typeKind.name(), type ) );
-	}
-
-	private void registerStringType( UniversalType universalType )
-	{
-		registerType( universalType, new StringTypeImpl( universalType ) );
-	}
-
-	private void registerType( UniversalType universalType, Type type )
-	{
-		registerType( universalType.typeName().toString(), type );
-	}
-
-	private void registerType( String name, Type type )
-	{
-		DefinedTypeImpl definedType = new DefinedTypeImpl( this, name, type );
-		getTypeResolver().add( definedType );
-
-		try
-		{
-			definedType.validate( createScope() );
-		} catch( ValidationException | ResolutionException e )
-		{
-			throw new IllegalStateException( e );
 		}
 	}
 
