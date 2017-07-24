@@ -88,21 +88,24 @@ public final class CoreUtils
 			throw new ValidationException( "No parameters for template type" );
 
 		for( TemplateParameter parameter : parameterMap.values() )
-		{
-			if( parameter.isValueRef() )
-			{
-				if( parameter.getGovernor() == null )
-					throw new ValidationException( "Governor type must be present for value parameter" );
-			}
-			else if( !parameter.isTypeRef() )
-				throw new ValidationException( "Unable to determine reference type: " + parameter );
+			assertParameter( scope, parameter );
+	}
 
-			if( parameter.getGovernor() != null )
-			{
-				Type type = parameter.getGovernor().resolve( scope );
-				if( type instanceof DefinedTypeTemplate )
-					throw new ValidationException( "Unable to use Type template as governor" );
-			}
+	private static void assertParameter( Scope scope, TemplateParameter parameter ) throws ValidationException, ResolutionException
+	{
+		if( parameter.isValueRef() )
+		{
+			if( parameter.getGovernor() == null )
+				throw new ValidationException( "Governor type must be present for value parameter" );
+		}
+		else if( !parameter.isTypeRef() )
+			throw new ValidationException( "Unable to determine reference type: " + parameter );
+
+		if( parameter.getGovernor() != null )
+		{
+			Type type = parameter.getGovernor().resolve( scope );
+			if( type instanceof DefinedTypeTemplate )
+				throw new ValidationException( "Unable to use Type template as governor" );
 		}
 	}
 
@@ -114,29 +117,35 @@ public final class CoreUtils
 		content = CLEAR_BIN_PATTERN.matcher( content.substring( 1, content.length() - 2 ) ).replaceAll( "" );
 		try( ByteArrayOutputStream os = new ByteArrayOutputStream() )
 		{
-			for( int i = 0; i * 8 < content.length(); i++ )
-			{
-				String value = content.substring( i * 8, Math.min( i * 8 + 8, content.length() ) );
-				int size = value.length();
-				if( size < 8 )
-				{
-					StringBuilder sb = new StringBuilder();
-					sb.append( value );
-					for( int k = size; k < 8; k++ )
-						sb.append( '0' );
-					value = sb.toString();
-				}
-				os.write( Integer.parseInt( value, BIN_RADIX ) & BYTE_MASK );
-			}
-			byte[] bytes = os.toByteArray();
-			int usedBits = content.length();
-			return usedBits > 0
-					? new ByteArrayValueImpl( usedBits, bytes )
-					: new ByteArrayValueImpl( 0, EMPTY_ARRAY );
+			return convertBitString( content, os );
 		} catch( IOException e )
 		{
 			throw new IllegalStateException( e );
 		}
+	}
+
+	@NotNull
+	private static ByteArrayValue convertBitString( @NotNull String content, ByteArrayOutputStream os )
+	{
+		for( int i = 0; i * 8 < content.length(); i++ )
+		{
+			String value = content.substring( i * 8, Math.min( i * 8 + 8, content.length() ) );
+			int size = value.length();
+			if( size < 8 )
+			{
+				StringBuilder sb = new StringBuilder();
+				sb.append( value );
+				for( int k = size; k < 8; k++ )
+					sb.append( '0' );
+				value = sb.toString();
+			}
+			os.write( Integer.parseInt( value, BIN_RADIX ) & BYTE_MASK );
+		}
+		byte[] bytes = os.toByteArray();
+		int usedBits = content.length();
+		return usedBits > 0
+				? new ByteArrayValueImpl( usedBits, bytes )
+				: new ByteArrayValueImpl( 0, EMPTY_ARRAY );
 	}
 
 	@NotNull
@@ -148,25 +157,31 @@ public final class CoreUtils
 
 		try( ByteArrayOutputStream os = new ByteArrayOutputStream() )
 		{
-			for( int i = 0; i * 2 < content.length(); i++ )
-			{
-				int size = Math.min( i * 2 + 2, content.length() );
-				//noinspection NonConstantStringShouldBeStringBuffer
-				String value = content.substring( i * 2, size );
-				if( value.length() == 1 )
-					value += "0";
-				os.write( Integer.parseInt( value, HEX_RADIX ) & BYTE_MASK );
-			}
-
-			byte[] bytes = os.toByteArray();
-			int usedBits = content.length() * 4;
-			return usedBits > 0
-					? new ByteArrayValueImpl( usedBits, bytes )
-					: new ByteArrayValueImpl( 0, EMPTY_ARRAY );
+			return convertHexString( content, os );
 		} catch( IOException e )
 		{
 			throw new IllegalStateException( e );
 		}
+	}
+
+	@NotNull
+	private static ByteArrayValue convertHexString( @NotNull String content, ByteArrayOutputStream os )
+	{
+		for( int i = 0; i * 2 < content.length(); i++ )
+		{
+			int size = Math.min( i * 2 + 2, content.length() );
+			//noinspection NonConstantStringShouldBeStringBuffer
+			String value = content.substring( i * 2, size );
+			if( value.length() == 1 )
+				value += "0";
+			os.write( Integer.parseInt( value, HEX_RADIX ) & BYTE_MASK );
+		}
+
+		byte[] bytes = os.toByteArray();
+		int usedBits = content.length() * 4;
+		return usedBits > 0
+				? new ByteArrayValueImpl( usedBits, bytes )
+				: new ByteArrayValueImpl( 0, EMPTY_ARRAY );
 	}
 
 	public static String paramMapToString( Map<String, TemplateParameter> parameterMap )
