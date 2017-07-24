@@ -82,9 +82,15 @@ public interface Module extends Disposable
 	 * @return TagMethod
 	 */
 	@NotNull
-	TagMethod getTagMethod();
+	default TagMethod getTagMethod()
+	{
+		return TagMethod.Unknown;
+	}
 
-	void setTagMethod( TagMethod tagMethod );
+	default void setTagMethod( TagMethod tagMethod )
+	{
+		throw new UnsupportedOperationException();
+	}
 
 	/**
 	 * Returns true if all types are extensible
@@ -113,7 +119,11 @@ public interface Module extends Disposable
 	 *
 	 * @return names
 	 */
-	Collection<String> getExports();
+	@Nullable
+	default Collection<String> getExports()
+	{
+		return null;
+	}
 
 	/**
 	 * Register disposable
@@ -127,9 +137,15 @@ public interface Module extends Disposable
 	 *
 	 * @param flag extensible flag
 	 */
-	void setAllTypesExtensible( boolean flag );
+	default void setAllTypesExtensible( boolean flag )
+	{
+		throw new UnsupportedOperationException();
+	}
 
-	void setExports( @Nullable Collection<String> exports );
+	default void setExports( @Nullable Collection<String> exports )
+	{
+		throw new UnsupportedOperationException();
+	}
 
 	/**
 	 * Validates this module and all its types, values.

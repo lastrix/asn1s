@@ -50,10 +50,6 @@ import org.asn1s.core.type.x680.time.GeneralizedTimeType;
 import org.asn1s.core.type.x680.time.TimeType;
 import org.asn1s.core.type.x680.time.UTCTimeType;
 import org.asn1s.core.type.x681.TypeIdentifierClass;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
 
 public final class CoreModule extends AbstractModule
 {
@@ -195,37 +191,5 @@ public final class CoreModule extends AbstractModule
 	public boolean isExportAll()
 	{
 		return true;
-	}
-
-	@Nullable
-	@Override
-	public Collection<String> getExports()
-	{
-		return null;
-	}
-
-	@Override
-	public void setAllTypesExtensible( boolean flag )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void setExports( @Nullable Collection<String> exports )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@NotNull
-	@Override
-	public TagMethod getTagMethod()
-	{
-		return TagMethod.Unknown;
-	}
-
-	@Override
-	public void setTagMethod( TagMethod tagMethod )
-	{
-		throw new UnsupportedOperationException();
 	}
 }
