@@ -28,7 +28,7 @@ package org.asn1s.databind.tests.notebook;
 
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.module.ModuleReference;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.asn1s.core.module.ModuleImpl;
 import org.asn1s.core.module.ModuleSet;
 import org.asn1s.databind.Asn1Context;
@@ -48,7 +48,7 @@ public class NotebookTest
 		ModuleSet moduleSet = new ModuleSet();
 		ModuleImpl module = new ModuleImpl( new ModuleReference( "My-Module" ), moduleSet );
 		module.setTagMethod( TagMethod.Automatic );
-		Asn1Context context = new Asn1Context( module, new DefaultObjectFactory( moduleSet ) );
+		Asn1Context context = new Asn1Context( module, new DefaultAsn1Factory( moduleSet ) );
 		context.mapType( Note.class );
 		//noinspection unused
 		MappedType mappedType = context.mapType( Book.class );

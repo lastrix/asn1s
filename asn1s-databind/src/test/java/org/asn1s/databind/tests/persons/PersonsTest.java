@@ -31,7 +31,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.asn1s.api.module.ModuleReference;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.asn1s.core.module.ModuleImpl;
 import org.asn1s.core.module.ModuleSet;
 import org.asn1s.databind.Asn1Context;
@@ -70,7 +70,7 @@ public class PersonsTest
 	{
 		ModuleSet moduleSet = new ModuleSet();
 		ModuleImpl module = new ModuleImpl( new ModuleReference( "My-Module" ), moduleSet );
-		context = new Asn1Context( module, new DefaultObjectFactory( moduleSet ) );
+		context = new Asn1Context( module, new DefaultAsn1Factory( moduleSet ) );
 		context.mapType( Person.class );
 		module.validate();
 

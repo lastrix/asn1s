@@ -28,7 +28,7 @@ package org.asn1s.schema;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenSource;
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.schema.parser.Asn1Lexer;
@@ -43,65 +43,65 @@ public final class SchemaUtils
 	{
 	}
 
-	public static List<Module> parseModules( String content, ModuleResolver resolver, ObjectFactory objectFactory ) throws IOException
+	public static List<Module> parseModules( String content, ModuleResolver resolver, Asn1Factory asn1Factory ) throws IOException
 	{
 		try( StringReader reader = new StringReader( content ) )
 		{
-			return parseModules( reader, resolver, objectFactory );
+			return parseModules( reader, resolver, asn1Factory );
 		}
 	}
 
-	public static List<Module> parseModules( File file, ModuleResolver resolver, ObjectFactory objectFactory ) throws IOException
+	public static List<Module> parseModules( File file, ModuleResolver resolver, Asn1Factory asn1Factory ) throws IOException
 	{
 		try( FileInputStream is = new FileInputStream( file ) )
 		{
-			return parseModules( is, resolver, objectFactory );
+			return parseModules( is, resolver, asn1Factory );
 		}
 	}
 
-	public static List<Module> parseModules( Reader reader, ModuleResolver resolver, ObjectFactory objectFactory ) throws IOException
+	public static List<Module> parseModules( Reader reader, ModuleResolver resolver, Asn1Factory asn1Factory ) throws IOException
 	{
-		return parseModules( new ANTLRInputStream( reader ), resolver, objectFactory );
+		return parseModules( new ANTLRInputStream( reader ), resolver, asn1Factory );
 	}
 
-	public static List<Module> parseModules( InputStream is, ModuleResolver resolver, ObjectFactory objectFactory ) throws IOException
+	public static List<Module> parseModules( InputStream is, ModuleResolver resolver, Asn1Factory asn1Factory ) throws IOException
 	{
-		return parseModules( new ANTLRInputStream( is ), resolver, objectFactory );
+		return parseModules( new ANTLRInputStream( is ), resolver, asn1Factory );
 	}
 
-	public static List<Module> parseModules( ANTLRInputStream inputStream, ModuleResolver resolver, ObjectFactory objectFactory )
+	public static List<Module> parseModules( ANTLRInputStream inputStream, ModuleResolver resolver, Asn1Factory asn1Factory )
 	{
 		TokenSource lexer = new Asn1Lexer( inputStream );
 		CommonTokenStream tokenStream = new CommonTokenStream( lexer );
-		Asn1Parser parser = new Asn1Parser( tokenStream, resolver, objectFactory );
+		Asn1Parser parser = new Asn1Parser( tokenStream, resolver, asn1Factory );
 		parser.addErrorListener( new Asn1ErrorListener() );
 		parser.setBuildParseTree( false );
 		return parser.startStmt().result;
 	}
 
-	public static Module parsePdu( String content, ModuleResolver resolver, ObjectFactory objectFactory ) throws IOException
+	public static Module parsePdu( String content, ModuleResolver resolver, Asn1Factory asn1Factory ) throws IOException
 	{
 		try( Reader reader = new StringReader( content ) )
 		{
-			return parsePdu( reader, resolver, objectFactory );
+			return parsePdu( reader, resolver, asn1Factory );
 		}
 	}
 
-	public static Module parsePdu( Reader reader, ModuleResolver resolver, ObjectFactory objectFactory ) throws IOException
+	public static Module parsePdu( Reader reader, ModuleResolver resolver, Asn1Factory asn1Factory ) throws IOException
 	{
-		return parsePdu( new ANTLRInputStream( reader ), resolver, objectFactory );
+		return parsePdu( new ANTLRInputStream( reader ), resolver, asn1Factory );
 	}
 
-	public static Module parsePdu( InputStream is, ModuleResolver resolver, ObjectFactory objectFactory ) throws IOException
+	public static Module parsePdu( InputStream is, ModuleResolver resolver, Asn1Factory asn1Factory ) throws IOException
 	{
-		return parsePdu( new ANTLRInputStream( is ), resolver, objectFactory );
+		return parsePdu( new ANTLRInputStream( is ), resolver, asn1Factory );
 	}
 
-	public static Module parsePdu( ANTLRInputStream inputStream, ModuleResolver resolver, ObjectFactory objectFactory )
+	public static Module parsePdu( ANTLRInputStream inputStream, ModuleResolver resolver, Asn1Factory asn1Factory )
 	{
 		TokenSource lexer = new Asn1Lexer( inputStream );
 		CommonTokenStream tokenStream = new CommonTokenStream( lexer );
-		Asn1Parser parser = new Asn1Parser( tokenStream, resolver, objectFactory );
+		Asn1Parser parser = new Asn1Parser( tokenStream, resolver, asn1Factory );
 		parser.addErrorListener( new Asn1ErrorListener() );
 		parser.setBuildParseTree( false );
 		return parser.pduStmt().result;

@@ -25,7 +25,7 @@
 
 package org.asn1s.api.module;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.exception.ResolutionException;
 import org.jetbrains.annotations.NotNull;
 
@@ -54,7 +54,7 @@ public final class EmptyModuleResolver implements ModuleResolver
 	}
 
 	@Override
-	public ObjectFactory createObjectFactory()
+	public Asn1Factory createObjectFactory()
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -31,9 +31,9 @@ import org.asn1s.api.UniversalType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
-import org.asn1s.core.DefaultObjectFactory;
 import org.asn1s.core.module.CoreModule;
 import org.asn1s.core.type.x680.collection.SetOfType;
+import org.asn1s.core.value.CoreValueFactory;
 import org.asn1s.core.value.x680.IntegerValueInt;
 import org.asn1s.core.value.x680.ValueCollectionImpl;
 import org.junit.Assert;
@@ -57,7 +57,7 @@ public class SetOfBerDecoderTest
 		expected.addNamed( "a", valueInt );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     AbstractBerReader reader = new DefaultBerReader( is, new CoreValueFactory() ) )
 		{
 			Value value = reader.read( scope, type );
 			Assert.assertEquals( "Values are not equal", expected, value );

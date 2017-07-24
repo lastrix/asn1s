@@ -32,7 +32,6 @@ import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.TypeFactory;
-import org.asn1s.core.DefaultObjectFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,7 +67,7 @@ public class CoreModuleTypesTest
 	@Test
 	public void doTest() throws Exception
 	{
-		TypeFactory factory = new DefaultObjectFactory();
+		TypeFactory factory = new CoreTypeFactory();
 		Module module = factory.dummyModule();
 		factory.define( "My-Type", factory.builtin( typeName ), null );
 		try

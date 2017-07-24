@@ -25,7 +25,7 @@
 
 package org.asn1s.databind;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.databind.mapper.DefaultTypeMapper;
@@ -45,21 +45,21 @@ import java.util.Map;
 
 public class Asn1Context
 {
-	public Asn1Context( @NotNull Module contextModule, @NotNull ObjectFactory objectFactory )
+	public Asn1Context( @NotNull Module contextModule, @NotNull Asn1Factory asn1Factory )
 	{
-		this( contextModule, objectFactory, null );
+		this( contextModule, asn1Factory, null );
 	}
 
-	public Asn1Context( @NotNull Module contextModule, @NotNull ObjectFactory objectFactory, @Nullable TypeMapper mapper )
+	public Asn1Context( @NotNull Module contextModule, @NotNull Asn1Factory asn1Factory, @Nullable TypeMapper mapper )
 	{
 		this.contextModule = contextModule;
-		this.objectFactory = objectFactory;
-		objectFactory.setModule( contextModule );
+		this.asn1Factory = asn1Factory;
+		asn1Factory.types().setModule( contextModule );
 		this.mapper = mapper == null ? new DefaultTypeMapper( this ) : mapper;
 	}
 
 	private final Module contextModule;
-	private final ObjectFactory objectFactory;
+	private final Asn1Factory asn1Factory;
 	private final TypeMapper mapper;
 
 	/**
@@ -86,9 +86,9 @@ public class Asn1Context
 		return getMappedType( aClass.getCanonicalName(), definedType == null ? MapperUtils.getAsn1TypeNameForClass( aClass ) : definedType.getName() );
 	}
 
-	public ObjectFactory getObjectFactory()
+	public Asn1Factory getAsn1Factory()
 	{
-		return objectFactory;
+		return asn1Factory;
 	}
 
 	public DefinedType getDefinedTypeByClassName( String className )

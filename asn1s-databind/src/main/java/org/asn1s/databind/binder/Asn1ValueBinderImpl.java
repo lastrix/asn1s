@@ -25,10 +25,11 @@
 
 package org.asn1s.databind.binder;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.ValueFactory;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.databind.Asn1Context;
 import org.asn1s.databind.mapper.*;
@@ -76,30 +77,31 @@ public class Asn1ValueBinderImpl implements Asn1ValueBinder
 	private Value builtinToAsn1( Object javaValue, MappedType type )
 	{
 		Type javaType = type.getJavaType();
-		ObjectFactory factory = context.getObjectFactory();
+		Asn1Factory factory = context.getAsn1Factory();
+		ValueFactory valueFactory = factory.values();
 		if( Objects.equals( javaType, int.class ) || Objects.equals( javaType, Integer.class ) )
-			return factory.integer( (Integer)javaValue );
+			return valueFactory.integer( (Integer)javaValue );
 
 		if( Objects.equals( javaType, long.class ) || Objects.equals( javaType, Long.class ) )
-			return factory.integer( (Long)javaValue );
+			return valueFactory.integer( (Long)javaValue );
 
 		if( Objects.equals( javaType, BigInteger.class ) )
-			return factory.integer( (BigInteger)javaValue );
+			return valueFactory.integer( (BigInteger)javaValue );
 
 		if( Objects.equals( javaType, float.class ) || Objects.equals( javaType, Float.class ) )
-			return factory.real( (Float)javaValue );
+			return valueFactory.real( (Float)javaValue );
 
 		if( Objects.equals( javaType, double.class ) || Objects.equals( javaType, Double.class ) )
-			return factory.real( (Double)javaValue );
+			return valueFactory.real( (Double)javaValue );
 
 		if( Objects.equals( javaType, BigDecimal.class ) )
-			return factory.real( (BigDecimal)javaValue );
+			return valueFactory.real( (BigDecimal)javaValue );
 
 		if( Objects.equals( javaType, String.class ) )
-			return factory.cString( (String)javaValue );
+			return valueFactory.cString( (String)javaValue );
 
 		if( Objects.equals( javaType, Instant.class ) )
-			return factory.timeValue( (Instant)javaValue );
+			return valueFactory.timeValue( (Instant)javaValue );
 
 		throw new UnsupportedOperationException( "Unable to handle builtin type: " + type.getTypeName() );
 	}
@@ -107,7 +109,7 @@ public class Asn1ValueBinderImpl implements Asn1ValueBinder
 	@NotNull
 	private Value sequenceToAsn1( Object javaValue, SequenceMappedType type )
 	{
-		ValueCollection collection = context.getObjectFactory().collection( true );
+		ValueCollection collection = context.getAsn1Factory().values().collection( true );
 		for( MappedField field : type.getFields() )
 		{
 			Value value = fieldToAsn1( field, javaValue );
@@ -176,7 +178,7 @@ public class Asn1ValueBinderImpl implements Asn1ValueBinder
 
 	private Value listToAsn1( Object javaValue, SequenceOfMappedType type )
 	{
-		ValueCollection collection = context.getObjectFactory().collection( false );
+		ValueCollection collection = context.getAsn1Factory().values().collection( false );
 		MappedType componentType = type.getComponentType();
 
 		Iterable<?> list = (Iterable<?>)javaValue;
@@ -193,7 +195,7 @@ public class Asn1ValueBinderImpl implements Asn1ValueBinder
 	@NotNull
 	private Value arrayToAsn1( Object javaValue, SequenceOfMappedType type )
 	{
-		ValueCollection collection = context.getObjectFactory().collection( false );
+		ValueCollection collection = context.getAsn1Factory().values().collection( false );
 		MappedType componentType = type.getComponentType();
 		int length = Array.getLength( javaValue );
 		for( int i = 0; i < length; i++ )

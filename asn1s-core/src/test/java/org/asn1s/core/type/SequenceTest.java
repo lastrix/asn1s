@@ -27,7 +27,7 @@ package org.asn1s.core.type;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
@@ -41,7 +41,7 @@ import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.ValueFactory;
 import org.asn1s.api.value.x680.ValueCollection;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -55,11 +55,11 @@ public class SequenceTest
 	@Test
 	public void testSequenceValidates() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		Ref<Type> intType = factory.builtin( "INTEGER" );
-		CollectionType sequenceType = factory.collection( Type.Family.Sequence );
+		Ref<Type> intType = factory.types().builtin( "INTEGER" );
+		CollectionType sequenceType = factory.types().collection( Type.Family.Sequence );
 		sequenceType.addComponent( Kind.Primary, "a", intType ).setOptional( true );
 		sequenceType.addComponent( Kind.Primary, "b", intType ).setOptional( true );
 		sequenceType.addComponent( Kind.Extension, "c", intType ).setOptional( true );
@@ -67,22 +67,22 @@ public class SequenceTest
 
 		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
 		DefinedType type =
-				factory.define( "MyType", factory.tagged( encoding, sequenceType ), null );
+				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ), null );
 
 		module.validate();
 		Assert.assertNotEquals( "Empty actual components", 0, sequenceType.getComponents( true ) );
 
-		doTest( factory, module, type, true );
+		doTest( factory.values(), module, type, true );
 	}
 
 	@Test
 	public void testSequenceTemplateValidates() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		Ref<Type> intType = factory.builtin( "INTEGER" );
-		CollectionType sequenceType = factory.collection( Type.Family.Sequence );
+		Ref<Type> intType = factory.types().builtin( "INTEGER" );
+		CollectionType sequenceType = factory.types().collection( Type.Family.Sequence );
 		sequenceType.addComponent( Kind.Primary, "a", intType ).setOptional( true );
 		sequenceType.addComponent( Kind.Primary, "b", intType ).setOptional( true );
 		sequenceType.addComponent( Kind.Extension, "c", intType ).setOptional( true );
@@ -90,25 +90,25 @@ public class SequenceTest
 
 		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
 		DefinedType templateType =
-				factory.define( "MyType", factory.tagged( encoding, sequenceType ),
-				                Collections.singletonList( factory.templateParameter( 0, "S-Type", null ) ) );
+				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ),
+				                        Collections.singletonList( factory.types().templateParameter( 0, "S-Type", null ) ) );
 
 
-		Ref<Type> instance = factory.typeTemplateInstance( templateType.toRef(), Collections.singletonList( intType ) );
-		DefinedType type = factory.define( "My-Type-Instance", instance, null );
+		Ref<Type> instance = factory.types().typeTemplateInstance( templateType.toRef(), Collections.singletonList( intType ) );
+		DefinedType type = factory.types().define( "My-Type-Instance", instance, null );
 		module.validate();
 
-		doTest( factory, module, type, true );
+		doTest( factory.values(), module, type, true );
 	}
 
 	@Test
 	public void testSequenceFullCompUsage() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		Ref<Type> intType = factory.builtin( "INTEGER" );
-		CollectionType sequenceType = factory.collection( Type.Family.Sequence );
+		Ref<Type> intType = factory.types().builtin( "INTEGER" );
+		CollectionType sequenceType = factory.types().collection( Type.Family.Sequence );
 		sequenceType.addComponent( Kind.Primary, "a", intType ).setOptional( true );
 		sequenceType.addComponent( Kind.Primary, "b", intType ).setOptional( true );
 		sequenceType.addComponent( Kind.Extension, "c", intType ).setOptional( true );
@@ -116,12 +116,12 @@ public class SequenceTest
 
 		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
 		DefinedType type =
-				factory.define( "MyType", factory.tagged( encoding, sequenceType ), null );
+				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ), null );
 
 		module.validate();
 		Assert.assertNotEquals( "Empty actual components", 0, sequenceType.getComponents( true ) );
 
-		doTest( factory, module, type, false );
+		doTest( factory.values(), module, type, false );
 	}
 
 	private static void doTest( ValueFactory factory, Module module, Type type, boolean addExtensions )

@@ -30,7 +30,6 @@ import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.*;
-import org.asn1s.core.DefaultObjectFactory;
 import org.junit.Test;
 
 @SuppressWarnings( "ALL" )
@@ -48,7 +47,7 @@ B ::= SEQUENCE{ COMPONENTS OF A, b INTEGER}
 C ::= SEQUENCE {COMPONENTS OF B, c CCC, ..., e INTEGER, ..., d INTEGER}
 END
 		 */
-		TypeFactory factory = new DefaultObjectFactory();
+		TypeFactory factory = new CoreTypeFactory();
 		Module module = factory.dummyModule();
 
 		Ref<Type> intRef = factory.builtin( "INTEGER" );

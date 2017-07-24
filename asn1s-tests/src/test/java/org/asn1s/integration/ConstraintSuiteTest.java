@@ -27,14 +27,14 @@ package org.asn1s.integration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.asn1s.core.module.ModuleSet;
 import org.asn1s.io.Asn1Reader;
 import org.asn1s.io.Asn1Writer;
@@ -95,7 +95,7 @@ public class ConstraintSuiteTest
 	public void testSchemaParseAndValidate() throws Exception
 	{
 		ModuleSet resolver = new ModuleSet();
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultObjectFactory( resolver ) );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultAsn1Factory( resolver ) );
 		Assert.assertFalse( "No modules", modules.isEmpty() );
 
 		for( Module module : modules )
@@ -106,7 +106,7 @@ public class ConstraintSuiteTest
 	public void testValueParse() throws Exception
 	{
 		ModuleResolver resolver = new ModuleSet();
-		Module module = SchemaUtils.parsePdu( pdu, resolver, new DefaultObjectFactory( resolver ) );
+		Module module = SchemaUtils.parsePdu( pdu, resolver, new DefaultAsn1Factory( resolver ) );
 		Assert.assertNotNull( "Null result", module );
 		Assert.assertFalse( "No values parsed", module.getValueResolver().getValues().isEmpty() );
 	}
@@ -115,7 +115,7 @@ public class ConstraintSuiteTest
 	public void testFailValueParse() throws Exception
 	{
 		ModuleSet resolver = new ModuleSet();
-		Module module = SchemaUtils.parsePdu( pduFail, resolver, new DefaultObjectFactory( resolver ) );
+		Module module = SchemaUtils.parsePdu( pduFail, resolver, new DefaultAsn1Factory( resolver ) );
 		Assert.assertNotNull( "Null result", module );
 		Assert.assertFalse( "No values parsed", module.getValueResolver().getValues().isEmpty() );
 	}
@@ -124,12 +124,12 @@ public class ConstraintSuiteTest
 	public void testValuesAccepted() throws Exception
 	{
 		ModuleSet resolver = new ModuleSet();
-		ObjectFactory objectFactory = new DefaultObjectFactory( resolver );
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, objectFactory );
+		Asn1Factory asn1Factory = new DefaultAsn1Factory( resolver );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, asn1Factory );
 
 		for( Module module : modules )
 			module.validate();
-		Module module = SchemaUtils.parsePdu( pdu, resolver, objectFactory );
+		Module module = SchemaUtils.parsePdu( pdu, resolver, asn1Factory );
 		module.validate( false, false );
 
 		Scope scope = module.createScope();
@@ -153,24 +153,24 @@ public class ConstraintSuiteTest
 	public void testAcceptedValuesWriteRead() throws Exception
 	{
 		ModuleSet resolver = new ModuleSet();
-		ObjectFactory objectFactory = new DefaultObjectFactory( resolver );
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, objectFactory );
+		Asn1Factory asn1Factory = new DefaultAsn1Factory( resolver );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, asn1Factory );
 
 		for( Module module : modules )
 			module.validate();
-		Module module = SchemaUtils.parsePdu( pdu, resolver, objectFactory );
+		Module module = SchemaUtils.parsePdu( pdu, resolver, asn1Factory );
 		Assert.assertNotNull( "Module must not be null", module );
 		module.validate();
 
 		Scope scope = module.createScope();
 		for( DefinedValue value : module.getValueResolver().getValues() )
 		{
-			checkValueWriteRead( scope, value, BerRules.Ber, objectFactory );
-			checkValueWriteRead( scope, value, BerRules.Der, objectFactory );
+			checkValueWriteRead( scope, value, BerRules.Ber, asn1Factory );
+			checkValueWriteRead( scope, value, BerRules.Der, asn1Factory );
 		}
 	}
 
-	private static void checkValueWriteRead( Scope scope, DefinedValue value, BerRules rules, ObjectFactory objectFactory ) throws Exception
+	private static void checkValueWriteRead( Scope scope, DefinedValue value, BerRules rules, Asn1Factory asn1Factory ) throws Exception
 	{
 		scope = value.getType().getScope( scope );
 		byte[] written;
@@ -181,7 +181,7 @@ public class ConstraintSuiteTest
 		}
 
 		Value actual;
-		try( Asn1Reader reader = new DefaultBerReader( new ByteArrayInputStream( written ), objectFactory ) )
+		try( Asn1Reader reader = new DefaultBerReader( new ByteArrayInputStream( written ), asn1Factory.values() ) )
 		{
 			actual = reader.read( scope, value.getType() );
 		}
@@ -194,12 +194,12 @@ public class ConstraintSuiteTest
 	public void testValuesNotAccepted() throws Exception
 	{
 		ModuleSet resolver = new ModuleSet();
-		ObjectFactory objectFactory = new DefaultObjectFactory( resolver );
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, objectFactory );
+		Asn1Factory asn1Factory = new DefaultAsn1Factory( resolver );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, asn1Factory );
 
 		for( Module module : modules )
 			module.validate();
-		Module module = SchemaUtils.parsePdu( pduFail, resolver, objectFactory );
+		Module module = SchemaUtils.parsePdu( pduFail, resolver, asn1Factory );
 		module.validate( false, false );
 		Scope scope = module.createScope();
 		Collection<String> notFailed = new HashSet<>();

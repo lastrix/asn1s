@@ -34,9 +34,9 @@ import org.asn1s.api.type.Enumerated;
 import org.asn1s.api.type.Enumerated.ItemKind;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
-import org.asn1s.core.DefaultObjectFactory;
 import org.asn1s.core.module.CoreModule;
 import org.asn1s.core.type.x680.EnumeratedType;
+import org.asn1s.core.value.CoreValueFactory;
 import org.asn1s.core.value.x680.IntegerValueInt;
 import org.junit.Assert;
 import org.junit.Test;
@@ -58,7 +58,7 @@ public class EnumeratedBerDecoderTest
 		Value expected = type.optimize( scope, new IntegerValueInt( 0 ) );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     AbstractBerReader reader = new DefaultBerReader( is, new CoreValueFactory() ) )
 		{
 			Value value = reader.read( scope, type );
 			Assert.assertEquals( "Values are not equal", expected, value );

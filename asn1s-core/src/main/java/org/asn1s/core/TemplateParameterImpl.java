@@ -34,9 +34,9 @@ import org.asn1s.api.value.ValueNameRef;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class TemplateParameterImpl implements TemplateParameter
+public final class TemplateParameterImpl implements TemplateParameter
 {
-	TemplateParameterImpl( int index, @NotNull Ref<?> reference, @Nullable Ref<Type> governor )
+	public TemplateParameterImpl( int index, @NotNull Ref<?> reference, @Nullable Ref<Type> governor )
 	{
 		this.index = index;
 		this.reference = reference;

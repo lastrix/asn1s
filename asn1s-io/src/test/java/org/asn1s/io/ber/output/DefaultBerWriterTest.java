@@ -25,7 +25,7 @@
 
 package org.asn1s.io.ber.output;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
@@ -42,7 +42,8 @@ import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.type.TypeFactory;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
+import org.asn1s.core.type.CoreTypeFactory;
 import org.asn1s.core.value.CoreValueFactory;
 import org.asn1s.core.value.x680.IntegerValueInt;
 import org.asn1s.core.value.x680.RealValueBig;
@@ -65,13 +66,13 @@ public class DefaultBerWriterTest
 	@Test
 	public void writeHugeReal() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 		Scope scope = module.createScope();
 
-		ConstraintTemplate constraintTemplate = factory.valueRange( new RealValueFloat( 0.0f ), false, null, false );
-		Type tagged = factory.constrained( constraintTemplate, UniversalType.Real.ref() );
-		Type defined = factory.define( "MyReal", tagged, null );
+		ConstraintTemplate constraintTemplate = factory.constraints().valueRange( new RealValueFloat( 0.0f ), false, null, false );
+		Type tagged = factory.types().constrained( constraintTemplate, UniversalType.Real.ref() );
+		Type defined = factory.types().define( "MyReal", tagged, null );
 		module.validate();
 		Value value = new RealValueBig( new BigDecimal( BigInteger.valueOf( 34645344 ).pow( 15636 ) ) );
 		try( Asn1Writer writer = new DefaultBerWriter( BerRules.Der ) )
@@ -84,7 +85,7 @@ public class DefaultBerWriterTest
 	@Test
 	public void testHugeTagNumber() throws Exception
 	{
-		TypeFactory factory = new DefaultObjectFactory();
+		TypeFactory factory = new CoreTypeFactory();
 		Module module = factory.dummyModule();
 		Scope scope = module.createScope();
 
@@ -103,7 +104,7 @@ public class DefaultBerWriterTest
 	@Test( expected = IOException.class )
 	public void testNonInternalOsFail() throws Exception
 	{
-		TypeFactory factory = new DefaultObjectFactory();
+		TypeFactory factory = new CoreTypeFactory();
 		Module module = factory.dummyModule();
 		Scope scope = module.createScope();
 
@@ -119,26 +120,26 @@ public class DefaultBerWriterTest
 	@Test
 	public void testChoiceReadWrite() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 		Scope scope = module.createScope();
 
-		CollectionType choiceType = factory.collection( Family.Choice );
+		CollectionType choiceType = factory.types().collection( Family.Choice );
 
-		CollectionType sequenceType = factory.collection( Family.Sequence );
+		CollectionType sequenceType = factory.types().collection( Family.Sequence );
 		sequenceType.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		sequenceType.addComponent( Kind.Primary, "b", UniversalType.Real.ref() );
 
 		choiceType.addComponent( Kind.Primary, "seq", sequenceType );
 		choiceType.addComponent( Kind.Primary, "b", UniversalType.Real.ref() );
 
-		DefinedType type = factory.define( "My-Choice", choiceType, null );
+		DefinedType type = factory.types().define( "My-Choice", choiceType, null );
 		module.validate();
 
-		ValueCollection collection = factory.collection( true );
-		collection.addNamed( "a", factory.integer( 1 ) );
-		collection.addNamed( "b", factory.rZero() );
-		Value value = factory.named( "seq", collection );
+		ValueCollection collection = factory.values().collection( true );
+		collection.addNamed( "a", factory.values().integer( 1 ) );
+		collection.addNamed( "b", factory.values().rZero() );
+		Value value = factory.values().named( "seq", collection );
 
 		performReadTest( type.createScope(), "Unable to read choice value", type, value );
 	}
@@ -147,36 +148,36 @@ public class DefaultBerWriterTest
 	@Test
 	public void testTaggedReadWrite() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 		Scope scope = module.createScope();
 
-		Ref<Type> type1 = factory.builtin( "INTEGER" );
+		Ref<Type> type1 = factory.types().builtin( "INTEGER" );
 
 		TagEncoding type2Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Implicit, TagClass.Application, 3 );
-		DefinedType type2 = factory.define( "Type2",
-		                                    factory.tagged( type2Encoding, type1 ),
-		                                    null );
+		DefinedType type2 = factory.types().define( "Type2",
+		                                            factory.types().tagged( type2Encoding, type1 ),
+		                                            null );
 
 		TagEncoding type3Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.ContextSpecific, 2 );
 
-		DefinedType type3 = factory.define( "Type3",
-		                                    factory.tagged( type3Encoding, type2 ),
-		                                    null );
+		DefinedType type3 = factory.types().define( "Type3",
+		                                            factory.types().tagged( type3Encoding, type2 ),
+		                                            null );
 
 		TagEncoding type4Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Implicit, TagClass.Application, 7 );
 
-		DefinedType type4 = factory.define( "Type4",
-		                                    factory.tagged( type4Encoding, type3 ),
-		                                    null );
+		DefinedType type4 = factory.types().define( "Type4",
+		                                            factory.types().tagged( type4Encoding, type3 ),
+		                                            null );
 
 		TagEncoding type5Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Implicit, TagClass.ContextSpecific, 2 );
 
-		DefinedType type5 = factory.define( "Type5",
-		                                    factory.tagged( type5Encoding, type2 ),
-		                                    null );
+		DefinedType type5 = factory.types().define( "Type5",
+		                                            factory.types().tagged( type5Encoding, type2 ),
+		                                            null );
 
-		Value value = factory.integer( 100 );
+		Value value = factory.values().integer( 100 );
 
 		module.validate();
 

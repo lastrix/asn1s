@@ -25,6 +25,9 @@ import java.util.HashMap;
         this(input);
         this.resolver = resolver;
         this.factory = factory;
+        typeFactory = factory.types();
+        valueFactory = factory.values();
+        constraintFactory = factory.constraints();
     }
 
     public Asn1Parser(TokenStream input, ModuleResolver resolver, ObjectFactory factory, ClassType classType) {
@@ -32,11 +35,17 @@ import java.util.HashMap;
         this.resolver = resolver;
         this.factory = factory;
         this.classType = classType;
+        typeFactory = factory.types();
+        valueFactory = factory.values();
+        constraintFactory = factory.constraints();
     }
 
 	private ModuleResolver resolver = new EmptyModuleResolver();
 	private ObjectFactory factory;
 	private ClassType classType;
+	private TypeFactory typeFactory;
+	private ValueFactory valueFactory;
+	private ConstraintFactory constraintFactory;
 
 	private String tokens2string( @NotNull Token start, @NotNull Token stop )
 	{
@@ -121,7 +130,7 @@ import java.util.HashMap;
 		if( module != null )
 			throw new IllegalStateException( "Current module is not null" );
 
-		module = name == null ? factory.dummyModule() : factory.module(name);
+		module = name == null ? typeFactory.dummyModule() : typeFactory.module(name);
 		return module;
 	}
 
@@ -133,7 +142,7 @@ import java.util.HashMap;
         if ( registerModule )
 		    resolver.registerModule( module );
 		module = null;
-		factory.setModule(null);
+		typeFactory.setModule(null);
 	}
 
 	Module getModule()
@@ -285,7 +294,7 @@ typeAssignment returns [DefinedType result]
 	    typeReference
 	    params = templateTypeParameterList?
 		ASSIGN type
-		{ $result = factory.define($typeReference.text, $type.result, $params.ctx == null ? null : $params.result); }
+		{ $result = typeFactory.define($typeReference.text, $type.result, $params.ctx == null ? null : $params.result); }
 	;
 
 // X.680, p17.1
@@ -293,7 +302,7 @@ type returns [Ref<Type> result]
     :
     (   taggedType              { $result = $taggedType.result; }
     |   specialBuiltinType      { $result = $specialBuiltinType.result; }
-	|   builtinType             { $result = factory.builtin($builtinType.text);  }
+	|   builtinType             { $result = typeFactory.builtin($builtinType.text);  }
 	|   enumeratedType          { $result = $enumeratedType.result; }
 	|   instanceOfType          { $result = $instanceOfType.result; }
 	|   objectClassFieldType    { $result = $objectClassFieldType.result; }
@@ -306,7 +315,7 @@ type returns [Ref<Type> result]
 	    constraint
 	    {
 	        if ( $constraint.result != null )
-    	        $result = factory.constrained($constraint.result, $result);
+    	        $result = typeFactory.constrained($constraint.result, $result);
 	    }
 	)?
     ;
@@ -354,7 +363,7 @@ taggedType returns [Type result]
         type
         {
             $result =
-                factory.tagged( factory.tagEncoding( $typeTagMethod, $typeTagClass, $tagNumberRef ), $type.result );
+                typeFactory.tagged( typeFactory.tagEncoding( $typeTagMethod, $typeTagClass, $tagNumberRef ), $type.result );
         }
 	;
 
@@ -405,7 +414,7 @@ specialBuiltinType returns[Ref<Type> result]
 	:   // X.680 p. 22
 	    specialBuiltinTypeNames
 	    OPEN_BRACE integerTypeValueList CLOSE_BRACE
-	    { $result = factory.builtin($specialBuiltinTypeNames.text, $integerTypeValueList.result); }
+	    { $result = typeFactory.builtin($specialBuiltinTypeNames.text, $integerTypeValueList.result); }
     ;
 
 specialBuiltinTypeNames
@@ -417,7 +426,7 @@ specialBuiltinTypeNames
     ;
 
 instanceOfType returns [Ref<Type> result]
-    :   INSTANCE OF definedObjectClass { $result = factory.instanceOf($definedObjectClass.result); }
+    :   INSTANCE OF definedObjectClass { $result = typeFactory.instanceOf($definedObjectClass.result); }
     ;
 
 // X.681, p 14.1
@@ -428,7 +437,7 @@ objectClassFieldType returns [Ref<Type> result]
 // X.680, p 17.3
 referencedType returns [Ref<Type> result]
 	:   definedType         { $result = $definedType.result; }
-	|   UsefullType         { $result = factory.builtin($UsefullType.text); }
+	|   UsefullType         { $result = typeFactory.builtin($UsefullType.text); }
 	|   selectionType       { $result = $selectionType.result; }
 	|   typeFromObject      { $result = $typeFromObject.result; }
 	|   valueSetFromObjects { $result = $valueSetFromObjects.result; }
@@ -442,19 +451,19 @@ definedType returns [Ref<Type> result]
             if ( $args.ctx == null )
                 $result = getTypeRef($tr.text, $mr.text);
             else
-                $result = factory.typeTemplateInstance( getTypeRef($tr.text, $mr.text), $args.result );
+                $result = typeFactory.typeTemplateInstance( getTypeRef($tr.text, $mr.text), $args.result );
         }
 	;
 
 // X.680, p 30.1
 selectionType returns [Type result]
 	:   valueReference LT type
-	    { $result = factory.selectionType( $valueReference.text, $type.result ); }
+	    { $result = typeFactory.selectionType( $valueReference.text, $type.result ); }
 	;
 
 // X.680, p 20.1
 enumeratedType returns [Enumerated result]
-    @init { $result = factory.enumerated(); }
+    @init { $result = typeFactory.enumerated(); }
 	:   ENUMERATED
 		OPEN_BRACE
 	    enumValueList[$result, Enumerated.ItemKind.Primary]
@@ -475,8 +484,8 @@ enumeratedType returns [Enumerated result]
 collectionType returns [CollectionType result]
     :
         (
-            SEQUENCE { $result = factory.collection(Type.Family.Sequence); }
-        |   SET      { $result = factory.collection(Type.Family.Set); }
+            SEQUENCE { $result = typeFactory.collection(Type.Family.Sequence); }
+        |   SET      { $result = typeFactory.collection(Type.Family.Set); }
         )
         OPEN_BRACE
         (
@@ -512,15 +521,15 @@ collectionOfType returns [Ref<Type> result]
         String componentName = ComponentType.DUMMY ]
     :
     (
-        SEQUENCE { $actualType = (CollectionOfType)factory.collectionOf(Type.Family.SequenceOf); }
-    |   SET      { $actualType = (CollectionOfType)factory.collectionOf(Type.Family.SetOf); }
+        SEQUENCE { $actualType = (CollectionOfType)typeFactory.collectionOf(Type.Family.SequenceOf); }
+    |   SET      { $actualType = (CollectionOfType)typeFactory.collectionOf(Type.Family.SetOf); }
     )
     { $result = $actualType; }
     (
         (   constraint { $constraintTemplate = $constraint.result; }
         |   sizeConstraint  { $constraintTemplate = $sizeConstraint.result; }
         )
-        { $result = factory.constrained($constraintTemplate, $actualType); }
+        { $result = typeFactory.constrained($constraintTemplate, $actualType); }
     )?
     OF
     (valueReference { $componentName = $valueReference.text; } )?
@@ -530,7 +539,7 @@ collectionOfType returns [Ref<Type> result]
 
 // X.680, p 29
 choiceType returns [CollectionType result]
-    @init { $result = factory.collection(Type.Family.Choice); }
+    @init { $result = typeFactory.collection(Type.Family.Choice); }
 	:   CHOICE
 		OPEN_BRACE
 		choiceComponentTypeList[$result]
@@ -559,7 +568,7 @@ templateTypeParameter[List<TemplateParameter> paramList]
     :
         templateTypeParameterGovernor?
         Identifier
-        { $paramList.add(factory.templateParameter( paramList.size(), $Identifier.getText(), $templateTypeParameterGovernor.governor )); }
+        { $paramList.add(typeFactory.templateParameter( paramList.size(), $Identifier.getText(), $templateTypeParameterGovernor.governor )); }
     ;
 
 templateTypeParameterGovernor returns [Ref<Type> governor]
@@ -595,10 +604,10 @@ integerTypeValueList returns [List<NamedValue> result]
 
 integerTypeValue[List<NamedValue> valueList]
     :   valueReference OPEN_PAREN number CLOSE_PAREN
-        { $valueList.add( factory.named($valueReference.text, factory.integer($number.text)) ); }
+        { $valueList.add( valueFactory.named($valueReference.text, valueFactory.integer($number.text)) ); }
 
     |   valueReference OPEN_PAREN definedValue CLOSE_PAREN
-        { $valueList.add( factory.named($valueReference.text, $definedValue.result) ); }
+        { $valueList.add( valueFactory.named($valueReference.text, $definedValue.result) ); }
     ;
 
 enumValueList[Enumerated enumeration, Enumerated.ItemKind itemKind ]
@@ -644,7 +653,7 @@ collectionExtensionComponent[ComponentTypeConsumer consumer]
 
 collectionExtensionAdditionGroup[ComponentTypeConsumer consumer]
     :   { isTokenFollows("[", 2) }? OPEN_BRACKET OPEN_BRACKET
-        { CollectionTypeExtensionGroup extGroup = factory.extensionGroup(((Type)consumer).getFamily()); }
+        { CollectionTypeExtensionGroup extGroup = typeFactory.extensionGroup(((Type)consumer).getFamily()); }
         ( number COLON { extGroup.setVersion(Integer.parseInt($number.text)); } )?
         collectionComponentType[extGroup, ComponentType.Kind.Extension]
         ( COMMA collectionComponentType[extGroup, ComponentType.Kind.Extension])*
@@ -696,7 +705,7 @@ choiceExtensionComponentType[ComponentTypeConsumer consumer]
 // X.680, p 29.1
 choiceExtensionAdditionGroup[ComponentTypeConsumer consumer]
     :   { isTokenFollows("[", 2) }? OPEN_BRACKET OPEN_BRACKET
-        { CollectionTypeExtensionGroup extGroup = factory.extensionGroup(((Type)consumer).getFamily()); }
+        { CollectionTypeExtensionGroup extGroup = typeFactory.extensionGroup(((Type)consumer).getFamily()); }
         ( number COLON { extGroup.setVersion(Integer.parseInt($number.text)); } )?
         choiceComponentType[extGroup, ComponentType.Kind.Extension]
         ( COMMA choiceComponentType[extGroup, ComponentType.Kind.Extension] )*
@@ -713,12 +722,12 @@ valueAssignment returns [DefinedValue result]
 	    valueReference
         params=templateTypeParameterList?
 	    OBJECT IDENTIFIER ASSIGN objectIdentifierValue
-	    { $result = factory.define( $valueReference.text, factory.builtin("OBJECT IDENTIFIER" ), $objectIdentifierValue.result, $params.ctx == null ? null : $params.result ); }
+	    { $result = typeFactory.define( $valueReference.text, typeFactory.builtin("OBJECT IDENTIFIER" ), $objectIdentifierValue.result, $params.ctx == null ? null : $params.result ); }
 
 	|   valueReference
         params=templateTypeParameterList?
 	    type ASSIGN value
-	    { $result = factory.define( $valueReference.text, $type.result, $value.result, $params.ctx == null ? null : $params.result ); }
+	    { $result = typeFactory.define( $valueReference.text, $type.result, $value.result, $params.ctx == null ? null : $params.result ); }
 	;
 
 objectOrValueAssignment returns [DefinedValue result]
@@ -726,13 +735,13 @@ objectOrValueAssignment returns [DefinedValue result]
     valueReference params=templateTypeParameterList?
     (
 	    OBJECT IDENTIFIER ASSIGN objectIdentifierValue
-	    { $result = factory.define( $valueReference.text, factory.builtin("OBJECT IDENTIFIER" ), $objectIdentifierValue.result, $params.ctx == null ? null : $params.result ); }
+	    { $result = typeFactory.define( $valueReference.text, typeFactory.builtin("OBJECT IDENTIFIER" ), $objectIdentifierValue.result, $params.ctx == null ? null : $params.result ); }
 
 	|   definedObjectClass ASSIGN object
-	    { $result = factory.define( $valueReference.text, $definedObjectClass.result, $object.result, $params.ctx == null ? null : $params.result ); }
+	    { $result = typeFactory.define( $valueReference.text, $definedObjectClass.result, $object.result, $params.ctx == null ? null : $params.result ); }
 
 	|   type ASSIGN value
-	    { $result = factory.define( $valueReference.text, $type.result, $value.result, $params.ctx == null ? null : $params.result ); }
+	    { $result = typeFactory.define( $valueReference.text, $type.result, $value.result, $params.ctx == null ? null : $params.result ); }
 	)
 	;
 
@@ -742,8 +751,8 @@ valueSetTypeAssignment returns[DefinedType result]
 	    templateTypeParameterList?
         type ASSIGN valueSet
         {
-            Type constrained = factory.constrained($valueSet.result, $type.result);
-            $result = factory.define(
+            Type constrained = typeFactory.constrained($valueSet.result, $type.result);
+            $result = typeFactory.define(
                                 $typeReference.text,
                                 constrained,
                                 $templateTypeParameterList.ctx == null ? null : $templateTypeParameterList.result);
@@ -762,7 +771,7 @@ value returns [Ref<Value> result]
 	;
 
 objectClassFieldValue returns [Value result]
-    :   type COLON value { $result = factory.openTypeValue($type.result, $value.result); }
+    :   type COLON value { $result = valueFactory.openTypeValue($type.result, $value.result); }
     ;
 
 // X.680, p 16.7
@@ -784,13 +793,13 @@ builtinValue returns [Value result]
 	;
 
 builtinScalarValue returns [Value result]
-    :   CString                 { $result = factory.cString($CString.text); }
-    |   HString                 { $result = factory.hString($HString.text); }
-    |   BString                 { $result = factory.bString($BString.text); }
+    :   CString                 { $result = valueFactory.cString($CString.text); }
+    |   HString                 { $result = valueFactory.hString($HString.text); }
+    |   BString                 { $result = valueFactory.bString($BString.text); }
     |   integerValue            { $result = $integerValue.result; }
     // X.680, p 12.9
-    |   RealLiteral             { $result = factory.real($RealLiteral.text); }
-    |   SpecialRealValue        { $result = factory.real($SpecialRealValue.text); }
+    |   RealLiteral             { $result = valueFactory.real($RealLiteral.text); }
+    |   SpecialRealValue        { $result = valueFactory.real($SpecialRealValue.text); }
     |   TRUE                    { $result = BooleanValue.TRUE; }
     |   FALSE                   { $result = BooleanValue.FALSE; }
 	|   NULL                    { $result = NullValue.INSTANCE; }
@@ -804,22 +813,22 @@ definedValue returns [Ref<Value> result]
 	        if ( $args.ctx == null )
 	            $result = getValueRef($valueReference.text, $mr.text);
 	        else
-	            $result = factory.valueTemplateInstance(getValueRef($valueReference.text, $mr.text), $args.ctx == null ? null : $args.result);
+	            $result = typeFactory.valueTemplateInstance(getValueRef($valueReference.text, $mr.text), $args.ctx == null ? null : $args.result);
 	    }
 	;
 
 // X.680, p 12.8
 integerValue returns [Value result]
-    :   NumberLiteral     { $result = factory.integer( $NumberLiteral.text ); }
+    :   NumberLiteral     { $result = valueFactory.integer( $NumberLiteral.text ); }
     ;
 
 choiceValue returns [Value result]
 	:   valueReference COLON value
-	    { $result = factory.named($valueReference.text, $value.result); }
+	    { $result = valueFactory.named($valueReference.text, $value.result); }
 	;
 
 valueCollection returns [ValueCollection result]
-    @init { $result = factory.collection(false); }
+    @init { $result = valueFactory.collection(false); }
     :
         OPEN_BRACE
         (
@@ -834,7 +843,7 @@ valueCollection returns [ValueCollection result]
     ;
 
 namedValueCollection returns [ValueCollection result]
-    @init { $result = factory.collection(true); }
+    @init { $result = valueFactory.collection(true); }
     :
         OPEN_BRACE
         (
@@ -850,7 +859,7 @@ namedValueCollection returns [ValueCollection result]
 
 objectIdentifierValue returns [Value result]
     locals [ List<Ref<Value>> values = new ArrayList<>(); ]
-    @after { $result = factory.objectIdentifier($values); }
+    @after { $result = valueFactory.objectIdentifier($values); }
     :
         OPEN_BRACE
         (objectIdentifierValueItem { $values.add($objectIdentifierValueItem.result); } )*
@@ -859,7 +868,7 @@ objectIdentifierValue returns [Value result]
 
 objectIdentifierValueItem returns [Ref<Value> result]
     :   integerValue { $result = $integerValue.result; }
-    |   valueReference OPEN_PAREN integerValue CLOSE_PAREN { $result = factory.named($valueReference.text, $integerValue.result); }
+    |   valueReference OPEN_PAREN integerValue CLOSE_PAREN { $result = valueFactory.named($valueReference.text, $integerValue.result); }
     |   definedValue { $result = $definedValue.result; }
     ;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -897,7 +906,7 @@ tableConstraint returns[ConstraintTemplate result]
 	:
 	    OPEN_BRACE definedObjectSet CLOSE_BRACE
 	    (OPEN_BRACE relationItemList CLOSE_BRACE)?
-	    { $result = factory.tableConstraint($definedObjectSet.result, $relationItemList.ctx == null ? null : $relationItemList.result); }
+	    { $result = constraintFactory.tableConstraint($definedObjectSet.result, $relationItemList.ctx == null ? null : $relationItemList.result); }
 	;
 
 relationItemList returns[List<RelationItem> result]
@@ -934,9 +943,9 @@ elementSetSpecs returns [ConstraintTemplate result]
 	    COMMA ELLIPSIS { $extensible = true; }
 	    ( COMMA ext = elementSetSpec )?
 	)?
-	{ $result = factory.elementSetSpecs($root.result, $extensible, $ext.ctx == null ? null : $ext.result); }
+	{ $result = constraintFactory.elementSetSpecs($root.result, $extensible, $ext.ctx == null ? null : $ext.result); }
 	| ELLIPSIS
-	{ $result = factory.elementSetSpecs(null, true, null); }
+	{ $result = constraintFactory.elementSetSpecs(null, true, null); }
 	;
 
 objectSetElementSpecs returns [ConstraintTemplate result]
@@ -947,9 +956,9 @@ objectSetElementSpecs returns [ConstraintTemplate result]
             COMMA ELLIPSIS { $extensible = true; }
             ( COMMA ext = objectSetElementSpec )?
         )?
-	{ $result = factory.elementSetSpecs($root.result, $extensible, $ext.ctx == null ? null : $ext.result); }
+	{ $result = constraintFactory.elementSetSpecs($root.result, $extensible, $ext.ctx == null ? null : $ext.result); }
     |   ELLIPSIS
-	{ $result = factory.elementSetSpecs(null, true, null); }
+	{ $result = constraintFactory.elementSetSpecs(null, true, null); }
     ;
 
 objectSetElementSpec returns [ConstraintTemplate result]
@@ -957,18 +966,18 @@ objectSetElementSpec returns [ConstraintTemplate result]
     @init { $list = new ArrayList<>(); }
     :   objectSetElementSpecItem { $list.add($objectSetElementSpecItem.result); }
         ( ( UNION| OR ) objectSetElementSpecItem { $list.add($objectSetElementSpecItem.result); })*
-        { $result = factory.elementSetSpec($list); }
+        { $result = constraintFactory.elementSetSpec($list); }
     ;
 
 objectSetElementSpecItem returns [ConstraintTemplate result]
-    :   object { $result = factory.value( $object.result ); }
-    |   definedObjectSet { $result = factory.type($definedObjectSet.result); }
+    :   object { $result = constraintFactory.value( $object.result ); }
+    |   definedObjectSet { $result = constraintFactory.type($definedObjectSet.result); }
     ;
 
 elementSetSpec returns [ConstraintTemplate result]
 	:
-	    unions { $result = factory.elementSetSpec($unions.result); }
-	|   ALL EXCEPT elements { $result = factory.elementSetSpec($elements.result); }
+	    unions { $result = constraintFactory.elementSetSpec($unions.result); }
+	|   ALL EXCEPT elements { $result = constraintFactory.elementSetSpec($elements.result); }
 	;
 
 
@@ -985,7 +994,7 @@ unions returns [List<ConstraintTemplate> result]
 
 union returns [ConstraintTemplate result]
 	:   intersections
-	    { $result = factory.union($intersections.result); }
+	    { $result = constraintFactory.union($intersections.result); }
 	;
 
 intersections returns [List<ConstraintTemplate> result]
@@ -996,7 +1005,7 @@ intersections returns [List<ConstraintTemplate> result]
 
 intersectionItem returns [ConstraintTemplate result]
     :   elements exclusions?
-        { $result = factory.elements($elements.result, $exclusions.ctx == null ? null : $exclusions.result); }
+        { $result = constraintFactory.elements($elements.result, $exclusions.ctx == null ? null : $exclusions.result); }
     ;
 
 elements returns [ConstraintTemplate result]
@@ -1009,40 +1018,40 @@ elements returns [ConstraintTemplate result]
 subtypeElements returns [ConstraintTemplate result]
     :
         OPEN_BRACE definedType CLOSE_BRACE
-                                { $result = factory.valuesFromSet($definedType.result); }
+                                { $result = constraintFactory.valuesFromSet($definedType.result); }
     // X.680, p 51.2 Single value
-    |   value                   { $result = factory.value( $value.result ); }
+    |   value                   { $result = constraintFactory.value( $value.result ); }
     |   containedSubtype        { $result = $containedSubtype.result; }
     |   valueRange              { $result = $valueRange.result; }
     // X.680, p 51.7
-    |   FROM elementSetSpecs    { $result = factory.permittedAlphabet( $elementSetSpecs.result ); }
+    |   FROM elementSetSpecs    { $result = constraintFactory.permittedAlphabet( $elementSetSpecs.result ); }
     |   sizeConstraint          { $result = $sizeConstraint.result; }
     // X.680, p 51.6
-    |   type                    { $result = factory.type( $type.result ); }
+    |   type                    { $result = constraintFactory.type( $type.result ); }
     |   innerTypeConstraints    { $result = $innerTypeConstraints.result; }
     // X.680, p 51.9
-    |   PATTERN value           { $result = factory.pattern($value.result); }
+    |   PATTERN value           { $result = constraintFactory.pattern($value.result); }
     // X.680, p 51.10
-    |   SETTINGS simpleString   { $result = factory.settings($simpleString.text); }
+    |   SETTINGS simpleString   { $result = constraintFactory.settings($simpleString.text); }
     //TODO:|   durationRange
     //TODO:|   timePointRange
     //TODO:|   recurrenceRange
     ;
 
 objectSetElements returns [ ConstraintTemplate result]
-    :   object                  { $result = factory.objectSetElements($object.result); }
-    |   definedObjectSet        { $result = factory.objectSetElements($definedObjectSet.result); }
-    |   objectSetFromObjects    { $result = factory.objectSetElements($objectSetFromObjects.result); }
+    :   object                  { $result = constraintFactory.objectSetElements($object.result); }
+    |   definedObjectSet        { $result = constraintFactory.objectSetElements($definedObjectSet.result); }
+    |   objectSetFromObjects    { $result = constraintFactory.objectSetElements($objectSetFromObjects.result); }
     ;
 
 // X.680, p 51.3
 containedSubtype returns [ConstraintTemplate result]
     locals [Ref<Type> contained = null;]
     :   { boolean includes = false; }
-        (   NULL { $contained = factory.builtin("NULL"); }
+        (   NULL { $contained = typeFactory.builtin("NULL"); }
         |   INCLUDES {includes = true;} type { $contained = $type.result; }
         )
-        { $result = factory.containedSubtype( $contained, includes ); }
+        { $result = constraintFactory.containedSubtype( $contained, includes ); }
     ;
 
 // X.680, p 51.4
@@ -1065,19 +1074,19 @@ valueRange returns [ConstraintTemplate result]
             value  { $maxValue = $value.result; }
         |   MAX
         )
-        { $result = factory.valueRange($minValue, $minValueLt, $maxValue, $maxValueGt); }
+        { $result = constraintFactory.valueRange($minValue, $minValueLt, $maxValue, $maxValueGt); }
     ;
 
 // X.680, p 51.5
 sizeConstraint returns[ConstraintTemplate result]
-    :   SIZE constraint         { $result = factory.size( $constraint.result ); }
+    :   SIZE constraint         { $result = constraintFactory.size( $constraint.result ); }
     ;
 
 innerTypeConstraints returns [ConstraintTemplate result]
     :   WITH
         (
             COMPONENT constraint
-            { $result = factory.innerType( $constraint.result ); }
+            { $result = constraintFactory.innerType( $constraint.result ); }
 
         |   COMPONENTS
             { List<ConstraintTemplate> list = new ArrayList<>(); boolean partial = false; }
@@ -1089,7 +1098,7 @@ innerTypeConstraints returns [ConstraintTemplate result]
                 ELLIPSIS COMMA componentConstraintList[list, Presence.Optional]
             )
             CLOSE_BRACE
-            { $result = factory.innerTypes(list, partial); }
+            { $result = constraintFactory.innerTypes(list, partial); }
         )
     ;
 
@@ -1108,7 +1117,7 @@ componentConstraint[Presence defaultPresence] returns [ConstraintTemplate result
         |   ABSENT { $presence = Presence.Absent; }
         |   OPTIONAL { $presence = Presence.Optional; }
         )?
-        { $result = factory.component( $identifier.text, $constraint.ctx == null ? null : $constraint.result, $presence ); }
+        { $result = constraintFactory.component( $identifier.text, $constraint.ctx == null ? null : $constraint.result, $presence ); }
     ;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1122,11 +1131,11 @@ objectClassAssignment returns [DefinedType result]
     objectClassReference
     params=templateTypeParameterList?
     ASSIGN (definedObjectClass {$assigned = $definedObjectClass.result; } | objectClass {$assigned = $objectClass.result; })
-    { $result = factory.define( $objectClassReference.text, $assigned, $params.ctx == null ? null : $params.result); }
+    { $result = typeFactory.define( $objectClassReference.text, $assigned, $params.ctx == null ? null : $params.result); }
     ;
 
 objectClass returns [ClassType result]
-    @init { $result = factory.classType(); }
+    @init { $result = typeFactory.classType(); }
     :   CLASS
         OPEN_BRACE
         fieldSpec[$result]
@@ -1167,7 +1176,7 @@ typeFieldSpec returns [ClassFieldType result]
     locals [boolean optional = false, Ref<Type> defaultType = null;]
     :   typeFieldReference
         (OPTIONAL { $optional = true; } | DEFAULT type { $defaultType = $type.result; } )?
-        { $result = factory.typeClassField($typeFieldReference.text, $optional, $defaultType); }
+        { $result = typeFactory.typeClassField($typeFieldReference.text, $optional, $defaultType); }
     ;
 
 fixedTypeValueFieldSpec returns [ClassFieldType result]
@@ -1176,7 +1185,7 @@ fixedTypeValueFieldSpec returns [ClassFieldType result]
         (   UNIQUE { $unique = true; } (OPTIONAL { $optional = true; })?
         |   (OPTIONAL { $optional = true; } | DEFAULT value { $defaultValue = $value.result; } )
         )?
-        { $result = factory.fixedTypeValueField($valueFieldReference.text, $type.result, $unique, $optional, $defaultValue); }
+        { $result = typeFactory.fixedTypeValueField($valueFieldReference.text, $type.result, $unique, $optional, $defaultValue); }
     ;
 
 variableTypeValueFieldSpec returns [ClassFieldType result]
@@ -1184,7 +1193,7 @@ variableTypeValueFieldSpec returns [ClassFieldType result]
     :   valueFieldReference
         fieldName
         (OPTIONAL { $optional = true; } | DEFAULT value { $defaultValue = $value.result; } )?
-        { $result = factory.variableTypeValueField($valueFieldReference.text, $fieldName.text, $optional, $defaultValue); }
+        { $result = typeFactory.variableTypeValueField($valueFieldReference.text, $fieldName.text, $optional, $defaultValue); }
     ;
 
 fixedTypeValueSetFieldSpec returns [ClassFieldType result]
@@ -1192,7 +1201,7 @@ fixedTypeValueSetFieldSpec returns [ClassFieldType result]
     :   valueSetFieldReference
         type
         (OPTIONAL { $optional = true; } | DEFAULT valueSet { $valueSetType = $valueSet.result; } )?
-        { $result = factory.fixedTypeValueSetField( $valueSetFieldReference.text, $type.result, $optional, $valueSetType ); }
+        { $result = typeFactory.fixedTypeValueSetField( $valueSetFieldReference.text, $type.result, $optional, $valueSetType ); }
     ;
 
 variableTypeValueSetFieldSpec returns [ClassFieldType result]
@@ -1200,7 +1209,7 @@ variableTypeValueSetFieldSpec returns [ClassFieldType result]
     :   valueSetFieldReference
         fieldName
         (OPTIONAL { $optional = true; } | DEFAULT valueSet { $valueSetType = $valueSet.result; } )?
-        { $result = factory.variableTypeValueSetField( $valueSetFieldReference.text, $fieldName.text, $optional, $valueSetType ); }
+        { $result = typeFactory.variableTypeValueSetField( $valueSetFieldReference.text, $fieldName.text, $optional, $valueSetType ); }
     ;
 
 objectFieldSpec returns [ClassFieldType result]
@@ -1208,7 +1217,7 @@ objectFieldSpec returns [ClassFieldType result]
     :   objectFieldReference
         definedObjectClass
         (OPTIONAL { $optional = true; } | DEFAULT object { $defaultValue = $object.result; } )?
-        { $result = factory.fixedTypeValueField($objectFieldReference.text, $definedObjectClass.result, false, $optional, $defaultValue); }
+        { $result = typeFactory.fixedTypeValueField($objectFieldReference.text, $definedObjectClass.result, false, $optional, $defaultValue); }
     ;
 
 objectSetFieldSpec returns [ClassFieldType result]
@@ -1216,7 +1225,7 @@ objectSetFieldSpec returns [ClassFieldType result]
     :   objectSetFieldReference
         definedObjectClass
         (OPTIONAL { $optional = true; } | DEFAULT objectSet { $valueSetType = $objectSet.result; } )?
-        { $result = factory.fixedTypeValueSetField( $objectSetFieldReference.text, $definedObjectClass.result, $optional, $valueSetType ); }
+        { $result = typeFactory.fixedTypeValueSetField( $objectSetFieldReference.text, $definedObjectClass.result, $optional, $valueSetType ); }
     ;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1228,7 +1237,7 @@ objectAssignment returns [DefinedValue result]
 	    valueReference
         params=templateTypeParameterList?
 	    definedObjectClass ASSIGN object
-	    { $result = factory.define( $valueReference.text, $definedObjectClass.result, $object.result, $params.ctx == null ? null : $params.result ); }
+	    { $result = typeFactory.define( $valueReference.text, $definedObjectClass.result, $object.result, $params.ctx == null ? null : $params.result ); }
     ;
 
 // X.681, p 12.1
@@ -1238,8 +1247,8 @@ objectSetAssignment returns[DefinedType result]
 	    params=templateTypeParameterList?
         definedObjectClass ASSIGN objectSet
         {
-            Type constrained = factory.constrained($objectSet.result, $definedObjectClass.result);
-            $result = factory.define(
+            Type constrained = typeFactory.constrained($objectSet.result, $definedObjectClass.result);
+            $result = typeFactory.define(
                                 $typeReference.text,
                                 constrained,
                                 $params.ctx == null ? null : $params.result);
@@ -1248,8 +1257,8 @@ objectSetAssignment returns[DefinedType result]
 
 definedObjectClass returns [Ref<Type> result]
     :   definedObjectClassRef { $result = $definedObjectClassRef.result; }
-    |   TYPE_IDENTIFIER { $result = factory.builtin("TYPE-IDENTIFIER"); }
-    |   ABSTRACT_SYNTAX { $result = factory.builtin("ABSTRACT SYNTAX"); }
+    |   TYPE_IDENTIFIER { $result = typeFactory.builtin("TYPE-IDENTIFIER"); }
+    |   ABSTRACT_SYNTAX { $result = typeFactory.builtin("ABSTRACT SYNTAX"); }
     ;
 
 definedObjectClassRef returns [Ref<Type> result]
@@ -1258,7 +1267,7 @@ definedObjectClassRef returns [Ref<Type> result]
             if ( $args.ctx == null )
                 $result = getTypeRef($ref.text, $mr.text);
             else
-                $result = $result = factory.typeTemplateInstance( getTypeRef($ref.text, $mr.text), $args.result );
+                $result = $result = typeFactory.typeTemplateInstance( getTypeRef($ref.text, $mr.text), $args.result );
         }
     ;
 
@@ -1286,7 +1295,7 @@ definedObjectSet returns [Ref<Type> result]
 ////////////////////////////////////// Object Misc /////////////////////////////////////////////////////////////////////
 valueFromObject returns [Ref<Value> result]
     :   referencedObjects (DOT fieldName)? DOT valueFieldReference
-        { $result = factory.valueFromObjectRef($referencedObjects.result, $fieldName.ctx == null ? null : $fieldName.text, $valueFieldReference.text); }
+        { $result = typeFactory.valueFromObjectRef($referencedObjects.result, $fieldName.ctx == null ? null : $fieldName.text, $valueFieldReference.text); }
     ;
 
 // X.681, p 15.1
@@ -1300,7 +1309,7 @@ objectSetFromObjects returns [Ref<Type> result]
 
 valueSetFromObjects returns [Ref<Type> result]
     :   referencedObjects (DOT fieldName)* DOT typeFieldReference
-        { $result = factory.valueSetFromObjectRef($referencedObjects.result, $fieldName.ctx == null ? null : $fieldName.text, $typeFieldReference.text); }
+        { $result = typeFactory.valueSetFromObjectRef($referencedObjects.result, $fieldName.ctx == null ? null : $fieldName.text, $typeFieldReference.text); }
     ;
 
 typeFromObject returns [Ref<Type> result]
@@ -1308,7 +1317,7 @@ typeFromObject returns [Ref<Type> result]
     :   referencedObjects
         (DOT FieldIdentifier { $pathParts.add( $FieldIdentifier.text ); })*
         DOT FieldIdentifier
-        { $result = factory.typeFromObjectRef($referencedObjects.result, $pathParts, $FieldIdentifier.text); }
+        { $result = typeFactory.typeFromObjectRef($referencedObjects.result, $pathParts, $FieldIdentifier.text); }
     ;
 
 referencedObjects returns [ Ref<?> result ]
@@ -1319,7 +1328,7 @@ referencedObjects returns [ Ref<?> result ]
 // Object definition
 objectDefn returns [Ref<Value> result]
     :
-        OPEN_BRACE fieldSettings CLOSE_BRACE { $result = factory.object($fieldSettings.result); }
+        OPEN_BRACE fieldSettings CLOSE_BRACE { $result = typeFactory.object($fieldSettings.result); }
         // TODO: some garbage may pass thru here
     |   braceConsumer { $result = new AbstractSyntaxObjectRef(tokens2string($braceConsumer.start, $braceConsumer.stop)); }
     ;

@@ -23,11 +23,13 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core;
+package org.asn1s.core.type;
 
-import org.asn1s.api.*;
+import org.asn1s.api.BuiltinClass;
+import org.asn1s.api.Ref;
+import org.asn1s.api.TemplateParameter;
+import org.asn1s.api.UniversalType;
 import org.asn1s.api.constraint.ConstraintTemplate;
-import org.asn1s.api.constraint.Presence;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
@@ -44,16 +46,14 @@ import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.ValueNameRef;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x681.ObjectValue;
-import org.asn1s.core.constraint.template.*;
+import org.asn1s.core.TemplateParameterImpl;
 import org.asn1s.core.module.ModuleImpl;
 import org.asn1s.core.module.ModuleSet;
-import org.asn1s.core.type.*;
 import org.asn1s.core.type.x680.EnumeratedType;
 import org.asn1s.core.type.x680.IntegerType;
 import org.asn1s.core.type.x680.collection.*;
 import org.asn1s.core.type.x680.string.BitStringType;
 import org.asn1s.core.type.x681.*;
-import org.asn1s.core.value.CoreValueFactory;
 import org.asn1s.core.value.DefinedValueImpl;
 import org.asn1s.core.value.DefinedValueTemplateImpl;
 import org.asn1s.core.value.TemplateValueInstance;
@@ -64,14 +64,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public final class DefaultObjectFactory extends CoreValueFactory implements ObjectFactory
+public class CoreTypeFactory implements TypeFactory
 {
-	public DefaultObjectFactory()
+	public CoreTypeFactory()
 	{
 		this( null );
 	}
 
-	public DefaultObjectFactory( @Nullable ModuleResolver resolver )
+	public CoreTypeFactory( @Nullable ModuleResolver resolver )
 	{
 		this.resolver = resolver == null ? new ModuleSet() : resolver;
 	}
@@ -335,143 +335,8 @@ public final class DefaultObjectFactory extends CoreValueFactory implements Obje
 
 	@NotNull
 	@Override
-	public ConstraintTemplate objectSetElements( @NotNull Ref<?> source )
-	{
-		// TODO:
-		throw new UnsupportedOperationException();
-	}
-
-	@NotNull
-	@Override
 	public Value object( @NotNull Map<String, Ref<?>> map )
 	{
 		return new ObjectValue( map );
-	}
-
-	///////////////////////////////////// Constraints //////////////////////////////////////////////////////////////////
-	@NotNull
-	@Override
-	public ConstraintTemplate elementSetSpecs( @Nullable ConstraintTemplate setSpec, boolean extensible, @Nullable ConstraintTemplate additionalSetSpec )
-	{
-		return new ElementSetSpecsTemplate( setSpec, extensible, additionalSetSpec );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate elementSetSpec( @NotNull List<ConstraintTemplate> unions )
-	{
-		return new ElementSetSpecTemplate( unions );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate elementSetSpec( @NotNull ConstraintTemplate exclusion )
-	{
-		return new ElementSetSpecTemplate( exclusion );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate union( @NotNull List<ConstraintTemplate> intersections )
-	{
-		return new UnionTemplate( intersections );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate elements( @NotNull ConstraintTemplate elements, @Nullable ConstraintTemplate exclusion )
-	{
-		return new ElementsTemplate( elements, exclusion );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate value( @NotNull Ref<Value> valueRef )
-	{
-		return new ValueConstraintTemplate( valueRef );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate valueRange( @Nullable Ref<Value> min, boolean minLt, @Nullable Ref<Value> max, boolean maxGt )
-	{
-		return new ValueRangeConstraintTemplate( min, minLt, max, maxGt );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate permittedAlphabet( @NotNull ConstraintTemplate template )
-	{
-		return new PermittedAlphabetConstraintTemplate( template );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate type( @NotNull Ref<Type> typeRef )
-	{
-		return new TypeConstraintTemplate( typeRef );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate pattern( @NotNull Ref<Value> valueRef )
-	{
-		return new PatternConstraintTemplate( valueRef );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate settings( @NotNull String settings )
-	{
-		return new SettingsConstraintTemplate( settings );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate size( @NotNull ConstraintTemplate template )
-	{
-		return new SizeConstraintTemplate( template );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate innerType( @NotNull ConstraintTemplate component )
-	{
-		return new InnerTypeConstraintTemplate( component );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate innerTypes( @NotNull List<ConstraintTemplate> components, boolean partial )
-	{
-		return new InnerTypesConstraintTemplate( components, partial );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate component( @NotNull String componentName, @Nullable ConstraintTemplate template, @Nullable Presence presence )
-	{
-		return new ComponentConstraintTemplate( componentName, template, presence );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate containedSubtype( @NotNull Ref<Type> typeRef, boolean includes )
-	{
-		return new ContainedSubtypeConstraintTemplate( typeRef, includes );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate valuesFromSet( @NotNull Ref<Type> setRef )
-	{
-		return new ValuesFromSetConstraintTemplate( setRef );
-	}
-
-	@NotNull
-	@Override
-	public ConstraintTemplate tableConstraint( @NotNull Ref<Type> objectSet, @Nullable List<RelationItem> relationItems )
-	{
-		return new TableConstraintTemplate( objectSet, relationItems );
 	}
 }

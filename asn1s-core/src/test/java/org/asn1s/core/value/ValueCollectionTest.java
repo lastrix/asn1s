@@ -25,12 +25,12 @@
 
 package org.asn1s.core.value;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.x680.ValueCollection;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -43,36 +43,36 @@ public class ValueCollectionTest
 	@Test
 	public void testConversionToReal() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		ValueCollection collection = factory.collection( true );
-		collection.addNamed( "mantissa", factory.integer( 5 ) );
-		collection.addNamed( "base", factory.integer( 2 ) );
-		collection.addNamed( "exponent", factory.integer( -5 ) );
+		ValueCollection collection = factory.values().collection( true );
+		collection.addNamed( "mantissa", factory.values().integer( 5 ) );
+		collection.addNamed( "base", factory.values().integer( 2 ) );
+		collection.addNamed( "exponent", factory.values().integer( -5 ) );
 
-		DefinedValue value = factory.define( "a-real", UniversalType.Real.ref(), collection, null );
+		DefinedValue value = factory.types().define( "a-real", UniversalType.Real.ref(), collection, null );
 
 		module.validate();
 
-		Assert.assertEquals( "Is not 0.15625", 0, factory.real( DOUBLE_VALUE_1 ).compareTo( value.getValue() ) );
+		Assert.assertEquals( "Is not 0.15625", 0, factory.values().real( DOUBLE_VALUE_1 ).compareTo( value.getValue() ) );
 	}
 
 	@Test
 	public void testConversionToReal2() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		ValueCollection collection = factory.collection( true );
-		collection.addNamed( "mantissa", factory.integer( 5 ) );
-		collection.addNamed( "base", factory.integer( 10 ) );
-		collection.addNamed( "exponent", factory.integer( 2 ) );
+		ValueCollection collection = factory.values().collection( true );
+		collection.addNamed( "mantissa", factory.values().integer( 5 ) );
+		collection.addNamed( "base", factory.values().integer( 10 ) );
+		collection.addNamed( "exponent", factory.values().integer( 2 ) );
 
-		DefinedValue value = factory.define( "a-real", UniversalType.Real.ref(), collection, null );
+		DefinedValue value = factory.types().define( "a-real", UniversalType.Real.ref(), collection, null );
 
 		module.validate();
 
-		Assert.assertEquals( "Is not 5E2", 0, factory.real( DOUBLE_VALUE_2 ).compareTo( value.getValue() ) );
+		Assert.assertEquals( "Is not 5E2", 0, factory.values().real( DOUBLE_VALUE_2 ).compareTo( value.getValue() ) );
 	}
 }

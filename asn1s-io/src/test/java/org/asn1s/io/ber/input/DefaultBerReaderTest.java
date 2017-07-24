@@ -25,7 +25,7 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.constraint.ConstraintTemplate;
@@ -34,7 +34,9 @@ import org.asn1s.api.module.Module;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.TypeFactory;
 import org.asn1s.api.value.Value;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
+import org.asn1s.core.type.CoreTypeFactory;
+import org.asn1s.core.value.CoreValueFactory;
 import org.asn1s.core.value.x680.IntegerValueInt;
 import org.asn1s.core.value.x680.RealValueBig;
 import org.asn1s.core.value.x680.RealValueFloat;
@@ -50,18 +52,18 @@ public class DefaultBerReaderTest
 	@Test
 	public void writeHugeReal() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 		Scope scope = module.createScope();
 
-		ConstraintTemplate constraintTemplate = factory.valueRange( new RealValueFloat( 0.0f ), false, null, false );
-		Type tagged = factory.constrained( constraintTemplate, UniversalType.Real.ref() );
-		Type defined = factory.define( "MyReal", tagged, null );
+		ConstraintTemplate constraintTemplate = factory.constraints().valueRange( new RealValueFloat( 0.0f ), false, null, false );
+		Type tagged = factory.types().constrained( constraintTemplate, UniversalType.Real.ref() );
+		Type defined = factory.types().define( "MyReal", tagged, null );
 		module.validate();
 		Value expected = new RealValueBig( new BigDecimal( BigInteger.valueOf( 34645 ).pow( 16663 ) ) );
 		byte[] result = InputUtils.writeValue( scope, defined, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     AbstractBerReader reader = new DefaultBerReader( is, new CoreValueFactory() ) )
 		{
 			Value value = reader.read( scope, defined );
 			Assert.assertEquals( "Values are not equal", expected, value );
@@ -71,7 +73,7 @@ public class DefaultBerReaderTest
 	@Test
 	public void testHugeTagNumber() throws Exception
 	{
-		TypeFactory factory = new DefaultObjectFactory();
+		TypeFactory factory = new CoreTypeFactory();
 		Module module = factory.dummyModule();
 		Scope scope = module.createScope();
 
@@ -81,7 +83,7 @@ public class DefaultBerReaderTest
 		Value expected = new IntegerValueInt( 0 );
 		byte[] result = InputUtils.writeValue( scope, defined, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     AbstractBerReader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     AbstractBerReader reader = new DefaultBerReader( is, new CoreValueFactory() ) )
 		{
 			Value value = reader.read( scope, defined );
 			Assert.assertEquals( "Values are not equal", expected, value );

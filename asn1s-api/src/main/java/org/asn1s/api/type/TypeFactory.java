@@ -132,8 +132,5 @@ public interface TypeFactory
 	Ref<Type> typeFromObjectRef( @NotNull Ref<?> source, @Nullable List<String> path, @NotNull String name );
 
 	@NotNull
-	ConstraintTemplate objectSetElements( @NotNull Ref<?> source );
-
-	@NotNull
 	Value object( @NotNull Map<String, Ref<?>> map );
 }

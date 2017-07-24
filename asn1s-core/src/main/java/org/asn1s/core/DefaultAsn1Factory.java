@@ -23,44 +23,49 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.io.ber.input;
+package org.asn1s.core;
 
-import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
-import org.asn1s.api.UniversalType;
-import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.ValueCollection;
-import org.asn1s.core.module.CoreModule;
-import org.asn1s.core.type.x680.collection.SequenceOfType;
+import org.asn1s.api.Asn1Factory;
+import org.asn1s.api.constraint.ConstraintFactory;
+import org.asn1s.api.module.ModuleResolver;
+import org.asn1s.api.type.TypeFactory;
+import org.asn1s.api.value.ValueFactory;
+import org.asn1s.core.constraint.CoreConstraintFactory;
+import org.asn1s.core.type.CoreTypeFactory;
 import org.asn1s.core.value.CoreValueFactory;
-import org.asn1s.core.value.x680.IntegerValueInt;
-import org.asn1s.core.value.x680.ValueCollectionImpl;
-import org.junit.Assert;
-import org.junit.Test;
+import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayInputStream;
-
-public class SequenceOfBerDecoderTest
+public final class DefaultAsn1Factory implements Asn1Factory
 {
-	@Test
-	public void testWriteSequenceOf_Buffered() throws Exception
+	public DefaultAsn1Factory()
 	{
-		Scope scope = CoreModule.getInstance().createScope();
-		SequenceOfType type = new SequenceOfType();
-		type.setComponent( "a", UniversalType.Integer.ref() );
-		type.validate( scope );
-		ComponentType component = type.getComponentType();
-		Assert.assertNotNull( "No component a", component );
-		ValueCollection expected = new ValueCollectionImpl( true );
-		Ref<Value> valueInt = new IntegerValueInt( 0 );
-		expected.addNamed( "a", valueInt );
-		byte[] result = InputUtils.writeValue( scope, type, expected );
-		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     AbstractBerReader reader = new DefaultBerReader( is, new CoreValueFactory() ) )
-		{
-			Value value = reader.read( scope, type );
-			Assert.assertEquals( "Values are not equal", expected, value );
-		}
+		this( null );
+	}
+
+	public DefaultAsn1Factory( @Nullable ModuleResolver resolver )
+	{
+		typeFactory = new CoreTypeFactory( resolver );
+	}
+
+	private final TypeFactory typeFactory;
+	private final ValueFactory valueFactory = new CoreValueFactory();
+	private final ConstraintFactory constraintFactory = new CoreConstraintFactory();
+
+	@Override
+	public TypeFactory types()
+	{
+		return typeFactory;
+	}
+
+	@Override
+	public ValueFactory values()
+	{
+		return valueFactory;
+	}
+
+	@Override
+	public ConstraintFactory constraints()
+	{
+		return constraintFactory;
 	}
 }

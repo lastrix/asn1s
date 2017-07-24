@@ -28,21 +28,18 @@ package org.asn1s.databind.mapper;
 import org.asn1s.annotation.Property;
 import org.asn1s.annotation.TypeAccessKind;
 import org.asn1s.annotation.TypeAccessKind.AccessKind;
-import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.type.CollectionOfType;
-import org.asn1s.api.type.CollectionType;
-import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.*;
 import org.asn1s.api.type.ComponentType.Kind;
-import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.databind.Asn1Context;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -187,7 +184,7 @@ public class DefaultTypeMapper implements TypeMapper
 		if( mappedType != null )
 			return mappedType;
 
-		ObjectFactory factory = context.getObjectFactory();
+		TypeFactory factory = context.getAsn1Factory().types();
 		CollectionOfType collection = factory.collectionOf( Family.SequenceOf );
 		collection.setComponent( ComponentType.DUMMY, listItemMappedType.getAsnType() );
 		DefinedType definedListType = factory.define( asn1TypeName, collection, null );
@@ -233,7 +230,7 @@ public class DefaultTypeMapper implements TypeMapper
 
 	private void generateAsn1Type( SequenceMappedType type, String asn1TypeName )
 	{
-		ObjectFactory factory = context.getObjectFactory();
+		TypeFactory factory = context.getAsn1Factory().types();
 		CollectionType collection = factory.collection( Family.Sequence );
 		for( MappedField field : type.getFields() )
 			collection.addComponent( Kind.Primary, field.getPropertyName(), field.getType().getAsnType() ).setOptional( field.isOptional() );
@@ -252,7 +249,7 @@ public class DefaultTypeMapper implements TypeMapper
 
 	private void generateSequenceOfAsn1Type( SequenceOfMappedType type, String asn1TypeName )
 	{
-		ObjectFactory factory = context.getObjectFactory();
+		TypeFactory factory = context.getAsn1Factory().types();
 		CollectionOfType collection = factory.collectionOf( Family.SequenceOf );
 		Ref<org.asn1s.api.type.Type> asnType = type.getComponentType().getAsnType();
 		if( asnType == null )

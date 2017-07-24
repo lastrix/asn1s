@@ -29,7 +29,11 @@ import org.asn1s.api.constraint.ConstraintFactory;
 import org.asn1s.api.type.TypeFactory;
 import org.asn1s.api.value.ValueFactory;
 
-public interface ObjectFactory extends TypeFactory, ValueFactory, ConstraintFactory
+public interface Asn1Factory
 {
+	TypeFactory types();
 
+	ValueFactory values();
+
+	ConstraintFactory constraints();
 }

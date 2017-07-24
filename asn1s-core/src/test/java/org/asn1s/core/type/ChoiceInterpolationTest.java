@@ -25,35 +25,35 @@
 
 package org.asn1s.core.type;
 
-import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.CollectionType;
-import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.api.type.Type.Family;
+import org.asn1s.api.type.TypeFactory;
+import org.junit.Assert;
 import org.junit.Test;
 
-@SuppressWarnings( "ALL" )
 public class ChoiceInterpolationTest
 {
 	@Test
 	public void testInterpolation() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
+		TypeFactory factory = new CoreTypeFactory();
 		Module module = factory.dummyModule();
 
 		Ref<Type> intRef = factory.builtin( "INTEGER" );
 
-		CollectionType choice = factory.collection( Type.Family.Choice );
-		choice.addComponent( ComponentType.Kind.Primary, "a", intRef );
-		choice.addComponent( ComponentType.Kind.Primary, "b", intRef );
-		choice.addComponent( ComponentType.Kind.Primary, "c", intRef );
-		choice.addComponent( ComponentType.Kind.Primary, "d", intRef );
+		CollectionType choice = factory.collection( Family.Choice );
+		choice.addComponent( Kind.Primary, "a", intRef );
+		choice.addComponent( Kind.Primary, "b", intRef );
+		choice.addComponent( Kind.Primary, "c", intRef );
+		choice.addComponent( Kind.Primary, "d", intRef );
 
 		DefinedType type = factory.define( "MyChoice", choice, null );
-
+		Assert.assertNotNull( "Type must not be null", type );
 		module.validate();
 	}
 }

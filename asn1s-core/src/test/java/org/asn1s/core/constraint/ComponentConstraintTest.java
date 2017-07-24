@@ -25,7 +25,7 @@
 
 package org.asn1s.core.constraint;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.constraint.ConstraintTemplate;
@@ -36,7 +36,7 @@ import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.x680.ValueCollection;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -47,41 +47,41 @@ public class ComponentConstraintTest
 	@Test
 	public void test1() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		CollectionType sequenceType = factory.collection( Family.Sequence );
-		Ref<Type> intTypeRef = factory.builtin( "INTEGER" );
+		CollectionType sequenceType = factory.types().collection( Family.Sequence );
+		Ref<Type> intTypeRef = factory.types().builtin( "INTEGER" );
 		sequenceType.addComponent( Kind.Primary, "a", intTypeRef ).setOptional( true );
 		sequenceType.addComponent( Kind.Primary, "b", intTypeRef );
 
-		ConstraintTemplate constraint = factory.component( "a", null, Presence.Absent );
-		Type constrainedType = factory.constrained( constraint, sequenceType );
-		factory.define( "My-Type", constrainedType, null );
+		ConstraintTemplate constraint = factory.constraints().component( "a", null, Presence.Absent );
+		Type constrainedType = factory.types().constrained( constraint, sequenceType );
+		factory.types().define( "My-Type", constrainedType, null );
 
 		module.validate();
 
-		ValueCollection value = factory.collection( true );
-		value.addNamed( "a", factory.integer( 1 ) );
-		value.addNamed( "b", factory.integer( 2 ) );
+		ValueCollection value = factory.values().collection( true );
+		value.addNamed( "a", factory.values().integer( 1 ) );
+		value.addNamed( "b", factory.values().integer( 2 ) );
 
 
 		Scope scope = module.createScope();
 		assertFalse( "Constraint not failed", ConstraintTestUtils.checkConstraint( constraint, value, sequenceType, scope ) );
 
-		ValueCollection value1 = factory.collection( true );
-		value1.addNamed( "b", factory.integer( "1" ) );
+		ValueCollection value1 = factory.values().collection( true );
+		value1.addNamed( "b", factory.values().integer( "1" ) );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint, value1, sequenceType, scope ) );
 
-		ConstraintTemplate constraint1 = factory.component( "a", null, Presence.Present );
+		ConstraintTemplate constraint1 = factory.constraints().component( "a", null, Presence.Present );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint1, value, sequenceType, scope ) );
 		assertFalse( "Constraint not failed", ConstraintTestUtils.checkConstraint( constraint1, value1, sequenceType, scope ) );
 
-		ConstraintTemplate constraint2 = factory.component( "a", new BooleanConstraintTemplate( false ), Presence.Optional );
+		ConstraintTemplate constraint2 = factory.constraints().component( "a", new BooleanConstraintTemplate( false ), Presence.Optional );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint2, value, sequenceType, scope ) );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint2, value1, sequenceType, scope ) );
 
-		ConstraintTemplate constraint3 = factory.component( "a", new BooleanConstraintTemplate( true ), Presence.Optional );
+		ConstraintTemplate constraint3 = factory.constraints().component( "a", new BooleanConstraintTemplate( true ), Presence.Optional );
 		assertFalse( "Constraint not failed", ConstraintTestUtils.checkConstraint( constraint3, value, sequenceType, scope ) );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint3, value1, sequenceType, scope ) );
 	}

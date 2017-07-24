@@ -25,11 +25,11 @@
 
 package org.asn1s.core.constraint;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -69,13 +69,13 @@ public class UnionTest
 	@Test
 	public void doTest()
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
-		DefinedType type = factory.define( "MyInt", factory.builtin( "INTEGER" ), null );
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
+		DefinedType type = factory.types().define( "MyInt", factory.types().builtin( "INTEGER" ), null );
 
-		ConstraintTemplate union = factory.elementSetSpec( items );
+		ConstraintTemplate union = factory.constraints().elementSetSpec( items );
 
-		boolean actual = ConstraintTestUtils.checkConstraint( union, factory.integer( 1 ), type, module.createScope() );
+		boolean actual = ConstraintTestUtils.checkConstraint( union, factory.values().integer( 1 ), type, module.createScope() );
 		Assert.assertEquals( title + ": failed", expectedResult, actual );
 	}
 }

@@ -25,11 +25,11 @@
 
 package org.asn1s.core.constraint;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,13 +68,13 @@ public class PatternConstraintTest
 	@Test
 	public void doTest() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
-		DefinedType type = factory.define( "MyStr", factory.builtin( "UTF8String" ), null );
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
+		DefinedType type = factory.types().define( "MyStr", factory.types().builtin( "UTF8String" ), null );
 		module.validate();
 
-		ConstraintTemplate e = factory.pattern( factory.cString( pattern ) );
-		boolean actual = ConstraintTestUtils.checkConstraint( e, factory.cString( value ), type, module.createScope() );
+		ConstraintTemplate e = factory.constraints().pattern( factory.values().cString( pattern ) );
+		boolean actual = ConstraintTestUtils.checkConstraint( e, factory.values().cString( value ), type, module.createScope() );
 		Assert.assertEquals( title + ": failed", expectedResult, actual );
 	}
 }

@@ -33,8 +33,8 @@ import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.CoreUtils;
-import org.asn1s.core.DefaultObjectFactory;
 import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.value.CoreValueFactory;
 import org.asn1s.io.Asn1Reader;
 import org.junit.Assert;
 import org.junit.Test;
@@ -54,7 +54,7 @@ public class BitStringBerDecoderTest
 		Value expected = CoreUtils.byteArrayFromBitString( "'0101'b" );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
-		     Asn1Reader reader = new DefaultBerReader( is, new DefaultObjectFactory() ) )
+		     Asn1Reader reader = new DefaultBerReader( is, new CoreValueFactory() ) )
 		{
 			Value value = reader.read( scope, type );
 			Assert.assertEquals( "Values are not equal", expected, value );

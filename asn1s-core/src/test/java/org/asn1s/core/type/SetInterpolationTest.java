@@ -33,7 +33,6 @@ import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.type.TypeFactory;
-import org.asn1s.core.DefaultObjectFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -42,7 +41,7 @@ public class SetInterpolationTest
 	@Test
 	public void testInterpolation() throws Exception
 	{
-		TypeFactory factory = new DefaultObjectFactory();
+		TypeFactory factory = new CoreTypeFactory();
 		Module module = factory.dummyModule();
 
 		Ref<Type> intRef = factory.builtin( "INTEGER" );

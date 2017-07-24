@@ -26,7 +26,7 @@
 package org.asn1s.schema;
 
 import org.asn1s.api.module.Module;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.asn1s.core.module.ModuleSet;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class SimpleParserTest
 	{
 		String schema = "MyModule DEFINITIONS AUTOMATIC TAGS ::= BEGIN MyReal ::= REAL END";
 		ModuleSet resolver = new ModuleSet();
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultObjectFactory( resolver ) );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultAsn1Factory( resolver ) );
 		Assert.assertEquals( "Exactly 1 module required", 1, modules.size() );
 		Module module = modules.get( 0 );
 		module.validate();
@@ -54,7 +54,7 @@ public class SimpleParserTest
 	{
 		String schema = "MyModule DEFINITIONS AUTOMATIC TAGS ::= BEGIN MyType ::= [TAG: APPLICATION 1] EXPLICIT REAL MyType2 ::= [2] IMPLICIT INTEGER END";
 		ModuleSet resolver = new ModuleSet();
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultObjectFactory( resolver ) );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultAsn1Factory( resolver ) );
 		Assert.assertEquals( "Exactly 1 module required", 1, modules.size() );
 		Module module = modules.get( 0 );
 		module.validate();
@@ -67,7 +67,7 @@ public class SimpleParserTest
 	{
 		String schema = "MyModule DEFINITIONS AUTOMATIC TAGS ::= BEGIN MyType ::= BIT STRING MyType2 ::= BIT STRING {a (1), b(2), c(5), d(6), e(my-val), f(4)} my-val INTEGER ::= 10  END";
 		ModuleSet resolver = new ModuleSet();
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultObjectFactory( resolver ) );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultAsn1Factory( resolver ) );
 		Assert.assertEquals( "Exactly 1 module required", 1, modules.size() );
 		Module module = modules.get( 0 );
 		module.validate();
@@ -80,7 +80,7 @@ public class SimpleParserTest
 	{
 		String schema = "MyModule DEFINITIONS AUTOMATIC TAGS ::= BEGIN MySet INTEGER ::= {1 | 2 | 3 | 4 | 5 | 10..100} MyType ::= INTEGER (MySet) value MyType ::= 1  END";
 		ModuleSet resolver = new ModuleSet();
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultObjectFactory( resolver ) );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultAsn1Factory( resolver ) );
 		for( Module module : modules )
 			module.validate();
 
@@ -100,7 +100,7 @@ public class SimpleParserTest
 				"END";
 
 		ModuleSet resolver = new ModuleSet();
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultObjectFactory( resolver ) );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultAsn1Factory( resolver ) );
 		for( Module module : modules )
 			module.validate();
 
@@ -136,7 +136,7 @@ public class SimpleParserTest
 				"END";
 
 		ModuleSet resolver = new ModuleSet();
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultObjectFactory( resolver ) );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultAsn1Factory( resolver ) );
 		for( Module module : modules )
 			module.validate();
 	}
@@ -181,7 +181,7 @@ public class SimpleParserTest
 				"END";
 
 		ModuleSet resolver = new ModuleSet();
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultObjectFactory( resolver ) );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultAsn1Factory( resolver ) );
 		for( Module module : modules )
 			module.validate();
 	}

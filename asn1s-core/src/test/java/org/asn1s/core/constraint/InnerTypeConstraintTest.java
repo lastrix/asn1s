@@ -25,7 +25,7 @@
 
 package org.asn1s.core.constraint;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Scope;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.module.Module;
@@ -33,7 +33,7 @@ import org.asn1s.api.type.CollectionOfType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.x680.ValueCollection;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -44,27 +44,27 @@ public class InnerTypeConstraintTest
 	@Test
 	public void validate() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		CollectionOfType sequenceOfType = factory.collectionOf( Family.SequenceOf );
-		sequenceOfType.setComponent( ComponentType.DUMMY, factory.builtin( "INTEGER" ) );
+		CollectionOfType sequenceOfType = factory.types().collectionOf( Family.SequenceOf );
+		sequenceOfType.setComponent( ComponentType.DUMMY, factory.types().builtin( "INTEGER" ) );
 
-		factory.define( "My-Type", sequenceOfType, null );
+		factory.types().define( "My-Type", sequenceOfType, null );
 		module.validate();
 
-		ConstraintTemplate constraint = factory.innerType( factory.value( factory.integer( 1 ) ) );
+		ConstraintTemplate constraint = factory.constraints().innerType( factory.constraints().value( factory.values().integer( 1 ) ) );
 
-		ValueCollection value = factory.collection( false );
-		value.add( factory.integer( 1 ) );
-		value.add( factory.integer( 1 ) );
-		value.add( factory.integer( 1 ) );
+		ValueCollection value = factory.values().collection( false );
+		value.add( factory.values().integer( 1 ) );
+		value.add( factory.values().integer( 1 ) );
+		value.add( factory.values().integer( 1 ) );
 		Scope scope = module.createScope();
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint, value, sequenceOfType, scope ) );
 
-		ValueCollection value2 = factory.collection( false );
-		value2.add( factory.integer( 1 ) );
-		value2.add( factory.integer( 2 ) );
+		ValueCollection value2 = factory.values().collection( false );
+		value2.add( factory.values().integer( 1 ) );
+		value2.add( factory.values().integer( 2 ) );
 		assertFalse( "Constraint not failed", ConstraintTestUtils.checkConstraint( constraint, value2, sequenceOfType, scope ) );
 	}
 

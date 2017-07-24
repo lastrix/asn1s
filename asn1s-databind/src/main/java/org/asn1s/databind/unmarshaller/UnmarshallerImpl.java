@@ -55,7 +55,7 @@ public class UnmarshallerImpl implements Unmarshaller
 
 		DefinedType asnType = mappedType.getAsnType();
 		Value value;
-		try( Asn1Reader reader = new DefaultBerReader( is, context.getObjectFactory() ) )
+		try( Asn1Reader reader = new DefaultBerReader( is, context.getAsn1Factory().values() ) )
 		{
 			value = reader.read( asnType.createScope(), asnType );
 		} catch( Exception e )

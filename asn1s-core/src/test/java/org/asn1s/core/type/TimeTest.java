@@ -25,7 +25,7 @@
 
 package org.asn1s.core.type;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
@@ -34,7 +34,7 @@ import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.StringValue;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -45,13 +45,13 @@ public class TimeTest
 	@Test
 	public void testGeneralized() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		DefinedType type = factory.define( "GenInst", UniversalType.GeneralizedTime.ref(), null );
+		DefinedType type = factory.types().define( "GenInst", UniversalType.GeneralizedTime.ref(), null );
 
-		Ref<Value> value = factory.timeValue( Instant.now() );
-		StringValue cString = factory.cString( "20170701080136.345Z" );
+		Ref<Value> value = factory.values().timeValue( Instant.now() );
+		StringValue cString = factory.values().cString( "20170701080136.345Z" );
 		module.validate();
 		Scope scope = module.createScope();
 		type.accept( scope, value );
@@ -63,13 +63,13 @@ public class TimeTest
 	@Test
 	public void testUTC() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		DefinedType type = factory.define( "GenInst", UniversalType.UTCTime.ref(), null );
+		DefinedType type = factory.types().define( "GenInst", UniversalType.UTCTime.ref(), null );
 
-		Ref<Value> value = factory.timeValue( Instant.now() );
-		StringValue cString = factory.cString( "170701081514Z" );
+		Ref<Value> value = factory.values().timeValue( Instant.now() );
+		StringValue cString = factory.values().cString( "170701081514Z" );
 		module.validate();
 		Scope scope = module.createScope();
 		type.accept( scope, value );

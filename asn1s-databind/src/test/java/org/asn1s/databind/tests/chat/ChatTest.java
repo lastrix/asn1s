@@ -26,7 +26,7 @@
 package org.asn1s.databind.tests.chat;
 
 import org.asn1s.api.module.ModuleReference;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.asn1s.core.module.ModuleImpl;
 import org.asn1s.core.module.ModuleSet;
 import org.asn1s.databind.Asn1Context;
@@ -44,7 +44,7 @@ public class ChatTest
 	{
 		ModuleSet moduleSet = new ModuleSet();
 		ModuleImpl module = new ModuleImpl( new ModuleReference( "My-Module" ), moduleSet );
-		Asn1Context context = new Asn1Context( module, new DefaultObjectFactory( moduleSet ) );
+		Asn1Context context = new Asn1Context( module, new DefaultAsn1Factory( moduleSet ) );
 		context.mapType( User.class );
 		context.mapType( Message.class );
 		module.validate();

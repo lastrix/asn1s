@@ -29,7 +29,7 @@ import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.PredictionMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.module.Module;
@@ -39,6 +39,7 @@ import org.asn1s.api.type.ClassType;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.type.TypeNameRef;
 import org.asn1s.api.util.RefUtils;
+import org.asn1s.api.value.ValueFactory;
 import org.asn1s.api.value.ValueNameRef;
 import org.asn1s.schema.Asn1ErrorListener;
 import org.asn1s.schema.parser.Asn1Lexer;
@@ -57,14 +58,14 @@ public class AbstractSyntaxParser
 	private static final Log log = LogFactory.getLog( AbstractSyntaxParser.class );
 
 	private final ModuleResolver resolver;
-	private final ObjectFactory factory;
+	private final Asn1Factory factory;
 	private final Module module;
 	private final ClassType classType;
 	private final GroupSyntaxObject root;
 	private Map<String, Ref<?>> resultMap;
 	private CommonTokenStream tokenStream;
 
-	public AbstractSyntaxParser( ModuleResolver resolver, ObjectFactory factory, Module module, ClassType classType )
+	public AbstractSyntaxParser( ModuleResolver resolver, Asn1Factory factory, Module module, ClassType classType )
 	{
 		this.resolver = resolver;
 		this.factory = factory;
@@ -162,6 +163,7 @@ public class AbstractSyntaxParser
 	private boolean consumeValueField( SyntaxObject object )
 	{
 		Token token = tokenStream.LT( 1 );
+		ValueFactory valueFactory = factory.values();
 		switch( token.getType() )
 		{
 			case Asn1Parser.Identifier:
@@ -171,27 +173,27 @@ public class AbstractSyntaxParser
 				return new BracedValueParser( object ).tryParseBraceValue();
 
 			case Asn1Parser.NumberLiteral:
-				registerFieldRef( object.getText(), factory.integer( token.getText() ) );
+				registerFieldRef( object.getText(), valueFactory.integer( token.getText() ) );
 				tokenStream.consume();
 				return true;
 
 			case Asn1Parser.RealLiteral:
-				registerFieldRef( object.getText(), factory.real( token.getText() ) );
+				registerFieldRef( object.getText(), valueFactory.real( token.getText() ) );
 				tokenStream.consume();
 				return true;
 
 			case Asn1Parser.HString:
-				registerFieldRef( object.getText(), factory.hString( token.getText() ) );
+				registerFieldRef( object.getText(), valueFactory.hString( token.getText() ) );
 				tokenStream.consume();
 				return true;
 
 			case Asn1Parser.BString:
-				registerFieldRef( object.getText(), factory.bString( token.getText() ) );
+				registerFieldRef( object.getText(), valueFactory.bString( token.getText() ) );
 				tokenStream.consume();
 				return true;
 
 			case Asn1Parser.CString:
-				registerFieldRef( object.getText(), factory.cString( token.getText() ) );
+				registerFieldRef( object.getText(), valueFactory.cString( token.getText() ) );
 				tokenStream.consume();
 				return true;
 
@@ -239,8 +241,10 @@ public class AbstractSyntaxParser
 
 			case Asn1Parser.Identifier:
 				return new ReferenceParser( object, true ).tryParseReference( token );
+
+			default:
+				throw new IllegalArgumentException( token.getText() );
 		}
-		throw new IllegalArgumentException( token.getText() );
 	}
 
 	private boolean expectNextAndRegister( int tokenType, SyntaxObject object, UniversalType type )
@@ -288,6 +292,7 @@ public class AbstractSyntaxParser
 		}
 	}
 
+	@SuppressWarnings( "NonStaticInnerClassInSecureContext" )
 	private final class BracedValueParser
 	{
 
@@ -388,6 +393,7 @@ public class AbstractSyntaxParser
 		}
 	}
 
+	@SuppressWarnings( "NonStaticInnerClassInSecureContext" )
 	private final class ReferenceParser
 	{
 		private final SyntaxObject object;

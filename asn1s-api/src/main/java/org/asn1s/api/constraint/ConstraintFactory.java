@@ -89,4 +89,7 @@ public interface ConstraintFactory
 
 	@NotNull
 	ConstraintTemplate tableConstraint( @NotNull Ref<Type> objectSet, @Nullable List<RelationItem> relationItems );
+
+	@NotNull
+	ConstraintTemplate objectSetElements( @NotNull Ref<?> source );
 }

@@ -27,13 +27,13 @@ package org.asn1s.integration;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Scope;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.asn1s.core.module.ModuleSet;
 import org.asn1s.io.Asn1Reader;
 import org.asn1s.io.Asn1Writer;
@@ -100,7 +100,7 @@ public class SuiteTest
 	public void testSchemaParse() throws Exception
 	{
 		ModuleSet resolver = new ModuleSet();
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultObjectFactory( resolver ) );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, new DefaultAsn1Factory( resolver ) );
 		Assert.assertFalse( "No modules", modules.isEmpty() );
 	}
 
@@ -108,7 +108,7 @@ public class SuiteTest
 	public void testValueParse() throws Exception
 	{
 		ModuleResolver resolver = new ModuleSet();
-		Module module = SchemaUtils.parsePdu( pdu, resolver, new DefaultObjectFactory( resolver ) );
+		Module module = SchemaUtils.parsePdu( pdu, resolver, new DefaultAsn1Factory( resolver ) );
 		Assert.assertNotNull( "Null result", module );
 		Assert.assertFalse( "No values parsed", module.getValueResolver().getValues().isEmpty() );
 	}
@@ -117,8 +117,8 @@ public class SuiteTest
 	public void testWrite() throws Exception
 	{
 		ModuleSet resolver = new ModuleSet();
-		ObjectFactory objectFactory = new DefaultObjectFactory( resolver );
-		List<Module> modules = SchemaUtils.parseModules( schema, resolver, objectFactory );
+		Asn1Factory asn1Factory = new DefaultAsn1Factory( resolver );
+		List<Module> modules = SchemaUtils.parseModules( schema, resolver, asn1Factory );
 		try
 		{
 			for( Module module : modules )
@@ -129,7 +129,7 @@ public class SuiteTest
 			Assert.fail( "Unable to validate modules" );
 		}
 
-		Module module = SchemaUtils.parsePdu( pdu, resolver, objectFactory );
+		Module module = SchemaUtils.parsePdu( pdu, resolver, asn1Factory );
 		try
 		{
 			module.validate();
@@ -154,7 +154,7 @@ public class SuiteTest
 		Assert.assertArrayEquals( "Content is not equal", pduDer, result );
 
 		Scope scope = module.createScope();
-		try( Asn1Reader reader = new DefaultBerReader( new ByteArrayInputStream( result ), objectFactory ) )
+		try( Asn1Reader reader = new DefaultBerReader( new ByteArrayInputStream( result ), asn1Factory.values() ) )
 		{
 			for( DefinedValue value : module.getValueResolver().getValues() )
 			{

@@ -25,7 +25,7 @@
 
 package org.asn1s.core.constraint;
 
-import org.asn1s.api.ObjectFactory;
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.constraint.ConstraintTemplate;
@@ -37,7 +37,7 @@ import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
-import org.asn1s.core.DefaultObjectFactory;
+import org.asn1s.core.DefaultAsn1Factory;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -50,30 +50,30 @@ public class InnerTypesConstraintTest
 	@Test
 	public void validate() throws Exception
 	{
-		ObjectFactory factory = new DefaultObjectFactory();
-		Module module = factory.dummyModule();
+		Asn1Factory factory = new DefaultAsn1Factory();
+		Module module = factory.types().dummyModule();
 
-		CollectionType sequenceType = factory.collection( Family.Sequence );
+		CollectionType sequenceType = factory.types().collection( Family.Sequence );
 		sequenceType.setExtensible( true );
-		sequenceType.addComponent( Kind.Primary, "a", factory.builtin( "INTEGER" ) ).setOptional( true );
-		sequenceType.addComponent( Kind.Primary, "b", factory.builtin( "REAL" ) );
+		sequenceType.addComponent( Kind.Primary, "a", factory.types().builtin( "INTEGER" ) ).setOptional( true );
+		sequenceType.addComponent( Kind.Primary, "b", factory.types().builtin( "REAL" ) );
 
-		DefinedType type = factory.define( "My-Type", sequenceType, null );
+		DefinedType type = factory.types().define( "My-Type", sequenceType, null );
 		module.validate();
 
-		Ref<Value> realValueRef = factory.real( 0.0f );
-		ConstraintTemplate constraint = factory.innerTypes(
-				Collections.singletonList( factory.component( "b", factory.value( realValueRef ), Presence.Present ) ),
+		Ref<Value> realValueRef = factory.values().real( 0.0f );
+		ConstraintTemplate constraint = factory.constraints().innerTypes(
+				Collections.singletonList( factory.constraints().component( "b", factory.constraints().value( realValueRef ), Presence.Present ) ),
 				false );
 
-		ValueCollection value = factory.collection( true );
+		ValueCollection value = factory.values().collection( true );
 		value.addNamed( "b", realValueRef );
 
 		Scope scope = type.createScope();
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint, value, sequenceType, scope ) );
 
-		ValueCollection value1 = factory.collection( true );
-		value1.addNamed( "a", factory.integer( 1 ) );
+		ValueCollection value1 = factory.values().collection( true );
+		value1.addNamed( "a", factory.values().integer( 1 ) );
 		value1.addNamed( "b", realValueRef );
 		assertFalse( "Constraint not failed", ConstraintTestUtils.checkConstraint( constraint, value1, sequenceType, scope ) );
 	}
