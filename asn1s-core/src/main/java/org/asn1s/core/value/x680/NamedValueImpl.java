@@ -30,14 +30,13 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.value.ByteArrayValue;
+import org.asn1s.api.value.AbstractNestingValue;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.*;
-import org.asn1s.api.value.x681.ObjectValue;
+import org.asn1s.api.value.x680.NamedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class NamedValueImpl implements NamedValue
+public class NamedValueImpl extends AbstractNestingValue implements NamedValue
 {
 	private static final String DUMMY = "#nameless";
 
@@ -53,9 +52,9 @@ public class NamedValueImpl implements NamedValue
 
 	private NamedValueImpl( @NotNull String name, @Nullable Ref<Value> valueRef, boolean resolved )
 	{
+		super( valueRef );
 		this.name = name;
-		this.valueRef = valueRef;
-		this.resolved = valueRef == null;
+		this.resolved = resolved || valueRef == null;
 	}
 
 	private final boolean resolved;
@@ -63,21 +62,12 @@ public class NamedValueImpl implements NamedValue
 	@NotNull
 	private final String name;
 
-	@Nullable
-	private final Ref<Value> valueRef;
 
 	@NotNull
 	@Override
 	public String getName()
 	{
 		return name;
-	}
-
-	@Nullable
-	@Override
-	public Ref<Value> getValueRef()
-	{
-		return valueRef;
 	}
 
 	@Override
@@ -93,9 +83,9 @@ public class NamedValueImpl implements NamedValue
 			o = (Value)namedValue.getValueRef();
 		}
 
-		if( valueRef instanceof Value )
+		if( getValueRef() instanceof Value )
 			//noinspection OverlyStrongTypeCast
-			return ( (Value)valueRef ).compareTo( o );
+			return ( (Value)getValueRef() ).compareTo( o );
 
 		throw new UnsupportedOperationException();
 	}
@@ -107,126 +97,28 @@ public class NamedValueImpl implements NamedValue
 		if( resolved )
 			return this;
 
-		assert valueRef != null;
-		if( valueRef instanceof Value )
-			return new NamedValueImpl( name, valueRef.resolve( scope ), true );
+		assert getValueRef() != null;
+		if( getValueRef() instanceof Value )
+			return new NamedValueImpl( name, getValueRef().resolve( scope ), true );
 
 		Type type = scope.getTypeOrDie();
 		NamedType namedType = type.getNamedType( name );
 		if( namedType != null )
 			scope = namedType.getScope( scope );
-		return new NamedValueImpl( name, valueRef.resolve( scope ), true );
+		return new NamedValueImpl( name, getValueRef().resolve( scope ), true );
 	}
 
 	@Override
 	public String toString()
 	{
-		return getName() + ' ' + valueRef;
+		return getName() + ' ' + getValueRef();
 	}
 
-	@Override
-	public BooleanValue toBooleanValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toBooleanValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public IntegerValue toIntegerValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toIntegerValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public RealValue toRealValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toRealValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public NullValue toNullValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toNullValue();
-
-		throw new UnsupportedOperationException();
-	}
 
 	@Override
 	public NamedValue toNamedValue()
 	{
 		return this;
-	}
-
-	@Override
-	public ValueCollection toValueCollection()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toValueCollection();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public ByteArrayValue toByteArrayValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toByteArrayValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public StringValue toStringValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toStringValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public DateValue toDateValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toDateValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public ObjectValue toObjectValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toObjectValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public ObjectIdentifierValue toObjectIdentifierValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toObjectIdentifierValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public OpenTypeValue toOpenTypeValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toOpenTypeValue();
-
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

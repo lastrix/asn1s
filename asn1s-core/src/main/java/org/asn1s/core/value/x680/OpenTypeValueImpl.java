@@ -30,13 +30,12 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.value.ByteArrayValue;
+import org.asn1s.api.value.AbstractNestingValue;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.*;
-import org.asn1s.api.value.x681.ObjectValue;
+import org.asn1s.api.value.x680.OpenTypeValue;
 import org.jetbrains.annotations.NotNull;
 
-public class OpenTypeValueImpl implements OpenTypeValue
+public class OpenTypeValueImpl extends AbstractNestingValue implements OpenTypeValue
 {
 	public OpenTypeValueImpl( @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef )
 	{
@@ -45,13 +44,12 @@ public class OpenTypeValueImpl implements OpenTypeValue
 
 	private OpenTypeValueImpl( @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef, boolean resolved )
 	{
+		super( valueRef );
 		this.typeRef = typeRef;
-		this.valueRef = valueRef;
 		this.resolved = resolved;
 	}
 
 	private final Ref<Type> typeRef;
-	private final Ref<Value> valueRef;
 	private final boolean resolved;
 
 	@Override
@@ -63,34 +61,26 @@ public class OpenTypeValueImpl implements OpenTypeValue
 	@Override
 	public Kind getReferencedKind()
 	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).getKind();
+		if( getValueRef() instanceof Value )
+			return ( (Value)getValueRef() ).getKind();
 
 		return Kind.Empty;
 	}
 
+	@NotNull
 	@Override
 	public Ref<Value> getValueRef()
 	{
+		Ref<Value> valueRef = super.getValueRef();
+		assert valueRef != null;
 		return valueRef;
 	}
 
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.OpenType )
-		{
-			OpenTypeValue openTypeValue = o.toOpenTypeValue();
-
-			if( resolved )
-			{
-				if( getReferencedKind() == openTypeValue.getReferencedKind() )
-					//noinspection OverlyStrongTypeCast
-					return ( (Value)valueRef ).compareTo( (Value)openTypeValue.getValueRef() );
-			}
-			else
-				return getReferencedKind().compareTo( openTypeValue.getReferencedKind() );
-		}
+		if( resolved && o.getKind() == Kind.OpenType && getReferencedKind() == o.toOpenTypeValue().getReferencedKind() )
+			return ( (Value)getValueRef() ).compareTo( (Value)o.toOpenTypeValue().getValueRef() );
 
 		return getKind().compareTo( o.getKind() );
 	}
@@ -107,110 +97,17 @@ public class OpenTypeValueImpl implements OpenTypeValue
 			if( !type.isValidated() )
 				type.validate( scope );
 
-			return new OpenTypeValueImpl( type, type.optimize( scope, valueRef ), true );
+			return new OpenTypeValueImpl( type, type.optimize( scope, getValueRef() ), true );
 		} catch( ValidationException e )
 		{
-			throw new ResolutionException( "Unable to validate value: " + valueRef, e );
+			throw new ResolutionException( "Unable to validate value: " + getValueRef(), e );
 		}
 	}
 
 	@Override
-	public BooleanValue toBooleanValue()
+	public OpenTypeValue toOpenTypeValue()
 	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toBooleanValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public IntegerValue toIntegerValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toIntegerValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public RealValue toRealValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toRealValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public NullValue toNullValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toNullValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public NamedValue toNamedValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toNamedValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public ValueCollection toValueCollection()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toValueCollection();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public ByteArrayValue toByteArrayValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toByteArrayValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public StringValue toStringValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toStringValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public DateValue toDateValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toDateValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public ObjectValue toObjectValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toObjectValue();
-
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public ObjectIdentifierValue toObjectIdentifierValue()
-	{
-		if( valueRef instanceof Value )
-			return ( (Value)valueRef ).toObjectIdentifierValue();
-
-		throw new UnsupportedOperationException();
+		return this;
 	}
 
 	@Override
@@ -238,7 +135,7 @@ public class OpenTypeValueImpl implements OpenTypeValue
 	public String toString()
 	{
 		if( resolved )
-			return typeRef + " : " + valueRef;
-		return "[" + typeRef + " : " + valueRef + ']';
+			return typeRef + " : " + getValueRef();
+		return "[" + typeRef + " : " + getValueRef() + ']';
 	}
 }
