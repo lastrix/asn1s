@@ -39,8 +39,10 @@ abstract class AbstractTimeBerDecoder implements BerDecoder
 	public final Value decode( @NotNull ReaderContext context ) throws IOException
 	{
 		assert context.getType().getFamily() == getRequiredFamily();
-		String timeString = new String( BerDecoderUtils.readString( context.getReader(), context.getLength() ), TimeUtils.CHARSET );
-		return context.getValueFactory().timeValue( parseValue( timeString ) );
+		byte[] bytes = BerDecoderUtils.readString( context.getReader(), context.getLength() );
+		String timeString = new String( bytes, TimeUtils.CHARSET );
+		Instant value = parseValue( timeString );
+		return context.getValueFactory().timeValue( value );
 	}
 
 	@NotNull
