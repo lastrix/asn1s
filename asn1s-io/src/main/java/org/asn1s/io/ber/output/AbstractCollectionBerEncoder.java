@@ -49,24 +49,25 @@ abstract class AbstractCollectionBerEncoder implements BerEncoder
 		assert context.getType().getFamily() == getRequiredFamily();
 		assert context.getValue().getKind() == Kind.NamedCollection || context.getValue().getKind() == Kind.Collection && context.getValue().toValueCollection().isEmpty();
 
-		Tag tag = getTag( context.getType() );
-
-		if( !context.isWriteHeader() )
+		if( context.isWriteHeader() )
+		{
+			if( context.getRules() == BerRules.Der && !context.isBufferingAvailable() )
+				throw new Asn1Exception( "Buffering is required for DER rules" );
+			encodeWithHeader( context );
+		}
+		else
 			writeCollectionValues( context, getValues( context ) );
-		else if( context.isBufferingAvailable() )
+	}
+
+	private void encodeWithHeader( WriterContext context ) throws Asn1Exception, IOException
+	{
+		Tag tag = getTag( context.getType() );
+		if( context.isBufferingAvailable() )
 		{
 			context.startBuffer( -1 );
 			writeCollectionValues( context, getValues( context ) );
 			context.stopBuffer( tag );
 		}
-		else
-			encodeNoBuffering( context, tag );
-	}
-
-	private void encodeNoBuffering( @NotNull WriterContext context, Tag tag ) throws Asn1Exception, IOException
-	{
-		if( context.getRules() == BerRules.Der )
-			throw new Asn1Exception( "Buffering is required for DER rules" );
 		else
 		{
 			context.writeHeader( tag, -1 );
