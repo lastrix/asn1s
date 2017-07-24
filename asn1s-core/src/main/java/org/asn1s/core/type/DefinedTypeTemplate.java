@@ -33,9 +33,7 @@ import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
-import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
 import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -80,25 +78,13 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	}
 
 	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
-	{
-		getType().accept( getScope( scope ), valueRef );
-	}
-
-	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
 		if( isTemplate() )
 			throw new ValidationException( "Unable to validate templates" );
 
 		scope = getScope( scope );
-		if( getType() == null )
-			setType( getReference().resolve( scope ) );
-
-		if( !( getType() instanceof DefinedType ) )
-			getType().setNamespace( getFullyQualifiedName() + '.' );
-		getType().validate( scope );
-
+		super.onValidate( scope );
 		CoreUtils.assertParameterMap( scope, parameterMap );
 	}
 
@@ -112,8 +98,7 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	@NotNull
 	private DefinedTypeTemplate copy( boolean template )
 	{
-		Ref<Type> subType = Objects.equals( getReference(), getType() ) ? getType().copy() : getReference();
-		return new DefinedTypeTemplate( getModule(), getName(), subType, parameterMap.values(), template );
+		return new DefinedTypeTemplate( getModule(), getName(), cloneSibling(), parameterMap.values(), template );
 	}
 
 	@Override

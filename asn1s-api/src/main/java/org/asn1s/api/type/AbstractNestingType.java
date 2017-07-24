@@ -23,101 +23,139 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.type;
+package org.asn1s.api.type;
 
+import org.asn1s.api.Disposable;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.constraint.Constraint;
-import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.constraint.ElementSetSpecs;
+import org.asn1s.api.encoding.EncodingInstructions;
+import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.AbstractNestingType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.x680.NamedValue;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public final class ConstrainedType extends AbstractNestingType
+import java.util.Collection;
+import java.util.List;
+
+public abstract class AbstractNestingType extends AbstractType
 {
-	public ConstrainedType( @NotNull ConstraintTemplate constraintTemplate, @NotNull Ref<Type> reference )
+	protected AbstractNestingType( Ref<Type> siblingRef )
 	{
-		super( reference );
-		this.constraintTemplate = constraintTemplate;
+		this.siblingRef = siblingRef;
 	}
 
-	private ConstraintTemplate constraintTemplate;
-	private Constraint constraint;
+	private Ref<Type> siblingRef;
+	private Type sibling;
+
+	public Ref<Type> getSiblingRef()
+	{
+		return siblingRef;
+	}
 
 	@NotNull
 	@Override
-	public Scope getScope( @NotNull Scope parentScope )
+	public Type getSibling()
 	{
-		constraint.setScopeOptions( parentScope );
-		return parentScope;
+		return sibling;
 	}
 
 	@Override
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
-		scope = getScope( scope );
-		getSibling().accept( scope, valueRef );
-		constraint.check( scope, valueRef );
+		sibling.accept( getScope( scope ), valueRef );
 	}
 
 	@NotNull
 	@Override
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
-		scope = getScope( scope );
-		Value value = getSibling().optimize( scope, valueRef );
-		constraint.check( scope, value );
-		return value;
+		return sibling.optimize( getScope( scope ), valueRef );
 	}
 
 	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
+	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
-		scope = getScope( scope );
-		super.onValidate( scope );
-		constraint = constraintTemplate.build( scope, getSibling() );
+		sibling = siblingRef.resolve( scope );
+		if( !( sibling instanceof DefinedType ) )
+			sibling.setNamespace( getNamespace() );
+		sibling.validate( scope );
 	}
 
 	@NotNull
 	@Override
-	public Type copy()
+	public Family getFamily()
 	{
-		return new ConstrainedType( constraintTemplate, cloneSibling() );
+		return getSibling().getFamily();
+	}
+
+	@Nullable
+	@Override
+	public NamedType getNamedType( @NotNull String name )
+	{
+		return getSibling().getNamedType( name );
+	}
+
+	@NotNull
+	@Override
+	public List<? extends NamedType> getNamedTypes()
+	{
+		return getSibling().getNamedTypes();
 	}
 
 	@Override
-	public String toString()
+	public boolean isConstructedValue( Scope scope, Value value )
 	{
-		return getSiblingRef() + " " + constraint;
+		return getSibling().isConstructedValue( scope, value );
+	}
+
+	@Nullable
+	@Override
+	public NamedValue getNamedValue( @NotNull String name )
+	{
+		return getSibling().getNamedValue( name );
+	}
+
+	@NotNull
+	@Override
+	public Collection<NamedValue> getNamedValues()
+	{
+		return getSibling().getNamedValues();
 	}
 
 	@Override
-	protected void onDispose()
+	public IEncoding getEncoding( EncodingInstructions instructions )
 	{
-		super.onDispose();
-		constraintTemplate = null;
-		constraint = null;
+		return getSibling().getEncoding( instructions );
+	}
+
+	protected Ref<Type> cloneSibling()
+	{
+		return siblingRef instanceof Type ? ( (Type)siblingRef ).copy() : siblingRef;
 	}
 
 	@Override
 	public ElementSetSpecs asElementSetSpecs()
 	{
-		return (ElementSetSpecs)constraint;
-	}
-
-	@Override
-	public boolean hasConstraint()
-	{
-		return true;
+		return getSibling().asElementSetSpecs();
 	}
 
 	@Override
 	public boolean hasElementSetSpecs()
 	{
-		return constraint instanceof ElementSetSpecs;
+		return getSibling().hasElementSetSpecs();
+	}
+
+	@Override
+	protected void onDispose()
+	{
+		if( siblingRef instanceof Disposable && !( siblingRef instanceof DefinedType ) )
+			( (Disposable)siblingRef ).dispose();
+
+		siblingRef = null;
+		sibling = null;
 	}
 }

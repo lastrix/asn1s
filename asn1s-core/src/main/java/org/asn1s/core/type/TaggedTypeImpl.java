@@ -27,39 +27,35 @@ package org.asn1s.core.type;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.constraint.ElementSetSpecs;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.*;
+import org.asn1s.api.type.AbstractNestingType;
+import org.asn1s.api.type.TaggedType;
+import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.NamedValue;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.EnumMap;
+import java.util.Map;
 
 /**
  * Defines type that has an encoding override
  */
-public final class TaggedTypeImpl extends AbstractType implements TaggedType
+public final class TaggedTypeImpl extends AbstractNestingType implements TaggedType
 {
 	public TaggedTypeImpl( @NotNull IEncoding encoding, @NotNull Ref<Type> reference )
 	{
+		super( reference );
 		instructions = encoding.getEncodingInstructions();
 		setEncoding( encoding );
-		this.reference = reference;
-		if( reference instanceof Type )
-			type = (Type)reference;
 	}
 
 	private final EncodingInstructions instructions;
 	private final Map<EncodingInstructions, IEncoding> encodingMap = new EnumMap<>( EncodingInstructions.class );
-	private Ref<Type> reference;
-	private Type type;
 
 	@Override
 	public EncodingInstructions getInstructions()
@@ -78,25 +74,6 @@ public final class TaggedTypeImpl extends AbstractType implements TaggedType
 		encodingMap.put( encoding.getEncodingInstructions(), encoding );
 	}
 
-	@Nullable
-	@Override
-	public Type getSibling()
-	{
-		return type;
-	}
-
-	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
-	{
-		type.accept( scope, valueRef );
-	}
-
-	@NotNull
-	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
-	{
-		return type.optimize( scope, valueRef );
-	}
 
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
@@ -106,55 +83,11 @@ public final class TaggedTypeImpl extends AbstractType implements TaggedType
 		if( !( encoding instanceof TagEncoding ) )
 			throw new UnsupportedOperationException();
 
-		if( type == null )
-			type = reference.resolve( scope );
-
-		if( !( type instanceof DefinedType ) )
-			type.setNamespace( getNamespace() );
-		type.validate( scope );
+		super.onValidate( scope );
 
 		TagEncoding enc = (TagEncoding)encoding;
-		if( enc.getTagMethod() == TagMethod.Implicit && type.getFamily() == Family.Choice )
+		if( enc.getTagMethod() == TagMethod.Implicit && getSibling().getFamily() == Family.Choice )
 			setEncoding( TagEncoding.create( enc.getModuleTagMethod(), TagMethod.Explicit, enc.getTagClass(), enc.getTagNumber() ) );
-	}
-
-	@Nullable
-	@Override
-	public NamedType getNamedType( @NotNull String name )
-	{
-		if( type == null )
-			return null;
-		return type.getNamedType( name );
-	}
-
-	@NotNull
-	@Override
-	public List<? extends NamedType> getNamedTypes()
-	{
-		return type.getNamedTypes();
-	}
-
-	@Nullable
-	@Override
-	public NamedValue getNamedValue( @NotNull String name )
-	{
-		return type.getNamedValue( name );
-	}
-
-	@NotNull
-	@Override
-	public Collection<NamedValue> getNamedValues()
-	{
-		return type.getNamedValues();
-	}
-
-	@NotNull
-	@Override
-	public Family getFamily()
-	{
-		if( type == null )
-			throw new IllegalStateException();
-		return type.getFamily();
 	}
 
 	@Override
@@ -172,7 +105,7 @@ public final class TaggedTypeImpl extends AbstractType implements TaggedType
 	@Override
 	public String toString()
 	{
-		return getEncoding( getInstructions() ) + " " + reference;
+		return getEncoding( getInstructions() ) + " " + getSiblingRef();
 	}
 
 	@NotNull
@@ -183,14 +116,13 @@ public final class TaggedTypeImpl extends AbstractType implements TaggedType
 		if( encoding == null )
 			throw new IllegalStateException();
 
-		Ref<Type> sub = Objects.equals( reference, type ) ? type.copy() : reference;
-		return new TaggedTypeImpl( encoding, sub );
+		return new TaggedTypeImpl( encoding, cloneSibling() );
 	}
 
 	@Override
 	public boolean isConstructedValue( Scope scope, Value value )
 	{
-		Type thisType = type;
+		Type thisType = getSibling();
 		while( thisType != null )
 		{
 			if( thisType instanceof TaggedTypeImpl )
@@ -214,21 +146,8 @@ public final class TaggedTypeImpl extends AbstractType implements TaggedType
 	}
 
 	@Override
-	public ElementSetSpecs asElementSetSpecs()
-	{
-		return type.asElementSetSpecs();
-	}
-
-	@Override
-	public boolean hasElementSetSpecs()
-	{
-		return type.hasElementSetSpecs();
-	}
-
-	@Override
 	protected void onDispose()
 	{
-		reference = null;
-		type = null;
+		encodingMap.clear();
 	}
 }
