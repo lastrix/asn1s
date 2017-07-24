@@ -38,6 +38,7 @@ import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.type.TypeFactory;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
@@ -122,9 +123,9 @@ public class DefaultBerWriterTest
 		Module module = factory.dummyModule();
 		Scope scope = module.createScope();
 
-		CollectionType choiceType = factory.collection( CollectionType.Kind.Choice );
+		CollectionType choiceType = factory.collection( Family.Choice );
 
-		CollectionType sequenceType = factory.collection( CollectionType.Kind.Sequence );
+		CollectionType sequenceType = factory.collection( Family.Sequence );
 		sequenceType.addComponent( Kind.Primary, "a", UniversalType.Integer.ref(), false, null );
 		sequenceType.addComponent( Kind.Primary, "b", UniversalType.Real.ref(), false, null );
 

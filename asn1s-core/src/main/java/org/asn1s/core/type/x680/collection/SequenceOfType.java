@@ -27,13 +27,21 @@ package org.asn1s.core.type.x680.collection;
 
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.TagEncoding;
+import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.Type;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SequenceOfType extends AbstractCollectionOfType
 {
 	public SequenceOfType()
 	{
-		super( Kind.SequenceOf );
+		this( null );
+	}
+
+	private SequenceOfType( @Nullable ComponentType sourceComponentType )
+	{
+		super( sourceComponentType );
 		setEncoding( TagEncoding.universal( UniversalType.Sequence ) );
 	}
 
@@ -44,10 +52,11 @@ public class SequenceOfType extends AbstractCollectionOfType
 		return Family.SequenceOf;
 	}
 
+	@NotNull
 	@Override
-	protected AbstractCollectionType onCopy()
+	public Type copy()
 	{
-		return new SequenceOfType();
+		return new SequenceOfType( getSourceComponentType().copy() );
 	}
 
 	@Override

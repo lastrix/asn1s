@@ -45,28 +45,25 @@ abstract class AbstractComponentInterpolator
 {
 	private final Scope scope;
 	private final AbstractCollectionType type;
-	private final boolean applyAutomaticTags;
 	private final Map<String, Family> componentFamilyMap = new HashMap<>();
 
 	AbstractComponentInterpolator( Scope scope, AbstractCollectionType type )
 	{
 		this.scope = scope;
 		this.type = type;
-		applyAutomaticTags = type.isAutomaticTags() && mayUseAutomaticTags( type );
 	}
 
-	private static boolean mayUseAutomaticTags( @NotNull AbstractCollectionType collectionType )
+	private boolean mayUseAutomaticTags( @NotNull Iterable<ComponentType> componentTypes )
 	{
-		for( Type type : collectionType.getComponents() )
+		String namespace = type.getNamespace();
+		for( ComponentType componentType : componentTypes )
 		{
-			if( type instanceof ComponentType && ( (ComponentType)type ).isExplicitlyTagged() )
+			if( componentType.getNamespace() == null )
+				throw new IllegalStateException();
+			if( componentType.getNamespace().equals( namespace ) && componentType.isExplicitlyTagged() )
 				return false;
 		}
-		for( Type type : collectionType.getComponentsLast() )
-		{
-			if( type instanceof ComponentType && ( (ComponentType)type ).isExplicitlyTagged() )
-				return false;
-		}
+
 		return true;
 	}
 
@@ -84,10 +81,22 @@ abstract class AbstractComponentInterpolator
 
 	List<ComponentType> interpolate() throws ValidationException, ResolutionException
 	{
+		validateComponents( type.getComponents() );
+		validateComponents( type.getExtensions() );
+		validateComponents( type.getComponentsLast() );
 		new CollectionValidator( getType() ).validate();
 		List<ComponentType> components = interpolateComponents();
 		assertTagAmbiguity( components );
 		return components;
+	}
+
+	private void validateComponents( Iterable<Type> components ) throws ResolutionException, ValidationException
+	{
+		for( Type component : components )
+		{
+			component.setNamespace( type.getNamespace() );
+			component.validate( scope );
+		}
 	}
 
 	@NotNull
@@ -97,12 +106,7 @@ abstract class AbstractComponentInterpolator
 		for( ComponentType component : components )
 			component.validate( getScope() );
 
-		return isApplyAutomaticTags() ? new ComponentTagger( componentFamilyMap, components, getScope() ).applyAutomaticTags() : components;
-	}
-
-	private boolean isApplyAutomaticTags()
-	{
-		return applyAutomaticTags;
+		return type.isAutomaticTags() && mayUseAutomaticTags( components ) ? new ComponentTagger( componentFamilyMap, components, getScope() ).applyAutomaticTags() : components;
 	}
 
 	private static final class ComponentsBuilder
@@ -195,16 +199,16 @@ abstract class AbstractComponentInterpolator
 		}
 
 		@NotNull
-		private ComponentType createComponentType( ComponentType source, int version, int index )
+		private static ComponentType createComponentType( ComponentType source, int version, int index )
 		{
-			ComponentType componentType =
+			ComponentTypeImpl componentType =
 					new ComponentTypeImpl( index == -1 ? source.getIndex() : index,
-					                       version,
 					                       source.getComponentName(),
-					                       source.getComponentTypeRef(),
-					                       source.isOptional(),
-					                       source.getDefaultValueRef() );
-			componentType.setNamespace( type.getNamespace() );
+					                       source.getComponentTypeRef() );
+			componentType.setVersion( version );
+			componentType.setOptional( source.isOptional() );
+			componentType.setDefaultValueRef( source.getDefaultValueRef() );
+			componentType.setNamespace( source.getNamespace() );
 			return componentType;
 		}
 	}
@@ -340,15 +344,17 @@ abstract class AbstractComponentInterpolator
 		private ComponentType applyTagNumber( ComponentType component ) throws ResolutionException, ValidationException
 		{
 			TagMethod method = selectTagMethod( component );
-			TaggedTypeImpl subType = new TaggedTypeImpl( TagEncoding.context( tagNumber, method ), component.getComponentTypeRef() );
+			TaggedTypeImpl subType =
+					new TaggedTypeImpl( TagEncoding.context( tagNumber, method ), component.getComponentTypeRef() );
 			subType.setNamespace( component.getNamespace() );
 			tagNumber++;
-			ComponentType taggedComponent = new ComponentTypeImpl( component.getIndex(),
-			                                                       component.getVersion(),
-			                                                       component.getComponentName(),
-			                                                       subType,
-			                                                       component.isOptional(),
-			                                                       component.getDefaultValueRef() );
+			ComponentTypeImpl taggedComponent =
+					new ComponentTypeImpl( component.getIndex(),
+					                       component.getComponentName(),
+					                       subType );
+			taggedComponent.setVersion( component.getVersion() );
+			taggedComponent.setOptional( component.isOptional() );
+			taggedComponent.setDefaultValueRef( component.getDefaultValueRef() );
 			taggedComponent.setNamespace( component.getNamespace() );
 			taggedComponent.validate( scope );
 			return taggedComponent;

@@ -33,7 +33,6 @@ import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleReference;
-import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
@@ -86,7 +85,10 @@ public interface TypeFactory
 	Enumerated enumerated();
 
 	@NotNull
-	CollectionType collection( @NotNull Kind collectionKind );
+	CollectionType collection( @NotNull Family collectionFamily );
+
+	@NotNull
+	CollectionOfType collectionOf( @NotNull Family collectionFamily );
 
 	@NotNull
 	CollectionTypeExtensionGroup extensionGroup( @NotNull Family requiredFamily );

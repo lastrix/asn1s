@@ -49,7 +49,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class SequenceBerEncoderTest
 {
@@ -63,6 +64,7 @@ public class SequenceBerEncoderTest
 		SequenceType type = new SequenceType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -91,6 +93,7 @@ public class SequenceBerEncoderTest
 		SequenceType type = new SequenceType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -119,6 +122,7 @@ public class SequenceBerEncoderTest
 		SequenceType type = new SequenceType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -141,6 +145,7 @@ public class SequenceBerEncoderTest
 		SequenceType type = new SequenceType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -155,29 +160,7 @@ public class SequenceBerEncoderTest
 		}
 	}
 
-	@Test( expected = IllegalValueException.class )
-	public void testWriteSet_NoHeader_NonExtensible() throws Exception
-	{
-		Scope scope = CoreModule.getInstance().createScope();
-		SequenceType type = new SequenceType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
-		type.validate( scope );
-		ComponentType componentA = type.getNamedType( "a" );
-		Assert.assertNotNull( "No component a", componentA );
-		ValueCollection value = new ValueCollectionImpl( true );
-		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
-		value.add( namedValue );
-		value.addNamed( "c", new RealValueFloat( 0.0f ) );
-		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
-		{
-			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
-			fail( "Must fail" );
-		}
-	}
-
-	@Test( expected = IllegalValueException.class )
+	@Test
 	public void testWriteSet_NoHeader_Extensible() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
@@ -185,6 +168,7 @@ public class SequenceBerEncoderTest
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
 		type.setExtensible( true );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -192,13 +176,11 @@ public class SequenceBerEncoderTest
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
 		value.addNamed( "c", new RealValueFloat( 0.0f ) );
-		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Ber );
 			new SequenceBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
-			verify( writer, times( 1 ) ).getRules();
-			verify( writer ).writeInternal( any() );
-			verifyNoMoreInteractions( writer );
+			byte[] bytes = writer.toByteArray();
+			Assert.assertArrayEquals( "Arrays are not equal", new byte[]{(byte)0x80, 0x01, 0x00}, bytes );
 		}
 	}
 
@@ -210,6 +192,7 @@ public class SequenceBerEncoderTest
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -233,6 +216,7 @@ public class SequenceBerEncoderTest
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -259,6 +243,7 @@ public class SequenceBerEncoderTest
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );

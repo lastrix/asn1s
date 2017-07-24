@@ -34,14 +34,13 @@ import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.type.CollectionType;
-import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.TaggedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.io.Asn1Writer;
 import org.asn1s.io.ber.BerRules;
@@ -126,7 +125,7 @@ abstract class AbstractBerWriter implements Asn1Writer
 
 		if( type.isTagged() && ( (TaggedType)type ).getInstructions() == EncodingInstructions.Tag )
 			writeTaggedType( context );
-		else if( type instanceof CollectionType && ( (CollectionType)type ).getKind() == Kind.Choice )
+		else if( type.getFamily() == Family.Choice )
 			writeChoiceType( context );
 		else if( type.getSibling() != null )
 			writeInternal( context.toSiblingContext( context.isWriteHeader() ) );
@@ -219,14 +218,14 @@ abstract class AbstractBerWriter implements Asn1Writer
 		boolean constructed =
 				encoding.getTagMethod() != TagMethod.Implicit
 						|| context.getType().isConstructedValue( context.getScope(), context.getValue() )
-						|| context.getValue().getKind() == Value.Kind.OpenType;
+						|| context.getValue().getKind() == Kind.OpenType;
 		Tag tag = new Tag( encoding.getTagClass(), constructed, encoding.getTagNumber() );
 		if( !context.isWriteHeader() )
 			writeInternal( context.toSiblingContext( encoding.getTagMethod() == TagMethod.Explicit ) );
 		else if( isBufferingAvailable() )
 		{
 			startBuffer( -1 );
-			writeInternal( context.toSiblingContext( encoding.getTagMethod() != TagMethod.Implicit || context.getValue().getKind() == Value.Kind.OpenType ) );
+			writeInternal( context.toSiblingContext( encoding.getTagMethod() != TagMethod.Implicit || context.getValue().getKind() == Kind.OpenType ) );
 			stopBuffer( tag );
 		}
 		else if( getRules() == BerRules.Der )
@@ -246,7 +245,7 @@ abstract class AbstractBerWriter implements Asn1Writer
 		context.getScope().setValueLevel( context.getValue() );
 
 		NamedValue namedValue = context.getValue().toNamedValue();
-		ComponentType componentType = ( (CollectionType)context.getType() ).getComponent( namedValue.getName(), true );
+		ComponentType componentType = (ComponentType)context.getType().getNamedType( namedValue.getName() );
 		if( componentType == null )
 			throw new ResolutionException( "Unknown component: " + namedValue.getName() );
 

@@ -34,6 +34,7 @@ import org.asn1s.api.module.Module;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.DefinedType;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.DefaultObjectFactory;
@@ -52,7 +53,7 @@ public class InnerTypesConstraintTest
 		ObjectFactory factory = new DefaultObjectFactory();
 		Module module = factory.dummyModule();
 
-		CollectionType sequenceType = factory.collection( CollectionType.Kind.Sequence );
+		CollectionType sequenceType = factory.collection( Family.Sequence );
 		sequenceType.setExtensible( true );
 		sequenceType.addComponent( Kind.Primary, "a", factory.builtin( "INTEGER" ), true, null );
 		sequenceType.addComponent( Kind.Primary, "b", factory.builtin( "REAL" ), false, null );

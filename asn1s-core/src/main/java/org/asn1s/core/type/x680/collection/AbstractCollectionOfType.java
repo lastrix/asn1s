@@ -32,21 +32,57 @@ import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.CollectionOfType;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.type.Type;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x680.ValueCollection;
+import org.asn1s.core.type.BuiltinType;
 import org.asn1s.core.value.x680.ValueCollectionImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 
-abstract class AbstractCollectionOfType extends AbstractCollectionType implements CollectionOfType
+abstract class AbstractCollectionOfType extends BuiltinType implements CollectionOfType
 {
-	AbstractCollectionOfType( @NotNull Kind kind )
+	AbstractCollectionOfType( @Nullable ComponentType sourceComponentType )
 	{
-		super( kind, false );
+		this.sourceComponentType = sourceComponentType;
+	}
+
+	private ComponentType sourceComponentType;
+	private ComponentType actualComponentType;
+
+	@Override
+	public void setComponent( @NotNull String componentName, @NotNull Ref<Type> componentTypeRef )
+	{
+		if( sourceComponentType != null )
+			throw new IllegalStateException( "Source component type already set" );
+
+		sourceComponentType = new ComponentTypeImpl( 0, componentName, componentTypeRef );
+	}
+
+	ComponentType getSourceComponentType()
+	{
+		return sourceComponentType;
+	}
+
+	@Nullable
+	@Override
+	public NamedType getNamedType( @NotNull String name )
+	{
+		return name.equals( actualComponentType.getComponentName() ) ? actualComponentType : null;
+	}
+
+	@NotNull
+	@Override
+	public List<? extends NamedType> getNamedTypes()
+	{
+		return Collections.singletonList( actualComponentType );
 	}
 
 	@Override
@@ -54,28 +90,25 @@ abstract class AbstractCollectionOfType extends AbstractCollectionType implement
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() != Value.Kind.Collection && value.getKind() != Value.Kind.NamedCollection )
+		if( value.getKind() != Kind.Collection && value.getKind() != Kind.NamedCollection )
 			throw new IllegalValueException( "Unable to accept value of kind: " + value.getKind() );
 
 		ComponentType componentType = getComponentType();
-		if( componentType == null )
-			throw new IllegalStateException();
-
 		boolean isDummy = componentType.isDummy();
 
-		if( value.getKind() == Value.Kind.Collection && isDummy )
+		if( value.getKind() == Kind.Collection && isDummy )
 		{
 			scope.setValueLevel( value );
 			for( Ref<Value> ref : value.toValueCollection().asValueList() )
 				componentType.accept( scope, ref );
 		}
-		else if( value.getKind() == Value.Kind.NamedCollection && !isDummy )
+		else if( value.getKind() == Kind.NamedCollection && !isDummy )
 		{
 			scope.setValueLevel( value );
 			for( NamedValue ref : value.toValueCollection().asNamedValueList() )
 				componentType.accept( scope, ref );
 		}
-		else if( value.getKind() != Value.Kind.NamedCollection && !value.toValueCollection().isEmpty() )
+		else if( value.getKind() != Kind.NamedCollection && !value.toValueCollection().isEmpty() )
 			throw new IllegalValueException( "Unable to accept value: " + valueRef );
 	}
 
@@ -85,22 +118,19 @@ abstract class AbstractCollectionOfType extends AbstractCollectionType implement
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Value.Kind.Collection )
+		if( value.getKind() == Kind.Collection )
 			return optimizeCollection( scope, value.toValueCollection() );
 
-		if( value.getKind() == Value.Kind.NamedCollection )
+		if( value.getKind() == Kind.NamedCollection )
 			return optimizeNamedCollection( scope, value.toValueCollection() );
 
 		ComponentType componentType = getComponentType();
-		assert componentType != null;
 		return componentType.optimize( scope, valueRef );
 	}
 
 	private Value optimizeNamedCollection( Scope scope, ValueCollection collection ) throws ResolutionException, ValidationException
 	{
 		ComponentType componentType = getComponentType();
-		assert componentType != null;
-
 		ValueCollection result = new ValueCollectionImpl( false );
 		scope.setValueLevel( result );
 		for( NamedValue value : collection.asNamedValueList() )
@@ -117,8 +147,6 @@ abstract class AbstractCollectionOfType extends AbstractCollectionType implement
 	private Value optimizeCollection( Scope scope, ValueCollection collection ) throws ResolutionException, ValidationException
 	{
 		ComponentType componentType = getComponentType();
-		assert componentType != null;
-
 		ValueCollection result = new ValueCollectionImpl( false );
 		scope.setValueLevel( result );
 		for( Ref<Value> ref : collection.asValueList() )
@@ -127,11 +155,46 @@ abstract class AbstractCollectionOfType extends AbstractCollectionType implement
 		return result;
 	}
 
-	@Nullable
+	@NotNull
 	@Override
 	public ComponentType getComponentType()
 	{
-		List<ComponentType> actualComponents = getComponents( true );
-		return actualComponents.isEmpty() ? null : actualComponents.get( 0 );
+		return actualComponentType;
+	}
+
+	@Override
+	public boolean isConstructedValue( Scope scope, Value value )
+	{
+		return value.getKind() == Kind.Collection;
+	}
+
+	@Override
+	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
+	{
+		actualComponentType = interpolateSingleComponent( scope );
+	}
+
+	@NotNull
+	private ComponentType interpolateSingleComponent( @NotNull Scope scope ) throws ValidationException, ResolutionException
+	{
+		ComponentType componentType = new ComponentTypeImpl( sourceComponentType, 1 );
+		componentType.validate( scope );
+		return componentType;
+	}
+
+	@Override
+	protected void onDispose()
+	{
+		if( sourceComponentType != null )
+		{
+			sourceComponentType.dispose();
+			sourceComponentType = null;
+		}
+
+		if( actualComponentType != null )
+		{
+			actualComponentType.dispose();
+			actualComponentType = null;
+		}
 	}
 }

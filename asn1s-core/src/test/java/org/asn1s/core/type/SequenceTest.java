@@ -59,7 +59,7 @@ public class SequenceTest
 		Module module = factory.dummyModule();
 
 		Ref<Type> intType = factory.builtin( "INTEGER" );
-		CollectionType sequenceType = factory.collection( CollectionType.Kind.Sequence );
+		CollectionType sequenceType = factory.collection( Type.Family.Sequence );
 		sequenceType.addComponent( Kind.Primary, "a", intType, true, null );
 		sequenceType.addComponent( Kind.Primary, "b", intType, true, null );
 		sequenceType.addComponent( Kind.Extension, "c", intType, true, null );
@@ -82,7 +82,7 @@ public class SequenceTest
 		Module module = factory.dummyModule();
 
 		Ref<Type> intType = factory.builtin( "INTEGER" );
-		CollectionType sequenceType = factory.collection( CollectionType.Kind.Sequence );
+		CollectionType sequenceType = factory.collection( Type.Family.Sequence );
 		sequenceType.addComponent( Kind.Primary, "a", intType, true, null );
 		sequenceType.addComponent( Kind.Primary, "b", intType, true, null );
 		sequenceType.addComponent( Kind.Extension, "c", intType, true, null );
@@ -108,7 +108,7 @@ public class SequenceTest
 		Module module = factory.dummyModule();
 
 		Ref<Type> intType = factory.builtin( "INTEGER" );
-		CollectionType sequenceType = factory.collection( CollectionType.Kind.Sequence );
+		CollectionType sequenceType = factory.collection( Type.Family.Sequence );
 		sequenceType.addComponent( Kind.Primary, "a", intType, true, null );
 		sequenceType.addComponent( Kind.Primary, "b", intType, true, null );
 		sequenceType.addComponent( Kind.Extension, "c", intType, true, null );

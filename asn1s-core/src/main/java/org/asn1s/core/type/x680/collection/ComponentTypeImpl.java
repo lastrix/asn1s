@@ -31,11 +31,7 @@ import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.AbstractComponentType;
-import org.asn1s.api.type.DefinedType;
-import org.asn1s.api.type.TaggedType;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.util.RefUtils;
+import org.asn1s.api.type.*;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.core.value.x680.NamedValueImpl;
@@ -48,15 +44,17 @@ import org.jetbrains.annotations.Nullable;
  */
 final class ComponentTypeImpl extends AbstractComponentType
 {
-	ComponentTypeImpl( int index, int version, @NotNull String name, @NotNull Ref<Type> componentTypeRef, boolean optional, @Nullable Ref<Value> defaultValueRef )
+	ComponentTypeImpl( int index, @NotNull String name, @NotNull Ref<Type> componentTypeRef )
 	{
-		super( index, version, name, optional );
-		RefUtils.assertValueRef( name );
-		if( optional && defaultValueRef != null )
-			throw new IllegalArgumentException( "Either optional or default value must be used, not both" );
+		super( index, name, componentTypeRef );
+	}
 
-		setComponentTypeRef( componentTypeRef );
-		setDefaultValueRef( defaultValueRef );
+	ComponentTypeImpl( ComponentType ofThis, int version )
+	{
+		super( ofThis.getIndex(), ofThis.getName(), ofThis.getComponentTypeRef() );
+		setVersion( version );
+		setOptional( ofThis.isOptional() );
+		setDefaultValueRef( ofThis.getDefaultValueRef() );
 	}
 
 	@NotNull
@@ -135,14 +133,18 @@ final class ComponentTypeImpl extends AbstractComponentType
 
 	@NotNull
 	@Override
-	public Type copy()
+	public ComponentType copy()
 	{
 		Type type = getComponentTypeOrNull();
 		if( type == null && getComponentTypeRef() instanceof Type && !( getComponentTypeRef() instanceof DefinedType ) )
 			type = (Type)getComponentTypeRef();
 
 		Ref<Type> subTypeRef = type == null ? getComponentTypeRef() : type.copy();
-		return new ComponentTypeImpl( getIndex(), getVersion(), getName(), subTypeRef, isOptional(), getDefaultValueRef() );
+		ComponentTypeImpl componentType = new ComponentTypeImpl( getIndex(), getName(), subTypeRef );
+		componentType.setVersion( getVersion() );
+		componentType.setOptional( isOptional() );
+		componentType.setDefaultValueRef( getDefaultValueRef() );
+		return componentType;
 	}
 
 	@Override

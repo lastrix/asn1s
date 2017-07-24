@@ -25,7 +25,6 @@
 
 package org.asn1s.core.type.x680.collection;
 
-import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
@@ -36,6 +35,7 @@ import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.value.x680.ValueCollectionImpl;
@@ -45,8 +45,28 @@ public class SequenceType extends AbstractCollectionType
 {
 	public SequenceType( boolean automaticTags )
 	{
-		super( Kind.Sequence, automaticTags );
+		super( automaticTags );
 		setEncoding( TagEncoding.universal( UniversalType.Sequence ) );
+	}
+
+	private int extensionIndexStart = Integer.MAX_VALUE;
+	private int extensionIndexEnd = Integer.MIN_VALUE;
+
+	@Override
+	void updateIndices()
+	{
+		super.updateIndices();
+		if( getComponents() == null )
+			throw new IllegalStateException();
+
+		for( ComponentType type : getComponents( true ) )
+		{
+			if( type.getVersion() > 1 )
+			{
+				extensionIndexStart = Math.min( extensionIndexStart, type.getIndex() );
+				extensionIndexEnd = Math.max( extensionIndexEnd, type.getIndex() );
+			}
+		}
 	}
 
 	@Override
@@ -54,10 +74,11 @@ public class SequenceType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Value.Kind.NamedCollection )
-			assertNamedCollection( scope, value.toValueCollection() );
-		else
+		if( value.getKind() != Kind.NamedCollection && value.getKind() != Kind.Collection )
 			throw new IllegalValueException( "Illegal Sequence value: " + value );
+
+		new SequenceValidator( scope, value.toValueCollection() )
+				.process();
 	}
 
 	@NotNull
@@ -66,51 +87,11 @@ public class SequenceType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Value.Kind.NamedCollection )
-			return optimizeNamedCollection( scope, value.toValueCollection() );
+		if( value.getKind() != Kind.NamedCollection && value.getKind() != Kind.Collection )
+			throw new IllegalValueException( "Illegal Sequence value: " + value );
 
-		throw new IllegalValueException( "Illegal Sequence value: " + value );
-	}
-
-	private Value optimizeNamedCollection( Scope scope, ValueCollection collection ) throws ValidationException, ResolutionException
-	{
-		if( collection.isEmpty() )
-		{
-			if( isAllComponentsOptional() )
-				return collection;
-			throw new IllegalValueException( "Type does not accepts empty collections" );
-		}
-
-		ValueCollection result = new ValueCollectionImpl( true );
-		scope.setValueLevel( result );
-		int version = 1;
-		int previousComponentIndex = -1;
-		for( NamedValue value : collection.asNamedValueList() )
-		{
-			ComponentType component = getComponent( value.getName(), true );
-
-			if( component == null )
-			{
-				if( isExtensible() && previousComponentIndex >= getExtensionIndexStart() && previousComponentIndex <= getExtensionIndexEnd() )
-					continue;
-
-				throw new IllegalValueException( "Type does not have component with name: " + value.getName() );
-			}
-
-			if( component.getIndex() <= previousComponentIndex )
-				throw new IllegalValueException( "ComponentType order is illegal for: " + value );
-
-			version = Math.max( version, component.getVersion() );
-			assertComponentsOptionalityInRange( previousComponentIndex, component.getIndex(), version );
-
-			Value optimize = component.optimize( scope, value );
-			if( !RefUtils.isSameAsDefaultValue( scope, component, optimize ) )
-				result.add( optimize );
-			previousComponentIndex = component.getIndex();
-		}
-
-		assertComponentsOptionalityInRange( previousComponentIndex, -1, version );
-		return result;
+		return new SequenceOptimizer( scope, value.toValueCollection() )
+				.process();
 	}
 
 	@NotNull
@@ -129,64 +110,154 @@ public class SequenceType extends AbstractCollectionType
 	@Override
 	public String toString()
 	{
-		if( !isExtensible() )
-			return "SEQUENCE { " + StringUtils.join( getComponents(), ", " ) + '}';
-		return "SEQUENCE { " + StringUtils.join( getComponents(), ", " ) + ", ..., " + StringUtils.join( getExtensions(), ", " ) + ", ..., " + StringUtils.join( getComponentsLast(), ", " ) + '}';
+		return "SEQUENCE" + CoreCollectionUtils.buildComponentString( this );
 	}
 
-	private void assertNamedCollection( Scope scope, ValueCollection collection ) throws ValidationException, ResolutionException
+	@Override
+	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		if( collection.isEmpty() )
+		setActualComponents( new SequenceComponentsInterpolator( getScope( scope ), this ).interpolate() );
+		updateIndices();
+	}
+
+	private abstract class SequenceOperator
+	{
+		private final Scope scope;
+		private final ValueCollection collection;
+		private int previousComponentIndex = -1;
+		private int version = 1;
+
+		SequenceOperator( Scope scope, ValueCollection collection )
 		{
-			if( isAllComponentsOptional() )
-				return;
-			throw new IllegalValueException( "Type does not accepts empty collections" );
+			this.scope = scope;
+			this.collection = collection;
 		}
 
-		scope.setValueLevel( collection );
-		int previousComponentIndex = -1;
-		int version = 1;
-		for( NamedValue value : collection.asNamedValueList() )
+		protected Scope getScope()
 		{
-			ComponentType component = getComponent( value.getName(), true );
+			return scope;
+		}
 
-			if( component == null )
+		protected ValueCollection getCollection()
+		{
+			return collection;
+		}
+
+		Value process() throws ValidationException, ResolutionException
+		{
+			if( collection.isEmpty() )
 			{
-				if( isExtensible() && previousComponentIndex >= getExtensionIndexStart() && previousComponentIndex <= getExtensionIndexEnd() )
-					continue;
-
-				throw new IllegalValueException( "Type does not have component with name: " + value.getName() );
+				if( isAllComponentsOptional() )
+					return collection;
+				throw new IllegalValueException( "Type does not accepts empty collections" );
 			}
 
+			for( NamedValue value : collection.asNamedValueList() )
+				processNamedValue( value );
+
+			assertComponentsOptionalityInRange( previousComponentIndex, -1, version );
+
+			return getResult();
+		}
+
+		private void processNamedValue( NamedValue value ) throws ValidationException, ResolutionException
+		{
+			ComponentType component = getComponent( value.getName(), true );
+			if( component == null )
+				processExtensibleComponent( value );
+			else
+				processComponentValue( value, component );
+		}
+
+		private void processComponentValue( NamedValue value, ComponentType component ) throws ValidationException, ResolutionException
+		{
 			if( component.getIndex() <= previousComponentIndex )
 				throw new IllegalValueException( "ComponentType order is illegal for: " + value );
 
 			version = Math.max( version, component.getVersion() );
 			assertComponentsOptionalityInRange( previousComponentIndex, component.getIndex(), version );
 
-			component.accept( scope, value );
+			onProcessComponent( value, component );
 			previousComponentIndex = component.getIndex();
 		}
 
-		assertComponentsOptionalityInRange( previousComponentIndex, -1, version );
+		private void processExtensibleComponent( NamedValue value ) throws IllegalValueException
+		{
+			if( isExtensible() && previousComponentIndex >= extensionIndexStart && previousComponentIndex <= extensionIndexEnd )
+				return;
+
+			throw new IllegalValueException( "Type does not have component with name: " + value.getName() );
+		}
+
+		protected abstract void onProcessComponent( NamedValue value, ComponentType component ) throws ValidationException, ResolutionException;
+
+		protected abstract Value getResult();
+
+		private void assertComponentsOptionalityInRange( int start, int endBound, int version ) throws IllegalValueException
+		{
+			if( start == -1 && endBound == -1 && !isAllComponentsOptional() )
+				throw new IllegalValueException( "No components" );
+
+			if( endBound - start == 1 )
+				return;
+
+			for( ComponentType type : getComponents( true ) )
+			{
+				if( type.getIndex() <= start || endBound != -1 && type.getIndex() >= endBound )
+					continue;
+
+				if( type.isRequired() && type.getVersion() <= version )
+					throw new IllegalValueException( "Missing required component: " + type.getComponentName() );
+			}
+		}
+
 	}
 
-	@Override
-	public void assertComponentsOptionalityInRange( int start, int endBound, int version ) throws IllegalValueException
+	private final class SequenceValidator extends SequenceOperator
 	{
-		if( start == -1 && endBound == -1 && !isAllComponentsOptional() )
-			throw new IllegalValueException( "No components" );
-
-		if( endBound - start == 1 )
-			return;
-
-		for( ComponentType type : getComponents( true ) )
+		private SequenceValidator( Scope scope, ValueCollection collection )
 		{
-			if( type.getIndex() <= start || endBound != -1 && type.getIndex() >= endBound )
-				continue;
+			super( scope, collection );
+			scope.setValueLevel( collection );
+		}
 
-			if( type.isRequired() && type.getVersion() <= version )
-				throw new IllegalValueException( "Missing required component: " + type.getComponentName() );
+		@Override
+		protected void onProcessComponent( NamedValue value, ComponentType component ) throws ValidationException, ResolutionException
+		{
+			component.accept( getScope(), value );
+		}
+
+		@Override
+		protected Value getResult()
+		{
+			return getCollection();
+		}
+	}
+
+	private final class SequenceOptimizer extends SequenceOperator
+	{
+
+		private final ValueCollection result;
+
+		private SequenceOptimizer( Scope scope, ValueCollection collection )
+		{
+			super( scope, collection );
+			result = new ValueCollectionImpl( true );
+			scope.setValueLevel( result );
+		}
+
+		@Override
+		protected void onProcessComponent( NamedValue value, ComponentType component ) throws ValidationException, ResolutionException
+		{
+			Value optimize = component.optimize( getScope(), value );
+			if( !RefUtils.isSameAsDefaultValue( getScope(), component, optimize ) )
+				result.add( optimize );
+		}
+
+		@Override
+		protected Value getResult()
+		{
+			return result;
 		}
 	}
 }

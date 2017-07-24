@@ -25,7 +25,6 @@
 
 package org.asn1s.core.type.x680.collection;
 
-import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
@@ -36,6 +35,7 @@ import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.value.x680.ValueCollectionImpl;
@@ -51,7 +51,7 @@ public final class SetType extends AbstractCollectionType
 {
 	public SetType( boolean automatic )
 	{
-		super( Kind.Set, automatic );
+		super( automatic );
 		setEncoding( TagEncoding.universal( UniversalType.Set ) );
 	}
 
@@ -60,10 +60,10 @@ public final class SetType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() != Value.Kind.NamedCollection )
+		if( value.getKind() != Kind.NamedCollection && value.getKind() != Kind.Collection )
 			throw new IllegalValueException( "Illegal Set value: " + value );
 
-		new SetValidator( scope, this, value.toValueCollection() )
+		new SetValidator( scope, value.toValueCollection() )
 				.process();
 	}
 
@@ -73,10 +73,10 @@ public final class SetType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() != Value.Kind.NamedCollection )
+		if( value.getKind() != Kind.NamedCollection && value.getKind() != Kind.Collection )
 			throw new IllegalValueException( "Illegal Set value: " + value );
 
-		return new SetOptimizer( scope, this, value.toValueCollection() )
+		return new SetOptimizer( scope, value.toValueCollection() )
 				.process();
 	}
 
@@ -96,26 +96,29 @@ public final class SetType extends AbstractCollectionType
 	@Override
 	public String toString()
 	{
-		if( !isExtensible() )
-			return "SET { " + StringUtils.join( getComponents(), ", " ) + '}';
-		return "SET { " + StringUtils.join( getComponents(), ", " ) + ", ..., " + StringUtils.join( getExtensions(), ", " ) + ", ..., " + StringUtils.join( getComponentsLast(), ", " ) + '}';
+		return "SET" + CoreCollectionUtils.buildComponentString( this );
 	}
 
-	private abstract static class AbstractSetOperator
+	@Override
+	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
+	{
+		setActualComponents( new SetComponentsInterpolator( getScope( scope ), this ).interpolate() );
+		updateIndices();
+	}
+
+	private abstract class AbstractSetOperator
 	{
 		private final Scope scope;
-		private final SetType type;
 		private final ValueCollection collection;
 		private int version = 1;
 		private final Collection<ComponentType> unusedComponents;
 		private final Collection<String> extensibleRequired;
 
-		AbstractSetOperator( Scope scope, SetType type, ValueCollection collection )
+		AbstractSetOperator( Scope scope, ValueCollection collection )
 		{
 			this.scope = scope;
-			this.type = type;
 			this.collection = collection;
-			unusedComponents = new HashSet<>( type.getComponents( true ) );
+			unusedComponents = new HashSet<>( getComponents( true ) );
 			extensibleRequired = new HashSet<>();
 		}
 
@@ -128,7 +131,7 @@ public final class SetType extends AbstractCollectionType
 		{
 			if( collection.isEmpty() )
 			{
-				if( type.isAllComponentsOptional() )
+				if( isAllComponentsOptional() )
 					return collection;
 				throw new IllegalValueException( "Components required" );
 			}
@@ -146,7 +149,7 @@ public final class SetType extends AbstractCollectionType
 				if( component.isRequired() && component.getVersion() <= version )
 					throw new IllegalValueException( "Required component is not used: " + component.getName() );
 
-			if( !extensibleRequired.isEmpty() && version < type.getMaxVersion() )
+			if( !extensibleRequired.isEmpty() && version < getMaxVersion() )
 				throw new IllegalValueException( "Unable to accept components: " + extensibleRequired );
 		}
 
@@ -158,7 +161,7 @@ public final class SetType extends AbstractCollectionType
 
 		private void processComponentValue( NamedValue value ) throws ResolutionException, ValidationException
 		{
-			ComponentType component = type.getComponent( value.getName(), true );
+			ComponentType component = getComponent( value.getName(), true );
 			if( component == null )
 				assertExtensibleValue( value );
 			else
@@ -175,7 +178,7 @@ public final class SetType extends AbstractCollectionType
 
 		private void assertExtensibleValue( NamedValue value ) throws IllegalValueException
 		{
-			if( !type.isExtensible() )
+			if( !isExtensible() )
 				throw new IllegalValueException( "Type has no components with name: " + value.getName() );
 
 			extensibleRequired.add( value.getName() );
@@ -184,13 +187,13 @@ public final class SetType extends AbstractCollectionType
 		protected abstract void onComponentValueProcessing( Ref<Value> value, ComponentType component ) throws ResolutionException, ValidationException;
 	}
 
-	private static final class SetOptimizer extends AbstractSetOperator
+	private final class SetOptimizer extends AbstractSetOperator
 	{
 		private final ValueCollection result = new ValueCollectionImpl( true );
 
-		private SetOptimizer( Scope scope, SetType type, ValueCollection collection )
+		private SetOptimizer( Scope scope, ValueCollection collection )
 		{
-			super( scope, type, collection );
+			super( scope, collection );
 			scope.setValueLevel( result );
 		}
 
@@ -210,11 +213,11 @@ public final class SetType extends AbstractCollectionType
 		}
 	}
 
-	private static final class SetValidator extends AbstractSetOperator
+	private final class SetValidator extends AbstractSetOperator
 	{
-		private SetValidator( Scope scope, SetType type, ValueCollection collection )
+		private SetValidator( Scope scope, ValueCollection collection )
 		{
-			super( scope, type, collection );
+			super( scope, collection );
 			scope.setValueLevel( collection );
 		}
 

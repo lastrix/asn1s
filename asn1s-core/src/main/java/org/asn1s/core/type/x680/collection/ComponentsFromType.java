@@ -32,8 +32,8 @@ import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.AbstractType;
+import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
@@ -109,15 +109,43 @@ final class ComponentsFromType extends AbstractType
 		if( type == null )
 			type = ref.resolve( scope );
 
-		if( type.getFamily() != requiredFamily )
+		components = new ArrayList<>();
+		resolveComponents( scope, type );
+	}
+
+	private void resolveComponents( Scope scope, Type type ) throws ValidationException, ResolutionException
+	{
+		type.validate( scope );
+		Family family = type.getFamily();
+		if( family != Family.Sequence && family != Family.Set )
 			throw new ValidationException( "ComponentsFromType should point to: " + requiredFamily );
 
-		type.validate( scope );
+		while( !( type instanceof CollectionType ) )
+		{
+			assert type != null;
+			type = type.getSibling();
+		}
 
-		components = new ArrayList<>();
-		for( NamedType namedType : type.getNamedTypes() )
-			if( namedType instanceof ComponentType && ( (ComponentType)namedType ).getVersion() == 1 )
-				components.add( (ComponentType)namedType );
+		resolveToComponentTypes( scope, ( (CollectionType)type ).getRawComponents() );
+	}
+
+	private void resolveToComponentTypes( Scope scope, Iterable<Type> rawComponents ) throws ValidationException, ResolutionException
+	{
+		for( Type component : rawComponents )
+		{
+			if( component instanceof ComponentType )
+				components.add( (ComponentType)component );
+			else if( component instanceof ExtensionAdditionGroupType )
+				throw new IllegalStateException( "No extension addition group allowed" );
+			else if( component instanceof ComponentsFromType )
+			{
+				assert component.getSibling() != null;
+				resolveComponents( scope, component.getSibling() );
+			}
+			else
+				throw new UnsupportedOperationException( component.getClass().getTypeName() );
+		}
+
 	}
 
 	@NotNull

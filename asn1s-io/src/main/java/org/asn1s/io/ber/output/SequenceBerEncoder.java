@@ -25,6 +25,8 @@
 
 package org.asn1s.io.ber.output;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
@@ -44,6 +46,7 @@ import java.util.List;
 
 final class SequenceBerEncoder implements BerEncoder
 {
+	private static final Log log = LogFactory.getLog( SequenceBerEncoder.class );
 	public static final Tag TAG = new Tag( TagClass.Universal, true, UniversalType.Sequence.tagNumber() );
 	private static final Tag TAG_INSTANCE_OF = new Tag( TagClass.Universal, true, UniversalType.InstanceOf.tagNumber() );
 
@@ -85,27 +88,15 @@ final class SequenceBerEncoder implements BerEncoder
 			throw new IllegalValueException( "Type does not accepts empty collections" );
 		}
 
-		int previousComponentIndex = -1;
-		int version = 1;
 		for( NamedValue value : values )
 		{
 			ComponentType component = type.getComponent( value.getName(), true );
 
 			if( component == null )
 			{
-				if( type.isExtensible() && previousComponentIndex >= type.getExtensionIndexStart() && previousComponentIndex <= type.getExtensionIndexEnd() )
-					continue;
-
-				throw new IllegalValueException( "Type does not have component with name: " + value.getName() );
+				log.debug( "Unable to write unknown extension component: " + value.getName() );
+				continue;
 			}
-
-			if( component.getIndex() <= previousComponentIndex )
-				throw new IllegalValueException( "ComponentType order is illegal for: " + value );
-
-			version = Math.max( version, component.getVersion() );
-			type.assertComponentsOptionalityInRange( previousComponentIndex, component.getIndex(), version );
-
-			previousComponentIndex = component.getIndex();
 
 			// do not write default values, it's just a waste of time and memory
 			if( RefUtils.isSameAsDefaultValue( ctx.getScope(), component, value ) )
@@ -113,7 +104,5 @@ final class SequenceBerEncoder implements BerEncoder
 
 			ctx.writeComponent( component, value );
 		}
-
-		type.assertComponentsOptionalityInRange( previousComponentIndex, -1, version );
 	}
 }

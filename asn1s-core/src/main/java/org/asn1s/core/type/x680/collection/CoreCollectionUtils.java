@@ -25,6 +25,7 @@
 
 package org.asn1s.core.type.x680.collection;
 
+import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.encoding.tag.TagClass;
@@ -32,11 +33,14 @@ import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.NamedType;
+import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 
-final class InterpolatorUtils
+import java.util.List;
+
+final class CoreCollectionUtils
 {
-	private InterpolatorUtils()
+	private CoreCollectionUtils()
 	{
 	}
 
@@ -61,10 +65,10 @@ final class InterpolatorUtils
 			IEncoding enc = component.getEncoding( EncodingInstructions.Tag );
 			if( enc == null )
 			{
-				if( component.getFamily() == Family.Choice )
-					assertTagsImpl( name, tagClass, tagNumber, component.getNamedTypes() );
-				else
+				if( component.getFamily() != Family.Choice )
 					throw new IllegalStateException();
+
+				assertTagsImpl( name, tagClass, tagNumber, component.getNamedTypes() );
 			}
 			else
 			{
@@ -73,5 +77,33 @@ final class InterpolatorUtils
 					throw new ValidationException( "Duplicate tag detected for component '" + name + "' and '" + component.getName() + '\'' );
 			}
 		}
+	}
+
+	static String buildComponentString( AbstractCollectionType type )
+	{
+		StringBuilder sb = new StringBuilder( " { " );
+		String delimiter = ", ";
+		List<Type> components = type.getComponents();
+		if( !components.isEmpty() )
+			sb.append( StringUtils.join( components, delimiter ) );
+
+		List<Type> extensions = type.getExtensions();
+		if( !extensions.isEmpty() )
+		{
+			if( !components.isEmpty() )
+				sb.append( delimiter );
+
+			sb.append( "..." ).append( StringUtils.join( extensions, delimiter ) );
+		}
+
+		List<Type> componentsLast = type.getComponentsLast();
+		if( !componentsLast.isEmpty() )
+			sb.append( delimiter ).append( "..." ).append( StringUtils.join( componentsLast, delimiter ) );
+
+		if( type.isExtensible() )
+			sb.append( delimiter ).append( "..." );
+
+		sb.append( " }" );
+		return sb.toString();
 	}
 }

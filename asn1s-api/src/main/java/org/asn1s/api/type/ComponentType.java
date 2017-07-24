@@ -83,6 +83,10 @@ public interface ComponentType extends NamedType
 	 */
 	boolean isExplicitlyTagged();
 
+	@NotNull
+	@Override
+	ComponentType copy();
+
 	enum Kind
 	{
 		Primary, // goes before extension

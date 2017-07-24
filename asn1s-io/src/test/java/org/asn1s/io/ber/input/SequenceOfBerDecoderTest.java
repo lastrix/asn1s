@@ -29,7 +29,6 @@ import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.DefaultObjectFactory;
@@ -49,7 +48,7 @@ public class SequenceOfBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceOfType type = new SequenceOfType();
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.Integer.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );

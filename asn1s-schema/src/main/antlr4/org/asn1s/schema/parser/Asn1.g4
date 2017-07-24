@@ -473,32 +473,31 @@ enumeratedType returns [Enumerated result]
 // X.680, p 25.1
 // X.680, p 27.1
 collectionType returns [CollectionType result]
-    locals [ CollectionType.Kind collectionKind = null ]
     :
         (
-            SEQUENCE { $collectionKind = CollectionType.Kind.Sequence; }
-        |   SET      { $collectionKind = CollectionType.Kind.Set; }
+            SEQUENCE { $result = factory.collection(Type.Family.Sequence); }
+        |   SET      { $result = factory.collection(Type.Family.Set); }
         )
-        { $result = factory.collection($collectionKind); }
         OPEN_BRACE
         (
-            ELLIPSIS { $result.setExtensible(true); }
+            ELLIPSIS
             exceptionSpec?
             ( COMMA collectionExtensionComponents[$result] )?
             (
                 COMMA ELLIPSIS
-                ( COMMA collectionComponentTypeList[$result, ComponentType.Kind.Secondary] )?
+                COMMA collectionComponentTypeList[$result, ComponentType.Kind.Secondary]
+            |   COMMA ELLIPSIS { $result.setExtensible(true); }
             )?
         |   collectionComponentTypeList[$result, ComponentType.Kind.Primary]
             (
-                COMMA
-                ELLIPSIS { $result.setExtensible(true); }
-                exceptionSpec?
+                COMMA ELLIPSIS exceptionSpec?
                 ( COMMA collectionExtensionComponents[$result] )?
                 (
                     COMMA ELLIPSIS
-                    ( COMMA collectionComponentTypeList[$result, ComponentType.Kind.Secondary] )?
+                    COMMA collectionComponentTypeList[$result, ComponentType.Kind.Secondary]
+                |   COMMA ELLIPSIS { $result.setExtensible(true); }
                 )?
+            |   COMMA ELLIPSIS { $result.setExtensible(true); }
             )?
         )?
         CLOSE_BRACE
@@ -508,19 +507,15 @@ collectionType returns [CollectionType result]
 // X.680, p 28.1
 collectionOfType returns [Ref<Type> result]
     locals [
-        CollectionType actualType,
+        CollectionOfType actualType,
         ConstraintTemplate constraintTemplate = null,
-        String componentName = ComponentType.DUMMY,
-        CollectionType.Kind collectionKind = null ]
+        String componentName = ComponentType.DUMMY ]
     :
     (
-        SEQUENCE { $collectionKind = CollectionType.Kind.SequenceOf; }
-    |   SET      { $collectionKind = CollectionType.Kind.SetOf; }
+        SEQUENCE { $actualType = (CollectionOfType)factory.collectionOf(Type.Family.SequenceOf); }
+    |   SET      { $actualType = (CollectionOfType)factory.collectionOf(Type.Family.SetOf); }
     )
-    {
-        $actualType = factory.collection($collectionKind);
-        $result = $actualType;
-    }
+    { $result = $actualType; }
     (
         (   constraint { $constraintTemplate = $constraint.result; }
         |   sizeConstraint  { $constraintTemplate = $sizeConstraint.result; }
@@ -530,12 +525,12 @@ collectionOfType returns [Ref<Type> result]
     OF
     (valueReference { $componentName = $valueReference.text; } )?
     type
-    { $actualType.addComponent( ComponentType.Kind.Primary, $componentName, $type.result, false, null ); }
+    { $actualType.setComponent( $componentName, $type.result ); }
     ;
 
 // X.680, p 29
 choiceType returns [CollectionType result]
-    @init { $result = factory.collection(CollectionType.Kind.Choice); }
+    @init { $result = factory.collection(Type.Family.Choice); }
 	:   CHOICE
 		OPEN_BRACE
 		choiceComponentTypeList[$result]

@@ -25,10 +25,13 @@
 
 package org.asn1s.api.type;
 
-import org.jetbrains.annotations.Nullable;
+import org.asn1s.api.Ref;
+import org.jetbrains.annotations.NotNull;
 
-public interface CollectionOfType extends CollectionType
+public interface CollectionOfType extends Type
 {
-	@Nullable
+	void setComponent( @NotNull String componentName, @NotNull Ref<Type> componentTypeRef );
+
+	@NotNull
 	ComponentType getComponentType();
 }

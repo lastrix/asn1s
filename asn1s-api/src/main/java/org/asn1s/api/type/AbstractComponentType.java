@@ -25,12 +25,14 @@
 
 package org.asn1s.api.type;
 
+import org.asn1s.api.Disposable;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.NamedValue;
 import org.jetbrains.annotations.NotNull;
@@ -41,18 +43,18 @@ import java.util.List;
 
 public abstract class AbstractComponentType extends AbstractType implements ComponentType
 {
-	protected AbstractComponentType( int index, int version, String name, boolean optional )
+	protected AbstractComponentType( int index, String name, @NotNull Ref<Type> componentTypeRef )
 	{
+		RefUtils.assertValueRef( name );
 		this.index = index;
-		this.version = version;
 		this.name = name;
-		this.optional = optional;
+		this.componentTypeRef = componentTypeRef;
 	}
 
 	private final int index;
-	private final int version;
+	private int version;
 	private final String name;
-	private final boolean optional;
+	private boolean optional;
 	private Ref<Type> componentTypeRef;
 	private Type componentType;
 	private Ref<Value> defaultValueRef;
@@ -70,6 +72,11 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 		return version;
 	}
 
+	public void setVersion( int version )
+	{
+		this.version = version;
+	}
+
 	@Override
 	public String getName()
 	{
@@ -82,16 +89,19 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 		return optional;
 	}
 
+	public void setOptional( boolean optional )
+	{
+		if( optional && getDefaultValueRef() != null )
+			throw new IllegalArgumentException( "Either default value or optional must be present" );
+
+		this.optional = optional;
+	}
+
 	@NotNull
 	@Override
 	public Ref<Type> getComponentTypeRef()
 	{
 		return componentTypeRef;
-	}
-
-	protected void setComponentTypeRef( Ref<Type> componentTypeRef )
-	{
-		this.componentTypeRef = componentTypeRef;
 	}
 
 	@NotNull
@@ -113,8 +123,10 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 		return defaultValueRef;
 	}
 
-	protected void setDefaultValueRef( @Nullable Ref<Value> defaultValueRef )
+	public void setDefaultValueRef( @Nullable Ref<Value> defaultValueRef )
 	{
+		if( defaultValueRef != null && isOptional() )
+			throw new IllegalArgumentException( "Either default value or optional must be present" );
 		this.defaultValueRef = defaultValueRef;
 	}
 
@@ -191,10 +203,14 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 	@Override
 	protected void onDispose()
 	{
+		if( !( componentTypeRef instanceof DefinedType ) && componentTypeRef instanceof Type )
+			( (Disposable)componentTypeRef ).dispose();
 		componentTypeRef = null;
+
 		if( componentType != null && !( componentType instanceof DefinedType ) )
 			componentType.dispose();
 		componentType = null;
+
 		defaultValueRef = null;
 		defaultValue = null;
 	}

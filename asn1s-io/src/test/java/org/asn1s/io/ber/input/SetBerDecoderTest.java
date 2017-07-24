@@ -52,6 +52,7 @@ public class SetBerDecoderTest
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );

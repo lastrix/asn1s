@@ -30,7 +30,6 @@ import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.*;
-import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.core.DefaultObjectFactory;
 import org.junit.Test;
 
@@ -55,21 +54,21 @@ END
 		Ref<Type> intRef = factory.builtin( "INTEGER" );
 		DefinedType cccType = factory.define( "CCC", factory.tagged( TagEncoding.application( 7 ), intRef ), null );
 
-		CollectionType aSeq = factory.collection( Kind.Sequence );
+		CollectionType aSeq = factory.collection( Type.Family.Sequence );
 		aSeq.addComponent( ComponentType.Kind.Primary, "a", factory.tagged( TagEncoding.context( 0, TagMethod.Implicit ), intRef ), true, null );
 		DefinedType aType = factory.define( "A", aSeq, null );
 
-		CollectionType bSeq = factory.collection( Kind.Sequence );
+		CollectionType bSeq = factory.collection( Type.Family.Sequence );
 		bSeq.addComponentsFromType( ComponentType.Kind.Primary, aType.toRef() );
 		bSeq.addComponent( ComponentType.Kind.Primary, "b", intRef, true, null );
 		DefinedType bType = factory.define( "B", bSeq, null );
 
-		CollectionType chChoice = factory.collection( Kind.Choice );
+		CollectionType chChoice = factory.collection( Type.Family.Choice );
 		chChoice.addComponent( ComponentType.Kind.Primary, "a", intRef );
 		chChoice.addComponent( ComponentType.Kind.Primary, "b", intRef );
 		DefinedType chType = factory.define( "CH", chChoice, null );
 
-		CollectionType cSeq = factory.collection( Kind.Sequence );
+		CollectionType cSeq = factory.collection( Type.Family.Sequence );
 		cSeq.setExtensible( true );
 		cSeq.addComponent( ComponentType.Kind.Extension, "e", intRef );
 		cSeq.addComponentsFromType( ComponentType.Kind.Secondary, bType.toRef() );
@@ -79,6 +78,5 @@ END
 		DefinedType cType = factory.define( "C", cSeq, null );
 
 		module.validate();
-		int k = 0;
 	}
 }

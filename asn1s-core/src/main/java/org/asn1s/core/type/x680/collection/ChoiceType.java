@@ -25,7 +25,6 @@
 
 package org.asn1s.core.type.x680.collection;
 
-import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.IllegalValueException;
@@ -33,6 +32,7 @@ import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +40,7 @@ public final class ChoiceType extends AbstractCollectionType
 {
 	public ChoiceType( boolean automaticTags )
 	{
-		super( Kind.Choice, automaticTags );
+		super( automaticTags );
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public final class ChoiceType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = valueRef.resolve( scope );
-		if( value.getKind() != Value.Kind.Name )
+		if( value.getKind() != Kind.Name )
 			throw new IllegalArgumentException( "Unable to accept value of kind: " + value.getKind() );
 
 		scope.setValueLevel( value );
@@ -70,7 +70,7 @@ public final class ChoiceType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = valueRef.resolve( scope );
-		if( value.getKind() != Value.Kind.Name )
+		if( value.getKind() != Kind.Name )
 			throw new IllegalArgumentException( "Unable to accept value of kind: " + value.getKind() );
 
 		scope.setValueLevel( value );
@@ -104,9 +104,13 @@ public final class ChoiceType extends AbstractCollectionType
 	@Override
 	public String toString()
 	{
-		if( isExtensible() )
-			return "CHOICE { " + StringUtils.join( getComponents() + ", " ) + ", ..., " + StringUtils.join( getExtensions(), ", " ) + '}';
-		return "CHOICE { " + StringUtils.join( getComponents() + ", " ) + '}';
+		return "CHOICE" + CoreCollectionUtils.buildComponentString( this );
 	}
 
+	@Override
+	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
+	{
+		setActualComponents( new ChoiceComponentsInterpolator( getScope( scope ), this ).interpolate() );
+		updateIndices();
+	}
 }

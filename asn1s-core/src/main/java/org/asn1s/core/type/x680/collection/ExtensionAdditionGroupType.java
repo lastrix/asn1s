@@ -63,7 +63,10 @@ public final class ExtensionAdditionGroupType extends AbstractType implements Co
 		if( kind != Kind.Extension )
 			throw new IllegalArgumentException();
 
-		components.add( new ComponentTypeImpl( 0, 0, name, typeRef, optional, defaultValue ) );
+		ComponentTypeImpl componentType = new ComponentTypeImpl( 0, name, typeRef );
+		componentType.setOptional( optional );
+		componentType.setDefaultValueRef( defaultValue );
+		components.add( componentType );
 	}
 
 	@Override
@@ -142,7 +145,10 @@ public final class ExtensionAdditionGroupType extends AbstractType implements Co
 	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
 		for( Type component : components )
+		{
+			component.setNamespace( getNamespace() );
 			component.validate( scope );
+		}
 
 		actual = new ArrayList<>();
 		for( Type component : components )

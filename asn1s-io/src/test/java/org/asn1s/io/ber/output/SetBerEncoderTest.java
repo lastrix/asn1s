@@ -63,6 +63,7 @@ public class SetBerEncoderTest
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -84,6 +85,7 @@ public class SetBerEncoderTest
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -112,6 +114,7 @@ public class SetBerEncoderTest
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -134,6 +137,7 @@ public class SetBerEncoderTest
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -148,28 +152,6 @@ public class SetBerEncoderTest
 		}
 	}
 
-	@Test( expected = IllegalValueException.class )
-	public void testWriteSet_NoHeader_NonExtensible() throws Exception
-	{
-		Scope scope = CoreModule.getInstance().createScope();
-		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
-		type.validate( scope );
-		ComponentType componentA = type.getNamedType( "a" );
-		Assert.assertNotNull( "No component a", componentA );
-		ValueCollection value = new ValueCollectionImpl( true );
-		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
-		value.add( namedValue );
-		value.addNamed( "c", new RealValueFloat( 0.0f ) );
-		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
-		{
-			when( writer.getRules() ).thenReturn( BerRules.Ber );
-			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
-			fail( "Must fail" );
-		}
-	}
-
 	@Test
 	public void testWriteSet_NoHeader_Extensible() throws Exception
 	{
@@ -178,6 +160,7 @@ public class SetBerEncoderTest
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
 		type.setExtensible( true );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -201,6 +184,7 @@ public class SetBerEncoderTest
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -224,6 +208,7 @@ public class SetBerEncoderTest
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );
@@ -250,6 +235,7 @@ public class SetBerEncoderTest
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
 		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
+		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
 		Assert.assertNotNull( "No component a", componentA );

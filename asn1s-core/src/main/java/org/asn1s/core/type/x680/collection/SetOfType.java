@@ -27,7 +27,10 @@ package org.asn1s.core.type.x680.collection;
 
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.TagEncoding;
+import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.Type;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * X.680, p 28.1
@@ -36,7 +39,12 @@ public final class SetOfType extends AbstractCollectionOfType
 {
 	public SetOfType()
 	{
-		super( Kind.SetOf );
+		this( null );
+	}
+
+	private SetOfType( @Nullable ComponentType componentType )
+	{
+		super( componentType );
 		setEncoding( TagEncoding.universal( UniversalType.Set ) );
 	}
 
@@ -47,10 +55,11 @@ public final class SetOfType extends AbstractCollectionOfType
 		return Family.SetOf;
 	}
 
+	@NotNull
 	@Override
-	protected AbstractCollectionType onCopy()
+	public Type copy()
 	{
-		return new SetOfType();
+		return new SetOfType( getSourceComponentType().copy() );
 	}
 
 	@Override

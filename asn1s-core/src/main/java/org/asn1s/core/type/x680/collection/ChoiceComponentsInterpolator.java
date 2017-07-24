@@ -60,7 +60,7 @@ final class ChoiceComponentsInterpolator extends AbstractComponentInterpolator
 		{
 			ComponentType component = iterator.next();
 			iterator.remove();
-			InterpolatorUtils.assertTags( component, list );
+			CoreCollectionUtils.assertTags( component, list );
 		}
 	}
 }

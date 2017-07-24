@@ -28,10 +28,9 @@ package org.asn1s.core.type.x680.collection;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.State;
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.type.BuiltinType;
@@ -44,31 +43,18 @@ import java.util.List;
 
 abstract class AbstractCollectionType extends BuiltinType implements CollectionType
 {
-	AbstractCollectionType( @NotNull Kind kind, boolean automaticTags )
+	AbstractCollectionType( boolean automaticTags )
 	{
-		this.kind = kind;
 		this.automaticTags = automaticTags;
 	}
 
-	@NotNull
-	private final Kind kind;
 	private final boolean automaticTags;
 	private final List<Type> components = new ArrayList<>();
 	private final List<Type> componentsLast = new ArrayList<>();
 	private final List<Type> extensions = new ArrayList<>();
 	private boolean extensible;
-	private int extensionIndexStart = Integer.MAX_VALUE;
-	private int extensionIndexEnd = Integer.MIN_VALUE;
 	private int maxVersion = 1;
-
 	private List<ComponentType> actualComponents;
-
-	@Override
-	@NotNull
-	public Kind getKind()
-	{
-		return kind;
-	}
 
 	boolean isAutomaticTags()
 	{
@@ -87,28 +73,25 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 		return extensible;
 	}
 
-	@Override
-	public int getExtensionIndexStart()
-	{
-		return extensionIndexStart;
-	}
-
-	@Override
-	public int getExtensionIndexEnd()
-	{
-		return extensionIndexEnd;
-	}
-
-	@Override
-	public int getMaxVersion()
+	int getMaxVersion()
 	{
 		return maxVersion;
+	}
+
+	void updateIndices()
+	{
+		if( actualComponents == null )
+			throw new IllegalStateException();
+
+		for( ComponentType type : actualComponents )
+			if( type.getVersion() > 1 )
+				maxVersion = Math.max( maxVersion, type.getVersion() );
 	}
 
 	@Override
 	public boolean isConstructedValue( Scope scope, Value value )
 	{
-		return true;
+		return value.getKind() == Value.Kind.Collection || value.getKind() == Value.Kind.NamedCollection;
 	}
 
 	List<Type> getComponents()
@@ -127,20 +110,22 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 	}
 
 	@Override
-	public void addComponent( @NotNull ComponentType.Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef, boolean optional, @Nullable Ref<Value> defaultValue )
+	public void addComponent( @NotNull Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef, boolean optional, @Nullable Ref<Value> defaultValue )
 	{
-		Type component = new ComponentTypeImpl( components.size() + extensions.size() + componentsLast.size(), 0, name, typeRef, optional, defaultValue );
+		ComponentTypeImpl component = new ComponentTypeImpl( components.size() + extensions.size() + componentsLast.size(), name, typeRef );
+		component.setOptional( optional );
+		component.setDefaultValueRef( defaultValue );
 		addComponent( kind, component );
 	}
 
 	@Override
-	public void addComponentsFromType( ComponentType.Kind kind, @NotNull Ref<Type> typeRef )
+	public void addComponentsFromType( Kind kind, @NotNull Ref<Type> typeRef )
 	{
 		Type component = new ComponentsFromType( typeRef, getFamily() );
 		addComponent( kind, component );
 	}
 
-	private void addComponent( ComponentType.Kind kind, Type component )
+	private void addComponent( Kind kind, Type component )
 	{
 		switch( kind )
 		{
@@ -196,11 +181,7 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 	public List<ComponentType> getComponents( boolean withExtensions )
 	{
 		if( withExtensions )
-		{
-			if( actualComponents == null )
-				throw new IllegalStateException();
 			return Collections.unmodifiableList( actualComponents );
-		}
 
 		List<ComponentType> result = new ArrayList<>();
 		for( ComponentType component : actualComponents )
@@ -208,6 +189,21 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 				result.add( component );
 
 		return result;
+	}
+
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public List<Type> getRawComponents()
+	{
+		List<Type> list = new ArrayList<>( components.size() + componentsLast.size() );
+		list.addAll( components );
+		list.addAll( componentsLast );
+		return list;
+	}
+
+	void setActualComponents( List<ComponentType> actualComponents )
+	{
+		this.actualComponents = new ArrayList<>( actualComponents );
 	}
 
 	@Override
@@ -221,29 +217,6 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 				return false;
 
 		return true;
-	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
-	{
-		scope = getScope( scope );
-		validateComponents( scope, components );
-		validateComponents( scope, componentsLast );
-		validateComponents( scope, extensions );
-
-		interpolateComponents( scope );
-
-		for( ComponentType type : actualComponents )
-			type.validate( scope );
-	}
-
-	private void validateComponents( Scope scope, Iterable<Type> list ) throws ResolutionException, ValidationException
-	{
-		for( Type component : list )
-		{
-			component.setNamespace( getNamespace() );
-			component.validate( scope );
-		}
 	}
 
 	@NotNull
@@ -290,63 +263,6 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 			actualComponents.clear();
 			actualComponents = null;
 		}
-	}
-
-	private void interpolateComponents( @NotNull Scope scope ) throws ValidationException, ResolutionException
-	{
-		switch( kind )
-		{
-			case Sequence:
-				actualComponents = new SequenceComponentsInterpolator( scope, this ).interpolate();
-				break;
-
-			case Choice:
-				actualComponents = new ChoiceComponentsInterpolator( scope, this ).interpolate();
-				break;
-
-			case Set:
-				actualComponents = new SetComponentsInterpolator( scope, this ).interpolate();
-				break;
-
-			case SequenceOf:
-			case SetOf:
-				ComponentType componentType = interpolateSingleComponent();
-				componentType.validate( scope );
-				actualComponents = Collections.singletonList( componentType );
-				break;
-
-			default:
-				throw new IllegalStateException();
-		}
-
-		for( ComponentType type : actualComponents )
-		{
-			if( type.getVersion() > 1 )
-			{
-				extensionIndexStart = Math.min( extensionIndexStart, type.getIndex() );
-				extensionIndexEnd = Math.max( extensionIndexEnd, type.getIndex() );
-				maxVersion = Math.max( maxVersion, type.getVersion() );
-			}
-		}
-	}
-
-	@NotNull
-	private ComponentType interpolateSingleComponent() throws ValidationException
-	{
-		if( components.size() != 1 || !componentsLast.isEmpty() || !extensions.isEmpty() )
-			throw new ValidationException( "SequenceOf and SetOf must have only single componentType" );
-
-		Type type = components.get( 0 );
-		if( !( type instanceof ComponentTypeImpl ) )
-			throw new ValidationException( "SequenceOf and SetOf requires ComponentType" );
-		ComponentType componentType = (ComponentType)type;
-		return new ComponentTypeImpl(
-				0,
-				1,
-				componentType.getName(),
-				componentType.getComponentType(),
-				componentType.isOptional(),
-				componentType.getDefaultValue() );
 	}
 
 	protected abstract AbstractCollectionType onCopy();

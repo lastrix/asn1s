@@ -31,6 +31,7 @@ import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.type.TypeFactory;
 import org.asn1s.core.DefaultObjectFactory;
 import org.junit.Assert;
@@ -46,7 +47,7 @@ public class SetInterpolationTest
 
 		Ref<Type> intRef = factory.builtin( "INTEGER" );
 
-		CollectionType set = factory.collection( CollectionType.Kind.Set );
+		CollectionType set = factory.collection( Family.Set );
 		set.addComponent( Kind.Primary, "a", intRef );
 		set.addComponent( Kind.Primary, "b", intRef, true, null );
 		set.addComponent( Kind.Extension, "c", intRef );

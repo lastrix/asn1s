@@ -34,6 +34,7 @@ import org.asn1s.api.module.Module;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.DefaultObjectFactory;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class ComponentConstraintTest
 		ObjectFactory factory = new DefaultObjectFactory();
 		Module module = factory.dummyModule();
 
-		CollectionType sequenceType = factory.collection( CollectionType.Kind.Sequence );
+		CollectionType sequenceType = factory.collection( Family.Sequence );
 		Ref<Type> intTypeRef = factory.builtin( "INTEGER" );
 		sequenceType.addComponent( Kind.Primary, "a", intTypeRef, true, null );
 		sequenceType.addComponent( Kind.Primary, "b", intTypeRef, false, null );

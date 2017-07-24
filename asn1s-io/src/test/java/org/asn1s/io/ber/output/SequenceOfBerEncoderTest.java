@@ -31,7 +31,6 @@ import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.BooleanValue;
@@ -57,7 +56,7 @@ public class SequenceOfBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceOfType type = new SequenceOfType();
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.Integer.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );
@@ -77,7 +76,7 @@ public class SequenceOfBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceOfType type = new SequenceOfType();
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.Integer.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );
@@ -104,7 +103,7 @@ public class SequenceOfBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceOfType type = new SequenceOfType();
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.Integer.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );
@@ -125,7 +124,7 @@ public class SequenceOfBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SequenceOfType type = new SequenceOfType();
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.Integer.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );

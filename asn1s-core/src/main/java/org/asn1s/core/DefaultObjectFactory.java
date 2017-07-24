@@ -36,11 +36,11 @@ import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.type.*;
-import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.ValueNameRef;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x681.ObjectValue;
@@ -178,7 +178,7 @@ public final class DefaultObjectFactory extends CoreValueFactory implements Obje
 	@Override
 	public IEncoding tagEncoding( @NotNull TagMethod method, @NotNull TagClass tagClass, @NotNull Ref<Value> tagNumberRef )
 	{
-		if( tagNumberRef instanceof Value && ( (Value)tagNumberRef ).getKind() == Value.Kind.Integer && ( (Value)tagNumberRef ).toIntegerValue().isInt() )
+		if( tagNumberRef instanceof Value && ( (Value)tagNumberRef ).getKind() == Kind.Integer && ( (Value)tagNumberRef ).toIntegerValue().isInt() )
 			return TagEncoding.create( module.getTagMethod(), method, tagClass, ( (Value)tagNumberRef ).toIntegerValue().asInt() );
 		return TagEncoding.create( module.getTagMethod(), method, tagClass, tagNumberRef );
 	}
@@ -199,10 +199,10 @@ public final class DefaultObjectFactory extends CoreValueFactory implements Obje
 
 	@NotNull
 	@Override
-	public CollectionType collection( @NotNull Kind collectionKind )
+	public CollectionType collection( @NotNull Family collectionFamily )
 	{
 		boolean automaticTags = module.getTagMethod() == TagMethod.Automatic;
-		switch( collectionKind )
+		switch( collectionFamily )
 		{
 			case Choice:
 				return new ChoiceType( automaticTags );
@@ -210,17 +210,28 @@ public final class DefaultObjectFactory extends CoreValueFactory implements Obje
 			case Sequence:
 				return new SequenceType( automaticTags );
 
-			case SequenceOf:
-				return new SequenceOfType();
-
 			case Set:
 				return new SetType( automaticTags );
+
+			default:
+				throw new IllegalArgumentException( collectionFamily.name() );
+		}
+	}
+
+	@NotNull
+	@Override
+	public CollectionOfType collectionOf( @NotNull Family collectionFamily )
+	{
+		switch( collectionFamily )
+		{
+			case SequenceOf:
+				return new SequenceOfType();
 
 			case SetOf:
 				return new SetOfType();
 
 			default:
-				throw new IllegalArgumentException( collectionKind.name() );
+				throw new IllegalArgumentException( collectionFamily.name() );
 		}
 	}
 

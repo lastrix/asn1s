@@ -30,6 +30,7 @@ import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.*;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -110,7 +111,7 @@ public class DefinedTypeTemplateTest
 		Module module = factory.dummyModule();
 
 		Ref<Type> intType = factory.builtin( "INTEGER" );
-		CollectionType collectionType = factory.collection( CollectionType.Kind.Sequence );
+		CollectionType collectionType = factory.collection( Family.Sequence );
 		collectionType.addComponent( ComponentType.Kind.Primary, "a", intType );
 		collectionType.addComponent( ComponentType.Kind.Primary, "b", intType );
 

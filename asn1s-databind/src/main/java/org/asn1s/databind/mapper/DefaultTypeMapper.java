@@ -32,10 +32,12 @@ import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.type.CollectionOfType;
 import org.asn1s.api.type.CollectionType;
-import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.DefinedType;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.databind.Asn1Context;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -186,8 +188,8 @@ public class DefaultTypeMapper implements TypeMapper
 			return mappedType;
 
 		ObjectFactory factory = context.getObjectFactory();
-		CollectionType collection = factory.collection( Kind.SequenceOf );
-		collection.addComponent( ComponentType.Kind.Primary, ComponentType.DUMMY, listItemMappedType.getAsnType() );
+		CollectionOfType collection = factory.collectionOf( Family.SequenceOf );
+		collection.setComponent( ComponentType.DUMMY, listItemMappedType.getAsnType() );
 		DefinedType definedListType = factory.define( asn1TypeName, collection, null );
 		SequenceOfMappedType result = new SequenceOfMappedType( type );
 		result.setAsnType( definedListType );
@@ -232,9 +234,9 @@ public class DefaultTypeMapper implements TypeMapper
 	private void generateAsn1Type( SequenceMappedType type, String asn1TypeName )
 	{
 		ObjectFactory factory = context.getObjectFactory();
-		CollectionType collection = factory.collection( Kind.Sequence );
+		CollectionType collection = factory.collection( Family.Sequence );
 		for( MappedField field : type.getFields() )
-			collection.addComponent( ComponentType.Kind.Primary, field.getPropertyName(), field.getType().getAsnType(), field.isOptional(), null );
+			collection.addComponent( Kind.Primary, field.getPropertyName(), field.getType().getAsnType(), field.isOptional(), null );
 
 		type.setAsnType( factory.define( asn1TypeName, collection, null ) );
 	}
@@ -251,12 +253,12 @@ public class DefaultTypeMapper implements TypeMapper
 	private void generateSequenceOfAsn1Type( SequenceOfMappedType type, String asn1TypeName )
 	{
 		ObjectFactory factory = context.getObjectFactory();
-		CollectionType collection = factory.collection( Kind.SequenceOf );
+		CollectionOfType collection = factory.collectionOf( Family.SequenceOf );
 		Ref<org.asn1s.api.type.Type> asnType = type.getComponentType().getAsnType();
 		if( asnType == null )
 			asnType = scope -> type.getComponentType().getAsnType();
 
-		collection.addComponent( ComponentType.Kind.Primary, ComponentType.DUMMY, asnType );
+		collection.setComponent( ComponentType.DUMMY, asnType );
 		type.setAsnType( factory.define( asn1TypeName, collection, null ) );
 	}
 

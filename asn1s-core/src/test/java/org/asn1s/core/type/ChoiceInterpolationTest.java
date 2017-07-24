@@ -29,7 +29,6 @@ import org.asn1s.api.ObjectFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.CollectionType;
-import org.asn1s.api.type.CollectionType.Kind;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
@@ -47,7 +46,7 @@ public class ChoiceInterpolationTest
 
 		Ref<Type> intRef = factory.builtin( "INTEGER" );
 
-		CollectionType choice = factory.collection( Kind.Choice );
+		CollectionType choice = factory.collection( Type.Family.Choice );
 		choice.addComponent( ComponentType.Kind.Primary, "a", intRef );
 		choice.addComponent( ComponentType.Kind.Primary, "b", intRef );
 		choice.addComponent( ComponentType.Kind.Primary, "c", intRef );
@@ -56,6 +55,5 @@ public class ChoiceInterpolationTest
 		DefinedType type = factory.define( "MyChoice", choice, null );
 
 		module.validate();
-		int k = 0;
 	}
 }

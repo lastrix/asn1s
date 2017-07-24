@@ -25,7 +25,6 @@
 
 package org.asn1s.api.type;
 
-import org.asn1s.api.exception.IllegalValueException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,7 +46,7 @@ public interface CollectionType extends Type, ComponentTypeConsumer
 	@Override
 	default ComponentType getNamedType( @NotNull String name )
 	{
-		return getComponent( name, false );
+		return getComponent( name, true );
 	}
 
 	/**
@@ -62,12 +61,6 @@ public interface CollectionType extends Type, ComponentTypeConsumer
 	{
 		return getComponents( false );
 	}
-
-	int getExtensionIndexStart();
-
-	int getExtensionIndexEnd();
-
-	int getMaxVersion();
 
 	/**
 	 * Find component by name
@@ -89,26 +82,17 @@ public interface CollectionType extends Type, ComponentTypeConsumer
 	 */
 	List<ComponentType> getComponents( boolean withExtensions );
 
+	/**
+	 * Return list of source components for this type
+	 *
+	 * @return list of components
+	 */
+	List<Type> getRawComponents();
+
 	boolean isAllComponentsOptional();
-
-	Kind getKind();
-
-	default void assertComponentsOptionalityInRange( int start, int endBound, int version ) throws IllegalValueException
-	{
-		throw new UnsupportedOperationException();
-	}
 
 	default boolean isInstanceOf()
 	{
 		return false;
-	}
-
-	enum Kind
-	{
-		Sequence,
-		SequenceOf,
-		Set,
-		SetOf,
-		Choice
 	}
 }
