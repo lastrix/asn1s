@@ -21,7 +21,7 @@ import java.util.HashMap;
 }
 
 @parser::members {
-    public Asn1Parser(TokenStream input, ModuleResolver resolver, ObjectFactory factory) {
+    public Asn1Parser(TokenStream input, ModuleResolver resolver, Asn1Factory factory) {
         this(input);
         this.resolver = resolver;
         this.factory = factory;
@@ -30,7 +30,7 @@ import java.util.HashMap;
         constraintFactory = factory.constraints();
     }
 
-    public Asn1Parser(TokenStream input, ModuleResolver resolver, ObjectFactory factory, ClassType classType) {
+    public Asn1Parser(TokenStream input, ModuleResolver resolver, Asn1Factory factory, ClassType classType) {
         this(input);
         this.resolver = resolver;
         this.factory = factory;
@@ -41,7 +41,7 @@ import java.util.HashMap;
     }
 
 	private ModuleResolver resolver = new EmptyModuleResolver();
-	private ObjectFactory factory;
+	private Asn1Factory factory;
 	private ClassType classType;
 	private TypeFactory typeFactory;
 	private ValueFactory valueFactory;
