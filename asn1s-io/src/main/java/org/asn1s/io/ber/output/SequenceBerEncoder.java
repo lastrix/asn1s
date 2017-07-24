@@ -42,6 +42,7 @@ import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 
 final class SequenceBerEncoder implements BerEncoder
@@ -80,6 +81,11 @@ final class SequenceBerEncoder implements BerEncoder
 	private static void writeSequence( WriterContext ctx ) throws Asn1Exception, IOException
 	{
 		List<NamedValue> values = ctx.getValue().toValueCollection().asNamedValueList();
+		writeCollectionValues( ctx, values );
+	}
+
+	static void writeCollectionValues( WriterContext ctx, Collection<NamedValue> values ) throws Asn1Exception, IOException
+	{
 		CollectionType type = (CollectionType)ctx.getType();
 		if( values.isEmpty() )
 		{
@@ -89,20 +95,15 @@ final class SequenceBerEncoder implements BerEncoder
 		}
 
 		for( NamedValue value : values )
-		{
-			ComponentType component = type.getComponent( value.getName(), true );
+			writeComponentValue( ctx, type, value );
+	}
 
-			if( component == null )
-			{
-				log.debug( "Unable to write unknown extension component: " + value.getName() );
-				continue;
-			}
+	private static void writeComponentValue( WriterContext ctx, CollectionType type, NamedValue value ) throws Asn1Exception, IOException
+	{
+		ComponentType component = type.getComponent( value.getName(), true );
 
-			// do not write default values, it's just a waste of time and memory
-			if( RefUtils.isSameAsDefaultValue( ctx.getScope(), component, value ) )
-				continue;
-
+		// do not write default values, it's just a waste of time and memory
+		if( component != null && !RefUtils.isSameAsDefaultValue( ctx.getScope(), component, value ) )
 			ctx.writeComponent( component, value );
-		}
 	}
 }

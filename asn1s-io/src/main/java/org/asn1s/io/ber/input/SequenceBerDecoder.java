@@ -27,14 +27,10 @@ package org.asn1s.io.ber.input;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.NamedType;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.ValueCollection;
@@ -44,7 +40,6 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 
 final class SequenceBerDecoder implements BerDecoder
 {
@@ -104,39 +99,12 @@ final class SequenceBerDecoder implements BerDecoder
 		while( iterator.hasNext() )
 		{
 			ComponentType component = iterator.next();
-			if( component.getIndex() <= lastIndex )
+			if( component.getIndex() <= lastIndex || !BerDecoderUtils.isComponentTag( tag, component ) )
 				continue;
 
-			if( checkComponent( tag, component ) )
-			{
-				iterator.remove();
-				return component;
-			}
+			iterator.remove();
+			return component;
 		}
 		return null;
-	}
-
-	private static boolean findChoiceComponent( Tag tag, Type type )
-	{
-		List<? extends NamedType> types = type.getNamedTypes();
-		for( NamedType namedType : types )
-			if( checkComponent( tag, namedType ) )
-				return true;
-
-		return false;
-	}
-
-	private static boolean checkComponent( Tag tag, NamedType namedType )
-	{
-		TagEncoding encoding = (TagEncoding)namedType.getEncoding( EncodingInstructions.Tag );
-		if( encoding != null && encoding.isEqualToTag( tag ) )
-			return true;
-
-		if( namedType.getFamily() == Family.Choice )
-		{
-			if( findChoiceComponent( tag, namedType ) )
-				return true;
-		}
-		return false;
 	}
 }

@@ -25,14 +25,45 @@
 
 package org.asn1s.io.ber.input;
 
+import org.asn1s.api.encoding.EncodingInstructions;
+import org.asn1s.api.encoding.tag.Tag;
+import org.asn1s.api.encoding.tag.TagEncoding;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.type.Type;
+import org.asn1s.api.type.Type.Family;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.List;
 
 final class BerDecoderUtils
 {
 	private BerDecoderUtils()
 	{
+	}
+
+	private static boolean findChoiceComponent( Tag tag, Type type )
+	{
+		List<? extends NamedType> types = type.getNamedTypes();
+		for( NamedType namedType : types )
+			if( isComponentTag( tag, namedType ) )
+				return true;
+
+		return false;
+	}
+
+	static boolean isComponentTag( Tag tag, NamedType namedType )
+	{
+		TagEncoding encoding = (TagEncoding)namedType.getEncoding( EncodingInstructions.Tag );
+		if( encoding != null && encoding.isEqualToTag( tag ) )
+			return true;
+
+		if( namedType.getFamily() == Family.Choice )
+		{
+			if( findChoiceComponent( tag, namedType ) )
+				return true;
+		}
+		return false;
 	}
 
 	static byte[] readString( @NotNull AbstractBerReader reader, int length ) throws IOException

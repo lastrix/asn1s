@@ -27,9 +27,7 @@ package org.asn1s.io.ber.input;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
@@ -96,12 +94,11 @@ public class SetBerDecoder implements BerDecoder
 		while( iterator.hasNext() )
 		{
 			ComponentType component = iterator.next();
-			TagEncoding encoding = (TagEncoding)component.getEncoding( EncodingInstructions.Tag );
-			if( tag.getTagClass() == encoding.getTagClass() && tag.getTagNumber() == encoding.getTagNumber() )
-			{
-				iterator.remove();
-				return component;
-			}
+			if( !BerDecoderUtils.isComponentTag( tag, component ) )
+				continue;
+
+			iterator.remove();
+			return component;
 		}
 		return null;
 	}

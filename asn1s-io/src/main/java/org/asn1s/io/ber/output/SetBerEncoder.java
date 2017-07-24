@@ -34,11 +34,9 @@ import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.io.ber.BerRules;
@@ -81,30 +79,10 @@ final class SetBerEncoder implements BerEncoder
 	{
 		List<NamedValue> values = ctx.getValue().toValueCollection().asNamedValueList();
 		CollectionType type = (CollectionType)ctx.getType();
-		if( values.isEmpty() )
-		{
-			if( type.isAllComponentsOptional() )
-				return;
-			throw new IllegalValueException( "Required components not found" );
-		}
-
 		if( ctx.getRules() == BerRules.Der )
 			values = sortByTag( type, values );
 
-		for( NamedValue value : values )
-		{
-			ComponentType component = type.getComponent( value.getName(), true );
-			if( component == null )
-			{
-				log.debug( "Unable to write unknown extension component: " + value.getName() );
-				continue;
-			}
-
-			if( RefUtils.isSameAsDefaultValue( ctx.getScope(), component, value ) )
-				continue;
-
-			ctx.writeComponent( component, value );
-		}
+		SequenceBerEncoder.writeCollectionValues( ctx, values );
 	}
 
 	private static List<NamedValue> sortByTag( CollectionType type, Collection<NamedValue> values )
