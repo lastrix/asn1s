@@ -25,7 +25,6 @@
 
 package org.asn1s.core.type.x680.string;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Ref;
@@ -44,12 +43,13 @@ import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.CoreUtils;
-import org.asn1s.core.type.BuiltinType;
+import org.asn1s.core.type.AbstractBuiltinTypeWithNamedValues;
 import org.asn1s.core.type.x680.IntegerType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * X.680, p 22.1
@@ -57,7 +57,7 @@ import java.util.*;
  * @author lastrix
  * @version 1.0
  */
-public class BitStringType extends BuiltinType
+public class BitStringType extends AbstractBuiltinTypeWithNamedValues
 {
 	private static final Log log = LogFactory.getLog( BitStringType.class );
 
@@ -68,35 +68,8 @@ public class BitStringType extends BuiltinType
 
 	public BitStringType( @Nullable Collection<NamedValue> namedValues )
 	{
+		super( namedValues );
 		setEncoding( TagEncoding.universal( UniversalType.BitString ) );
-		values = namedValues == null ? null : new ArrayList<>( namedValues );
-	}
-
-	private final List<NamedValue> values;
-	private List<NamedValue> actualValues;
-
-	@Nullable
-	@Override
-	public NamedValue getNamedValue( @NotNull String name )
-	{
-		if( actualValues == null )
-			return null;
-
-		for( NamedValue value : actualValues )
-			if( name.equals( value.getName() ) )
-				return value;
-
-		return null;
-	}
-
-	@NotNull
-	@Override
-	public Collection<NamedValue> getNamedValues()
-	{
-		if( actualValues == null )
-			return Collections.emptyList();
-
-		return Collections.unmodifiableCollection( actualValues );
 	}
 
 	@NotNull
@@ -128,57 +101,39 @@ public class BitStringType extends BuiltinType
 			return value;
 
 		if( kind == Kind.Collection )
-		{
-			int desiredSize = -1;
-			if( Boolean.TRUE.equals( scope.getScopeOption( Constraint.OPTION_HAS_SIZE_CONSTRAINT ) ) )
-			{
-				assert scope.getScopeOption( Constraint.OPTION_SIZE_CONSTRAINT ) != null;
-				//noinspection ConstantConditions
-				desiredSize = scope.getScopeOption( Constraint.OPTION_SIZE_CONSTRAINT );
-			}
-			String bString = CollectionUtils.convertToBString( assertCollection( scope, value.toValueCollection() ), desiredSize );
-			return CoreUtils.byteArrayFromBitString( bString );
-		}
+			return optimizeCollection( scope, value );
 
 		throw new IllegalValueException( "Unable to optimize value: " + valueRef );
 	}
 
-	@Override
-	public String toString()
+	@NotNull
+	private Value optimizeCollection( @NotNull Scope scope, Value value ) throws IllegalValueException, ResolutionException
 	{
-		if( values == null )
-			return UniversalType.BitString.typeName().toString();
-
-		return UniversalType.BitString.typeName() + " { " + StringUtils.join( values, ", " ) + " }";
+		int desiredSize = -1;
+		if( Boolean.TRUE.equals( scope.getScopeOption( Constraint.OPTION_HAS_SIZE_CONSTRAINT ) ) )
+		{
+			assert scope.getScopeOption( Constraint.OPTION_SIZE_CONSTRAINT ) != null;
+			//noinspection ConstantConditions
+			desiredSize = scope.getScopeOption( Constraint.OPTION_SIZE_CONSTRAINT );
+		}
+		String bString = CollectionUtils.convertToBString( assertCollection( scope, value.toValueCollection() ), desiredSize );
+		return CoreUtils.byteArrayFromBitString( bString );
 	}
 
 	@NotNull
 	@Override
 	public Type copy()
 	{
-		if( values == null )
+		if( getValues() == null )
 			log.warn( "Copying builtin type!" );
-		return new BitStringType( values );
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		if( values != null )
-			values.clear();
-
-		if( actualValues != null )
-		{
-			actualValues.clear();
-			actualValues = null;
-		}
+		return new BitStringType( getValues() );
 	}
 
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		if( values != null )
-			actualValues = IntegerType.buildIntegerTypeValues( scope.typedScope( this ), values, true );
+		if( getValues() != null )
+			setActualValues( IntegerType.buildIntegerTypeValues( scope.typedScope( this ), getValues(), true ) );
 	}
 
 	private static Iterable<Value> assertCollection( Scope scope, ValueCollection collection ) throws IllegalValueException, ResolutionException

@@ -25,7 +25,6 @@
 
 package org.asn1s.core.type.x680;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Ref;
@@ -40,11 +39,14 @@ import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
-import org.asn1s.core.type.BuiltinType;
+import org.asn1s.core.type.AbstractBuiltinTypeWithNamedValues;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 
 /**
  * X.680, p 19
@@ -52,7 +54,7 @@ import java.util.*;
  * @author lastrix
  * @version 1.0
  */
-public class IntegerType extends BuiltinType
+public class IntegerType extends AbstractBuiltinTypeWithNamedValues
 {
 	private static final Log log = LogFactory.getLog( IntegerType.class );
 
@@ -64,34 +66,11 @@ public class IntegerType extends BuiltinType
 
 	public IntegerType( @Nullable Collection<NamedValue> namedValues )
 	{
+		super( namedValues );
 		setEncoding( TagEncoding.universal( UniversalType.Integer ) );
-		values = namedValues == null ? null : new ArrayList<>( namedValues );
 	}
-
-	private final List<NamedValue> values;
-	private List<NamedValue> actualValues;
 
 	//////////////////////////////////// Overrides /////////////////////////////////////////////////////////////////////
-	@Nullable
-	@Override
-	public NamedValue getNamedValue( @NotNull String name )
-	{
-		if( actualValues == null )
-			return null;
-
-		for( NamedValue value : actualValues )
-			if( name.equals( value.getName() ) )
-				return value;
-
-		return null;
-	}
-
-	@NotNull
-	@Override
-	public Collection<NamedValue> getNamedValues()
-	{
-		return actualValues == null ? Collections.emptyList() : Collections.unmodifiableCollection( actualValues );
-	}
 
 	@NotNull
 	@Override
@@ -121,42 +100,21 @@ public class IntegerType extends BuiltinType
 		throw new IllegalValueException( "Unable to optimize value of kind: " + kind + ". Value: " + value );
 	}
 
-	@Override
-	public String toString()
-	{
-		if( values == null )
-			return UniversalType.Integer.typeName().toString();
-
-		return UniversalType.Integer.typeName() + " { " + StringUtils.join( values, ", " ) + " }";
-	}
-
 	@NotNull
 	@Override
 	public Type copy()
 	{
-		if( values == null )
+		if( getValues() == null )
 			log.warn( "Copying builtin type, this may be an error!" );
-		return new IntegerType( values );
+		return new IntegerType( getValues() );
 	}
 
-	@Override
-	protected void onDispose()
-	{
-		if( values != null )
-			values.clear();
-
-		if( actualValues != null )
-		{
-			actualValues.clear();
-			actualValues = null;
-		}
-	}
 
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		if( values != null )
-			actualValues = buildIntegerTypeValues( scope.typedScope( this ), values, false );
+		if( getValues() != null )
+			setActualValues( buildIntegerTypeValues( scope.typedScope( this ), getValues(), false ) );
 	}
 
 	//////////////////////////////////// Implementation ////////////////////////////////////////////////////////////////
@@ -186,5 +144,4 @@ public class IntegerType extends BuiltinType
 
 		return value;
 	}
-
 }
