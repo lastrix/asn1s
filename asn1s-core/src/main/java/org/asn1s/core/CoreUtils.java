@@ -116,92 +116,13 @@ public final class CoreUtils
 	@NotNull
 	public static ByteArrayValue byteArrayFromBitString( @NotNull String content )
 	{
-		content = normalizeBitString( content );
-		try( ByteArrayOutputStream os = new ByteArrayOutputStream() )
-		{
-			return convertBitString( content, os );
-		} catch( IOException e )
-		{
-			throw new IllegalStateException( e );
-		}
-	}
-
-	private static String normalizeBitString( @NotNull String content )
-	{
-		if( !content.startsWith( "'" ) && content.endsWith( "'B" ) )
-			throw new IllegalArgumentException( "Not BString: " + content );
-		return CLEAR_BIN_PATTERN.matcher( content.substring( 1, content.length() - 2 ) ).replaceAll( "" );
-	}
-
-	@NotNull
-	private static ByteArrayValue convertBitString( @NotNull String content, ByteArrayOutputStream os )
-	{
-		for( int i = 0; i * 8 < content.length(); i++ )
-			writeOctetFromBits( content, os, i );
-
-		byte[] bytes = os.toByteArray();
-		int usedBits = content.length();
-		return usedBits > 0
-				? new ByteArrayValueImpl( usedBits, bytes )
-				: new ByteArrayValueImpl( 0, EMPTY_ARRAY );
-	}
-
-	private static void writeOctetFromBits( @NotNull String content, ByteArrayOutputStream os, int i )
-	{
-		String value = content.substring( i * 8, Math.min( i * 8 + 8, content.length() ) );
-		int size = value.length();
-		if( size < 8 )
-		{
-			StringBuilder sb = new StringBuilder();
-			sb.append( value );
-			for( int k = size; k < 8; k++ )
-				sb.append( '0' );
-			value = sb.toString();
-		}
-		os.write( Integer.parseInt( value, BIN_RADIX ) & BYTE_MASK );
+		return new BinConverter( content ).convert();
 	}
 
 	@NotNull
 	public static ByteArrayValue byteArrayFromHexString( @NotNull String content )
 	{
-		content = normalizeHexString( content );
-		try( ByteArrayOutputStream os = new ByteArrayOutputStream() )
-		{
-			return convertHexString( content, os );
-		} catch( IOException e )
-		{
-			throw new IllegalStateException( e );
-		}
-	}
-
-	private static String normalizeHexString( @NotNull String content )
-	{
-		if( !content.startsWith( "'" ) && content.endsWith( "'H" ) )
-			throw new IllegalArgumentException( "Not HString: " + content );
-		return CLEAR_HEX_PATTERN.matcher( content.substring( 1, content.length() - 2 ) ).replaceAll( "" );
-	}
-
-	@NotNull
-	private static ByteArrayValue convertHexString( @NotNull String content, ByteArrayOutputStream os )
-	{
-		for( int i = 0; i * 2 < content.length(); i++ )
-			writeOctet( content, os, i );
-
-		byte[] bytes = os.toByteArray();
-		int usedBits = content.length() * 4;
-		return usedBits > 0
-				? new ByteArrayValueImpl( usedBits, bytes )
-				: new ByteArrayValueImpl( 0, EMPTY_ARRAY );
-	}
-
-	private static void writeOctet( @NotNull String content, ByteArrayOutputStream os, int i )
-	{
-		int size = Math.min( i * 2 + 2, content.length() );
-		//noinspection NonConstantStringShouldBeStringBuffer
-		String value = content.substring( i * 2, size );
-		if( value.length() == 1 )
-			value += "0";
-		os.write( Integer.parseInt( value, HEX_RADIX ) & BYTE_MASK );
+		return new HexConverter( content ).convert();
 	}
 
 	public static String paramMapToString( Map<String, TemplateParameter> parameterMap )
@@ -219,6 +140,142 @@ public final class CoreUtils
 		} catch( ValidationException e )
 		{
 			throw new ResolutionException( "Unable to create new template type instance", e );
+		}
+	}
+
+	private abstract static class AbstractByteArrayConverter
+	{
+		AbstractByteArrayConverter( String content )
+		{
+			originalLength = content.length();
+			this.content = alignToStride( content );
+		}
+
+		private final String content;
+		private final int originalLength;
+
+		private String alignToStride( String content )
+		{
+			int stride = getStride();
+			int count = content.length() % stride;
+			if( count == 0 )
+				return content;
+			count = stride - count;
+			StringBuilder sb = new StringBuilder();
+			sb.append( content );
+			while( count > 0 )
+			{
+				sb.append( '0' );
+				count--;
+			}
+			return sb.toString();
+		}
+
+
+		ByteArrayValueImpl convert()
+		{
+			try( ByteArrayOutputStream os = new ByteArrayOutputStream() )
+			{
+				return writeToStream( os );
+			} catch( IOException e )
+			{
+				throw new IllegalStateException( e );
+			}
+		}
+
+		private ByteArrayValueImpl writeToStream( ByteArrayOutputStream os )
+		{
+			for( int i = 0; i * getStride() < content.length(); i++ )
+				writeOctet( os, i );
+
+			byte[] bytes = os.toByteArray();
+			int usedBits = originalLength * getMultiplier();
+			return usedBits > 0
+					? new ByteArrayValueImpl( usedBits, bytes )
+					: new ByteArrayValueImpl( 0, EMPTY_ARRAY );
+		}
+
+		private void writeOctet( ByteArrayOutputStream os, int i )
+		{
+			int size = Math.min( i * getStride() + getStride(), content.length() );
+			//noinspection NonConstantStringShouldBeStringBuffer
+			String value = content.substring( i * getStride(), size );
+			if( value.length() < getStride() )
+				throw new IllegalStateException();
+
+			os.write( Integer.parseInt( value, getRadix() ) & BYTE_MASK );
+		}
+
+		protected abstract int getStride();
+
+		protected abstract int getRadix();
+
+		protected abstract int getMultiplier();
+	}
+
+	private static final class BinConverter extends AbstractByteArrayConverter
+	{
+		private BinConverter( String content )
+		{
+			super( normalize( content ) );
+		}
+
+		private static String normalize( @NotNull String content )
+		{
+			if( !content.startsWith( "'" ) && content.endsWith( "'B" ) )
+				throw new IllegalArgumentException( "Not BString: " + content );
+			return CLEAR_BIN_PATTERN.matcher( content.substring( 1, content.length() - 2 ) ).replaceAll( "" );
+		}
+
+		@Override
+		protected int getStride()
+		{
+			return 8;
+		}
+
+		@Override
+		protected int getRadix()
+		{
+			return BIN_RADIX;
+		}
+
+		@Override
+		protected int getMultiplier()
+		{
+			return 1;
+		}
+	}
+
+	private static final class HexConverter extends AbstractByteArrayConverter
+	{
+		private HexConverter( String content )
+		{
+			super( normalize( content ) );
+		}
+
+		private static String normalize( @NotNull String content )
+		{
+			if( !content.startsWith( "'" ) && content.endsWith( "'H" ) )
+				throw new IllegalArgumentException( "Not HString: " + content );
+			return CLEAR_HEX_PATTERN.matcher( content.substring( 1, content.length() - 2 ) ).replaceAll( "" );
+		}
+
+		@Override
+		protected int getStride()
+		{
+			return 2;
+		}
+
+		@Override
+		protected int getRadix()
+		{
+			return HEX_RADIX;
+		}
+
+		@Override
+		protected int getMultiplier()
+		{
+			return 4;
 		}
 	}
 }
