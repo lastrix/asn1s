@@ -30,6 +30,7 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.constraint.Constraint;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.constraint.ElementSetSpecs;
+import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ClassFieldType;
@@ -65,42 +66,54 @@ public class TableConstraintTemplate implements ConstraintTemplate
 		this.relationItems = relationItems;
 	}
 
-	@SuppressWarnings( "unchecked" )
 	@Override
 	public Constraint build( @NotNull Scope scope, @NotNull Type type ) throws ResolutionException, ValidationException
 	{
 		if( type instanceof ClassFieldType )
-		{
-			Type resolve = objectSet.resolve( scope );
-			resolve.validate( scope );
-			if( !resolve.hasElementSetSpecs() )
-				throw new ValidationException( "Is not element set specs" );
+			return buildTableConstraint( scope, (NamedType)type );
 
-			List<Value> values = new ArrayList<>();
-			resolve.asElementSetSpecs().collectValues( values, REQUIRED_KINDS );
+		if( relationItems == null || relationItems.isEmpty() )
+			return buildElementsConstraint( scope, type );
 
-			String name = ( (NamedType)type ).getName();
-			return new TableConstraint( (ClassFieldType)type, name, values, relationItems == null ? Collections.emptyList() : relationItems );
-		}
-		else if( relationItems == null || relationItems.isEmpty() )
-		{
-			Type resolve = objectSet.resolve( scope );
-			resolve.validate( scope );
-			if( !resolve.hasElementSetSpecs() )
-				throw new ValidationException( "Is not elementSetSpecs: " + objectSet );
-
-			ElementSetSpecs specs = resolve.asElementSetSpecs();
-			if( type instanceof InstanceOfType )
-			{
-				Collection<Value> values = new ArrayList<>();
-				specs.collectValues( values, Collections.singletonList( Kind.Object ) );
-				return new InstanceOfConstraint( (List<ObjectValue>)(Object)values );
-			}
-
-			return specs.copyForType( scope, type );
-		}
-		else
-			throw new ValidationException( "Unable to build table or type constraint for type: " + type );
+		throw new ValidationException( "Unable to build table or type constraint for type: " + type );
 	}
 
+	@NotNull
+	private Constraint buildElementsConstraint( @NotNull Scope scope, @NotNull Type type ) throws ResolutionException, ValidationException
+	{
+		Type resolve = objectSet.resolve( scope );
+		resolve.validate( scope );
+		if( !resolve.hasElementSetSpecs() )
+			throw new ValidationException( "Is not elementSetSpecs: " + objectSet );
+
+		ElementSetSpecs specs = resolve.asElementSetSpecs();
+		if( type instanceof InstanceOfType )
+			return buildInstanceOfConstraint( specs );
+
+		return specs.copyForType( scope, type );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	@NotNull
+	private static Constraint buildInstanceOfConstraint( Constraint specs ) throws IllegalValueException
+	{
+		Collection<Value> values = new ArrayList<>();
+		specs.collectValues( values, Collections.singletonList( Kind.Object ) );
+		return new InstanceOfConstraint( (List<ObjectValue>)(Object)values );
+	}
+
+	@NotNull
+	private Constraint buildTableConstraint( @NotNull Scope scope, @NotNull NamedType type ) throws ResolutionException, ValidationException
+	{
+		Type resolve = objectSet.resolve( scope );
+		resolve.validate( scope );
+		if( !resolve.hasElementSetSpecs() )
+			throw new ValidationException( "Is not element set specs" );
+
+		List<Value> values = new ArrayList<>();
+		resolve.asElementSetSpecs().collectValues( values, REQUIRED_KINDS );
+
+		String name = type.getName();
+		return new TableConstraint( (ClassFieldType)type, name, values, relationItems == null ? Collections.emptyList() : relationItems );
+	}
 }
