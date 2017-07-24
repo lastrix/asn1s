@@ -64,28 +64,31 @@ public class ClassFieldFromUnknownSourceRef implements Ref<Type>
 		Object resolve = source.resolve( scope );
 		if( resolve instanceof Type )
 		{
-			Type type = (Type)resolve;
-			try
-			{
-				type.validate( scope );
-			} catch( ValidationException e )
-			{
-				throw new ResolutionException( "Unable to validate type: " + type, e );
-			}
-			while( type instanceof DefinedTypeImpl )
-				type = type.getSibling();
-
-			assert type instanceof ClassType;
-			ClassType classType = (ClassType)type;
-
+			ClassType classType = resolveClassType( scope, (Type)resolve );
 			ClassFieldType field = classType.getField( name );
 			if( field == null )
-				throw new ResolutionException( "Unable to find field '" + name + "' in class: " + type );
+				throw new ResolutionException( "Unable to find field '" + name + "' in class: " + resolve );
 
 			return field;
 		}
 
 		throw new UnsupportedOperationException();
+	}
+
+	private static ClassType resolveClassType( Scope scope, Type type ) throws ResolutionException
+	{
+		try
+		{
+			type.validate( scope );
+		} catch( ValidationException e )
+		{
+			throw new ResolutionException( "Unable to validate type: " + type, e );
+		}
+		while( type instanceof DefinedTypeImpl )
+			type = type.getSibling();
+
+		assert type instanceof ClassType;
+		return (ClassType)type;
 	}
 
 	@Override
