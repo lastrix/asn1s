@@ -28,6 +28,7 @@ package org.asn1s.core;
 import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Scope;
 import org.asn1s.api.TemplateParameter;
+import org.asn1s.api.Validation;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.Type;
@@ -173,5 +174,16 @@ public final class CoreUtils
 		List<TemplateParameter> parameters = new ArrayList<>( parameterMap.values() );
 		parameters.sort( Comparator.comparingInt( TemplateParameter:: getIndex ) );
 		return StringUtils.join( parameters, ", " );
+	}
+
+	public static void resolutionValidate( Scope scope, Validation copy ) throws ResolutionException
+	{
+		try
+		{
+			copy.validate( scope );
+		} catch( ValidationException e )
+		{
+			throw new ResolutionException( "Unable to create new template type instance", e );
+		}
 	}
 }

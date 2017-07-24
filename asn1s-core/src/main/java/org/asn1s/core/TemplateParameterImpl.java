@@ -111,7 +111,7 @@ final class TemplateParameterImpl implements TemplateParameter
 	public String toString()
 	{
 		if( getGovernor() != null )
-			return index + ": " + reference + '(' + getGovernor() + ')';
-		return index + ": " + reference + "()";
+			return getGovernor() + ": " + reference;
+		return String.valueOf( reference );
 	}
 }

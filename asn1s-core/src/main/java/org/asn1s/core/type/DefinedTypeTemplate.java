@@ -25,7 +25,6 @@
 
 package org.asn1s.core.type;
 
-import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.Template;
@@ -38,21 +37,25 @@ import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class DefinedTypeTemplate extends DefinedTypeImpl implements Template<DefinedTypeTemplate>
 {
 	public DefinedTypeTemplate( @NotNull Module module, @NotNull String name, @NotNull Ref<Type> reference, @Nullable Iterable<TemplateParameter> parameters )
 	{
-		this( module, name, reference, parameters, true );
+		super( module, name, reference );
+		template = true;
+		if( parameters != null )
+			parameters.forEach( e -> parameterMap.put( e.getName(), e ) );
 	}
 
-	private DefinedTypeTemplate( @NotNull Module module, @NotNull String name, @NotNull Ref<Type> reference, @Nullable Iterable<TemplateParameter> parameters, boolean template )
+	private DefinedTypeTemplate( @NotNull DefinedTypeTemplate typeTemplate, String namespace )
 	{
-		super( module, name, reference );
-		this.template = template;
-		if( parameters != null )
-			parameters.forEach( this :: addParameter );
+		super( typeTemplate.getModule(), typeTemplate.getName(), typeTemplate.cloneSibling() );
+		template = false;
+		setNamespace( namespace );
+		typeTemplate.parameterMap.values().forEach( e -> parameterMap.put( e.getName(), e ) );
 	}
 
 	private final boolean template;
@@ -60,7 +63,7 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	@Override
 	public String getFullyQualifiedName()
 	{
-		return super.getFullyQualifiedName() + '{' + getParametersString() + '}';
+		return super.getFullyQualifiedName() + '{' + CoreUtils.paramMapToString( parameterMap ) + '}';
 	}
 
 	@NotNull
@@ -92,13 +95,7 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	@Override
 	public DefinedTypeTemplate copy()
 	{
-		return copy( template );
-	}
-
-	@NotNull
-	private DefinedTypeTemplate copy( boolean template )
-	{
-		return new DefinedTypeTemplate( getModule(), getName(), cloneSibling(), parameterMap.values(), template );
+		return new DefinedTypeTemplate( getModule(), getName(), cloneSibling(), parameterMap.values() );
 	}
 
 	@Override
@@ -114,12 +111,6 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	}
 
 	@Override
-	public String toString()
-	{
-		return getName() + '{' + StringUtils.join( parameterMap.values(), ", " ) + '}';
-	}
-
-	@Override
 	public int getParameterCount()
 	{
 		return parameterMap.size();
@@ -128,15 +119,8 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	@Override
 	public DefinedTypeTemplate newInstance( Scope scope, String namespace ) throws ResolutionException
 	{
-		DefinedTypeTemplate copy = copy( false );
-		copy.setNamespace( namespace );
-		try
-		{
-			copy.validate( scope );
-		} catch( ValidationException e )
-		{
-			throw new ResolutionException( "Unable to create new template type instance", e );
-		}
+		DefinedTypeTemplate copy = new DefinedTypeTemplate( this, namespace );
+		CoreUtils.resolutionValidate( scope, copy );
 		return copy;
 	}
 
@@ -149,26 +133,6 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 
 	private final Map<String, TemplateParameter> parameterMap = new HashMap<>();
 
-	private String getParametersString()
-	{
-		List<TemplateParameter> list = new ArrayList<>( parameterMap.values() );
-		list.sort( Comparator.comparingInt( TemplateParameter:: getIndex ) );
-		StringBuilder sb = new StringBuilder();
-		boolean first = true;
-		for( TemplateParameter parameter : list )
-		{
-			if( first )
-				first = false;
-			else
-				sb.append( ", " );
-
-			sb.append( parameter.getName() );
-			if( parameter.getGovernor() != null )
-				sb.append( ": " ).append( parameter.getGovernor() );
-		}
-		return sb.toString();
-	}
-
 	@Override
 	@Nullable
 	public TemplateParameter getParameter( @NotNull String name )
@@ -176,8 +140,9 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 		return parameterMap.get( name );
 	}
 
-	private void addParameter( @NotNull TemplateParameter parameter )
+	@Override
+	public String toString()
 	{
-		parameterMap.put( parameter.getName(), parameter );
+		return getName() + '{' + CoreUtils.paramMapToString( parameterMap ) + '}';
 	}
 }
