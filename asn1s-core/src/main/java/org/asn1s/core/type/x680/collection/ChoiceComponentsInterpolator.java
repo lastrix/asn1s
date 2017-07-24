@@ -31,8 +31,6 @@ import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 final class ChoiceComponentsInterpolator extends AbstractComponentInterpolator
@@ -54,13 +52,6 @@ final class ChoiceComponentsInterpolator extends AbstractComponentInterpolator
 	@Override
 	protected void assertTagAmbiguity( Collection<ComponentType> components ) throws ValidationException
 	{
-		Iterable<ComponentType> list = new LinkedList<>( components );
-		Iterator<ComponentType> iterator = list.iterator();
-		while( iterator.hasNext() )
-		{
-			ComponentType component = iterator.next();
-			iterator.remove();
-			CoreCollectionUtils.assertTags( component, list );
-		}
+		CoreCollectionUtils.assertTagAmbiguityImpl( components );
 	}
 }

@@ -36,12 +36,27 @@ import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 final class CoreCollectionUtils
 {
 	private CoreCollectionUtils()
 	{
+	}
+
+	static void assertTagAmbiguityImpl( Collection<ComponentType> components ) throws ValidationException
+	{
+		Iterable<ComponentType> list = new LinkedList<>( components );
+		Iterator<ComponentType> iterator = list.iterator();
+		while( iterator.hasNext() )
+		{
+			ComponentType component = iterator.next();
+			iterator.remove();
+			assertTags( component, list );
+		}
 	}
 
 	static void assertTags( NamedType component, Iterable<ComponentType> list ) throws ValidationException
