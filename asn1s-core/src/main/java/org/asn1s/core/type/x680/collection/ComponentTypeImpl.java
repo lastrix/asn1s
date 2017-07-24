@@ -53,8 +53,47 @@ final class ComponentTypeImpl extends AbstractComponentType
 	{
 		super( ofThis.getIndex(), ofThis.getName(), ofThis.getComponentTypeRef() );
 		setVersion( version );
-		setOptional( ofThis.isOptional() );
-		setDefaultValueRef( ofThis.getDefaultValueRef() );
+		optional = ofThis.isOptional();
+		defaultValueRef = ofThis.getDefaultValueRef();
+	}
+
+	private boolean optional;
+	private Ref<Value> defaultValueRef;
+	private Value defaultValue;
+
+	@Override
+	public boolean isOptional()
+	{
+		return optional;
+	}
+
+	public void setOptional( boolean optional )
+	{
+		if( optional && getDefaultValueRef() != null )
+			throw new IllegalArgumentException( "Either default value or optional must be present" );
+
+		this.optional = optional;
+	}
+
+	@Nullable
+	@Override
+	public Ref<Value> getDefaultValueRef()
+	{
+		return defaultValueRef;
+	}
+
+	void setDefaultValueRef( @Nullable Ref<Value> defaultValueRef )
+	{
+		if( defaultValueRef != null && isOptional() )
+			throw new IllegalArgumentException( "Either default value or optional must be present" );
+		this.defaultValueRef = defaultValueRef;
+	}
+
+	@Nullable
+	@Override
+	public Value getDefaultValue()
+	{
+		return defaultValue;
 	}
 
 	@NotNull
@@ -131,6 +170,15 @@ final class ComponentTypeImpl extends AbstractComponentType
 		return toString().hashCode();
 	}
 
+	@Override
+	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
+	{
+		scope = getScope( scope );
+		super.onValidate( scope );
+		if( defaultValueRef != null )
+			defaultValue = getComponentType().optimize( scope, defaultValueRef );
+	}
+
 	@NotNull
 	@Override
 	public ComponentType copy()
@@ -157,5 +205,12 @@ final class ComponentTypeImpl extends AbstractComponentType
 			return getComponentName() + ' ' + getComponentTypeRef() + " DEFAULT " + getDefaultValueRef();
 
 		return getComponentName() + ' ' + getComponentTypeRef();
+	}
+
+	@Override
+	protected void onDispose()
+	{
+		defaultValueRef = null;
+		defaultValue = null;
 	}
 }

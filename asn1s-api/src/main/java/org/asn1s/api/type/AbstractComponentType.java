@@ -33,7 +33,6 @@ import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.util.RefUtils;
-import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.NamedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -54,11 +53,8 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 	private final int index;
 	private int version;
 	private final String name;
-	private boolean optional;
 	private Ref<Type> componentTypeRef;
 	private Type componentType;
-	private Ref<Value> defaultValueRef;
-	private Value defaultValue;
 
 	@Override
 	public int getIndex()
@@ -83,20 +79,6 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 		return name;
 	}
 
-	@Override
-	public boolean isOptional()
-	{
-		return optional;
-	}
-
-	public void setOptional( boolean optional )
-	{
-		if( optional && getDefaultValueRef() != null )
-			throw new IllegalArgumentException( "Either default value or optional must be present" );
-
-		this.optional = optional;
-	}
-
 	@NotNull
 	@Override
 	public Ref<Type> getComponentTypeRef()
@@ -114,27 +96,6 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 	protected Type getComponentTypeOrNull()
 	{
 		return componentType;
-	}
-
-	@Nullable
-	@Override
-	public Ref<Value> getDefaultValueRef()
-	{
-		return defaultValueRef;
-	}
-
-	public void setDefaultValueRef( @Nullable Ref<Value> defaultValueRef )
-	{
-		if( defaultValueRef != null && isOptional() )
-			throw new IllegalArgumentException( "Either default value or optional must be present" );
-		this.defaultValueRef = defaultValueRef;
-	}
-
-	@Nullable
-	@Override
-	public Value getDefaultValue()
-	{
-		return defaultValue;
 	}
 
 	@Nullable
@@ -188,16 +149,12 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
-		scope = getScope( scope );
 		if( componentType == null )
 			componentType = componentTypeRef.resolve( scope );
 
 		if( !( componentType instanceof DefinedType ) )
 			componentType.setNamespace( getFullyQualifiedName() + '.' );
 		componentType.validate( scope );
-
-		if( defaultValueRef != null )
-			defaultValue = defaultValueRef.resolve( scope );
 	}
 
 	@Override
@@ -210,8 +167,5 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 		if( componentType != null && !( componentType instanceof DefinedType ) )
 			componentType.dispose();
 		componentType = null;
-
-		defaultValueRef = null;
-		defaultValue = null;
 	}
 }
