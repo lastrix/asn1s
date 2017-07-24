@@ -74,12 +74,6 @@ public final class ExtensionAdditionGroupType extends AbstractType implements Co
 	}
 
 	@Override
-	public void addExtensionGroup( @NotNull Type extensionGroup )
-	{
-		throw new UnsupportedOperationException( "Unable to add extension group to other extension group" );
-	}
-
-	@Override
 	public int getVersion()
 	{
 		return version;
@@ -124,8 +118,7 @@ public final class ExtensionAdditionGroupType extends AbstractType implements Co
 	public Type copy()
 	{
 		ExtensionAdditionGroupType type = new ExtensionAdditionGroupType( family );
-		if( version != -1 )
-			type.setVersion( version );
+		type.setVersion( version );
 
 		for( Type component : components )
 			type.addComponent( component.copy() );
@@ -145,24 +138,19 @@ public final class ExtensionAdditionGroupType extends AbstractType implements Co
 			component.setNamespace( getNamespace() );
 			component.validate( scope );
 		}
-
 		actual = new ArrayList<>();
 		for( Type component : components )
-		{
-			if( component instanceof ComponentType )
-				actual.add( (ComponentType)component );
-			else if( component instanceof ComponentsFromType )
-				actual.addAll( ( (ComponentsFromType)component ).getComponents() );
-			else
-				throw new ValidationException( "Unable to process type class: " + component.getClass().getName() );
-		}
+			validateComponent( component );
 	}
 
-	@NotNull
-	@Override
-	public Family getFamily()
+	private void validateComponent( Type component ) throws ValidationException
 	{
-		return family;
+		if( component instanceof ComponentType )
+			actual.add( (ComponentType)component );
+		else if( component instanceof ComponentsFromType )
+			actual.addAll( ( (ComponentsFromType)component ).getComponents() );
+		else
+			throw new ValidationException( "Unable to process type class: " + component.getClass().getName() );
 	}
 
 	@Override

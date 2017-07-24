@@ -35,5 +35,8 @@ public interface ComponentTypeConsumer
 
 	void addComponentsFromType( Kind kind, @NotNull Ref<Type> typeRef );
 
-	void addExtensionGroup( @NotNull Type extensionGroup );
+	default void addExtensionGroup( @NotNull Type extensionGroup )
+	{
+		throw new UnsupportedOperationException();
+	}
 }
