@@ -126,4 +126,10 @@ public abstract class AbstractComponentType extends AbstractNestingType implemen
 
 		return getComponentName() + ' ' + getComponentTypeRef();
 	}
+
+	@Override
+	protected String getSiblingNamespace()
+	{
+		return getFullyQualifiedName() + '.';
+	}
 }
