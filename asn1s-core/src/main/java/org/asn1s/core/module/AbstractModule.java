@@ -27,7 +27,6 @@ package org.asn1s.core.module;
 
 import org.asn1s.api.Disposable;
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.*;
@@ -37,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 abstract class AbstractModule implements Module
 {
@@ -94,60 +92,6 @@ abstract class AbstractModule implements Module
 	public Scope createScope()
 	{
 		return new ModuleScope( this );
-	}
-
-	/////////////////////////////// Attributes /////////////////////////////////////////////////////////////////////////
-	private TagMethod tagMethod = TagMethod.Unknown;
-	private boolean allTypesExtensible;
-	private Collection<String> exports = new ArrayList<>();
-
-	@Override
-	@NotNull
-	public final TagMethod getTagMethod()
-	{
-		return tagMethod;
-	}
-
-	@Override
-	public final void setTagMethod( TagMethod tagMethod )
-	{
-		this.tagMethod = tagMethod;
-	}
-
-	@Override
-	public boolean isAllTypesExtensible()
-	{
-		return allTypesExtensible;
-	}
-
-	@Override
-	public void setAllTypesExtensible( @SuppressWarnings( "SameParameterValue" ) boolean flag )
-	{
-		allTypesExtensible = flag;
-	}
-
-	@Override
-	public boolean hasExports()
-	{
-		return exports != null && !exports.isEmpty();
-	}
-
-	@Override
-	public boolean isExportAll()
-	{
-		return exports == null;
-	}
-
-	@Override
-	public Collection<String> getExports()
-	{
-		return exports == null ? Collections.emptyList() : Collections.unmodifiableCollection( exports );
-	}
-
-	@Override
-	public void setExports( Collection<String> exports )
-	{
-		this.exports = exports == null ? null : new ArrayList<>( exports );
 	}
 
 	/////////////////////////////// Misc operations ////////////////////////////////////////////////////////////////////

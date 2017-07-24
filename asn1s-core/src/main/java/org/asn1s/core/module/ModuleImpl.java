@@ -34,7 +34,9 @@ import org.asn1s.api.value.DefinedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 
 public class ModuleImpl extends AbstractModule
@@ -53,6 +55,10 @@ public class ModuleImpl extends AbstractModule
 		super( name, resolver );
 	}
 
+	private boolean allTypesExtensible;
+	private Collection<String> exports = new ArrayList<>();
+	private TagMethod tagMethod = TagMethod.Unknown;
+
 	@Override
 	public Module getCoreModule()
 	{
@@ -66,16 +72,66 @@ public class ModuleImpl extends AbstractModule
 		{
 			for( Module module : getModuleResolver().getAllModules() )
 			{
-				Collection<String> exports = new HashSet<>();
+				Collection<String> list = new HashSet<>();
 				for( DefinedType type : module.getTypeResolver().getTypes() )
-					exports.add( type.getName() );
+					list.add( type.getName() );
 
 				for( DefinedValue value : module.getValueResolver().getValues() )
-					exports.add( value.getName() );
+					list.add( value.getName() );
 
-				getTypeResolver().addImports( module.getModuleReference(), exports );
-				getValueResolver().addImports( module.getModuleReference(), exports );
+				getTypeResolver().addImports( module.getModuleReference(), list );
+				getValueResolver().addImports( module.getModuleReference(), list );
 			}
 		}
 	}
+
+	@Override
+	public boolean isAllTypesExtensible()
+	{
+		return allTypesExtensible;
+	}
+
+	@Override
+	public void setAllTypesExtensible( @SuppressWarnings( "SameParameterValue" ) boolean flag )
+	{
+		allTypesExtensible = flag;
+	}
+
+	@Override
+	public boolean hasExports()
+	{
+		return exports != null && !exports.isEmpty();
+	}
+
+	@Override
+	public boolean isExportAll()
+	{
+		return exports == null;
+	}
+
+	@Override
+	public Collection<String> getExports()
+	{
+		return exports == null ? Collections.emptyList() : Collections.unmodifiableCollection( exports );
+	}
+
+	@Override
+	public void setExports( Collection<String> exports )
+	{
+		this.exports = exports == null ? null : new ArrayList<>( exports );
+	}
+
+	@Override
+	@NotNull
+	public final TagMethod getTagMethod()
+	{
+		return tagMethod;
+	}
+
+	@Override
+	public final void setTagMethod( TagMethod tagMethod )
+	{
+		this.tagMethod = tagMethod;
+	}
+
 }
