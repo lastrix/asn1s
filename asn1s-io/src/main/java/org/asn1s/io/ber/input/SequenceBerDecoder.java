@@ -25,75 +25,26 @@
 
 package org.asn1s.io.ber.input;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.ValueCollection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Iterator;
-import java.util.LinkedList;
 
-final class SequenceBerDecoder implements BerDecoder
+final class SequenceBerDecoder extends AbstractCollectionBerDecoder
 {
-	private static final Log log = LogFactory.getLog( SequenceBerDecoder.class );
-
-	@Override
-	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
-	{
-		assert context.getType().getFamily() == Family.Sequence;
-		assert context.getTag().isConstructed();
-
-		if( context.getLength() == 0 )
-			return context.getValueFactory().collection( true );
-
-		return readSequence( context );
-	}
-
 	@NotNull
-	private static Value readSequence( @NotNull ReaderContext ctx ) throws IOException, Asn1Exception
+	@Override
+	protected Family getRequiredFamily()
 	{
-		CollectionType type = (CollectionType)ctx.getType();
-		Iterable<ComponentType> components = new LinkedList<>( type.getComponents( true ) );
-		int start = ctx.position();
-		ValueCollection collection = ctx.getValueFactory().collection( true );
-		ctx.getScope().setValueLevel( collection );
-		int lastIndex = -1;
-		int ctxLength = ctx.getLength();
-		boolean indefinite = ctxLength == -1;
-		while( indefinite || start + ctxLength > ctx.position() )
-		{
-			if( ctx.readTagInfoEocPossible( !indefinite ) )
-				break;
-
-			ComponentType component = chooseComponentByEncoding( components, ctx.getTag(), lastIndex );
-			if( component == null )
-			{
-				log.warn( "Unable to find sequence component for tag: " + ctx.getTag() + ", skipping." );
-				if( ctx.getLength() == -1 )
-					ctx.skipToEoc();
-				else
-					ctx.skip( ctx.getLength() );
-				continue;
-			}
-			collection.addNamed( component.getComponentName(), ctx.readComponentType( component, ctx.getTag(), ctx.getLength() ) );
-			lastIndex = component.getIndex();
-		}
-
-		ctx.ensureConstructedRead( start, ctxLength, ctx.getTag() );
-		return collection;
+		return Family.Sequence;
 	}
-
 
 	@Nullable
-	private static ComponentType chooseComponentByEncoding( Iterable<ComponentType> components, Tag tag, int lastIndex )
+	@Override
+	protected ComponentType chooseComponent( @NotNull Iterable<ComponentType> components, @NotNull Tag tag, int lastIndex )
 	{
 		Iterator<ComponentType> iterator = components.iterator();
 		while( iterator.hasNext() )

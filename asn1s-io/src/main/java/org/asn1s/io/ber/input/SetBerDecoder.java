@@ -25,70 +25,26 @@
 
 package org.asn1s.io.ber.input;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.encoding.tag.Tag;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x680.ValueCollection;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.util.Iterator;
-import java.util.LinkedList;
 
-public class SetBerDecoder implements BerDecoder
+public class SetBerDecoder extends AbstractCollectionBerDecoder
 {
-	private static final Log log = LogFactory.getLog( SetBerDecoder.class );
-
+	@NotNull
 	@Override
-	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
+	protected Family getRequiredFamily()
 	{
-		assert context.getType().getFamily() == Family.Set;
-		assert context.getTag().isConstructed();
-		return readSet( context );
-	}
-
-	private static Value readSet( @NotNull ReaderContext ctx ) throws IOException, Asn1Exception
-	{
-		CollectionType type = (CollectionType)ctx.getType();
-		int setLength = ctx.getLength();
-		if( setLength == 0 )
-			return ctx.getValueFactory().collection( true );
-
-		Iterable<ComponentType> components = new LinkedList<>( type.getComponents( true ) );
-		int start = ctx.position();
-		ValueCollection collection = ctx.getValueFactory().collection( true );
-		ctx.getScope().setValueLevel( collection );
-		boolean indefinite = setLength == -1;
-		while( indefinite || start + setLength > ctx.position() )
-		{
-			if( ctx.readTagInfoEocPossible( !indefinite ) )
-				break;
-
-			ComponentType component = chooseComponentByEncoding( components, ctx.getTag() );
-			if( component == null )
-			{
-				log.warn( "Unable to find set component for tag: " + ctx.getTag() + ", skipping." );
-				if( ctx.getLength() == -1 )
-					ctx.skipToEoc();
-				else
-					ctx.skip( ctx.getLength() );
-				continue;
-			}
-			collection.addNamed( component.getComponentName(), ctx.readComponentType( component, ctx.getTag(), ctx.getLength() ) );
-		}
-
-		ctx.ensureConstructedRead( start, setLength, ctx.getTag() );
-		return collection;
+		return Family.Set;
 	}
 
 	@Nullable
-	private static ComponentType chooseComponentByEncoding( Iterable<ComponentType> components, Tag tag )
+	@Override
+	protected ComponentType chooseComponent( @NotNull Iterable<ComponentType> components, @NotNull Tag tag, int lastIndex )
 	{
 		Iterator<ComponentType> iterator = components.iterator();
 		while( iterator.hasNext() )
