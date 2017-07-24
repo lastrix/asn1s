@@ -25,21 +25,24 @@
 
 package org.asn1s.io.ber.input;
 
-import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.TimeUtils;
-import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
+import java.time.Instant;
 
-public class UTCTimeBerDecoder implements BerDecoder
+public class UTCTimeBerDecoder extends AbstractTimeBerDecoder
 {
+	@NotNull
 	@Override
-	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
+	protected Family getRequiredFamily()
 	{
-		assert context.getType().getFamily() == Family.UTCTime;
-		String timeString = new String( BerDecoderUtils.readString( context.getReader(), context.getLength() ), TimeUtils.CHARSET );
-		return context.getValueFactory().timeValue( TimeUtils.parseUTCTime( timeString ) );
+		return Family.UTCTime;
+	}
+
+	@Override
+	protected Instant parseValue( String timeString )
+	{
+		return TimeUtils.parseUTCTime( timeString );
 	}
 }

@@ -27,22 +27,24 @@ package org.asn1s.io.ber.input;
 
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.util.TimeUtils;
+import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.time.Instant;
 
-public class GeneralizedTimeBerDecoder extends AbstractTimeBerDecoder
+abstract class AbstractTimeBerDecoder implements BerDecoder
 {
-	@NotNull
 	@Override
-	protected Family getRequiredFamily()
+	public final Value decode( @NotNull ReaderContext context ) throws IOException
 	{
-		return Family.GeneralizedTime;
+		assert context.getType().getFamily() == getRequiredFamily();
+		String timeString = new String( BerDecoderUtils.readString( context.getReader(), context.getLength() ), TimeUtils.CHARSET );
+		return context.getValueFactory().timeValue( parseValue( timeString ) );
 	}
 
-	@Override
-	protected Instant parseValue( String timeString )
-	{
-		return TimeUtils.parseGeneralizedTime( timeString );
-	}
+	@NotNull
+	protected abstract Family getRequiredFamily();
+
+	protected abstract Instant parseValue( String timeString );
 }
