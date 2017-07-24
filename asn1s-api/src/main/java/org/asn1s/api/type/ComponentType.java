@@ -137,13 +137,6 @@ public interface ComponentType extends NamedType
 		return getComponentType().getEncoding( instructions );
 	}
 
-	@Nullable
-	@Override
-	default Type getSibling()
-	{
-		return getComponentType();
-	}
-
 	enum Kind
 	{
 		Primary, // goes before extension

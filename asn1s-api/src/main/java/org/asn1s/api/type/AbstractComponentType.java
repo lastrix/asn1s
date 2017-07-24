@@ -25,99 +25,105 @@
 
 package org.asn1s.api.type;
 
-import org.asn1s.api.Disposable;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.util.RefUtils;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractComponentType extends AbstractType implements ComponentType
+public abstract class AbstractComponentType extends AbstractNestingType implements ComponentType
 {
 	protected AbstractComponentType( int index, String name, @NotNull Ref<Type> componentTypeRef )
 	{
+		super( componentTypeRef );
 		RefUtils.assertValueRef( name );
 		this.index = index;
 		this.name = name;
-		this.componentTypeRef = componentTypeRef;
 	}
 
 	private final int index;
 	private int version;
 	private final String name;
-	private Ref<Type> componentTypeRef;
-	private Type componentType;
+	private boolean optional;
 
 	@Override
-	public int getIndex()
+	public final int getIndex()
 	{
 		return index;
 	}
 
 	@Override
-	public int getVersion()
+	public final int getVersion()
 	{
 		return version;
 	}
 
-	public void setVersion( int version )
+	public final void setVersion( int version )
 	{
 		this.version = version;
 	}
 
 	@Override
-	public String getName()
+	public final String getName()
 	{
 		return name;
 	}
 
-	@NotNull
 	@Override
-	public Ref<Type> getComponentTypeRef()
+	public final boolean isOptional()
 	{
-		return componentTypeRef;
+		return optional;
+	}
+
+	public final void setOptional( boolean optional )
+	{
+		if( optional && getDefaultValueRef() != null )
+			throw new IllegalArgumentException( "Either default value or optional must be present" );
+
+		this.optional = optional;
 	}
 
 	@NotNull
 	@Override
-	public Type getComponentType()
-	{
-		return componentType;
-	}
-
-	protected Type getComponentTypeOrNull()
-	{
-		return componentType;
-	}
-
-	@NotNull
-	@Override
-	public Scope getScope( @NotNull Scope parentScope )
+	public final Scope getScope( @NotNull Scope parentScope )
 	{
 		return parentScope.typedScope( this );
 	}
 
+	@NotNull
 	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
+	public final Type getComponentType()
 	{
-		if( componentType == null )
-			componentType = componentTypeRef.resolve( scope );
+		return getSibling();
+	}
 
-		if( !( componentType instanceof DefinedType ) )
-			componentType.setNamespace( getFullyQualifiedName() + '.' );
-		componentType.validate( scope );
+	@NotNull
+	@Override
+	public final Ref<Type> getComponentTypeRef()
+	{
+		return getSiblingRef();
 	}
 
 	@Override
-	protected void onDispose()
+	public final boolean equals( Object obj )
 	{
-		if( !( componentTypeRef instanceof DefinedType ) && componentTypeRef instanceof Type )
-			( (Disposable)componentTypeRef ).dispose();
-		componentTypeRef = null;
+		return obj == this || obj instanceof AbstractComponentType && toString().equals( obj.toString() );
+	}
 
-		if( componentType != null && !( componentType instanceof DefinedType ) )
-			componentType.dispose();
-		componentType = null;
+	@Override
+	public final int hashCode()
+	{
+		return toString().hashCode();
+	}
+
+	@Override
+	public final String toString()
+	{
+		if( isOptional() )
+			return getComponentName() + ' ' + getComponentTypeRef() + " OPTIONAL";
+
+		if( getDefaultValueRef() != null )
+			return getComponentName() + ' ' + getComponentTypeRef() + " DEFAULT " + getDefaultValueRef();
+
+		return getComponentName() + ' ' + getComponentTypeRef();
 	}
 }
