@@ -29,6 +29,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ClassFieldType;
 import org.asn1s.api.type.ClassType;
 import org.asn1s.api.type.Type;
@@ -64,6 +65,13 @@ public class ClassFieldFromUnknownSourceRef implements Ref<Type>
 		if( resolve instanceof Type )
 		{
 			Type type = (Type)resolve;
+			try
+			{
+				type.validate( scope );
+			} catch( ValidationException e )
+			{
+				throw new ResolutionException( "Unable to validate type: " + type, e );
+			}
 			while( type instanceof DefinedTypeImpl )
 				type = type.getSibling();
 

@@ -156,7 +156,7 @@ public class IntegerType extends BuiltinType
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
 		if( values != null )
-			actualValues = buildIntegerTypeValues( scope, values, false );
+			actualValues = buildIntegerTypeValues( scope.typedScope( this ), values, false );
 	}
 
 	//////////////////////////////////// Implementation ////////////////////////////////////////////////////////////////

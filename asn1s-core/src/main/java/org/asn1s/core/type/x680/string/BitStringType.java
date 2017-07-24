@@ -178,7 +178,7 @@ public class BitStringType extends BuiltinType
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
 		if( values != null )
-			actualValues = IntegerType.buildIntegerTypeValues( scope, values, true );
+			actualValues = IntegerType.buildIntegerTypeValues( scope.typedScope( this ), values, true );
 	}
 
 	private static Iterable<Value> assertCollection( Scope scope, ValueCollection collection ) throws IllegalValueException, ResolutionException

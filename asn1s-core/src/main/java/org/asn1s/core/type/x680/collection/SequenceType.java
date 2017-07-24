@@ -116,7 +116,7 @@ public class SequenceType extends AbstractCollectionType
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		setActualComponents( new SequenceComponentsInterpolator( getScope( scope ), this ).interpolate() );
+		setActualComponents( new SequenceComponentsInterpolator( scope.typedScope( this ), this ).interpolate() );
 		updateIndices();
 	}
 

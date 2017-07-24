@@ -31,6 +31,7 @@ import org.asn1s.api.State;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
+import org.asn1s.api.type.Type;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractDefinedValue implements DefinedValue
@@ -111,6 +112,37 @@ public abstract class AbstractDefinedValue implements DefinedValue
 	}
 
 	@Override
+	public int compareTo( @NotNull Value o )
+	{
+		assert isValidated();
+		//noinspection CompareToUsesNonFinalVariable
+		return getValue().compareTo( o );
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		if( this == obj ) return true;
+		if( !( obj instanceof AbstractDefinedValue ) ) return false;
+
+		AbstractDefinedValue definedValue = (AbstractDefinedValue)obj;
+
+		if( !getName().equals( definedValue.getName() ) ) return false;
+		//noinspection SimplifiableIfStatement
+		if( !getTypeRef().equals( definedValue.getTypeRef() ) ) return false;
+		return getValueRef().equals( definedValue.getValueRef() );
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = getName().hashCode();
+		result = 31 * result + getTypeRef().hashCode();
+		result = 31 * result + getValueRef().hashCode();
+		return result;
+	}
+
+	@Override
 	public Ref<Value> toRef()
 	{
 		return new ValueNameRef( getName(), module.getModuleName() );
@@ -119,4 +151,8 @@ public abstract class AbstractDefinedValue implements DefinedValue
 	protected abstract void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException;
 
 	protected abstract void onDispose();
+
+	protected abstract Ref<Type> getTypeRef();
+
+	protected abstract Ref<Value> getValueRef();
 }

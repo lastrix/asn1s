@@ -28,6 +28,8 @@ package org.asn1s.core.type;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
+import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.AbstractNestingType;
 import org.asn1s.api.type.DefinedType;
@@ -66,7 +68,7 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 	@Override
 	public Scope getScope( @NotNull Scope parentScope )
 	{
-		return parentScope.typedScope( this );
+		return module.createScope().typedScope( this );
 	}
 
 	public Module getModule()
@@ -86,6 +88,12 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 		module = null;
 	}
 
+	@Override
+	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
+	{
+		super.onValidate( getScope( scope ) );
+	}
+
 	@NotNull
 	@Override
 	public Type copy()
@@ -103,5 +111,11 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 	public String toString()
 	{
 		return getName();
+	}
+
+	@Override
+	protected String getSiblingNamespace()
+	{
+		return getFullyQualifiedName() + '.';
 	}
 }

@@ -26,15 +26,12 @@
 package org.asn1s.core.value;
 
 import org.apache.commons.lang3.StringUtils;
-import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.Template;
 import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
@@ -44,14 +41,14 @@ import java.util.*;
 
 public class DefinedValueTemplateImpl extends DefinedValueImpl implements Template<Value>
 {
-	public DefinedValueTemplateImpl( @NotNull Module module, @NotNull String name, @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef, @NotNull Iterable<TemplateParameter> parameters )
+	public DefinedValueTemplateImpl( @NotNull Module module, @NotNull String name, @NotNull Iterable<TemplateParameter> parameters )
 	{
-		this( module, name, typeRef, valueRef, parameters, true );
+		this( module, name, parameters, true );
 	}
 
-	private DefinedValueTemplateImpl( @NotNull Module module, @NotNull String name, @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef, @NotNull Iterable<TemplateParameter> parameters, boolean template )
+	private DefinedValueTemplateImpl( @NotNull Module module, @NotNull String name, @NotNull Iterable<TemplateParameter> parameters, boolean template )
 	{
-		super( module, name, typeRef, valueRef );
+		super( module, name );
 		this.template = template;
 		for( TemplateParameter parameter : parameters )
 			parameterMap.put( parameter.getName(), parameter );
@@ -122,7 +119,9 @@ public class DefinedValueTemplateImpl extends DefinedValueImpl implements Templa
 	@Override
 	public Value newInstance( Scope scope, String namespace ) throws ResolutionException
 	{
-		DefinedValue result = new DefinedValueTemplateImpl( getModule(), getName(), getTypeRef(), getValueRef(), parameterMap.values(), false );
+		DefinedValueTemplateImpl result = new DefinedValueTemplateImpl( getModule(), getName(), parameterMap.values(), false );
+		result.setTypeRef( getTypeRef() );
+		result.setValueRef( getValueRef() );
 		try
 		{
 			result.validate( scope );

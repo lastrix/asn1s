@@ -77,7 +77,7 @@ public final class ConstrainedType extends AbstractNestingType
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		scope = getScope( scope );
+		//scope = getScope( scope );
 		super.onValidate( scope );
 		constraint = constraintTemplate.build( scope, getSibling() );
 	}

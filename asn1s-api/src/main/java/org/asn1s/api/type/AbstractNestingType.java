@@ -60,20 +60,22 @@ public abstract class AbstractNestingType extends AbstractType
 	@Override
 	public Type getSibling()
 	{
+		if( sibling == null )
+			throw new IllegalStateException();
 		return sibling;
 	}
 
 	@Override
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
-		sibling.accept( getScope( scope ), valueRef );
+		sibling.accept( scope.typedScope( this ), valueRef );
 	}
 
 	@NotNull
 	@Override
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
-		return sibling.optimize( getScope( scope ), valueRef );
+		return sibling.optimize( scope.typedScope( this ), valueRef );
 	}
 
 	@Override
@@ -81,7 +83,7 @@ public abstract class AbstractNestingType extends AbstractType
 	{
 		sibling = siblingRef.resolve( scope );
 		if( !( sibling instanceof DefinedType ) )
-			sibling.setNamespace( getNamespace() );
+			sibling.setNamespace( getSiblingNamespace() );
 		sibling.validate( scope );
 	}
 
@@ -157,5 +159,10 @@ public abstract class AbstractNestingType extends AbstractType
 
 		siblingRef = null;
 		sibling = null;
+	}
+
+	protected String getSiblingNamespace()
+	{
+		return getNamespace();
 	}
 }

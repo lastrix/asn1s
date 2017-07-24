@@ -38,11 +38,9 @@ import org.jetbrains.annotations.NotNull;
 
 public class DefinedValueImpl extends AbstractDefinedValue
 {
-	public DefinedValueImpl( @NotNull Module module, @NotNull String name, @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef )
+	public DefinedValueImpl( @NotNull Module module, @NotNull String name )
 	{
 		super( module, name );
-		this.typeRef = typeRef;
-		this.valueRef = valueRef;
 	}
 
 	private Ref<Type> typeRef;
@@ -58,13 +56,24 @@ public class DefinedValueImpl extends AbstractDefinedValue
 		return getModule().createScope().typedScope( getType() );
 	}
 
+	public void setTypeRef( @NotNull Ref<Type> typeRef )
+	{
+		this.typeRef = typeRef;
+	}
 
-	Ref<Value> getValueRef()
+	public void setValueRef( @NotNull Ref<Value> valueRef )
+	{
+		this.valueRef = valueRef;
+	}
+
+	@Override
+	protected Ref<Value> getValueRef()
 	{
 		return valueRef;
 	}
 
-	Ref<Type> getTypeRef()
+	@Override
+	protected Ref<Type> getTypeRef()
 	{
 		return typeRef;
 	}
@@ -122,38 +131,6 @@ public class DefinedValueImpl extends AbstractDefinedValue
 		scope = getScope( scope );
 		value = type.optimize( scope, valueRef.resolve( scope ) );
 	}
-
-	@Override
-	public boolean equals( Object obj )
-	{
-		if( this == obj ) return true;
-		if( !( obj instanceof DefinedValueImpl ) ) return false;
-
-		DefinedValueImpl definedValue = (DefinedValueImpl)obj;
-
-		if( !getName().equals( definedValue.getName() ) ) return false;
-		//noinspection SimplifiableIfStatement
-		if( !getTypeRef().equals( definedValue.getTypeRef() ) ) return false;
-		return getValueRef().equals( definedValue.getValueRef() );
-	}
-
-	@Override
-	public int hashCode()
-	{
-		int result = getName().hashCode();
-		result = 31 * result + getTypeRef().hashCode();
-		result = 31 * result + getValueRef().hashCode();
-		return result;
-	}
-
-	@Override
-	public int compareTo( @NotNull Value o )
-	{
-		assert isValidated();
-		//noinspection CompareToUsesNonFinalVariable
-		return value.compareTo( o );
-	}
-
 
 	@Override
 	public String toString()

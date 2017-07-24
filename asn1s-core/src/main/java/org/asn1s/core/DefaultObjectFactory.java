@@ -127,9 +127,11 @@ public final class DefaultObjectFactory extends CoreValueFactory implements Obje
 	@Override
 	public DefinedValue define( @NotNull String name, @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef, @Nullable Collection<TemplateParameter> parameters )
 	{
-		DefinedValue value = parameters == null
-				? new DefinedValueImpl( module, name, typeRef, valueRef )
-				: new DefinedValueTemplateImpl( module, name, typeRef, valueRef, parameters );
+		DefinedValueImpl value = parameters == null
+				? new DefinedValueImpl( module, name )
+				: new DefinedValueTemplateImpl( module, name, parameters );
+		value.setTypeRef( typeRef );
+		value.setValueRef( valueRef );
 		module.getValueResolver().add( value );
 		return value;
 	}
