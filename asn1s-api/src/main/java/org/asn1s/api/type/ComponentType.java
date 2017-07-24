@@ -26,9 +26,15 @@
 package org.asn1s.api.type;
 
 import org.asn1s.api.Ref;
+import org.asn1s.api.encoding.EncodingInstructions;
+import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.x680.NamedValue;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
+import java.util.List;
 
 @SuppressWarnings( "ConstantDeclaredInInterface" )
 public interface ComponentType extends NamedType
@@ -81,11 +87,62 @@ public interface ComponentType extends NamedType
 	 *
 	 * @return boolean
 	 */
-	boolean isExplicitlyTagged();
+	default boolean isExplicitlyTagged()
+	{
+		return getComponentType().isTagged() && ( (TaggedType)getComponentType() ).getInstructions() == EncodingInstructions.Tag;
+	}
 
 	@NotNull
 	@Override
 	ComponentType copy();
+
+	@Nullable
+	@Override
+	default NamedType getNamedType( @NotNull String name )
+	{
+		return getComponentType().getNamedType( name );
+	}
+
+	@NotNull
+	@Override
+	default List<? extends NamedType> getNamedTypes()
+	{
+		return getComponentType().getNamedTypes();
+	}
+
+	@Nullable
+	@Override
+	default NamedValue getNamedValue( @NotNull String name )
+	{
+		return getComponentType().getNamedValue( name );
+	}
+
+	@NotNull
+	@Override
+	default Collection<NamedValue> getNamedValues()
+	{
+		return getComponentType().getNamedValues();
+	}
+
+	@NotNull
+	@Override
+	default Family getFamily()
+	{
+		return getComponentType().getFamily();
+	}
+
+	@Override
+	default IEncoding getEncoding( EncodingInstructions instructions )
+	{
+		return getComponentType().getEncoding( instructions );
+	}
+
+	@Nullable
+	@Override
+	default Type getSibling()
+	{
+		return getComponentType();
+	}
 
 	enum Kind
 	{

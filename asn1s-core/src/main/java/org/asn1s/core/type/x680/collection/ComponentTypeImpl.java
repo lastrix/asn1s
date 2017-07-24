@@ -27,11 +27,13 @@ package org.asn1s.core.type.x680.collection;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.*;
+import org.asn1s.api.type.AbstractComponentType;
+import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.DefinedType;
+import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.core.value.x680.NamedValueImpl;
@@ -94,19 +96,6 @@ final class ComponentTypeImpl extends AbstractComponentType
 	public Value getDefaultValue()
 	{
 		return defaultValue;
-	}
-
-	@NotNull
-	@Override
-	public Scope getScope( @NotNull Scope parentScope )
-	{
-		return parentScope.typedScope( this );
-	}
-
-	@Override
-	public boolean isExplicitlyTagged()
-	{
-		return getComponentType().isTagged() && ( (TaggedType)getComponentType() ).getInstructions() == EncodingInstructions.Tag;
 	}
 
 	@Override

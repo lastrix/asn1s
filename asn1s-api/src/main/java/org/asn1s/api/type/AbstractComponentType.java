@@ -28,17 +28,10 @@ package org.asn1s.api.type;
 import org.asn1s.api.Disposable;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.EncodingInstructions;
-import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.util.RefUtils;
-import org.asn1s.api.value.x680.NamedValue;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Collection;
-import java.util.List;
 
 public abstract class AbstractComponentType extends AbstractType implements ComponentType
 {
@@ -98,52 +91,11 @@ public abstract class AbstractComponentType extends AbstractType implements Comp
 		return componentType;
 	}
 
-	@Nullable
-	@Override
-	public NamedType getNamedType( @NotNull String name )
-	{
-		return getComponentType().getNamedType( name );
-	}
-
 	@NotNull
 	@Override
-	public List<? extends NamedType> getNamedTypes()
+	public Scope getScope( @NotNull Scope parentScope )
 	{
-		return getComponentType().getNamedTypes();
-	}
-
-	@Nullable
-	@Override
-	public NamedValue getNamedValue( @NotNull String name )
-	{
-		return getComponentType().getNamedValue( name );
-	}
-
-	@NotNull
-	@Override
-	public Collection<NamedValue> getNamedValues()
-	{
-		return getComponentType().getNamedValues();
-	}
-
-	@NotNull
-	@Override
-	public Family getFamily()
-	{
-		return getComponentType().getFamily();
-	}
-
-	@Override
-	public IEncoding getEncoding( EncodingInstructions instructions )
-	{
-		return getComponentType().getEncoding( instructions );
-	}
-
-	@Nullable
-	@Override
-	public Type getSibling()
-	{
-		return componentType;
+		return parentScope.typedScope( this );
 	}
 
 	@Override
