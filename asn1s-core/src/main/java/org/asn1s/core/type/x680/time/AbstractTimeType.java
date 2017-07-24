@@ -25,75 +25,59 @@
 
 package org.asn1s.core.type.x680.time;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.UniversalType;
-import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.Type;
 import org.asn1s.api.util.RefUtils;
-import org.asn1s.api.util.TimeUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
+import org.asn1s.core.type.BuiltinType;
+import org.asn1s.core.value.x680.DateValueImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 
-/**
- * X.680, p 46.3
- * GeneralizedTime ::= [UNIVERSAL 24] IMPLICIT VisibleString
- *
- * @author lastrix
- * @version 1.0
- */
-public final class GeneralizedTimeType extends AbstractTimeType
+public abstract class AbstractTimeType extends BuiltinType
 {
-	private static final Log log = LogFactory.getLog( GeneralizedTimeType.class );
-
-	public GeneralizedTimeType()
-	{
-		setEncoding( TagEncoding.create( TagMethod.Unknown, TagMethod.Implicit, TagClass.Universal, UniversalType.GeneralizedTime.tagNumber() ) );
-	}
-
+	@NotNull
 	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
+	public final Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind != Kind.Time )
-			throw new IllegalValueException( "Unable to use value of kind: " + kind );
+		if( kind == Kind.Time )
+			return value;
+
+		if( kind == Kind.CString )
+		{
+			String timeValueString = value.toStringValue().asString();
+			if( isAllowedValue( timeValueString ) )
+				return new DateValueImpl( parseValue( timeValueString ) );
+		}
+
+		throw new IllegalValueException( "Unable to optimize value: " + valueRef );
 	}
 
 	@Override
-	protected Instant parseValue( String value )
+	protected void onValidate( @NotNull Scope scope )
 	{
-		return TimeUtils.parseGeneralizedTime( value );
 	}
 
 	@Override
-	protected boolean isAllowedValue( String value )
+	protected void onDispose()
 	{
-		return TimeUtils.isGeneralizedTimeValue( value );
 	}
 
-	@NotNull
 	@Override
-	public Family getFamily()
+	public String toString()
 	{
-		return Family.GeneralizedTime;
+		return getFamily().name();
 	}
 
-	@NotNull
-	@Override
-	public Type copy()
-	{
-		log.warn( "Copying builtin type!" );
-		return new GeneralizedTimeType();
-	}
+
+	protected abstract Instant parseValue( String value );
+
+	protected abstract boolean isAllowedValue( String value );
 }

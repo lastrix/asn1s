@@ -37,13 +37,12 @@ import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.util.TimeUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
-import org.asn1s.core.type.BuiltinType;
-import org.asn1s.core.value.x680.DateValueImpl;
 import org.jetbrains.annotations.NotNull;
+
+import java.time.Instant;
 
 /**
  * X.680, p 47.1
@@ -52,7 +51,7 @@ import org.jetbrains.annotations.NotNull;
  * @author lastrix
  * @version 1.0
  */
-public final class UTCTimeType extends BuiltinType
+public final class UTCTimeType extends AbstractTimeType
 {
 	private static final Log log = LogFactory.getLog( UTCTimeType.class );
 
@@ -69,29 +68,16 @@ public final class UTCTimeType extends BuiltinType
 			throw new IllegalValueException( "Unable to use value: " + value );
 	}
 
-	@NotNull
 	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
+	protected Instant parseValue( String value )
 	{
-		Value value = RefUtils.toBasicValue( scope, valueRef );
-		Kind kind = value.getKind();
-		if( kind == Kind.Time )
-			return value;
-
-		if( kind == Kind.CString )
-		{
-			String timeValueString = value.toStringValue().asString();
-			if( TimeUtils.isUTCTimeValue( timeValueString ) )
-				return new DateValueImpl( TimeUtils.parseUTCTime( timeValueString ) );
-		}
-
-		throw new IllegalValueException( "Unable to optimize value: " + valueRef );
+		return TimeUtils.parseUTCTime( value );
 	}
 
 	@Override
-	public String toString()
+	protected boolean isAllowedValue( String value )
 	{
-		return UniversalType.UTCTime.typeName().toString();
+		return TimeUtils.isUTCTimeValue( value );
 	}
 
 	@NotNull
@@ -107,15 +93,5 @@ public final class UTCTimeType extends BuiltinType
 	{
 		log.warn( "Copying builtin type!" );
 		return new UTCTimeType();
-	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope )
-	{
-	}
-
-	@Override
-	protected void onDispose()
-	{
 	}
 }
