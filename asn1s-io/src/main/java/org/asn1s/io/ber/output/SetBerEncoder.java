@@ -25,67 +25,50 @@
 
 package org.asn1s.io.ber.output;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.*;
 
-final class SetBerEncoder implements BerEncoder
+final class SetBerEncoder extends AbstractCollectionBerEncoder
 {
-	private static final Log log = LogFactory.getLog( SetBerEncoder.class );
 	static final Tag TAG = new Tag( TagClass.Universal, true, UniversalType.Set.tagNumber() );
 
+	@NotNull
 	@Override
-	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
+	protected Tag getTag( @NotNull Type type )
 	{
-		assert context.getType().getFamily() == Family.Set;
-		assert context.getValue().getKind() == Kind.NamedCollection || context.getValue().getKind() == Kind.Collection && context.getValue().toValueCollection().isEmpty();
-
-		if( !context.isWriteHeader() )
-			writeSet( context );
-		else if( context.isBufferingAvailable() )
-		{
-			context.startBuffer( -1 );
-			writeSet( context );
-			context.stopBuffer( TAG );
-		}
-		else if( context.getRules() == BerRules.Der )
-			throw new Asn1Exception( "Buffering is required for DER rules" );
-		else
-		{
-			context.writeHeader( TAG, -1 );
-			writeSet( context );
-			context.write( 0 );
-			context.write( 0 );
-		}
+		return TAG;
 	}
 
-	private static void writeSet( WriterContext ctx ) throws IOException, Asn1Exception
+	@NotNull
+	@Override
+	protected Collection<NamedValue> getValues( @NotNull WriterContext context )
 	{
-		List<NamedValue> values = ctx.getValue().toValueCollection().asNamedValueList();
-		CollectionType type = (CollectionType)ctx.getType();
-		if( ctx.getRules() == BerRules.Der )
-			values = sortByTag( type, values );
-
-		SequenceBerEncoder.writeCollectionValues( ctx, values );
+		List<NamedValue> values = context.getValue().toValueCollection().asNamedValueList();
+		CollectionType type = (CollectionType)context.getType();
+		return context.getRules() == BerRules.Der ? sortByTag( type, values ) : values;
 	}
 
-	private static List<NamedValue> sortByTag( CollectionType type, Collection<NamedValue> values )
+	@NotNull
+	@Override
+	protected Family getRequiredFamily()
+	{
+		return Family.Set;
+	}
+
+	private static Collection<NamedValue> sortByTag( CollectionType type, Collection<NamedValue> values )
 	{
 		List<NamedValue> result = new ArrayList<>( values );
 		Map<String, TagEncoding> encodingMap = new HashMap<>();

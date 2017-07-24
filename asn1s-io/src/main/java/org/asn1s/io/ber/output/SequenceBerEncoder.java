@@ -25,85 +25,40 @@
 
 package org.asn1s.io.ber.output;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.type.CollectionType;
-import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.util.RefUtils;
-import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
-import org.asn1s.io.ber.BerRules;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
-final class SequenceBerEncoder implements BerEncoder
+final class SequenceBerEncoder extends AbstractCollectionBerEncoder
 {
-	private static final Log log = LogFactory.getLog( SequenceBerEncoder.class );
 	public static final Tag TAG = new Tag( TagClass.Universal, true, UniversalType.Sequence.tagNumber() );
 	private static final Tag TAG_INSTANCE_OF = new Tag( TagClass.Universal, true, UniversalType.InstanceOf.tagNumber() );
 
+	@NotNull
 	@Override
-	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
+	protected Tag getTag( @NotNull Type type )
 	{
-		assert context.getType().getFamily() == Family.Sequence;
-		assert context.getValue().getKind() == Kind.NamedCollection || context.getValue().getKind() == Kind.Collection && context.getValue().toValueCollection().isEmpty();
-
-		Tag tag = ( (CollectionType)context.getType() ).isInstanceOf() ? TAG_INSTANCE_OF : TAG;
-
-		if( !context.isWriteHeader() )
-			writeSequence( context );
-		else if( context.isBufferingAvailable() )
-		{
-			context.startBuffer( -1 );
-			writeSequence( context );
-			context.stopBuffer( tag );
-		}
-		else if( context.getRules() == BerRules.Der )
-			throw new Asn1Exception( "Buffering is required for DER rules" );
-		else
-		{
-			context.writeHeader( tag, -1 );
-			writeSequence( context );
-			context.write( 0 );
-			context.write( 0 );
-		}
+		return ( (CollectionType)type ).isInstanceOf() ? TAG_INSTANCE_OF : TAG;
 	}
 
-	private static void writeSequence( WriterContext ctx ) throws Asn1Exception, IOException
+	@NotNull
+	@Override
+	protected Collection<NamedValue> getValues( @NotNull WriterContext context )
 	{
-		List<NamedValue> values = ctx.getValue().toValueCollection().asNamedValueList();
-		writeCollectionValues( ctx, values );
+		return context.getValue().toValueCollection().asNamedValueList();
 	}
 
-	static void writeCollectionValues( WriterContext ctx, Collection<NamedValue> values ) throws Asn1Exception, IOException
+	@NotNull
+	@Override
+	protected Family getRequiredFamily()
 	{
-		CollectionType type = (CollectionType)ctx.getType();
-		if( values.isEmpty() )
-		{
-			if( type.isAllComponentsOptional() )
-				return;
-			throw new IllegalValueException( "Type does not accepts empty collections" );
-		}
-
-		for( NamedValue value : values )
-			writeComponentValue( ctx, type, value );
-	}
-
-	private static void writeComponentValue( WriterContext ctx, CollectionType type, NamedValue value ) throws Asn1Exception, IOException
-	{
-		ComponentType component = type.getComponent( value.getName(), true );
-
-		// do not write default values, it's just a waste of time and memory
-		if( component != null && !RefUtils.isSameAsDefaultValue( ctx.getScope(), component, value ) )
-			ctx.writeComponent( component, value );
+		return Family.Sequence;
 	}
 }
