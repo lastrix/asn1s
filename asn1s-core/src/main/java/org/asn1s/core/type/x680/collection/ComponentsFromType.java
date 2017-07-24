@@ -27,15 +27,12 @@ package org.asn1s.core.type.x680.collection;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.EncodingInstructions;
-import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.AbstractType;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,19 +62,6 @@ final class ComponentsFromType extends AbstractType
 	public Type getSibling()
 	{
 		return type;
-	}
-
-	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@NotNull
-	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	public List<ComponentType> getComponents()
@@ -145,7 +129,6 @@ final class ComponentsFromType extends AbstractType
 			else
 				throw new UnsupportedOperationException( component.getClass().getTypeName() );
 		}
-
 	}
 
 	@NotNull
@@ -154,19 +137,6 @@ final class ComponentsFromType extends AbstractType
 	{
 		Ref<Type> sub = Objects.equals( ref, type ) ? type.copy() : ref;
 		return new ComponentsFromType( sub, requiredFamily );
-	}
-
-	@NotNull
-	@Override
-	public Family getFamily()
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public IEncoding getEncoding( EncodingInstructions instructions )
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

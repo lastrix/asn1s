@@ -86,7 +86,10 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	 * @throws ResolutionException if reference was not resolved, or data can not be acquired
 	 * @see #optimize(Scope, Ref)
 	 */
-	void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException;
+	default void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
+	{
+		throw new UnsupportedOperationException( "Not implemented or not allowed" );
+	}
 
 	/**
 	 * Optimize value to type native value kind.
@@ -99,7 +102,10 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	 * @see #accept(Scope, Ref)
 	 */
 	@NotNull
-	Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException;
+	default Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
+	{
+		throw new UnsupportedOperationException( "Not implemented or not allowed" );
+	}
 
 	/**
 	 * Return component type by name
@@ -149,7 +155,10 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	 * @return TypeFamily
 	 */
 	@NotNull
-	Family getFamily();
+	default Family getFamily()
+	{
+		throw new UnsupportedOperationException();
+	}
 
 	/**
 	 * Return type encodings
@@ -157,7 +166,10 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	 * @param instructions encoding instructions
 	 * @return IEncoding
 	 */
-	IEncoding getEncoding( EncodingInstructions instructions );
+	default IEncoding getEncoding( EncodingInstructions instructions )
+	{
+		throw new UnsupportedOperationException();
+	}
 
 	/**
 	 * Copy this type. It's state must be None and validation required.
