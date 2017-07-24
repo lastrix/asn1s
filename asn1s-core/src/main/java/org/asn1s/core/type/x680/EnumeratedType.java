@@ -58,6 +58,16 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 {
 	public EnumeratedType()
 	{
+		this( null, null, false );
+	}
+
+	public EnumeratedType( @Nullable Collection<NamedValue> enumeration, @Nullable Collection<NamedValue> additionalEnumeration, boolean extensible )
+	{
+		if( enumeration != null )
+			this.enumeration.addAll( enumeration );
+		if( additionalEnumeration != null )
+			this.additionalEnumeration.addAll( additionalEnumeration );
+		this.extensible = extensible;
 		setEncoding( TagEncoding.universal( UniversalType.Enumerated ) );
 	}
 
@@ -94,25 +104,10 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 		return Collections.unmodifiableList( enumeration );
 	}
 
-	public void setEnumeration( @NotNull Collection<NamedValue> enumeration )
-	{
-		this.enumeration.addAll( enumeration );
-	}
-
 	@NotNull
 	public List<NamedValue> getAdditionalEnumeration()
 	{
 		return Collections.unmodifiableList( additionalEnumeration );
-	}
-
-	public void setAdditionalEnumeration( @NotNull Collection<NamedValue> additionalEnumeration )
-	{
-		this.additionalEnumeration.addAll( additionalEnumeration );
-	}
-
-	public boolean isExtensible()
-	{
-		return extensible;
 	}
 
 	@Override
@@ -218,11 +213,7 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 	@Override
 	public Type copy()
 	{
-		EnumeratedType type = new EnumeratedType();
-		type.setEnumeration( getEnumeration() );
-		type.setAdditionalEnumeration( getAdditionalEnumeration() );
-		type.setExtensible( isExtensible() );
-		return type;
+		return new EnumeratedType( getEnumeration(), getAdditionalEnumeration(), extensible );
 	}
 
 	@Override
