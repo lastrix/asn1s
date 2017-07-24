@@ -23,18 +23,69 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.type;
+package org.asn1s.api;
 
-import org.asn1s.api.AbstractName;
 import org.asn1s.api.util.RefUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class TypeName extends AbstractName<TypeName>
+public abstract class AbstractName<T extends AbstractName<T>> implements Comparable<T>
 {
-	public TypeName( @NotNull String name, @Nullable String moduleName )
+	protected AbstractName( @NotNull String name, @Nullable String moduleName )
 	{
-		super( name, moduleName );
-		RefUtils.assertTypeRef( name );
+		if( moduleName != null )
+			RefUtils.assertTypeRef( moduleName );
+
+		this.name = name;
+		this.moduleName = moduleName;
+	}
+
+	private final String name;
+	private final String moduleName;
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public String getModuleName()
+	{
+		return moduleName;
+	}
+
+	@Override
+	public int compareTo( @NotNull T o )
+	{
+		return toString().compareTo( o.toString() );
+	}
+
+	@Override
+	public final boolean equals( Object obj )
+	{
+		if( this == obj ) return true;
+		if( !( obj instanceof AbstractName ) ) return false;
+
+		AbstractName typeName = (AbstractName)obj;
+
+		//noinspection SimplifiableIfStatement
+		if( !getName().equals( typeName.getName() ) ) return false;
+		return getModuleName() != null ? getModuleName().equals( typeName.getModuleName() ) : typeName.getModuleName() == null;
+	}
+
+	@Override
+	public final int hashCode()
+	{
+		int result = getName().hashCode();
+		result = 31 * result + ( getModuleName() != null ? getModuleName().hashCode() : 0 );
+		return result;
+	}
+
+	@Override
+	public final String toString()
+	{
+		if( moduleName == null )
+			return name;
+
+		return moduleName + '.' + name;
 	}
 }
