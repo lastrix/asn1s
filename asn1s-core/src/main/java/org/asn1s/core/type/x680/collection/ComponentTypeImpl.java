@@ -69,11 +69,12 @@ final class ComponentTypeImpl extends AbstractComponentType
 		return defaultValueRef;
 	}
 
-	void setDefaultValueRef( @Nullable Ref<Value> defaultValueRef )
+	@Override
+	public void setDefaultValueRef( @Nullable Ref<Value> ref )
 	{
-		if( defaultValueRef != null && isOptional() )
+		if( ref != null && isOptional() )
 			throw new IllegalArgumentException( "Either default value or optional must be present" );
-		this.defaultValueRef = defaultValueRef;
+		defaultValueRef = ref;
 	}
 
 	@Nullable

@@ -110,12 +110,11 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 	}
 
 	@Override
-	public void addComponent( @NotNull Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef, boolean optional, @Nullable Ref<Value> defaultValue )
+	public ComponentType addComponent( @NotNull Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef )
 	{
-		ComponentTypeImpl component = new ComponentTypeImpl( components.size() + extensions.size() + componentsLast.size(), name, typeRef );
-		component.setOptional( optional );
-		component.setDefaultValueRef( defaultValue );
+		ComponentType component = new ComponentTypeImpl( components.size() + extensions.size() + componentsLast.size(), name, typeRef );
 		addComponent( kind, component );
+		return component;
 	}
 
 	@Override

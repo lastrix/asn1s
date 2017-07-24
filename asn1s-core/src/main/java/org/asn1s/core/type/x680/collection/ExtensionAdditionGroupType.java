@@ -28,8 +28,6 @@ package org.asn1s.core.type.x680.collection;
 import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.EncodingInstructions;
-import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.AbstractType;
@@ -37,11 +35,10 @@ import org.asn1s.api.type.CollectionTypeExtensionGroup;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -54,19 +51,18 @@ public final class ExtensionAdditionGroupType extends AbstractType implements Co
 
 	private final Family family;
 	private int version = -1;
-	private final List<Type> components = new ArrayList<>();
+	private final Collection<Type> components = new ArrayList<>();
 	private List<ComponentType> actual;
 
 	@Override
-	public void addComponent( @NotNull Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef, boolean optional, @Nullable Ref<Value> defaultValue )
+	public ComponentType addComponent( @NotNull Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef )
 	{
 		if( kind != Kind.Extension )
 			throw new IllegalArgumentException();
 
-		ComponentTypeImpl componentType = new ComponentTypeImpl( 0, name, typeRef );
-		componentType.setOptional( optional );
-		componentType.setDefaultValueRef( defaultValue );
+		ComponentType componentType = new ComponentTypeImpl( 0, name, typeRef );
 		components.add( componentType );
+		return componentType;
 	}
 
 	@Override
@@ -167,25 +163,6 @@ public final class ExtensionAdditionGroupType extends AbstractType implements Co
 	public Family getFamily()
 	{
 		return family;
-	}
-
-	@Override
-	public IEncoding getEncoding( EncodingInstructions instructions )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@NotNull
-	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	@Override

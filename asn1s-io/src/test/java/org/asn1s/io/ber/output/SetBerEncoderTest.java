@@ -62,7 +62,7 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -84,7 +84,7 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -113,7 +113,7 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -136,7 +136,7 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -158,7 +158,7 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), true, null );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
 		type.setExtensible( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
@@ -182,7 +182,7 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setDefaultValueRef( new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
@@ -206,7 +206,7 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setDefaultValueRef( new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
@@ -233,7 +233,7 @@ public class SetBerEncoderTest
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
 		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref(), false, new IntegerValueInt( 1 ) );
+		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setDefaultValueRef( new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
 		type.setNamespace( "A." );
 		type.validate( scope );

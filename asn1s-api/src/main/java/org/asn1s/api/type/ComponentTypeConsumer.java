@@ -27,18 +27,11 @@ package org.asn1s.api.type;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.type.ComponentType.Kind;
-import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public interface ComponentTypeConsumer
 {
-	void addComponent( @NotNull Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef, boolean optional, @Nullable Ref<Value> defaultValue );
-
-	default void addComponent( @NotNull Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef )
-	{
-		addComponent( kind, name, typeRef, false, null );
-	}
+	ComponentType addComponent( @NotNull Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef );
 
 	void addComponentsFromType( Kind kind, @NotNull Ref<Type> typeRef );
 

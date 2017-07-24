@@ -52,7 +52,11 @@ public interface ComponentType extends NamedType
 	@Nullable
 	Ref<Value> getDefaultValueRef();
 
+	void setDefaultValueRef( Ref<Value> ref );
+
 	boolean isOptional();
+
+	void setOptional( boolean value );
 
 	default boolean isRequired()
 	{

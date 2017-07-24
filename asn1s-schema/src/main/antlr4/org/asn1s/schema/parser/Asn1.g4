@@ -653,14 +653,18 @@ collectionExtensionAdditionGroup[ComponentTypeConsumer consumer]
     ;
 
 collectionComponentType[ComponentTypeConsumer consumer, ComponentType.Kind componentKind]
-    locals[ boolean optional = false, Ref<Value> defaultValueRef = null ]
+    locals[ boolean optional = false, Ref<Value> defaultValueRef = null, ComponentType component ]
     :
         valueReference type
         (
             OPTIONAL { $optional = true; }
         |   DEFAULT value { $defaultValueRef = $value.result; }
         )?
-        { consumer.addComponent(componentKind, $valueReference.text, $type.result, $optional, $defaultValueRef); }
+        {
+            $component = consumer.addComponent(componentKind, $valueReference.text, $type.result);
+            $component.setOptional($optional);
+            $component.setDefaultValueRef($defaultValueRef);
+        }
 
     |   COMPONENTS OF type
         { $consumer.addComponentsFromType($componentKind, $type.result); }
@@ -680,7 +684,7 @@ choiceExtensionComponentTypeList[ComponentTypeConsumer consumer]
 choiceComponentType[ComponentTypeConsumer target, ComponentType.Kind componentKind]
     :
         valueReference type
-        { $target.addComponent(componentKind, $valueReference.text, $type.result, false, null ); }
+        { $target.addComponent(componentKind, $valueReference.text, $type.result ); }
     ;
 
 // X.680, p 29.1

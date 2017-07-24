@@ -152,24 +152,24 @@ public final class EmbeddedPdvType extends BuiltinType
 
 		Ref<Type> oidRef = UniversalType.ObjectIdentifier.ref();
 		SequenceType identification_syntaxes = new SequenceType( true );
-		identification_syntaxes.addComponent( Kind.Primary, "abstract", oidRef, false, null );
-		identification_syntaxes.addComponent( Kind.Primary, "transfer", oidRef, false, null );
+		identification_syntaxes.addComponent( Kind.Primary, "abstract", oidRef );
+		identification_syntaxes.addComponent( Kind.Primary, "transfer", oidRef );
 
-		identification.addComponent( Kind.Primary, "syntaxes", identification_syntaxes, false, null );
-		identification.addComponent( Kind.Primary, "syntax", oidRef, false, null );
-		identification.addComponent( Kind.Primary, "presentation-context-id", UniversalType.Integer.ref(), false, null );
+		identification.addComponent( Kind.Primary, "syntaxes", identification_syntaxes );
+		identification.addComponent( Kind.Primary, "syntax", oidRef );
+		identification.addComponent( Kind.Primary, "presentation-context-id", UniversalType.Integer.ref() );
 
 		SequenceType contextNegotiation = new SequenceType( true );
-		contextNegotiation.addComponent( Kind.Primary, "presentation-context-id", UniversalType.Integer.ref(), false, null );
-		contextNegotiation.addComponent( Kind.Primary, "transfer-syntax", oidRef, false, null );
+		contextNegotiation.addComponent( Kind.Primary, "presentation-context-id", UniversalType.Integer.ref() );
+		contextNegotiation.addComponent( Kind.Primary, "transfer-syntax", oidRef );
 
-		identification.addComponent( Kind.Primary, "context-negotiation", contextNegotiation, false, null );
-		identification.addComponent( Kind.Primary, "transfer-syntax", oidRef, false, null );
-		identification.addComponent( Kind.Primary, "fixed", UniversalType.Null.ref(), false, null );
+		identification.addComponent( Kind.Primary, "context-negotiation", contextNegotiation );
+		identification.addComponent( Kind.Primary, "transfer-syntax", oidRef );
+		identification.addComponent( Kind.Primary, "fixed", UniversalType.Null.ref() );
 
-		pdvType.addComponent( Kind.Primary, "identification", identification, false, null );
-		pdvType.addComponent( Kind.Primary, "data-value-descriptor", UniversalType.ObjectDescriptor.ref(), true, null );
-		pdvType.addComponent( Kind.Primary, "string-value", UniversalType.OctetString.ref(), false, null );
+		pdvType.addComponent( Kind.Primary, "identification", identification );
+		pdvType.addComponent( Kind.Primary, "data-value-descriptor", UniversalType.ObjectDescriptor.ref() ).setOptional( true );
+		pdvType.addComponent( Kind.Primary, "string-value", UniversalType.OctetString.ref() );
 		return pdvType;
 	}
 }

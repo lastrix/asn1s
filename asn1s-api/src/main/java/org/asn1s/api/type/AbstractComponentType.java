@@ -74,12 +74,13 @@ public abstract class AbstractComponentType extends AbstractNestingType implemen
 		return optional;
 	}
 
-	public final void setOptional( boolean optional )
+	@Override
+	public final void setOptional( boolean value )
 	{
-		if( optional && getDefaultValueRef() != null )
+		if( value && getDefaultValueRef() != null )
 			throw new IllegalArgumentException( "Either default value or optional must be present" );
 
-		this.optional = optional;
+		optional = value;
 	}
 
 	@NotNull

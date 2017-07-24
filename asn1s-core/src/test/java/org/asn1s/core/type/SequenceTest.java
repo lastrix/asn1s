@@ -60,10 +60,10 @@ public class SequenceTest
 
 		Ref<Type> intType = factory.builtin( "INTEGER" );
 		CollectionType sequenceType = factory.collection( Type.Family.Sequence );
-		sequenceType.addComponent( Kind.Primary, "a", intType, true, null );
-		sequenceType.addComponent( Kind.Primary, "b", intType, true, null );
-		sequenceType.addComponent( Kind.Extension, "c", intType, true, null );
-		sequenceType.addComponent( Kind.Secondary, "d", intType, false, null );
+		sequenceType.addComponent( Kind.Primary, "a", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.Primary, "b", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.Extension, "c", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.Secondary, "d", intType );
 
 		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
 		DefinedType type =
@@ -83,10 +83,10 @@ public class SequenceTest
 
 		Ref<Type> intType = factory.builtin( "INTEGER" );
 		CollectionType sequenceType = factory.collection( Type.Family.Sequence );
-		sequenceType.addComponent( Kind.Primary, "a", intType, true, null );
-		sequenceType.addComponent( Kind.Primary, "b", intType, true, null );
-		sequenceType.addComponent( Kind.Extension, "c", intType, true, null );
-		sequenceType.addComponent( Kind.Secondary, "d", intType, false, null );
+		sequenceType.addComponent( Kind.Primary, "a", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.Primary, "b", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.Extension, "c", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.Secondary, "d", intType );
 
 		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
 		DefinedType templateType =
@@ -109,10 +109,10 @@ public class SequenceTest
 
 		Ref<Type> intType = factory.builtin( "INTEGER" );
 		CollectionType sequenceType = factory.collection( Type.Family.Sequence );
-		sequenceType.addComponent( Kind.Primary, "a", intType, true, null );
-		sequenceType.addComponent( Kind.Primary, "b", intType, true, null );
-		sequenceType.addComponent( Kind.Extension, "c", intType, true, null );
-		sequenceType.addComponent( Kind.Secondary, "d", intType, false, null );
+		sequenceType.addComponent( Kind.Primary, "a", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.Primary, "b", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.Extension, "c", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.Secondary, "d", intType );
 
 		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
 		DefinedType type =

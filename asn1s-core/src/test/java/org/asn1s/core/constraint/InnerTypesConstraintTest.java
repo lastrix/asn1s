@@ -55,8 +55,8 @@ public class InnerTypesConstraintTest
 
 		CollectionType sequenceType = factory.collection( Family.Sequence );
 		sequenceType.setExtensible( true );
-		sequenceType.addComponent( Kind.Primary, "a", factory.builtin( "INTEGER" ), true, null );
-		sequenceType.addComponent( Kind.Primary, "b", factory.builtin( "REAL" ), false, null );
+		sequenceType.addComponent( Kind.Primary, "a", factory.builtin( "INTEGER" ) ).setOptional( true );
+		sequenceType.addComponent( Kind.Primary, "b", factory.builtin( "REAL" ) );
 
 		DefinedType type = factory.define( "My-Type", sequenceType, null );
 		module.validate();

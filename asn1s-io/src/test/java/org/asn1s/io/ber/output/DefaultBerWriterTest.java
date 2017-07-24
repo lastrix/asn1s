@@ -126,11 +126,11 @@ public class DefaultBerWriterTest
 		CollectionType choiceType = factory.collection( Family.Choice );
 
 		CollectionType sequenceType = factory.collection( Family.Sequence );
-		sequenceType.addComponent( Kind.Primary, "a", UniversalType.Integer.ref(), false, null );
-		sequenceType.addComponent( Kind.Primary, "b", UniversalType.Real.ref(), false, null );
+		sequenceType.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
+		sequenceType.addComponent( Kind.Primary, "b", UniversalType.Real.ref() );
 
-		choiceType.addComponent( Kind.Primary, "seq", sequenceType, false, null );
-		choiceType.addComponent( Kind.Primary, "b", UniversalType.Real.ref(), false, null );
+		choiceType.addComponent( Kind.Primary, "seq", sequenceType );
+		choiceType.addComponent( Kind.Primary, "b", UniversalType.Real.ref() );
 
 		DefinedType type = factory.define( "My-Choice", choiceType, null );
 		module.validate();

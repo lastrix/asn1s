@@ -52,8 +52,8 @@ public class ComponentConstraintTest
 
 		CollectionType sequenceType = factory.collection( Family.Sequence );
 		Ref<Type> intTypeRef = factory.builtin( "INTEGER" );
-		sequenceType.addComponent( Kind.Primary, "a", intTypeRef, true, null );
-		sequenceType.addComponent( Kind.Primary, "b", intTypeRef, false, null );
+		sequenceType.addComponent( Kind.Primary, "a", intTypeRef ).setOptional( true );
+		sequenceType.addComponent( Kind.Primary, "b", intTypeRef );
 
 		ConstraintTemplate constraint = factory.component( "a", null, Presence.Absent );
 		Type constrainedType = factory.constrained( constraint, sequenceType );

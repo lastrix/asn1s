@@ -236,7 +236,7 @@ public class DefaultTypeMapper implements TypeMapper
 		ObjectFactory factory = context.getObjectFactory();
 		CollectionType collection = factory.collection( Family.Sequence );
 		for( MappedField field : type.getFields() )
-			collection.addComponent( Kind.Primary, field.getPropertyName(), field.getType().getAsnType(), field.isOptional(), null );
+			collection.addComponent( Kind.Primary, field.getPropertyName(), field.getType().getAsnType() ).setOptional( field.isOptional() );
 
 		type.setAsnType( factory.define( asn1TypeName, collection, null ) );
 	}
