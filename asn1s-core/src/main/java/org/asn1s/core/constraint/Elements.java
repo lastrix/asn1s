@@ -84,17 +84,7 @@ public class Elements implements Constraint
 	public Value getMinimumValue( @NotNull Scope scope ) throws ResolutionException
 	{
 		Value value = elements.getMinimumValue( scope );
-		if( exclusion != null )
-		{
-			try
-			{
-				exclusion.check( scope, value );
-				throw new ResolutionException( "Constraint structure is too complex to find minimum value" );
-			} catch( ValidationException ignored )
-			{
-
-			}
-		}
+		assertExclusions( scope, value, "Constraint structure is too complex to find minimum value" );
 		return value;
 	}
 
@@ -103,17 +93,7 @@ public class Elements implements Constraint
 	public Value getMaximumValue( @NotNull Scope scope ) throws ResolutionException
 	{
 		Value value = elements.getMaximumValue( scope );
-		if( exclusion != null )
-		{
-			try
-			{
-				exclusion.check( scope, value );
-				throw new ResolutionException( "Constraint structure is too complex to find maximum value" );
-			} catch( ValidationException ignored )
-			{
-
-			}
-		}
+		assertExclusions( scope, value, "Constraint structure is too complex to find maximum value" );
 		return value;
 	}
 
@@ -147,5 +127,20 @@ public class Elements implements Constraint
 		elements.collectValues( values, requiredKinds );
 		if( exclusion != null )
 			exclusion.collectValues( values, requiredKinds );
+	}
+
+	private void assertExclusions( @NotNull Scope scope, Ref<Value> value, String message ) throws ResolutionException
+	{
+		if( exclusion != null )
+		{
+			try
+			{
+				exclusion.check( scope, value );
+				throw new ResolutionException( message );
+			} catch( ValidationException ignored )
+			{
+
+			}
+		}
 	}
 }
