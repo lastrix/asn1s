@@ -35,9 +35,9 @@ import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x680.ValueCollection;
+import org.asn1s.core.CoreUtils;
 import org.asn1s.core.value.x680.ValueCollectionImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,11 +59,7 @@ public final class SetType extends AbstractCollectionType
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		scope = scope.typedScope( this );
-		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() != Kind.NamedCollection && value.getKind() != Kind.Collection )
-			throw new IllegalValueException( "Illegal Set value: " + value );
-
-		new SetValidator( scope, value.toValueCollection() )
+		new SetValidator( scope, CoreUtils.toValueCollectionOrDie( scope, valueRef ) )
 				.process();
 	}
 
@@ -72,11 +68,7 @@ public final class SetType extends AbstractCollectionType
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
 		scope = scope.typedScope( this );
-		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() != Kind.NamedCollection && value.getKind() != Kind.Collection )
-			throw new IllegalValueException( "Illegal Set value: " + value );
-
-		return new SetOptimizer( scope, value.toValueCollection() )
+		return new SetOptimizer( scope, CoreUtils.toValueCollectionOrDie( scope, valueRef ) )
 				.process();
 	}
 

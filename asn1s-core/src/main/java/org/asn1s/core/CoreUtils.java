@@ -26,16 +26,20 @@
 package org.asn1s.core;
 
 import org.apache.commons.lang3.StringUtils;
+import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.Validation;
+import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.ByteArrayValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
+import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.type.DefinedTypeTemplate;
 import org.asn1s.core.value.x680.ByteArrayValueImpl;
 import org.jetbrains.annotations.NotNull;
@@ -141,6 +145,15 @@ public final class CoreUtils
 		{
 			throw new ResolutionException( "Unable to create new template type instance", e );
 		}
+	}
+
+	@NotNull
+	public static ValueCollection toValueCollectionOrDie( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, IllegalValueException
+	{
+		Value value = RefUtils.toBasicValue( scope, valueRef );
+		if( value.getKind() != Kind.NamedCollection && value.getKind() != Kind.Collection )
+			throw new IllegalValueException( "Illegal Sequence value: " + value );
+		return value.toValueCollection();
 	}
 
 	private abstract static class AbstractByteArrayConverter
