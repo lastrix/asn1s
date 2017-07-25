@@ -197,12 +197,8 @@ public final class CoreUtils
 
 		private void writeOctet( ByteArrayOutputStream os, int i )
 		{
-			int size = Math.min( i * getStride() + getStride(), content.length() );
-			//noinspection NonConstantStringShouldBeStringBuffer
-			String value = content.substring( i * getStride(), size );
-			if( value.length() < getStride() )
-				throw new IllegalStateException();
-
+			int offset = i * getStride();
+			String value = content.substring( offset, offset + getStride() );
 			os.write( Integer.parseInt( value, getRadix() ) & BYTE_MASK );
 		}
 
