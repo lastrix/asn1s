@@ -28,16 +28,12 @@ package org.asn1s.core.type.x680.string;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
-import org.asn1s.core.type.BuiltinType;
+import org.asn1s.core.type.AbstractNestingBuiltinType;
 import org.asn1s.core.type.TaggedTypeImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -48,35 +44,19 @@ import org.jetbrains.annotations.NotNull;
  * @author lastrix
  * @version 1.0
  */
-public final class ObjectDescriptorType extends BuiltinType
+public final class ObjectDescriptorType extends AbstractNestingBuiltinType
 {
 	private static final Log log = LogFactory.getLog( ObjectDescriptorType.class );
 
 	public ObjectDescriptorType()
 	{
-		type = new TaggedTypeImpl( TagEncoding.create( TagMethod.UNKNOWN, TagMethod.IMPLICIT, TagClass.UNIVERSAL, UniversalType.OBJECT_DESCRIPTOR.tagNumber() ), UniversalType.GRAPHIC_STRING.ref() );
-	}
-
-	private Type type;
-
-	@NotNull
-	@Override
-	public Type getSibling()
-	{
-		return type;
-	}
-
-	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
-	{
-		type.accept( scope, valueRef );
+		super( createSubType() );
 	}
 
 	@NotNull
-	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
+	private static Ref<Type> createSubType()
 	{
-		return type.optimize( scope, valueRef );
+		return new TaggedTypeImpl( TagEncoding.create( TagMethod.UNKNOWN, TagMethod.IMPLICIT, TagClass.UNIVERSAL, UniversalType.OBJECT_DESCRIPTOR.tagNumber() ), UniversalType.GRAPHIC_STRING.ref() );
 	}
 
 	@Override
@@ -98,18 +78,5 @@ public final class ObjectDescriptorType extends BuiltinType
 	{
 		log.warn( "Copying builtin type!" );
 		return new ObjectDescriptorType();
-	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
-	{
-		type.validate( scope );
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		type.dispose();
-		type = null;
 	}
 }

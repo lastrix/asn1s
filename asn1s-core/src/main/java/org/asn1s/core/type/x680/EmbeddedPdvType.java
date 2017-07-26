@@ -28,61 +28,33 @@ package org.asn1s.core.type.x680;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.constraint.Presence;
 import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType.Kind;
-import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
 import org.asn1s.core.constraint.template.ComponentConstraintTemplate;
 import org.asn1s.core.constraint.template.InnerTypesConstraintTemplate;
-import org.asn1s.core.type.BuiltinType;
+import org.asn1s.core.type.AbstractNestingBuiltinType;
 import org.asn1s.core.type.ConstrainedType;
 import org.asn1s.core.type.x680.collection.ChoiceType;
 import org.asn1s.core.type.x680.collection.SequenceType;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 
 /**
  * X.680, p 36.1
  */
-public final class EmbeddedPdvType extends BuiltinType
+public final class EmbeddedPdvType extends AbstractNestingBuiltinType
 {
 	private static final Log log = LogFactory.getLog( EmbeddedPdvType.class );
 
 	public EmbeddedPdvType()
 	{
+		super( createSubType() );
 		setEncoding( TagEncoding.universal( UniversalType.EMBEDDED_PDV ) );
-		type = createSubType();
-	}
-
-	private Type type;
-
-	@Nullable
-	@Override
-	public Type getSibling()
-	{
-		return type;
-	}
-
-	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
-	{
-		type.accept( scope, valueRef );
-	}
-
-	@NotNull
-	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
-	{
-		return type.optimize( scope, valueRef );
 	}
 
 	@NotNull
@@ -106,22 +78,7 @@ public final class EmbeddedPdvType extends BuiltinType
 		return new EmbeddedPdvType();
 	}
 
-	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
-	{
-		if( !( type instanceof DefinedType ) )
-			type.setNamespace( getNamespace() );
-		type.validate( scope );
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		type.dispose();
-		type = null;
-	}
-
-	private static Type createSubType()
+	private static Ref<Type> createSubType()
 	{
 		ConstraintTemplate template = new InnerTypesConstraintTemplate(
 				Collections.singletonList( new ComponentConstraintTemplate( "data-value-descriptor", null, Presence.ABSENT ) ),

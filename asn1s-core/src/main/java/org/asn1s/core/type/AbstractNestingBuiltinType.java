@@ -23,70 +23,52 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.type.x680;
+package org.asn1s.core.type;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Ref;
-import org.asn1s.api.UniversalType;
-import org.asn1s.api.constraint.ConstraintTemplate;
-import org.asn1s.api.constraint.Presence;
-import org.asn1s.api.encoding.tag.TagEncoding;
+import org.asn1s.api.encoding.EncodingInstructions;
+import org.asn1s.api.encoding.IEncoding;
+import org.asn1s.api.type.AbstractNestingType;
 import org.asn1s.api.type.Type;
-import org.asn1s.core.constraint.template.ComponentConstraintTemplate;
-import org.asn1s.core.constraint.template.InnerTypesConstraintTemplate;
-import org.asn1s.core.type.AbstractNestingBuiltinType;
-import org.asn1s.core.type.ConstrainedType;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.EnumMap;
+import java.util.Map;
 
-/**
- * X.680, p 37.1
- */
-public final class ExternalType extends AbstractNestingBuiltinType
+public abstract class AbstractNestingBuiltinType extends AbstractNestingType
 {
-	private static final Log log = LogFactory.getLog( ExternalType.class );
-
-	public ExternalType()
+	protected AbstractNestingBuiltinType( Ref<Type> siblingRef )
 	{
-		super( createSubType() );
-		setEncoding( TagEncoding.universal( UniversalType.EXTERNAL ) );
+		super( siblingRef );
 	}
 
-	@NotNull
+	private final Map<EncodingInstructions, IEncoding> encodingMap = new EnumMap<>( EncodingInstructions.class );
+
 	@Override
-	public Family getFamily()
+	public IEncoding getEncoding( EncodingInstructions instructions )
 	{
-		return Family.EXTERNAL;
+		return encodingMap.get( instructions );
+	}
+
+	protected void setEncoding( IEncoding encoding )
+	{
+		encodingMap.put( encoding.getEncodingInstructions(), encoding );
+	}
+
+	@Override
+	public final boolean equals( Object obj )
+	{
+		return obj == this || obj instanceof BuiltinType && toString().equals( obj.toString() );
+	}
+
+	@Override
+	public final int hashCode()
+	{
+		return toString().hashCode();
 	}
 
 	@Override
 	public String toString()
 	{
-		return UniversalType.EXTERNAL.typeName().toString();
-	}
-
-	@NotNull
-	@Override
-	public Type copy()
-	{
-		log.warn( "Copying builtin type!" );
-		return new ExternalType();
-	}
-
-	private static Ref<Type> createSubType()
-	{
-		List<ConstraintTemplate> templates = Arrays.asList(
-				new ComponentConstraintTemplate( "syntaxes", null, Presence.ABSENT ),
-				new ComponentConstraintTemplate( "transfer-syntax", null, Presence.ABSENT ),
-				new ComponentConstraintTemplate( "fixed", null, Presence.ABSENT ) );
-
-		InnerTypesConstraintTemplate identificationTypeConstraintsTemplate = new InnerTypesConstraintTemplate( templates, true );
-		ConstraintTemplate identificationConstraintTemplate = new ComponentConstraintTemplate( "identification", identificationTypeConstraintsTemplate, Presence.PRESENT );
-		ConstraintTemplate template = new InnerTypesConstraintTemplate( Collections.singletonList( identificationConstraintTemplate ), true );
-		return new ConstrainedType( template, EmbeddedPdvType.createSequenceType() );
+		throw new UnsupportedOperationException();
 	}
 }
