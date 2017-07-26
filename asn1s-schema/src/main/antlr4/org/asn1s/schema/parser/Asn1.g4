@@ -518,7 +518,7 @@ collectionOfType returns [Ref<Type> result]
     locals [
         CollectionOfType actualType,
         ConstraintTemplate constraintTemplate = null,
-        String componentName = ComponentType.DUMMY ]
+        String componentName = TypeUtils.DUMMY ]
     :
     (
         SEQUENCE { $actualType = (CollectionOfType)typeFactory.collectionOf(Type.Family.SequenceOf); }
