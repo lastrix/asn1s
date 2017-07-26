@@ -2,11 +2,17 @@ language: java
 jdk: oraclejdk8
 sudo: false
 install: true
+addons:
+  sonarcloud:
+    organization: "lastrix-github"
 cache:
   directories:
   - $HOME/.m2
+  - $HOME/.sonar/cache
 
-script: "mvn cobertura:cobertura"
+script:
+  - mvn cobertura:cobertura
+  - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
