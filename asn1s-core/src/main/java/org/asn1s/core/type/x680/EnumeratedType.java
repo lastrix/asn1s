@@ -184,7 +184,6 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		//scope = scope.typedScope( this );
 		Collection<Long> uniqueCheck = new HashSet<>();
 		actualEnumeration = new EnumerationValidator( scope, enumeration, uniqueCheck )
 				.validate();

@@ -182,7 +182,6 @@ abstract class AbstractBerReader implements Asn1Reader
 		if( baseType == null )
 			throw new IllegalStateException();
 
-		//context = context.toSiblingContext();
 		if( context.isImplicit() )
 		{
 			if( encoding.getTagMethod() == TagMethod.IMPLICIT )

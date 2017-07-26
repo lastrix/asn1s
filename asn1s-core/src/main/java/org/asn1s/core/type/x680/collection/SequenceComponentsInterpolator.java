@@ -46,6 +46,41 @@ final class SequenceComponentsInterpolator extends AbstractComponentInterpolator
 	protected void assertTagAmbiguity( Collection<ComponentType> components ) throws ValidationException
 	{
 		Collection<ComponentType> optionalBlock = new LinkedList<>();
+		assertComponentsTagAmbiguity( components, optionalBlock );
+
+		if( !getType().getComponentsLast().isEmpty() )
+			assertComponentsLastTagAmbiguity( components );
+	}
+
+	private static void assertComponentsLastTagAmbiguity( Iterable<ComponentType> components ) throws ValidationException
+	{
+		Collection<ComponentType> lastComponents = getLastComponents( components );
+		for( ComponentType component : components )
+			if( component.getVersion() > 1 )
+				CoreCollectionUtils.assertTags( component, lastComponents );
+	}
+
+	@NotNull
+	private static Collection<ComponentType> getLastComponents( Iterable<ComponentType> components )
+	{
+		Collection<ComponentType> lastComponents = new ArrayList<>();
+		int version = 1;
+		for( ComponentType component : components )
+		{
+			if( component.getVersion() == 1 && version > 1 )
+			{
+				lastComponents.add( component );
+				if( component.isRequired() )
+					break;
+			}
+			else
+				version = component.getVersion();
+		}
+		return lastComponents;
+	}
+
+	private static void assertComponentsTagAmbiguity( Iterable<ComponentType> components, Collection<ComponentType> optionalBlock ) throws ValidationException
+	{
 		for( ComponentType component : components )
 		{
 			if( !component.isRequired() )
@@ -60,26 +95,6 @@ final class SequenceComponentsInterpolator extends AbstractComponentInterpolator
 				validateBlock( optionalBlock );
 				optionalBlock.clear();
 			}
-		}
-
-		if( !getType().getComponentsLast().isEmpty() )
-		{
-			Collection<ComponentType> lastComponents = new ArrayList<>();
-			int version = 1;
-			for( ComponentType component : components )
-			{
-				if( component.getVersion() == 1 && version > 1 )
-				{
-					lastComponents.add( component );
-					if( component.isRequired() )
-						break;
-				}
-				else
-					version = component.getVersion();
-			}
-			for( ComponentType component : components )
-				if( component.getVersion() > 1 )
-					CoreCollectionUtils.assertTags( component, lastComponents );
 		}
 	}
 

@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 public interface TemplateParameter extends Comparable<TemplateParameter>
 {
-	Ref<?> getReference();
+	Ref<? extends Asn1ModelObject> getReference();
 
 	String getName();
 

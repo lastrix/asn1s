@@ -44,19 +44,19 @@ import java.util.Collection;
 
 public class Elements implements Constraint
 {
-	public Elements( @NotNull Constraint elements, @Nullable Constraint exclusion )
+	public Elements( @NotNull Constraint unions, @Nullable Constraint exclusion )
 	{
-		this.elements = elements;
+		this.unions = unions;
 		this.exclusion = exclusion;
 	}
 
-	private final Constraint elements;
+	private final Constraint unions;
 	private final Constraint exclusion;
 
 	@Override
 	public void check( Scope scope, Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
-		elements.check( scope, valueRef );
+		unions.check( scope, valueRef );
 		if( exclusion != null && ConstraintUtils.isConstraintSucceeds( exclusion, scope, valueRef ) )
 			throw new ConstraintViolationException( "Value must not be in set: " + exclusion );
 	}
@@ -65,14 +65,14 @@ public class Elements implements Constraint
 	@Override
 	public Constraint copyForType( @NotNull Scope scope, @NotNull Type type ) throws ResolutionException, ValidationException
 	{
-		return new Elements( elements.copyForType( scope, type ), exclusion == null ? null : exclusion.copyForType( scope, type ) );
+		return new Elements( unions.copyForType( scope, type ), exclusion == null ? null : exclusion.copyForType( scope, type ) );
 	}
 
 	@NotNull
 	@Override
 	public Value getMinimumValue( @NotNull Scope scope ) throws ResolutionException
 	{
-		Value value = elements.getMinimumValue( scope );
+		Value value = unions.getMinimumValue( scope );
 		assertExclusions( scope, value, "Constraint structure is too complex to find minimum value" );
 		return value;
 	}
@@ -81,7 +81,7 @@ public class Elements implements Constraint
 	@Override
 	public Value getMaximumValue( @NotNull Scope scope ) throws ResolutionException
 	{
-		Value value = elements.getMaximumValue( scope );
+		Value value = unions.getMaximumValue( scope );
 		assertExclusions( scope, value, "Constraint structure is too complex to find maximum value" );
 		return value;
 	}
@@ -90,14 +90,14 @@ public class Elements implements Constraint
 	public String toString()
 	{
 		if( exclusion == null )
-			return elements.toString();
-		return elements + " EXCEPT " + exclusion;
+			return unions.toString();
+		return unions + " EXCEPT " + exclusion;
 	}
 
 	@Override
 	public void setScopeOptions( Scope scope )
 	{
-		elements.setScopeOptions( scope );
+		unions.setScopeOptions( scope );
 		if( exclusion != null )
 			exclusion.setScopeOptions( scope );
 	}
@@ -105,7 +105,7 @@ public class Elements implements Constraint
 	@Override
 	public void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException
 	{
-		elements.assertConstraintTypes( allowedTypes );
+		unions.assertConstraintTypes( allowedTypes );
 		if( exclusion != null )
 			exclusion.assertConstraintTypes( allowedTypes );
 	}
@@ -113,7 +113,7 @@ public class Elements implements Constraint
 	@Override
 	public void collectValues( @NotNull Collection<Value> values, @NotNull Collection<Kind> requiredKinds ) throws IllegalValueException
 	{
-		elements.collectValues( values, requiredKinds );
+		unions.collectValues( values, requiredKinds );
 		if( exclusion != null )
 			exclusion.collectValues( values, requiredKinds );
 	}

@@ -69,7 +69,7 @@ final class SequenceOfBerDecoder implements BerDecoder
 			if( ctx.readTagInfoEocPossible( !indefinite ) )
 				break;
 
-			Value componentValue = ctx.readInternal( ctx.clone() );
+			Value componentValue = ctx.readInternal( ctx.copy() );
 			if( isDummy )
 				componentValue = valueFactory.named( componentType.getComponentName(), componentValue );
 			collection.add( componentValue );

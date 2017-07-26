@@ -118,7 +118,7 @@ abstract class AbstractScope implements Scope
 	{
 		if( this.value != null && log.isDebugEnabled() )
 			log.debug( "Overwriting ValueLevel: " + this.value + " changing to " + value );
-//			throw new IllegalStateException();
+
 		this.value = value;
 	}
 

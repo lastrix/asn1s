@@ -76,7 +76,6 @@ final class RealBerEncoder implements BerEncoder
 			writeNR3( context, integerValue.asBigDecimal() );
 	}
 
-	@SuppressWarnings( "MagicNumber" )
 	private static void writeDouble( WriterContext ctx, double value ) throws IOException
 	{
 		// encode binary value
@@ -99,44 +98,7 @@ final class RealBerEncoder implements BerEncoder
 			ctx.write( BerUtils.REAL_MINUS_ZERO );
 		}
 		else
-		{
-			byte sign = ( bits & 0x8000000000000000L ) == 0 ? (byte)0 : BerUtils.REAL_SIGN_MASK;
-			long mantissa = bits & 0X000FFFFFFFFFFFFFL;
-			long exponent = ( bits & 0X7FF0000000000000L ) >> 52;
-			if( mantissa > 0L )
-			{
-				mantissa |= 0x0010000000000000L;
-				exponent -= 1023L + 52L;
-			}
-			else
-				exponent -= 1022L + 52L;
-
-			if( mantissa > 0 )
-			{
-				while( ( mantissa & 255L ) == 0L )
-				{
-					mantissa >>= 8;
-					exponent += 8L;
-				}
-
-				while( ( mantissa & 1L ) == 0L )
-				{
-					mantissa >>= 1;
-					++exponent;
-				}
-			}
-
-			byte[] exponentBytes = IntegerBerEncoder.toByteArray( exponent );
-			byte[] mantisBytes = IntegerBerEncoder.toByteArray( mantissa );
-			byte first = (byte)( BerUtils.REAL_BINARY_FLAG | sign | Math.min( 3, exponentBytes.length - 1 ) );
-
-			ctx.writeHeader( TAG, 1 + exponentBytes.length + mantisBytes.length );
-			ctx.write( first );
-			if( exponentBytes.length >= 4 )
-				ctx.write( exponentBytes.length );
-			ctx.write( exponentBytes );
-			ctx.write( mantisBytes );
-		}
+			new BinaryDoubleEncoder( ctx, bits ).encode();
 	}
 
 	private static void writeNR3( WriterContext ctx, BigDecimal bigDecimal ) throws IOException
@@ -154,5 +116,66 @@ final class RealBerEncoder implements BerEncoder
 
 		ctx.write( 3 );
 		ctx.write( bytes );
+	}
+
+	@SuppressWarnings( "MagicNumber" )
+	private static final class BinaryDoubleEncoder
+	{
+		private BinaryDoubleEncoder( WriterContext ctx, long bits )
+		{
+			this.ctx = ctx;
+			sign = ( bits & 0x8000000000000000L ) == 0 ? (byte)0 : BerUtils.REAL_SIGN_MASK;
+			mantissa = bits & 0X000FFFFFFFFFFFFFL;
+			exponent = ( bits & 0X7FF0000000000000L ) >> 52;
+		}
+
+		private final WriterContext ctx;
+		private final byte sign;
+		private long mantissa;
+		private long exponent;
+
+		private void encode() throws IOException
+		{
+			normalizeMantissaAndExponent();
+			byte[] exponentBytes = IntegerBerEncoder.toByteArray( exponent );
+			byte[] mantisBytes = IntegerBerEncoder.toByteArray( mantissa );
+			byte first = (byte)( BerUtils.REAL_BINARY_FLAG | sign | Math.min( 3, exponentBytes.length - 1 ) );
+
+			ctx.writeHeader( TAG, 1 + exponentBytes.length + mantisBytes.length );
+			ctx.write( first );
+			if( exponentBytes.length >= 4 )
+				ctx.write( exponentBytes.length );
+			ctx.write( exponentBytes );
+			ctx.write( mantisBytes );
+		}
+
+		private void normalizeMantissaAndExponent()
+		{
+			if( mantissa > 0L )
+			{
+				mantissa |= 0x0010000000000000L;
+				exponent -= 1023L + 52L;
+			}
+			else
+				exponent -= 1022L + 52L;
+
+			if( mantissa > 0 )
+				normalizeMantissa();
+		}
+
+		private void normalizeMantissa()
+		{
+			while( ( mantissa & 255L ) == 0L )
+			{
+				mantissa >>= 8;
+				exponent += 8L;
+			}
+
+			while( ( mantissa & 1L ) == 0L )
+			{
+				mantissa >>= 1;
+				++exponent;
+			}
+		}
 	}
 }

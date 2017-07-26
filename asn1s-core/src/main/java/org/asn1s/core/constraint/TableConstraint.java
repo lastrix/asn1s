@@ -84,11 +84,8 @@ public class TableConstraint implements Constraint, InstanceOfTypeSelector
 				if( openType == ref )
 					return;
 			}
-			else if( ref instanceof Value )
-			{
-				if( ( (Value)ref ).isEqualTo( checkValue ) )
-					return;
-			}
+			else if( ref instanceof Value && ( (Value)ref ).isEqualTo( checkValue ) )
+				return;
 		}
 
 		throw new ConstraintViolationException( "Table constraint failure for value: " + valueRef + ". Type: " + type );

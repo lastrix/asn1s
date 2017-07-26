@@ -72,35 +72,38 @@ public class ComponentConstraint implements Constraint
 	{
 		Value value = valueRef.resolve( scope );
 		if( value.getKind() == Kind.NAMED_COLLECTION )
-		{
-			NamedValue actualValue = value.toValueCollection().getNamedValue( name );
-
-			if( actualValue == null )
-			{
-				if( presence == Presence.PRESENT )
-					throw new ConstraintViolationException( "Field is not present: " + name );
-			}
-			else
-			{
-				if( presence == Presence.ABSENT )
-					throw new ConstraintViolationException( "Field must not be present: " + name );
-
-				if( constraint != null )
-					constraint.check( scope, actualValue );
-			}
-		}
+			checkNamedCollection( scope, value );
 		else if( value.getKind() == Kind.NAME )
-		{
-			NamedValue actual = value.toNamedValue();
-			if( !actual.getName().equals( name ) )
-				throw new IllegalStateException();
+			checkComponent( scope, value );
+	}
 
+	private void checkComponent( Scope scope, Value value ) throws ValidationException, ResolutionException
+	{
+		NamedValue actual = value.toNamedValue();
+		if( !actual.getName().equals( name ) )
+			throw new IllegalStateException();
+
+		if( presence == Presence.ABSENT )
+			throw new ConstraintViolationException( "Field must not be present: " + name );
+
+		if( constraint != null )
+			constraint.check( scope, actual );
+	}
+
+	private void checkNamedCollection( Scope scope, Value value ) throws ValidationException, ResolutionException
+	{
+		NamedValue actualValue = value.toValueCollection().getNamedValue( name );
+
+		if( actualValue != null )
+		{
 			if( presence == Presence.ABSENT )
 				throw new ConstraintViolationException( "Field must not be present: " + name );
 
 			if( constraint != null )
-				constraint.check( scope, actual );
+				constraint.check( scope, actualValue );
 		}
+		else if( presence == Presence.PRESENT )
+			throw new ConstraintViolationException( "Field is not present: " + name );
 	}
 
 	@NotNull

@@ -38,7 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
-public final class ReaderContext implements Cloneable
+public final class ReaderContext
 {
 	public ReaderContext( AbstractBerReader reader )
 	{
@@ -231,8 +231,7 @@ public final class ReaderContext implements Cloneable
 		reader.skip( amount );
 	}
 
-	@Override
-	protected ReaderContext clone()
+	protected ReaderContext copy()
 	{
 		return new ReaderContext( reader, scope, type, tag, length, implicit );
 	}

@@ -25,10 +25,7 @@
 
 package org.asn1s.core.type;
 
-import org.asn1s.api.BuiltinClass;
-import org.asn1s.api.Ref;
-import org.asn1s.api.TemplateParameter;
-import org.asn1s.api.UniversalType;
+import org.asn1s.api.*;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.encoding.tag.TagClass;
@@ -105,7 +102,7 @@ public class CoreTypeFactory implements TypeFactory
 	@Override
 	public TemplateParameter templateParameter( int index, @NotNull String reference, @Nullable Ref<Type> governor )
 	{
-		Ref<?> ref = RefUtils.isTypeRef( reference )
+		Ref<? extends Asn1ModelObject> ref = RefUtils.isTypeRef( reference )
 				? new TypeNameRef( reference, null )
 				: new ValueNameRef( reference, null );
 

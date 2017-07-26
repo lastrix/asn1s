@@ -52,7 +52,8 @@ public final class ConstrainedType extends AbstractNestingType
 	@Override
 	public Scope getScope( @NotNull Scope parentScope )
 	{
-		constraint.setScopeOptions( parentScope );
+		if( constraint != null )
+			constraint.setScopeOptions( parentScope );
 		return parentScope;
 	}
 
@@ -77,7 +78,7 @@ public final class ConstrainedType extends AbstractNestingType
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		//scope = getScope( scope );
+		scope = getScope( scope );
 		super.onValidate( scope );
 		constraint = constraintTemplate.build( scope, getSibling() );
 	}

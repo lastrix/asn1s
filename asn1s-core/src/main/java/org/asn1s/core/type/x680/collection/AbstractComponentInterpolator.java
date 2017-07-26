@@ -115,7 +115,7 @@ abstract class AbstractComponentInterpolator
 		private final Map<String, Family> componentFamilyMap;
 		@SuppressWarnings( "unchecked" )
 		// 0 - components, 1 - componentsLast, 2 - extensions
-		private final Collection<ComponentType>[] _comps = new Collection[]{new ArrayList<ComponentType>(), new ArrayList<ComponentType>(), new ArrayList<ComponentType>()};
+		private final Collection<ComponentType>[] comps = new Collection[]{new ArrayList<ComponentType>(), new ArrayList<ComponentType>(), new ArrayList<ComponentType>()};
 		private final List<ComponentType> result = new ArrayList<>();
 		private int index;
 
@@ -127,12 +127,12 @@ abstract class AbstractComponentInterpolator
 
 		private List<ComponentType> build() throws ValidationException
 		{
-			resolveComponentsImpl( _comps[0], type.getComponents(), -1 );
-			resolveComponentsImpl( _comps[1], type.getComponentsLast(), -1 );
-			resolveComponentsImpl( _comps[2], type.getExtensions(), 2 );
-			registerComponents( _comps[0] );
-			registerComponents( _comps[2] );
-			registerComponents( _comps[1] );
+			resolveComponentsImpl( comps[0], type.getComponents(), -1 );
+			resolveComponentsImpl( comps[1], type.getComponentsLast(), -1 );
+			resolveComponentsImpl( comps[2], type.getExtensions(), 2 );
+			registerComponents( comps[0] );
+			registerComponents( comps[2] );
+			registerComponents( comps[1] );
 			return result;
 		}
 

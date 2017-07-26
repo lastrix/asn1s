@@ -55,15 +55,11 @@ final class BerDecoderUtils
 	static boolean isComponentTag( Tag tag, NamedType namedType )
 	{
 		TagEncoding encoding = (TagEncoding)namedType.getEncoding( EncodingInstructions.TAG );
+		//noinspection SimplifiableIfStatement
 		if( encoding != null && encoding.isEqualToTag( tag ) )
 			return true;
 
-		if( namedType.getFamily() == Family.CHOICE )
-		{
-			if( findChoiceComponent( tag, namedType ) )
-				return true;
-		}
-		return false;
+		return namedType.getFamily() == Family.CHOICE && findChoiceComponent( tag, namedType );
 	}
 
 	static byte[] readString( @NotNull AbstractBerReader reader, int length ) throws IOException

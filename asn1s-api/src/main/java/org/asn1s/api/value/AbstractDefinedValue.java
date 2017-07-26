@@ -91,7 +91,7 @@ public abstract class AbstractDefinedValue implements DefinedValue
 		{
 			onValidate( scope );
 			state = State.DONE;
-		} catch( Throwable e )
+		} catch( Exception e )
 		{
 			state = State.FAILED;
 			//noinspection ProhibitedExceptionThrown

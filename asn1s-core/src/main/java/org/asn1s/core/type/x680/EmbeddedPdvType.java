@@ -151,11 +151,11 @@ public final class EmbeddedPdvType extends BuiltinType
 		ChoiceType identification = new ChoiceType( true );
 
 		Ref<Type> oidRef = UniversalType.OBJECT_IDENTIFIER.ref();
-		SequenceType identification_syntaxes = new SequenceType( true );
-		identification_syntaxes.addComponent( Kind.PRIMARY, "abstract", oidRef );
-		identification_syntaxes.addComponent( Kind.PRIMARY, "transfer", oidRef );
+		SequenceType identificationSyntaxes = new SequenceType( true );
+		identificationSyntaxes.addComponent( Kind.PRIMARY, "abstract", oidRef );
+		identificationSyntaxes.addComponent( Kind.PRIMARY, "transfer", oidRef );
 
-		identification.addComponent( Kind.PRIMARY, "syntaxes", identification_syntaxes );
+		identification.addComponent( Kind.PRIMARY, "syntaxes", identificationSyntaxes );
 		identification.addComponent( Kind.PRIMARY, "syntax", oidRef );
 		identification.addComponent( Kind.PRIMARY, "presentation-context-id", UniversalType.INTEGER.ref() );
 

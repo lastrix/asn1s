@@ -54,11 +54,8 @@ final class IntegerBerEncoder implements BerEncoder
 
 	static void writeLong( @NotNull AbstractBerWriter os, long value, @Nullable Tag tag, boolean writeHeader ) throws IOException
 	{
-		if( tag == null )
-		{
-			if( writeHeader )
-				throw new IOException( "Unable to write header: tag is unavailable." );
-		}
+		if( tag == null && writeHeader )
+			throw new IOException( "Unable to write header: tag is unavailable." );
 
 		int size = calculateByteCount( value );
 		if( writeHeader )
