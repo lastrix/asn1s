@@ -91,7 +91,7 @@ public final class Tag
 
 	public boolean isEoc()
 	{
-		return tagClass == TagClass.Universal && !constructed && tagNumber == 0;
+		return tagClass == TagClass.UNIVERSAL && !constructed && tagNumber == 0;
 	}
 
 	@Override

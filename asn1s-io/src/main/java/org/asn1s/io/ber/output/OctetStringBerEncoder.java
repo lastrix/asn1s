@@ -36,13 +36,13 @@ import java.io.IOException;
 
 final class OctetStringBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.OctetString.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.OCTET_STRING.tagNumber() );
 
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.OctetString;
-		assert context.getValue().getKind() == Kind.ByteArray;
+		assert context.getType().getFamily() == Family.OCTET_STRING;
+		assert context.getValue().getKind() == Kind.BYTE_ARRAY;
 		byte[] bytes = context.getValue().toByteArrayValue().asByteArray();
 		int length = bytes == null ? 0 : bytes.length;
 		context.writeHeader( TAG, length );

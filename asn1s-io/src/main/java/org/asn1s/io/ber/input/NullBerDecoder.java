@@ -35,7 +35,7 @@ final class NullBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context )
 	{
-		assert context.getType().getFamily() == Family.Null;
+		assert context.getType().getFamily() == Family.NULL;
 		assert context.getLength() == 0;
 		return NullValue.INSTANCE;
 	}

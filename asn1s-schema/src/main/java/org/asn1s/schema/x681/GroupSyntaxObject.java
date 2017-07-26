@@ -36,7 +36,7 @@ public class GroupSyntaxObject implements SyntaxObject
 	@Override
 	public Kind getKind()
 	{
-		return Kind.Group;
+		return Kind.GROUP;
 	}
 
 	@Override

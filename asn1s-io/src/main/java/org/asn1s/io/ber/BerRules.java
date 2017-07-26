@@ -27,7 +27,7 @@ package org.asn1s.io.ber;
 
 public enum BerRules
 {
-	Ber,
-	Der,
-	Cer
+	BER,
+	DER,
+	CER
 }

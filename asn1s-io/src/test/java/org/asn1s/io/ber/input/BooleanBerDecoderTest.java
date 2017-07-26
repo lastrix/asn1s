@@ -50,7 +50,7 @@ public class BooleanBerDecoderTest
 	public void testDecode_true() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Boolean.ref().resolve( scope );
+		Type type = UniversalType.BOOLEAN.ref().resolve( scope );
 		Value expected = BooleanValue.TRUE;
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -65,7 +65,7 @@ public class BooleanBerDecoderTest
 	public void testDecode_false() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Boolean.ref().resolve( scope );
+		Type type = UniversalType.BOOLEAN.ref().resolve( scope );
 		Value expected = BooleanValue.FALSE;
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -80,10 +80,10 @@ public class BooleanBerDecoderTest
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new BooleanBerDecoder().decode( new ReaderContext( reader, scope, type, tag, 1, false ) );
 			fail( "Must fail" );
 		}
@@ -93,10 +93,10 @@ public class BooleanBerDecoderTest
 	public void testDecode_fail_length() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Boolean.ref().resolve( scope );
+		Type type = UniversalType.BOOLEAN.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new BooleanBerDecoder().decode( new ReaderContext( reader, scope, type, tag, 2, false ) );
 			fail( "Must fail" );
 		}

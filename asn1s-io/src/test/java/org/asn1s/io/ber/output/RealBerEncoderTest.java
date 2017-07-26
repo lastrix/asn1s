@@ -45,13 +45,13 @@ import static org.mockito.Mockito.*;
 public class RealBerEncoderTest
 {
 
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Real.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.REAL.tagNumber() );
 
 	@Test( expected = AssertionError.class )
 	public void testWrite_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new IntegerValueInt( 0 );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -64,7 +64,7 @@ public class RealBerEncoderTest
 	public void testWrite_fail_value() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new StringValueImpl( "Value" );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -78,7 +78,7 @@ public class RealBerEncoderTest
 	public void testWriteInteger_0() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		Value value = new IntegerValueInt( 0 );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -92,7 +92,7 @@ public class RealBerEncoderTest
 	public void testWriteReal_neg_0() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		Value value = new RealValueFloat( -0.0f );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -107,7 +107,7 @@ public class RealBerEncoderTest
 	public void testWriteReal_neg_inf() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		Value value = new RealValueFloat( Float.NEGATIVE_INFINITY );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -122,7 +122,7 @@ public class RealBerEncoderTest
 	public void testWriteReal_pos_inf() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		Value value = new RealValueFloat( Float.POSITIVE_INFINITY );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -137,7 +137,7 @@ public class RealBerEncoderTest
 	public void testWriteReal_nan() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		Value value = new RealValueFloat( Float.NaN );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -153,7 +153,7 @@ public class RealBerEncoderTest
 	public void testWriteReal_big() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		BigDecimal decimal = new BigDecimal( BigInteger.valueOf( 1023234L ).pow( 5223 ) );
 		byte[] bytes = NRxUtils.toCanonicalNR3( decimal.toString() ).getBytes( "UTF-8" );
 		Value value = new RealValueBig( decimal );
@@ -171,7 +171,7 @@ public class RealBerEncoderTest
 	public void testWriteInteger_big() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		BigInteger bigInteger = BigInteger.valueOf( 1023234L ).pow( 5223 );
 		byte[] bytes = NRxUtils.toCanonicalNR3( new BigDecimal( bigInteger ).toString() ).getBytes( "UTF-8" );
 		Value value = new IntegerValueBig( bigInteger );
@@ -189,7 +189,7 @@ public class RealBerEncoderTest
 	public void testWriteReal_1_0() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		Value value = new RealValueFloat( 1.0f );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -206,7 +206,7 @@ public class RealBerEncoderTest
 	public void testWriteReal_0_15625d() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		Value value = new RealValueDouble( 0.15625d );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

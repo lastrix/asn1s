@@ -39,7 +39,7 @@ import java.io.IOException;
 
 public class ObjectIDBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.ObjectIdentifier.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.OBJECT_IDENTIFIER.tagNumber() );
 	private static final int MASK_7_BIT = 0x7F;
 	private static final int MASK_MORE_BYTES = 0x80;
 	private static final int MASK_NO_BYTES = 0x0;
@@ -47,8 +47,8 @@ public class ObjectIDBerEncoder implements BerEncoder
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.Oid;
-		assert context.getValue().getKind() == Kind.Oid;
+		assert context.getType().getFamily() == Family.OID;
+		assert context.getValue().getKind() == Kind.OID;
 
 		if( !context.isWriteHeader() )
 			writeObjectIDImpl( context.getWriter(), context.getValue().toObjectIdentifierValue() );

@@ -86,8 +86,8 @@ public final class TaggedTypeImpl extends AbstractNestingType implements TaggedT
 		super.onValidate( scope );
 
 		TagEncoding enc = (TagEncoding)encoding;
-		if( enc.getTagMethod() == TagMethod.Implicit && getSibling().getFamily() == Family.Choice )
-			setEncoding( TagEncoding.create( enc.getModuleTagMethod(), TagMethod.Explicit, enc.getTagClass(), enc.getTagNumber() ) );
+		if( enc.getTagMethod() == TagMethod.IMPLICIT && getSibling().getFamily() == Family.CHOICE )
+			setEncoding( TagEncoding.create( enc.getModuleTagMethod(), TagMethod.EXPLICIT, enc.getTagClass(), enc.getTagNumber() ) );
 	}
 
 	@Override
@@ -127,11 +127,11 @@ public final class TaggedTypeImpl extends AbstractNestingType implements TaggedT
 		{
 			if( thisType instanceof TaggedTypeImpl )
 			{
-				TagEncoding encoding = (TagEncoding)thisType.getEncoding( EncodingInstructions.Tag );
+				TagEncoding encoding = (TagEncoding)thisType.getEncoding( EncodingInstructions.TAG );
 				if( encoding == null )
 					throw new IllegalStateException();
 
-				if( encoding.getTagMethod() == TagMethod.Explicit )
+				if( encoding.getTagMethod() == TagMethod.EXPLICIT )
 					return true;
 			}
 

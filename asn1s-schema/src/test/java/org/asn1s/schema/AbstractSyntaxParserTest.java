@@ -47,14 +47,14 @@ public class AbstractSyntaxParserTest
 	{
 		ClassTypeImpl classType = new ClassTypeImpl();
 		classType.setSyntaxList( Arrays.asList( "&Type", "IDENTIFIED", "BY", "&id", "[", "CONSTRAINED", "BY", "&TypeConstraint", "]" ) );
-		classType.add( new FixedValueFieldType( "&id", UniversalType.ObjectIdentifier.ref(), true, false, null ) );
+		classType.add( new FixedValueFieldType( "&id", UniversalType.OBJECT_IDENTIFIER.ref(), true, false, null ) );
 		classType.add( new TypeFieldType( "&Type", false, null ) );
 		classType.add( new TypeFieldType( "&TypeConstraint", false, null ) );
 		classType.validate( CoreModule.getInstance().createScope() );
 		ModuleSet moduleSet = new ModuleSet();
 		DefaultAsn1Factory factory = new DefaultAsn1Factory( moduleSet );
 		AbstractSyntaxParser parser = new AbstractSyntaxParser( moduleSet, factory, CoreModule.getInstance(), classType );
-		Map<String, Ref<?>> result = parser.parse( "Super-Type IDENTIFIED BY { rootOid 3 } CONSTRAINED BY Type-Constraint" );
+		Map<String, Ref<?>> result = parser.parse( "Super-Type IDENTIFIED BY { rootOid 3 } CONSTRAINED BY TYPE-Constraint" );
 		Assert.assertNotNull( "No result", result );
 	}
 }

@@ -38,7 +38,7 @@ final class BitStringBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.BitString;
+		assert context.getType().getFamily() == Family.BIT_STRING;
 		assert !context.getTag().isConstructed();
 
 		if( context.getLength() == 0 )

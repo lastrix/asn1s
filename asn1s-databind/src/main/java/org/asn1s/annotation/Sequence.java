@@ -56,12 +56,12 @@ public @interface Sequence
 	 *
 	 * @return TagClass
 	 */
-	TagClass tagClass() default TagClass.Application;
+	TagClass tagClass() default TagClass.APPLICATION;
 
 	/**
 	 * Default tagging method
 	 *
 	 * @return TagMethod
 	 */
-	TagMethod tagMethod() default TagMethod.Automatic;
+	TagMethod tagMethod() default TagMethod.AUTOMATIC;
 }

@@ -37,7 +37,7 @@ public class GeneralizedTimeBerDecoder extends AbstractTimeBerDecoder
 	@Override
 	protected Family getRequiredFamily()
 	{
-		return Family.GeneralizedTime;
+		return Family.GENERALIZED_TIME;
 	}
 
 	@Override

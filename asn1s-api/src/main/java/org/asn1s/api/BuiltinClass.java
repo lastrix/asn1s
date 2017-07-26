@@ -32,7 +32,7 @@ import org.jetbrains.annotations.NotNull;
 
 public enum BuiltinClass
 {
-	TypeIdentifier( "TYPE-IDENTIFIER" );
+	TYPE_IDENTIFIER( "TYPE-IDENTIFIER" );
 
 	private final String typeName;
 	private final Ref<Type> ref;

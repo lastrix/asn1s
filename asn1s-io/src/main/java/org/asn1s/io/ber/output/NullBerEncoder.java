@@ -40,13 +40,13 @@ import java.io.IOException;
  */
 final class NullBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Null.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.NULL.tagNumber() );
 
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.Null;
-		assert context.getValue().getKind() == Kind.Null;
+		assert context.getType().getFamily() == Family.NULL;
+		assert context.getValue().getKind() == Kind.NULL;
 		context.writeHeader( TAG, 0 );
 		// nothing to do, null value is always empty
 	}

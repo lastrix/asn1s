@@ -58,7 +58,7 @@ public final class GeneralizedTimeType extends AbstractTimeType
 
 	public GeneralizedTimeType()
 	{
-		setEncoding( TagEncoding.create( TagMethod.Unknown, TagMethod.Implicit, TagClass.Universal, UniversalType.GeneralizedTime.tagNumber() ) );
+		setEncoding( TagEncoding.create( TagMethod.UNKNOWN, TagMethod.IMPLICIT, TagClass.UNIVERSAL, UniversalType.GENERALIZED_TIME.tagNumber() ) );
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public final class GeneralizedTimeType extends AbstractTimeType
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind != Kind.Time )
+		if( kind != Kind.TIME )
 			throw new IllegalValueException( "Unable to use value of kind: " + kind );
 	}
 
@@ -86,7 +86,7 @@ public final class GeneralizedTimeType extends AbstractTimeType
 	@Override
 	public Family getFamily()
 	{
-		return Family.GeneralizedTime;
+		return Family.GENERALIZED_TIME;
 	}
 
 	@NotNull

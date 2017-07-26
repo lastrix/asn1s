@@ -27,13 +27,16 @@ package org.asn1s.api.encoding.tag;
 
 public enum TagMethod
 {
-	Unknown, Automatic, Explicit, Implicit;
+	UNKNOWN,
+	AUTOMATIC,
+	EXPLICIT,
+	IMPLICIT;
 
 	public static TagMethod find( String value )
 	{
 		for( TagMethod method : values() )
 		{
-			if( method != Unknown && method.name().equalsIgnoreCase( value ) )
+			if( method != UNKNOWN && method.name().equalsIgnoreCase( value ) )
 				return method;
 		}
 

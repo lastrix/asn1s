@@ -49,7 +49,7 @@ public class IntegerBerDecoderTest
 	public void testDecode_1024() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value expected = new IntegerValueInt( 1024 );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -64,10 +64,10 @@ public class IntegerBerDecoderTest
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new IntegerBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}

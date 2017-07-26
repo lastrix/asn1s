@@ -42,7 +42,7 @@ final class InputUtils
 
 	static byte[] writeValue( @NotNull Scope scope, @NotNull Ref<Type> type, @NotNull Value value ) throws Exception
 	{
-		try( Asn1Writer writer = new DefaultBerWriter( BerRules.Ber ) )
+		try( Asn1Writer writer = new DefaultBerWriter( BerRules.BER ) )
 		{
 			writer.write( scope, type, value );
 			return writer.toByteArray();

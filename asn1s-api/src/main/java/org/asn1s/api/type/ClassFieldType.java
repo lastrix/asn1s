@@ -62,8 +62,8 @@ public interface ClassFieldType extends NamedType
 
 	enum Kind
 	{
-		Type,
-		Value,
-		ValueSet
+		TYPE,
+		VALUE,
+		VALUE_SET
 	}
 }

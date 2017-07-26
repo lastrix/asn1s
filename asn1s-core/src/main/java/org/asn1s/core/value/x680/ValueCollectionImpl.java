@@ -68,7 +68,7 @@ public final class ValueCollectionImpl implements ValueCollection
 	@Override
 	public Kind getKind()
 	{
-		return named || valueRefs.isEmpty() ? Kind.NamedCollection : Kind.Collection;
+		return named || valueRefs.isEmpty() ? Kind.NAMED_COLLECTION : Kind.COLLECTION;
 	}
 
 	@Override
@@ -138,7 +138,7 @@ public final class ValueCollectionImpl implements ValueCollection
 			if( collection.isEmpty() )
 				return 0;
 
-			if( getKind() == Kind.NamedCollection )
+			if( getKind() == Kind.NAMED_COLLECTION )
 				return compareNamedCollection( collection );
 
 			return compareToCollection( collection );

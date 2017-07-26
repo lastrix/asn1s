@@ -36,13 +36,13 @@ import java.io.IOException;
 
 final class EnumeratedBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Enumerated.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.ENUMERATED.tagNumber() );
 
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.Enumerated;
-		assert context.getValue().getKind() == Kind.Name && context.getValue().toNamedValue().getReferenceKind() == Kind.Integer;
+		assert context.getType().getFamily() == Family.ENUMERATED;
+		assert context.getValue().getKind() == Kind.NAME && context.getValue().toNamedValue().getReferenceKind() == Kind.INTEGER;
 		IntegerBerEncoder.writeLong( context.getWriter(), context.getValue().toIntegerValue().asLong(), TAG, context.isWriteHeader() );
 	}
 }

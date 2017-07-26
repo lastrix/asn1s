@@ -27,12 +27,12 @@ package org.asn1s.api.constraint;
 
 public enum ConstraintType
 {
-	Value,
-	ValueRange,
-	Size,
-	PermittedAlphabet,
-	InnerType,
-	InnerTypes,
-	Pattern,
-	Settings
+	VALUE,
+	VALUE_RANGE,
+	SIZE,
+	PERMITTED_ALPHABET,
+	INNER_TYPE,
+	INNER_TYPES,
+	PATTERN,
+	SETTINGS
 }

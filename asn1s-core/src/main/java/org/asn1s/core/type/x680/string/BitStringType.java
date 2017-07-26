@@ -69,14 +69,14 @@ public class BitStringType extends AbstractBuiltinTypeWithNamedValues
 	public BitStringType( @Nullable Collection<NamedValue> namedValues )
 	{
 		super( namedValues );
-		setEncoding( TagEncoding.universal( UniversalType.BitString ) );
+		setEncoding( TagEncoding.universal( UniversalType.BIT_STRING ) );
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		return Family.BitString;
+		return Family.BIT_STRING;
 	}
 
 	@Override
@@ -84,10 +84,10 @@ public class BitStringType extends AbstractBuiltinTypeWithNamedValues
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		boolean isConvertibleToBA = kind == Kind.CString && CoreUtils.isConvertibleToByteArrayValue( value.toStringValue().asString() );
-		if( kind == Kind.Collection )
+		boolean isConvertibleToBA = kind == Kind.C_STRING && CoreUtils.isConvertibleToByteArrayValue( value.toStringValue().asString() );
+		if( kind == Kind.COLLECTION )
 			assertCollection( scope, value.toValueCollection() );
-		else if( kind != Kind.ByteArray && !isConvertibleToBA )
+		else if( kind != Kind.BYTE_ARRAY && !isConvertibleToBA )
 			throw new IllegalValueException( "Illegal BIT STRING value: " + valueRef );
 	}
 
@@ -97,10 +97,10 @@ public class BitStringType extends AbstractBuiltinTypeWithNamedValues
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind == Kind.ByteArray )
+		if( kind == Kind.BYTE_ARRAY )
 			return value;
 
-		if( kind == Kind.Collection )
+		if( kind == Kind.COLLECTION )
 			return optimizeCollection( scope, value );
 
 		throw new IllegalValueException( "Unable to optimize value: " + valueRef );

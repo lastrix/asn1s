@@ -140,7 +140,7 @@ public class SuiteTest
 		}
 
 		byte[] result = null;
-		try( Asn1Writer writer = new DefaultBerWriter( BerRules.Der ) )
+		try( Asn1Writer writer = new DefaultBerWriter( BerRules.DER ) )
 		{
 			for( DefinedValue value : module.getValueResolver().getValues() )
 				writer.write( value.getType().getScope( module.createScope() ), value.getType(), value.getValue() );

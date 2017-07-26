@@ -50,7 +50,7 @@ public class OctetStringBerDecoderTest
 	public void testDecode_ber() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Type type = UniversalType.OCTET_STRING.ref().resolve( scope );
 		Value expected = CoreUtils.byteArrayFromHexString( "'AFF0'H" );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -65,7 +65,7 @@ public class OctetStringBerDecoderTest
 	public void testDecode_cer() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Type type = UniversalType.OCTET_STRING.ref().resolve( scope );
 		Value expected = CoreUtils.byteArrayFromHexString( "'AFF0'H" );
 		byte[] result = {0x04, (byte)0x80, (byte)0xAF, (byte)0xF0, 0x00, 0x00};
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -80,10 +80,10 @@ public class OctetStringBerDecoderTest
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new OctetStringBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}

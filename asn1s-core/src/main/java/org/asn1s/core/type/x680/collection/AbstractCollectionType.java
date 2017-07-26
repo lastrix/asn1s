@@ -91,7 +91,7 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 	@Override
 	public boolean isConstructedValue( Scope scope, Value value )
 	{
-		return value.getKind() == Value.Kind.Collection || value.getKind() == Value.Kind.NamedCollection;
+		return value.getKind() == Value.Kind.COLLECTION || value.getKind() == Value.Kind.NAMED_COLLECTION;
 	}
 
 	List<Type> getComponents()
@@ -128,15 +128,15 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 	{
 		switch( kind )
 		{
-			case Primary:
+			case PRIMARY:
 				addComponent( component );
 				break;
 
-			case Extension:
+			case EXTENSION:
 				addExtension( component );
 				break;
 
-			case Secondary:
+			case SECONDARY:
 				addComponentLast( component );
 				break;
 
@@ -208,7 +208,7 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 	@Override
 	public boolean isAllComponentsOptional()
 	{
-		if( getState() != State.Done )
+		if( getState() != State.DONE )
 			throw new IllegalStateException();
 
 		for( ComponentType component : actualComponents )

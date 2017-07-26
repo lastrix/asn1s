@@ -27,9 +27,9 @@ package org.asn1s.api;
 
 public enum State
 {
-	None,
-	Validating,
-	Done,
-	Failed,
-	Disposed
+	NONE,
+	VALIDATING,
+	DONE,
+	FAILED,
+	DISPOSED
 }

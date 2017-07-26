@@ -45,14 +45,14 @@ import static org.mockito.Mockito.*;
 
 public class EnumeratedBerEncoderTest
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Enumerated.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.ENUMERATED.tagNumber() );
 
 	@Test
 	public void testEncode_0() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Enumerated type = new EnumeratedType();
-		type.addItem( ItemKind.Primary, "a", new IntegerValueInt( 0 ) );
+		type.addItem( ItemKind.PRIMARY, "a", new IntegerValueInt( 0 ) );
 		type.validate( scope );
 		Value value = type.optimize( scope, new IntegerValueInt( 0 ) );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
@@ -68,7 +68,7 @@ public class EnumeratedBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new NamedValueImpl( "abc", new IntegerValueInt( 0 ) );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -82,7 +82,7 @@ public class EnumeratedBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Enumerated type = new EnumeratedType();
-		type.addItem( ItemKind.Primary, "a", new IntegerValueInt( 0 ) );
+		type.addItem( ItemKind.PRIMARY, "a", new IntegerValueInt( 0 ) );
 		type.validate( scope );
 		Value value = BooleanValue.TRUE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )

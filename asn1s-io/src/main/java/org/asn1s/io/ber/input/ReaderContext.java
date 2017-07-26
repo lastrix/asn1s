@@ -155,7 +155,7 @@ public final class ReaderContext implements Cloneable
 		if( tag == null )
 			throw new IllegalStateException();
 
-		TagEncoding encoding = (TagEncoding)type.getEncoding( EncodingInstructions.Tag );
+		TagEncoding encoding = (TagEncoding)type.getEncoding( EncodingInstructions.TAG );
 		if( encoding == null )
 			throw new IllegalStateException( "No encoding for type: " + type );
 

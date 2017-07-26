@@ -63,7 +63,7 @@ public class InnerTypeConstraintTemplate implements ConstraintTemplate
 	public static void assertType( @NotNull Type type ) throws ValidationException
 	{
 		Family family = type.getFamily();
-		if( family != Family.SequenceOf && family != Family.SetOf )
+		if( family != Family.SEQUENCE_OF && family != Family.SET_OF )
 			throw new ValidationException( "Unable to apply to type: " + type );
 	}
 }

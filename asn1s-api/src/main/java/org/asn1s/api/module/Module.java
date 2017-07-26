@@ -84,7 +84,7 @@ public interface Module extends Disposable
 	@NotNull
 	default TagMethod getTagMethod()
 	{
-		return TagMethod.Unknown;
+		return TagMethod.UNKNOWN;
 	}
 
 	default void setTagMethod( TagMethod tagMethod )

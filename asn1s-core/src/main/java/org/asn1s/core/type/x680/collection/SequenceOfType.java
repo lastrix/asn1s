@@ -42,14 +42,14 @@ public class SequenceOfType extends AbstractCollectionOfType
 	private SequenceOfType( @Nullable ComponentType sourceComponentType )
 	{
 		super( sourceComponentType );
-		setEncoding( TagEncoding.universal( UniversalType.Sequence ) );
+		setEncoding( TagEncoding.universal( UniversalType.SEQUENCE ) );
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		return Family.SequenceOf;
+		return Family.SEQUENCE_OF;
 	}
 
 	@NotNull

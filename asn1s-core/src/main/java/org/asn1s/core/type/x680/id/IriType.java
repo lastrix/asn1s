@@ -48,7 +48,7 @@ public final class IriType extends BuiltinType
 
 	public IriType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.OidIri ) );
+		setEncoding( TagEncoding.universal( UniversalType.OID_IRI ) );
 	}
 
 	@Override
@@ -67,14 +67,14 @@ public final class IriType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.OidIri.typeName().toString();
+		return UniversalType.OID_IRI.typeName().toString();
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		return Family.OidIri;
+		return Family.OID_IRI;
 	}
 
 	@NotNull

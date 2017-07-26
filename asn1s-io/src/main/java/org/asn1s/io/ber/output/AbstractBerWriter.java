@@ -91,21 +91,21 @@ abstract class AbstractBerWriter implements Asn1Writer
 
 	static
 	{
-		ENCODERS.put( Family.Boolean, new BooleanBerEncoder() );
-		ENCODERS.put( Family.Integer, new IntegerBerEncoder() );
-		ENCODERS.put( Family.Enumerated, new EnumeratedBerEncoder() );
-		ENCODERS.put( Family.Real, new RealBerEncoder() );
-		ENCODERS.put( Family.BitString, new BitStringBerEncoder() );
-		ENCODERS.put( Family.OctetString, new OctetStringBerEncoder() );
-		ENCODERS.put( Family.Null, new NullBerEncoder() );
-		ENCODERS.put( Family.Sequence, new SequenceBerEncoder() );
-		ENCODERS.put( Family.SequenceOf, new SequenceOfBerEncoder() );
-		ENCODERS.put( Family.Set, new SetBerEncoder() );
-		ENCODERS.put( Family.SetOf, new SetOfBerEncoder() );
-		ENCODERS.put( Family.RestrictedString, new StringBerEncoder() );
-		ENCODERS.put( Family.UTCTime, new UTCTimeBerEncoder() );
-		ENCODERS.put( Family.GeneralizedTime, new GeneralizedTimeBerEncoder() );
-		ENCODERS.put( Family.Oid, new ObjectIDBerEncoder() );
+		ENCODERS.put( Family.BOOLEAN, new BooleanBerEncoder() );
+		ENCODERS.put( Family.INTEGER, new IntegerBerEncoder() );
+		ENCODERS.put( Family.ENUMERATED, new EnumeratedBerEncoder() );
+		ENCODERS.put( Family.REAL, new RealBerEncoder() );
+		ENCODERS.put( Family.BIT_STRING, new BitStringBerEncoder() );
+		ENCODERS.put( Family.OCTET_STRING, new OctetStringBerEncoder() );
+		ENCODERS.put( Family.NULL, new NullBerEncoder() );
+		ENCODERS.put( Family.SEQUENCE, new SequenceBerEncoder() );
+		ENCODERS.put( Family.SEQUENCE_OF, new SequenceOfBerEncoder() );
+		ENCODERS.put( Family.SET, new SetBerEncoder() );
+		ENCODERS.put( Family.SET_OF, new SetOfBerEncoder() );
+		ENCODERS.put( Family.RESTRICTED_STRING, new StringBerEncoder() );
+		ENCODERS.put( Family.UTC_TIME, new UTCTimeBerEncoder() );
+		ENCODERS.put( Family.GENERALIZED_TIME, new GeneralizedTimeBerEncoder() );
+		ENCODERS.put( Family.OID, new ObjectIDBerEncoder() );
 	}
 
 	@Override
@@ -123,13 +123,13 @@ abstract class AbstractBerWriter implements Asn1Writer
 		context = context.narrow();
 		Type type = context.getType();
 
-		if( type.isTagged() && ( (TaggedType)type ).getInstructions() == EncodingInstructions.Tag )
+		if( type.isTagged() && ( (TaggedType)type ).getInstructions() == EncodingInstructions.TAG )
 			writeTaggedType( context );
-		else if( type.getFamily() == Family.Choice )
+		else if( type.getFamily() == Family.CHOICE )
 			writeChoiceType( context );
 		else if( type.getSibling() != null )
 			writeInternal( context.toSiblingContext( context.isWriteHeader() ) );
-		else if( type.getFamily() == Family.OpenType )
+		else if( type.getFamily() == Family.OPEN_TYPE )
 			writeOpenType( context );
 		else
 		{
@@ -211,29 +211,29 @@ abstract class AbstractBerWriter implements Asn1Writer
 
 	private void writeTaggedType( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		TagEncoding encoding = (TagEncoding)context.getType().getEncoding( EncodingInstructions.Tag );
+		TagEncoding encoding = (TagEncoding)context.getType().getEncoding( EncodingInstructions.TAG );
 		if( encoding == null )
 			throw new IOException( "No encoding for tagged type defined" );
 
 		boolean constructed =
-				encoding.getTagMethod() != TagMethod.Implicit
+				encoding.getTagMethod() != TagMethod.IMPLICIT
 						|| context.getType().isConstructedValue( context.getScope(), context.getValue() )
-						|| context.getValue().getKind() == Kind.OpenType;
+						|| context.getValue().getKind() == Kind.OPEN_TYPE;
 		Tag tag = new Tag( encoding.getTagClass(), constructed, encoding.getTagNumber() );
 		if( !context.isWriteHeader() )
-			writeInternal( context.toSiblingContext( encoding.getTagMethod() == TagMethod.Explicit ) );
+			writeInternal( context.toSiblingContext( encoding.getTagMethod() == TagMethod.EXPLICIT ) );
 		else if( isBufferingAvailable() )
 		{
 			startBuffer( -1 );
-			writeInternal( context.toSiblingContext( encoding.getTagMethod() != TagMethod.Implicit || context.getValue().getKind() == Kind.OpenType ) );
+			writeInternal( context.toSiblingContext( encoding.getTagMethod() != TagMethod.IMPLICIT || context.getValue().getKind() == Kind.OPEN_TYPE ) );
 			stopBuffer( tag );
 		}
-		else if( getRules() == BerRules.Der )
+		else if( getRules() == BerRules.DER )
 			throw new IOException( "Encoding rules requires definite length forms" );
 		else
 		{
 			writeHeader( tag, -1 );
-			writeInternal( context.toSiblingContext( encoding.getTagMethod() != TagMethod.Implicit ) );
+			writeInternal( context.toSiblingContext( encoding.getTagMethod() != TagMethod.IMPLICIT ) );
 			write( (byte)0 );
 			write( (byte)0 );
 		}
@@ -241,7 +241,7 @@ abstract class AbstractBerWriter implements Asn1Writer
 
 	private static void writeChoiceType( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.Choice;
+		assert context.getType().getFamily() == Family.CHOICE;
 		context.getScope().setValueLevel( context.getValue() );
 
 		NamedValue namedValue = context.getValue().toNamedValue();

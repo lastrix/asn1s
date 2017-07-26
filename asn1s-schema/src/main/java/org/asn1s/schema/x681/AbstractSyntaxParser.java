@@ -115,13 +115,13 @@ public class AbstractSyntaxParser
 
 	private boolean parseToken( boolean start, SyntaxObject object )
 	{
-		if( object.getKind() == Kind.Group )
+		if( object.getKind() == Kind.GROUP )
 			parseTokens( (GroupSyntaxObject)object );
-		else if( object.getKind() == Kind.Keyword )
+		else if( object.getKind() == Kind.KEYWORD )
 			return parseKeywordToken( start, object );
-		else if( object.getKind() == Kind.TypeField )
+		else if( object.getKind() == Kind.TYPE_FIELD )
 			return parseTypeField( start, object );
-		else if( object.getKind() == Kind.ValueField )
+		else if( object.getKind() == Kind.VALUE_FIELD )
 			return parseValueField( start, object );
 		return false;
 	}
@@ -208,19 +208,19 @@ public class AbstractSyntaxParser
 		switch( token.getType() )
 		{
 			case Asn1Parser.EMBEDDED:
-				return expectNextAndRegister( Asn1Parser.PDV, object, UniversalType.EmbeddedPdv );
+				return expectNextAndRegister( Asn1Parser.PDV, object, UniversalType.EMBEDDED_PDV );
 
 			case Asn1Parser.OCTET:
-				return expectNextAndRegister( Asn1Parser.STRING, object, UniversalType.OctetString );
+				return expectNextAndRegister( Asn1Parser.STRING, object, UniversalType.OCTET_STRING );
 
 			case Asn1Parser.BIT:
-				return expectNextAndRegister( Asn1Parser.STRING, object, UniversalType.BitString );
+				return expectNextAndRegister( Asn1Parser.STRING, object, UniversalType.BIT_STRING );
 
 			case Asn1Parser.CHARACTER:
-				return expectNextAndRegister( Asn1Parser.STRING, object, UniversalType.CharacterString );
+				return expectNextAndRegister( Asn1Parser.STRING, object, UniversalType.CHARACTER_STRING );
 
 			case Asn1Parser.OBJECT:
-				return expectNextAndRegister( Asn1Parser.IDENTIFIER, object, UniversalType.ObjectIdentifier );
+				return expectNextAndRegister( Asn1Parser.IDENTIFIER, object, UniversalType.OBJECT_IDENTIFIER );
 
 			case Asn1Parser.RestrictedString:
 			case Asn1Parser.BOOLEAN:
@@ -272,7 +272,7 @@ public class AbstractSyntaxParser
 		{
 			String item = list.poll();
 			if( item.startsWith( "&" ) )
-				root.addObject( new SimpleSyntaxObject( Character.isUpperCase( item.charAt( 1 ) ) ? Kind.TypeField : Kind.ValueField, item ) );
+				root.addObject( new SimpleSyntaxObject( Character.isUpperCase( item.charAt( 1 ) ) ? Kind.TYPE_FIELD : Kind.VALUE_FIELD, item ) );
 			else if( item.equals( "[" ) )
 			{
 				GroupSyntaxObject object = new GroupSyntaxObject();
@@ -287,7 +287,7 @@ public class AbstractSyntaxParser
 			}
 			else
 			{
-				root.addObject( new SimpleSyntaxObject( Kind.Keyword, item ) );
+				root.addObject( new SimpleSyntaxObject( Kind.KEYWORD, item ) );
 			}
 		}
 	}
@@ -362,7 +362,7 @@ public class AbstractSyntaxParser
 		{
 			ClassFieldType field = classType.getField( object.getText() );
 			assert field != null;
-			boolean isOid = field.getFamily() == Family.Oid;
+			boolean isOid = field.getFamily() == Family.OID;
 
 			try( Reader r = new StringReader( value ) )
 			{

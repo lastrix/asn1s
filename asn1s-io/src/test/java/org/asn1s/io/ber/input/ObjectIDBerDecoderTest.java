@@ -53,7 +53,7 @@ public class ObjectIDBerDecoderTest
 	public void testDecode_plain() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.ObjectIdentifier.ref().resolve( scope );
+		Type type = UniversalType.OBJECT_IDENTIFIER.ref().resolve( scope );
 		Value expected = new OptimizedOIDValueImpl(
 				Arrays.asList( new NamedValueImpl( "itu", new IntegerValueInt( 0 ) ),
 				               new NamedValueImpl( "recommendation", new IntegerValueInt( 0 ) ),
@@ -73,7 +73,7 @@ public class ObjectIDBerDecoderTest
 	public void testDecode_complex() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.ObjectIdentifier.ref().resolve( scope );
+		Type type = UniversalType.OBJECT_IDENTIFIER.ref().resolve( scope );
 		Value expected = new OptimizedOIDValueImpl(
 				Arrays.asList( new NamedValueImpl( "joint-itu", new IntegerValueInt( 2 ) ),
 				               new NamedValueImpl( "recommendation", new IntegerValueInt( 999 ) ),
@@ -93,10 +93,10 @@ public class ObjectIDBerDecoderTest
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new ObjectIDBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}

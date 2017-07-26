@@ -61,7 +61,7 @@ public class PatternConstraint implements Constraint
 
 		Value actual = RefUtils.toBasicValue( scope, value );
 
-		if( actual.getKind() != Kind.CString )
+		if( actual.getKind() != Kind.C_STRING )
 			throw new IllegalStateException();
 
 		if( !pattern.matcher( actual.toStringValue().asString() ).matches() )
@@ -79,7 +79,7 @@ public class PatternConstraint implements Constraint
 	@Override
 	public void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException
 	{
-		if( !allowedTypes.contains( ConstraintType.Pattern ) )
+		if( !allowedTypes.contains( ConstraintType.PATTERN ) )
 			throw new ValidationException( "'Pattern' constraint is not allowed" );
 	}
 }

@@ -103,13 +103,13 @@ public final class IntegerValueBig implements IntegerValue
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.Real )
+		if( o.getKind() == Kind.REAL )
 			return -o.compareTo( this );
 
-		if( o.getKind() == Kind.Integer )
+		if( o.getKind() == Kind.INTEGER )
 			return asBigInteger().compareTo( o.toIntegerValue().asBigInteger() );
 
-		if( o.getKind() == Kind.Name )
+		if( o.getKind() == Kind.NAME )
 			return CoreUtils.compareNumberToNamed( this, o.toNamedValue() );
 
 		return getKind().compareTo( o.getKind() );

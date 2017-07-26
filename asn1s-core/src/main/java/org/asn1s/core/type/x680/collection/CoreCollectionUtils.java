@@ -61,14 +61,14 @@ final class CoreCollectionUtils
 
 	static void assertTags( NamedType component, Iterable<ComponentType> list ) throws ValidationException
 	{
-		if( component.getFamily() == Family.Choice && component.getEncoding( EncodingInstructions.Tag ) == null )
+		if( component.getFamily() == Family.CHOICE && component.getEncoding( EncodingInstructions.TAG ) == null )
 		{
 			for( NamedType namedType : component.getNamedTypes() )
 				assertTags( namedType, list );
 		}
 		else
 		{
-			TagEncoding encoding = (TagEncoding)component.getEncoding( EncodingInstructions.Tag );
+			TagEncoding encoding = (TagEncoding)component.getEncoding( EncodingInstructions.TAG );
 			assertTagsImpl( component.getName(), encoding.getTagClass(), encoding.getTagNumber(), list );
 		}
 	}
@@ -77,10 +77,10 @@ final class CoreCollectionUtils
 	{
 		for( NamedType component : list )
 		{
-			IEncoding enc = component.getEncoding( EncodingInstructions.Tag );
+			IEncoding enc = component.getEncoding( EncodingInstructions.TAG );
 			if( enc == null )
 			{
-				if( component.getFamily() != Family.Choice )
+				if( component.getFamily() != Family.CHOICE )
 					throw new IllegalStateException();
 
 				assertTagsImpl( name, tagClass, tagNumber, component.getNamedTypes() );

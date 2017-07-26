@@ -52,7 +52,7 @@ public final class SetType extends AbstractCollectionType
 	public SetType( boolean automatic )
 	{
 		super( automatic );
-		setEncoding( TagEncoding.universal( UniversalType.Set ) );
+		setEncoding( TagEncoding.universal( UniversalType.SET ) );
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public final class SetType extends AbstractCollectionType
 	@Override
 	public Family getFamily()
 	{
-		return Family.Set;
+		return Family.SET;
 	}
 
 	@Override

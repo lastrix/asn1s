@@ -59,7 +59,7 @@ public class PermittedAlphabetConstraint implements Constraint
 		Value value = valueRef.resolve( scope );
 		type.accept( scope, value );
 
-		assert value.getKind() == Kind.CString;
+		assert value.getKind() == Kind.C_STRING;
 		String s = value.toStringValue().asString();
 		InternalStringValue temp = new InternalStringValue();
 		try
@@ -93,7 +93,7 @@ public class PermittedAlphabetConstraint implements Constraint
 	@Override
 	public void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException
 	{
-		if( !allowedTypes.contains( ConstraintType.PermittedAlphabet ) )
+		if( !allowedTypes.contains( ConstraintType.PERMITTED_ALPHABET ) )
 			throw new ValidationException( "'PermittedAlphabet' constraint is not allowed" );
 	}
 
@@ -126,7 +126,7 @@ public class PermittedAlphabetConstraint implements Constraint
 		@Override
 		public int compareTo( @NotNull Value o )
 		{
-			if( o.getKind() == Kind.CString )
+			if( o.getKind() == Kind.C_STRING )
 				//noinspection CompareToUsesNonFinalVariable
 				return value.compareTo( o.toStringValue().asString() );
 

@@ -64,7 +64,7 @@ public class OpenTypeValueImpl extends AbstractNestingValue implements OpenTypeV
 		if( getValueRef() instanceof Value )
 			return ( (Value)getValueRef() ).getKind();
 
-		return Kind.Empty;
+		return Kind.EMPTY;
 	}
 
 	@NotNull
@@ -79,7 +79,7 @@ public class OpenTypeValueImpl extends AbstractNestingValue implements OpenTypeV
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( resolved && o.getKind() == Kind.OpenType && getReferencedKind() == o.toOpenTypeValue().getReferencedKind() )
+		if( resolved && o.getKind() == Kind.OPEN_TYPE && getReferencedKind() == o.toOpenTypeValue().getReferencedKind() )
 			return ( (Value)getValueRef() ).compareTo( (Value)o.toOpenTypeValue().getValueRef() );
 
 		return getKind().compareTo( o.getKind() );

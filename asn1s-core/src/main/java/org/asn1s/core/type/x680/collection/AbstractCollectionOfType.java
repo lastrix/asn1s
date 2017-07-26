@@ -90,25 +90,25 @@ abstract class AbstractCollectionOfType extends BuiltinType implements Collectio
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() != Kind.Collection && value.getKind() != Kind.NamedCollection )
+		if( value.getKind() != Kind.COLLECTION && value.getKind() != Kind.NAMED_COLLECTION )
 			throw new IllegalValueException( "Unable to accept value of kind: " + value.getKind() );
 
 		ComponentType componentType = getComponentType();
 		boolean isDummy = componentType.isDummy();
 
-		if( value.getKind() == Kind.Collection && isDummy )
+		if( value.getKind() == Kind.COLLECTION && isDummy )
 		{
 			scope.setValueLevel( value );
 			for( Ref<Value> ref : value.toValueCollection().asValueList() )
 				componentType.accept( scope, ref );
 		}
-		else if( value.getKind() == Kind.NamedCollection && !isDummy )
+		else if( value.getKind() == Kind.NAMED_COLLECTION && !isDummy )
 		{
 			scope.setValueLevel( value );
 			for( NamedValue ref : value.toValueCollection().asNamedValueList() )
 				componentType.accept( scope, ref );
 		}
-		else if( value.getKind() != Kind.NamedCollection && !value.toValueCollection().isEmpty() )
+		else if( value.getKind() != Kind.NAMED_COLLECTION && !value.toValueCollection().isEmpty() )
 			throw new IllegalValueException( "Unable to accept value: " + valueRef );
 	}
 
@@ -118,10 +118,10 @@ abstract class AbstractCollectionOfType extends BuiltinType implements Collectio
 	{
 		scope = scope.typedScope( this );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Kind.Collection )
+		if( value.getKind() == Kind.COLLECTION )
 			return optimizeCollection( scope, value.toValueCollection() );
 
-		if( value.getKind() == Kind.NamedCollection )
+		if( value.getKind() == Kind.NAMED_COLLECTION )
 			return optimizeNamedCollection( scope, value.toValueCollection() );
 
 		ComponentType componentType = getComponentType();
@@ -165,7 +165,7 @@ abstract class AbstractCollectionOfType extends BuiltinType implements Collectio
 	@Override
 	public boolean isConstructedValue( Scope scope, Value value )
 	{
-		return value.getKind() == Kind.Collection;
+		return value.getKind() == Kind.COLLECTION;
 	}
 
 	@Override

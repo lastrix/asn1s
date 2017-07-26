@@ -37,7 +37,7 @@ public class EnumeratedBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.Enumerated;
+		assert context.getType().getFamily() == Family.ENUMERATED;
 		return context.getType().optimize( context.getScope(), IntegerBerDecoder.readInteger( context.getReader(), context.getLength() ) );
 	}
 }

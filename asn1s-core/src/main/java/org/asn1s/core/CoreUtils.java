@@ -76,9 +76,9 @@ public final class CoreUtils
 
 	public static int compareNumberToNamed( Value lhs, NamedValue rhs )
 	{
-		assert lhs.getKind() == Kind.Real || lhs.getKind() == Kind.Integer;
+		assert lhs.getKind() == Kind.REAL || lhs.getKind() == Kind.INTEGER;
 		Kind kind = rhs.getReferenceKind();
-		if( kind == Kind.Real || kind == Kind.Integer )
+		if( kind == Kind.REAL || kind == Kind.INTEGER )
 		{
 			assert rhs.getValueRef() instanceof Value;
 			return lhs.compareTo( (Value)rhs.getValueRef() );
@@ -151,7 +151,7 @@ public final class CoreUtils
 	public static ValueCollection toValueCollectionOrDie( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, IllegalValueException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() != Kind.NamedCollection && value.getKind() != Kind.Collection )
+		if( value.getKind() != Kind.NAMED_COLLECTION && value.getKind() != Kind.COLLECTION )
 			throw new IllegalValueException( "Illegal Sequence value: " + value );
 		return value.toValueCollection();
 	}

@@ -71,31 +71,31 @@ public class ComponentConstraint implements Constraint
 	public void check( Scope scope, Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		Value value = valueRef.resolve( scope );
-		if( value.getKind() == Kind.NamedCollection )
+		if( value.getKind() == Kind.NAMED_COLLECTION )
 		{
 			NamedValue actualValue = value.toValueCollection().getNamedValue( name );
 
 			if( actualValue == null )
 			{
-				if( presence == Presence.Present )
+				if( presence == Presence.PRESENT )
 					throw new ConstraintViolationException( "Field is not present: " + name );
 			}
 			else
 			{
-				if( presence == Presence.Absent )
+				if( presence == Presence.ABSENT )
 					throw new ConstraintViolationException( "Field must not be present: " + name );
 
 				if( constraint != null )
 					constraint.check( scope, actualValue );
 			}
 		}
-		else if( value.getKind() == Kind.Name )
+		else if( value.getKind() == Kind.NAME )
 		{
 			NamedValue actual = value.toNamedValue();
 			if( !actual.getName().equals( name ) )
 				throw new IllegalStateException();
 
-			if( presence == Presence.Absent )
+			if( presence == Presence.ABSENT )
 				throw new ConstraintViolationException( "Field must not be present: " + name );
 
 			if( constraint != null )
@@ -121,7 +121,7 @@ public class ComponentConstraint implements Constraint
 		sb.append( name ).append( ' ' );
 		if( constraint != null )
 			sb.append( constraint );
-		if( presence != Presence.None )
+		if( presence != Presence.NONE )
 			sb.append( ' ' ).append( presence );
 		return sb.toString();
 	}

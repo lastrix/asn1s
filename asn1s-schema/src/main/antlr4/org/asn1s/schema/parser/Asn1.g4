@@ -326,9 +326,9 @@ type returns [Ref<Type> result]
 taggedType returns [Type result]
     locals
     [
-        EncodingInstructions instructions = EncodingInstructions.Tag,
-        TagClass typeTagClass = TagClass.ContextSpecific,
-        TagMethod typeTagMethod = TagMethod.Unknown,
+        EncodingInstructions instructions = EncodingInstructions.TAG,
+        TagClass typeTagClass = TagClass.CONTEXT_SPECIFIC,
+        TagMethod typeTagMethod = TagMethod.UNKNOWN,
         Ref<Value> tagNumberRef = null
     ]
 	:   OPEN_BRACKET
@@ -336,7 +336,7 @@ taggedType returns [Type result]
 			encodingReference COLON
 			{
 			    $instructions = EncodingInstructions.find($encodingReference.text);
-			    if ( $instructions != EncodingInstructions.Tag )
+			    if ( $instructions != EncodingInstructions.TAG )
 			      throw new UnsupportedOperationException();
 			}
 		)?
@@ -354,10 +354,10 @@ taggedType returns [Type result]
 
         (
             IMPLICIT
-            { $typeTagMethod = TagMethod.Implicit; }
+            { $typeTagMethod = TagMethod.IMPLICIT; }
 
         |   EXPLICIT
-            { $typeTagMethod = TagMethod.Explicit; }
+            { $typeTagMethod = TagMethod.EXPLICIT; }
         )?
 
         type
@@ -466,14 +466,14 @@ enumeratedType returns [Enumerated result]
     @init { $result = typeFactory.enumerated(); }
 	:   ENUMERATED
 		OPEN_BRACE
-	    enumValueList[$result, Enumerated.ItemKind.Primary]
+	    enumValueList[$result, Enumerated.ItemKind.PRIMARY]
 		(
 			COMMA ELLIPSIS
 			{ $result.setExtensible(true); }
 			exceptionSpec?
 			(
 			    COMMA
-				enumValueList[$result, Enumerated.ItemKind.Extension]
+				enumValueList[$result, Enumerated.ItemKind.EXTENSION]
 			)?
 		)?
 		CLOSE_BRACE
@@ -484,8 +484,8 @@ enumeratedType returns [Enumerated result]
 collectionType returns [CollectionType result]
     :
         (
-            SEQUENCE { $result = typeFactory.collection(Type.Family.Sequence); }
-        |   SET      { $result = typeFactory.collection(Type.Family.Set); }
+            SEQUENCE { $result = typeFactory.collection(Type.Family.SEQUENCE); }
+        |   SET      { $result = typeFactory.collection(Type.Family.SET); }
         )
         OPEN_BRACE
         (
@@ -494,16 +494,16 @@ collectionType returns [CollectionType result]
             ( COMMA collectionExtensionComponents[$result] )?
             (
                 COMMA ELLIPSIS
-                COMMA collectionComponentTypeList[$result, ComponentType.Kind.Secondary]
+                COMMA collectionComponentTypeList[$result, ComponentType.Kind.SECONDARY]
             |   COMMA ELLIPSIS { $result.setExtensible(true); }
             )?
-        |   collectionComponentTypeList[$result, ComponentType.Kind.Primary]
+        |   collectionComponentTypeList[$result, ComponentType.Kind.PRIMARY]
             (
                 COMMA ELLIPSIS exceptionSpec?
                 ( COMMA collectionExtensionComponents[$result] )?
                 (
                     COMMA ELLIPSIS
-                    COMMA collectionComponentTypeList[$result, ComponentType.Kind.Secondary]
+                    COMMA collectionComponentTypeList[$result, ComponentType.Kind.SECONDARY]
                 |   COMMA ELLIPSIS { $result.setExtensible(true); }
                 )?
             |   COMMA ELLIPSIS { $result.setExtensible(true); }
@@ -521,8 +521,8 @@ collectionOfType returns [Ref<Type> result]
         String componentName = TypeUtils.DUMMY ]
     :
     (
-        SEQUENCE { $actualType = (CollectionOfType)typeFactory.collectionOf(Type.Family.SequenceOf); }
-    |   SET      { $actualType = (CollectionOfType)typeFactory.collectionOf(Type.Family.SetOf); }
+        SEQUENCE { $actualType = (CollectionOfType)typeFactory.collectionOf(Type.Family.SEQUENCE_OF); }
+    |   SET      { $actualType = (CollectionOfType)typeFactory.collectionOf(Type.Family.SET_OF); }
     )
     { $result = $actualType; }
     (
@@ -539,7 +539,7 @@ collectionOfType returns [Ref<Type> result]
 
 // X.680, p 29
 choiceType returns [CollectionType result]
-    @init { $result = typeFactory.collection(Type.Family.Choice); }
+    @init { $result = typeFactory.collection(Type.Family.CHOICE); }
 	:   CHOICE
 		OPEN_BRACE
 		choiceComponentTypeList[$result]
@@ -647,7 +647,7 @@ collectionExtensionComponents[ComponentTypeConsumer consumer]
     ;
 
 collectionExtensionComponent[ComponentTypeConsumer consumer]
-    :   collectionComponentType[$consumer, ComponentType.Kind.Extension]
+    :   collectionComponentType[$consumer, ComponentType.Kind.EXTENSION]
     |   collectionExtensionAdditionGroup[$consumer]
     ;
 
@@ -655,8 +655,8 @@ collectionExtensionAdditionGroup[ComponentTypeConsumer consumer]
     :   { isTokenFollows("[", 2) }? OPEN_BRACKET OPEN_BRACKET
         { CollectionTypeExtensionGroup extGroup = typeFactory.extensionGroup(((Type)consumer).getFamily()); }
         ( number COLON { extGroup.setVersion(Integer.parseInt($number.text)); } )?
-        collectionComponentType[extGroup, ComponentType.Kind.Extension]
-        ( COMMA collectionComponentType[extGroup, ComponentType.Kind.Extension])*
+        collectionComponentType[extGroup, ComponentType.Kind.EXTENSION]
+        ( COMMA collectionComponentType[extGroup, ComponentType.Kind.EXTENSION])*
         { isTokenFollows("]", 2) }? CLOSE_BRACKET CLOSE_BRACKET
         { $consumer.addExtensionGroup( extGroup ); }
     ;
@@ -680,8 +680,8 @@ collectionComponentType[ComponentTypeConsumer consumer, ComponentType.Kind compo
     ;
 
 choiceComponentTypeList[ComponentTypeConsumer consumer]
-    :   choiceComponentType[$consumer, ComponentType.Kind.Primary]
-        ( COMMA choiceComponentType[$consumer, ComponentType.Kind.Primary] )*
+    :   choiceComponentType[$consumer, ComponentType.Kind.PRIMARY]
+        ( COMMA choiceComponentType[$consumer, ComponentType.Kind.PRIMARY] )*
     ;
 
 // X.680, p 29.1
@@ -698,7 +698,7 @@ choiceComponentType[ComponentTypeConsumer target, ComponentType.Kind componentKi
 
 // X.680, p 29.1
 choiceExtensionComponentType[ComponentTypeConsumer consumer]
-    :   choiceComponentType[$consumer, ComponentType.Kind.Extension]
+    :   choiceComponentType[$consumer, ComponentType.Kind.EXTENSION]
     |   choiceExtensionAdditionGroup[$consumer]
     ;
 
@@ -707,8 +707,8 @@ choiceExtensionAdditionGroup[ComponentTypeConsumer consumer]
     :   { isTokenFollows("[", 2) }? OPEN_BRACKET OPEN_BRACKET
         { CollectionTypeExtensionGroup extGroup = typeFactory.extensionGroup(((Type)consumer).getFamily()); }
         ( number COLON { extGroup.setVersion(Integer.parseInt($number.text)); } )?
-        choiceComponentType[extGroup, ComponentType.Kind.Extension]
-        ( COMMA choiceComponentType[extGroup, ComponentType.Kind.Extension] )*
+        choiceComponentType[extGroup, ComponentType.Kind.EXTENSION]
+        ( COMMA choiceComponentType[extGroup, ComponentType.Kind.EXTENSION] )*
         { isTokenFollows("]", 2) }? CLOSE_BRACKET CLOSE_BRACKET
         { $consumer.addExtensionGroup( extGroup ); }
     ;
@@ -1092,10 +1092,10 @@ innerTypeConstraints returns [ConstraintTemplate result]
             { List<ConstraintTemplate> list = new ArrayList<>(); boolean partial = false; }
             OPEN_BRACE
             (
-                componentConstraintList[list, Presence.Present]
+                componentConstraintList[list, Presence.PRESENT]
 
             |   { partial = true; }
-                ELLIPSIS COMMA componentConstraintList[list, Presence.Optional]
+                ELLIPSIS COMMA componentConstraintList[list, Presence.OPTIONAL]
             )
             CLOSE_BRACE
             { $result = constraintFactory.innerTypes(list, partial); }
@@ -1113,9 +1113,9 @@ componentConstraint[Presence defaultPresence] returns [ConstraintTemplate result
     :   identifier
         constraint?
         (
-            PRESENT { $presence = Presence.Present; }
-        |   ABSENT { $presence = Presence.Absent; }
-        |   OPTIONAL { $presence = Presence.Optional; }
+            PRESENT { $presence = Presence.PRESENT; }
+        |   ABSENT { $presence = Presence.ABSENT; }
+        |   OPTIONAL { $presence = Presence.OPTIONAL; }
         )?
         { $result = constraintFactory.component( $identifier.text, $constraint.ctx == null ? null : $constraint.result, $presence ); }
     ;
@@ -1437,15 +1437,15 @@ reference
 	;
 
 taggingMethod returns[ TagMethod result ]
-    :   AUTOMATIC { $result = TagMethod.Automatic; }
-    |   EXPLICIT  { $result = TagMethod.Explicit; }
-    |   IMPLICIT  { $result = TagMethod.Implicit; }
+    :   AUTOMATIC { $result = TagMethod.AUTOMATIC; }
+    |   EXPLICIT  { $result = TagMethod.EXPLICIT; }
+    |   IMPLICIT  { $result = TagMethod.IMPLICIT; }
     ;
 
 tagClass returns[TagClass result]
-    :   APPLICATION { $result = TagClass.Application; }
-    |   UNIVERSAL   { $result = TagClass.Universal; }
-    |   PRIVATE     { $result = TagClass.Private; }
+    :   APPLICATION { $result = TagClass.APPLICATION; }
+    |   UNIVERSAL   { $result = TagClass.UNIVERSAL; }
+    |   PRIVATE     { $result = TagClass.PRIVATE; }
     ;
 
 fieldName

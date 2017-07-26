@@ -68,7 +68,7 @@ public class ValueConstraint implements Constraint
 		Value resolve = valueRef.resolve( scope );
 		if( type instanceof ClassFieldType )
 		{
-			assert value.getKind() == Kind.Object;
+			assert value.getKind() == Kind.OBJECT;
 			Ref<?> newValue = value.toObjectValue().getFields().get( ( (NamedType)type ).getName() );
 			assert newValue instanceof Value;
 			ourValue = (Value)newValue;
@@ -113,7 +113,7 @@ public class ValueConstraint implements Constraint
 	@Override
 	public void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException
 	{
-		if( !allowedTypes.contains( ConstraintType.Value ) )
+		if( !allowedTypes.contains( ConstraintType.VALUE ) )
 			throw new ValidationException( "'Value' constraint is not allowed" );
 	}
 

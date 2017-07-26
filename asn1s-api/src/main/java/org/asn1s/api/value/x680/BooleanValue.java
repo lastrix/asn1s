@@ -53,7 +53,7 @@ public final class BooleanValue implements Value
 	@Override
 	public Kind getKind()
 	{
-		return Kind.Boolean;
+		return Kind.BOOLEAN;
 	}
 
 	@Override
@@ -71,10 +71,10 @@ public final class BooleanValue implements Value
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.Boolean )
+		if( o.getKind() == Kind.BOOLEAN )
 			return Boolean.compare( value, ( (BooleanValue)o ).asBoolean() );
 
-		if( o.getKind() == Kind.Name && o.toNamedValue().getReferenceKind() == Kind.Boolean )
+		if( o.getKind() == Kind.NAME && o.toNamedValue().getReferenceKind() == Kind.BOOLEAN )
 			return compareTo( o.toNamedValue().toBooleanValue() );
 
 		return getKind().compareTo( o.getKind() );

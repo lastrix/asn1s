@@ -43,7 +43,7 @@ import java.util.*;
 
 final class SetBerEncoder extends AbstractCollectionBerEncoder
 {
-	static final Tag TAG = new Tag( TagClass.Universal, true, UniversalType.Set.tagNumber() );
+	static final Tag TAG = new Tag( TagClass.UNIVERSAL, true, UniversalType.SET.tagNumber() );
 
 	@NotNull
 	@Override
@@ -58,14 +58,14 @@ final class SetBerEncoder extends AbstractCollectionBerEncoder
 	{
 		List<NamedValue> values = context.getValue().toValueCollection().asNamedValueList();
 		CollectionType type = (CollectionType)context.getType();
-		return context.getRules() == BerRules.Der ? sortByTag( type, values ) : values;
+		return context.getRules() == BerRules.DER ? sortByTag( type, values ) : values;
 	}
 
 	@NotNull
 	@Override
 	protected Family getRequiredFamily()
 	{
-		return Family.Set;
+		return Family.SET;
 	}
 
 	private static Collection<NamedValue> sortByTag( CollectionType type, Collection<NamedValue> values )
@@ -91,7 +91,7 @@ final class SetBerEncoder extends AbstractCollectionBerEncoder
 		ComponentType component = type.getComponent( name, true );
 		if( component == null )
 			throw new IllegalStateException();
-		IEncoding encoding = component.getEncoding( EncodingInstructions.Tag );
+		IEncoding encoding = component.getEncoding( EncodingInstructions.TAG );
 		if( encoding == null )
 			throw new IllegalStateException();
 		return (TagEncoding)encoding;

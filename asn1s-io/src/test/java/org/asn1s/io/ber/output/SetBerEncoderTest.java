@@ -54,15 +54,15 @@ import static org.mockito.Mockito.when;
 
 public class SetBerEncoderTest
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, true, UniversalType.Set.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, true, UniversalType.SET.tagNumber() );
 
 	@Test
 	public void testWriteSet_Buffered() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
+		type.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		type.addComponent( Kind.PRIMARY, "b", UniversalType.INTEGER.ref() ).setOptional( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -70,7 +70,7 @@ public class SetBerEncoderTest
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.DER ) )
 		{
 			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			byte[] bytes = writer.toByteArray();
@@ -83,8 +83,8 @@ public class SetBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
+		type.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		type.addComponent( Kind.PRIMARY, "b", UniversalType.INTEGER.ref() ).setOptional( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -92,7 +92,7 @@ public class SetBerEncoderTest
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.BER ) )
 		{
 			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, true )
 			{
@@ -112,8 +112,8 @@ public class SetBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
+		type.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		type.addComponent( Kind.PRIMARY, "b", UniversalType.INTEGER.ref() ).setOptional( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -124,7 +124,7 @@ public class SetBerEncoderTest
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.isBufferingAvailable() ).thenReturn( false );
-			when( writer.getRules() ).thenReturn( BerRules.Der );
+			when( writer.getRules() ).thenReturn( BerRules.DER );
 			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			fail( "Must fail" );
 		}
@@ -135,8 +135,8 @@ public class SetBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
+		type.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		type.addComponent( Kind.PRIMARY, "b", UniversalType.INTEGER.ref() ).setOptional( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );
@@ -144,7 +144,7 @@ public class SetBerEncoderTest
 		ValueCollection value = new ValueCollectionImpl( true );
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
-		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.BER ) )
 		{
 			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			byte[] bytes = writer.toByteArray();
@@ -157,8 +157,8 @@ public class SetBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
+		type.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		type.addComponent( Kind.PRIMARY, "b", UniversalType.INTEGER.ref() ).setOptional( true );
 		type.setExtensible( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
@@ -168,7 +168,7 @@ public class SetBerEncoderTest
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
 		value.addNamed( "c", new RealValueFloat( 0.0f ) );
-		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.BER ) )
 		{
 			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			byte[] bytes = writer.toByteArray();
@@ -181,8 +181,8 @@ public class SetBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setDefaultValueRef( new IntegerValueInt( 1 ) );
+		type.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		type.addComponent( Kind.PRIMARY, "b", UniversalType.INTEGER.ref() ).setDefaultValueRef( new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
@@ -192,7 +192,7 @@ public class SetBerEncoderTest
 		NamedValue namedValue = new NamedValueImpl( "a", new IntegerValueInt( 0 ) );
 		value.add( namedValue );
 		value.addNamed( "b", new IntegerValueInt( 1 ) );
-		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.BER ) )
 		{
 			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			byte[] bytes = writer.toByteArray();
@@ -205,8 +205,8 @@ public class SetBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setDefaultValueRef( new IntegerValueInt( 1 ) );
+		type.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		type.addComponent( Kind.PRIMARY, "b", UniversalType.INTEGER.ref() ).setDefaultValueRef( new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
@@ -219,7 +219,7 @@ public class SetBerEncoderTest
 		value.add( namedValue );
 		NamedValue bValue = new NamedValueImpl( "b", new IntegerValueInt( 0 ) );
 		value.add( bValue );
-		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.DER ) )
 		{
 			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			byte[] bytes = writer.toByteArray();
@@ -232,8 +232,8 @@ public class SetBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setDefaultValueRef( new IntegerValueInt( 1 ) );
+		type.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		type.addComponent( Kind.PRIMARY, "b", UniversalType.INTEGER.ref() ).setDefaultValueRef( new IntegerValueInt( 1 ) );
 		type.setExtensible( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
@@ -244,7 +244,7 @@ public class SetBerEncoderTest
 		ValueCollection value = new ValueCollectionImpl( true );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Der );
+			when( writer.getRules() ).thenReturn( BerRules.DER );
 			new SetBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			fail( "Must fail" );
 		}
@@ -254,7 +254,7 @@ public class SetBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new ValueCollectionImpl( true );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

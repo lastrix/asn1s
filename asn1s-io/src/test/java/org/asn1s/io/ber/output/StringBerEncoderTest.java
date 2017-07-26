@@ -41,13 +41,13 @@ import static org.mockito.Mockito.*;
 
 public class StringBerEncoderTest
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.UTF8String.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.UTF8_STRING.tagNumber() );
 
 	@Test
 	public void testEncode_0() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.UTF8String.ref().resolve( scope );
+		Type type = UniversalType.UTF8_STRING.ref().resolve( scope );
 		Value value = new StringValueImpl( "A" );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -62,7 +62,7 @@ public class StringBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new StringValueImpl( "Value" );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -75,7 +75,7 @@ public class StringBerEncoderTest
 	public void testEncode_fail_value() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.UTF8String.ref().resolve( scope );
+		Type type = UniversalType.UTF8_STRING.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

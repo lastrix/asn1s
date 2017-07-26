@@ -185,7 +185,7 @@ public class DefaultTypeMapper implements TypeMapper
 			return mappedType;
 
 		TypeFactory factory = context.getAsn1Factory().types();
-		CollectionOfType collection = factory.collectionOf( Family.SequenceOf );
+		CollectionOfType collection = factory.collectionOf( Family.SEQUENCE_OF );
 		collection.setComponent( TypeUtils.DUMMY, listItemMappedType.getAsnType() );
 		DefinedType definedListType = factory.define( asn1TypeName, collection, null );
 		SequenceOfMappedType result = new SequenceOfMappedType( type );
@@ -231,9 +231,9 @@ public class DefaultTypeMapper implements TypeMapper
 	private void generateAsn1Type( SequenceMappedType type, String asn1TypeName )
 	{
 		TypeFactory factory = context.getAsn1Factory().types();
-		CollectionType collection = factory.collection( Family.Sequence );
+		CollectionType collection = factory.collection( Family.SEQUENCE );
 		for( MappedField field : type.getFields() )
-			collection.addComponent( Kind.Primary, field.getPropertyName(), field.getType().getAsnType() ).setOptional( field.isOptional() );
+			collection.addComponent( Kind.PRIMARY, field.getPropertyName(), field.getType().getAsnType() ).setOptional( field.isOptional() );
 
 		type.setAsnType( factory.define( asn1TypeName, collection, null ) );
 	}
@@ -250,7 +250,7 @@ public class DefaultTypeMapper implements TypeMapper
 	private void generateSequenceOfAsn1Type( SequenceOfMappedType type, String asn1TypeName )
 	{
 		TypeFactory factory = context.getAsn1Factory().types();
-		CollectionOfType collection = factory.collectionOf( Family.SequenceOf );
+		CollectionOfType collection = factory.collectionOf( Family.SEQUENCE_OF );
 		Ref<org.asn1s.api.type.Type> asnType = type.getComponentType().getAsnType();
 		if( asnType == null )
 			asnType = scope -> type.getComponentType().getAsnType();
@@ -262,17 +262,17 @@ public class DefaultTypeMapper implements TypeMapper
 	// *************************************** Builtin Types ******************************************************** //
 	private void initBuiltinTypes()
 	{
-		bindClassToUniversalType( int.class, UniversalType.Integer, true );
-		bindClassToUniversalType( Integer.class, UniversalType.Integer, true );
-		bindClassToUniversalType( long.class, UniversalType.Integer, true );
-		bindClassToUniversalType( Long.class, UniversalType.Integer, true );
-		bindClassToUniversalType( String.class, UniversalType.UTF8String, true );
-		bindClassToUniversalType( float.class, UniversalType.Real, true );
-		bindClassToUniversalType( Float.class, UniversalType.Real, true );
-		bindClassToUniversalType( double.class, UniversalType.Real, true );
-		bindClassToUniversalType( Double.class, UniversalType.Real, true );
-		bindClassToUniversalType( Instant.class, UniversalType.UTCTime, true );
-		bindClassToUniversalType( Instant.class, UniversalType.GeneralizedTime, false );
+		bindClassToUniversalType( int.class, UniversalType.INTEGER, true );
+		bindClassToUniversalType( Integer.class, UniversalType.INTEGER, true );
+		bindClassToUniversalType( long.class, UniversalType.INTEGER, true );
+		bindClassToUniversalType( Long.class, UniversalType.INTEGER, true );
+		bindClassToUniversalType( String.class, UniversalType.UTF8_STRING, true );
+		bindClassToUniversalType( float.class, UniversalType.REAL, true );
+		bindClassToUniversalType( Float.class, UniversalType.REAL, true );
+		bindClassToUniversalType( double.class, UniversalType.REAL, true );
+		bindClassToUniversalType( Double.class, UniversalType.REAL, true );
+		bindClassToUniversalType( Instant.class, UniversalType.UTC_TIME, true );
+		bindClassToUniversalType( Instant.class, UniversalType.GENERALIZED_TIME, false );
 	}
 
 	/**

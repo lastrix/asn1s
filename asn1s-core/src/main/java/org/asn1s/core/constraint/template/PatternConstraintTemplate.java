@@ -55,7 +55,7 @@ public class PatternConstraintTemplate implements ConstraintTemplate
 	{
 		assertType( type );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() != Kind.CString )
+		if( value.getKind() != Kind.C_STRING )
 			throw new ValidationException( "Unable to use value as RegExp: " + value );
 
 		return new PatternConstraint( type, Pattern.compile( value.toStringValue().asString() ) );
@@ -63,7 +63,7 @@ public class PatternConstraintTemplate implements ConstraintTemplate
 
 	public static void assertType( @NotNull Type type ) throws ValidationException
 	{
-		if( type.getFamily() != Family.RestrictedString )
+		if( type.getFamily() != Family.RESTRICTED_STRING )
 			throw new ValidationException( "Unable to apply to type: " + type );
 	}
 }

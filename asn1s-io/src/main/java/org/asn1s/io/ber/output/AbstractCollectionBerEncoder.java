@@ -47,11 +47,11 @@ abstract class AbstractCollectionBerEncoder implements BerEncoder
 	public final void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
 		assert context.getType().getFamily() == getRequiredFamily();
-		assert context.getValue().getKind() == Kind.NamedCollection || context.getValue().getKind() == Kind.Collection && context.getValue().toValueCollection().isEmpty();
+		assert context.getValue().getKind() == Kind.NAMED_COLLECTION || context.getValue().getKind() == Kind.COLLECTION && context.getValue().toValueCollection().isEmpty();
 
 		if( context.isWriteHeader() )
 		{
-			if( context.getRules() == BerRules.Der && !context.isBufferingAvailable() )
+			if( context.getRules() == BerRules.DER && !context.isBufferingAvailable() )
 				throw new Asn1Exception( "Buffering is required for DER rules" );
 			encodeWithHeader( context );
 		}

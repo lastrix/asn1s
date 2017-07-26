@@ -39,13 +39,13 @@ public final class NullValue implements Value
 	@Override
 	public Kind getKind()
 	{
-		return Kind.Null;
+		return Kind.NULL;
 	}
 
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.Null || o.getKind() == Kind.Name && o.toNamedValue().getReferenceKind() == Kind.Null )
+		if( o.getKind() == Kind.NULL || o.getKind() == Kind.NAME && o.toNamedValue().getReferenceKind() == Kind.NULL )
 			return 0;
 
 		return getKind().compareTo( o.getKind() );

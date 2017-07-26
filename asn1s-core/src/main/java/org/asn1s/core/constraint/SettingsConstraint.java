@@ -78,7 +78,7 @@ public class SettingsConstraint implements Constraint
 	@Override
 	public void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException
 	{
-		if( !allowedTypes.contains( ConstraintType.Settings ) )
+		if( !allowedTypes.contains( ConstraintType.SETTINGS ) )
 			throw new ValidationException( "'Settings' constraint is not allowed" );
 	}
 

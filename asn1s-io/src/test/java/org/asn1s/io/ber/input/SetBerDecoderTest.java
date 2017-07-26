@@ -50,8 +50,8 @@ public class SetBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetType type = new SetType( true );
-		type.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		type.addComponent( Kind.Primary, "b", UniversalType.Integer.ref() ).setOptional( true );
+		type.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		type.addComponent( Kind.PRIMARY, "b", UniversalType.INTEGER.ref() ).setOptional( true );
 		type.setNamespace( "A." );
 		type.validate( scope );
 		ComponentType componentA = type.getNamedType( "a" );

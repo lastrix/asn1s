@@ -43,13 +43,13 @@ import static org.mockito.Mockito.*;
 public class NullBerEncoderTest
 {
 
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Null.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.NULL.tagNumber() );
 
 	@Test
 	public void testEncode_value_no_header() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Null.ref().resolve( scope );
+		Type type = UniversalType.NULL.ref().resolve( scope );
 		Value value = NullValue.INSTANCE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -62,7 +62,7 @@ public class NullBerEncoderTest
 	public void testEncode_value_with_header() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Null.ref().resolve( scope );
+		Type type = UniversalType.NULL.ref().resolve( scope );
 		Value value = NullValue.INSTANCE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -76,7 +76,7 @@ public class NullBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = NullValue.INSTANCE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -89,7 +89,7 @@ public class NullBerEncoderTest
 	public void testEncode_fail_value() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Null.ref().resolve( scope );
+		Type type = UniversalType.NULL.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

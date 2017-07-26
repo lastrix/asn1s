@@ -141,7 +141,7 @@ public class CoreTypeFactory implements TypeFactory
 	public Ref<Type> builtin( @NotNull String typeName )
 	{
 		if( "TYPE-IDENTIFIER".equals( typeName ) )
-			return BuiltinClass.TypeIdentifier.ref();
+			return BuiltinClass.TYPE_IDENTIFIER.ref();
 
 		return UniversalType.forTypeName( typeName ).ref();
 	}
@@ -152,10 +152,10 @@ public class CoreTypeFactory implements TypeFactory
 	{
 		switch( UniversalType.forTypeName( typeName ) )
 		{
-			case Integer:
+			case INTEGER:
 				return new IntegerType( namedValues );
 
-			case BitString:
+			case BIT_STRING:
 				return new BitStringType( namedValues );
 
 			default:
@@ -180,7 +180,7 @@ public class CoreTypeFactory implements TypeFactory
 	@Override
 	public IEncoding tagEncoding( @NotNull TagMethod method, @NotNull TagClass tagClass, @NotNull Ref<Value> tagNumberRef )
 	{
-		if( tagNumberRef instanceof Value && ( (Value)tagNumberRef ).getKind() == Kind.Integer && ( (Value)tagNumberRef ).toIntegerValue().isInt() )
+		if( tagNumberRef instanceof Value && ( (Value)tagNumberRef ).getKind() == Kind.INTEGER && ( (Value)tagNumberRef ).toIntegerValue().isInt() )
 			return TagEncoding.create( module.getTagMethod(), method, tagClass, ( (Value)tagNumberRef ).toIntegerValue().asInt() );
 		return TagEncoding.create( module.getTagMethod(), method, tagClass, tagNumberRef );
 	}
@@ -203,16 +203,16 @@ public class CoreTypeFactory implements TypeFactory
 	@Override
 	public CollectionType collection( @NotNull Family collectionFamily )
 	{
-		boolean automaticTags = module.getTagMethod() == TagMethod.Automatic;
+		boolean automaticTags = module.getTagMethod() == TagMethod.AUTOMATIC;
 		switch( collectionFamily )
 		{
-			case Choice:
+			case CHOICE:
 				return new ChoiceType( automaticTags );
 
-			case Sequence:
+			case SEQUENCE:
 				return new SequenceType( automaticTags );
 
-			case Set:
+			case SET:
 				return new SetType( automaticTags );
 
 			default:
@@ -226,10 +226,10 @@ public class CoreTypeFactory implements TypeFactory
 	{
 		switch( collectionFamily )
 		{
-			case SequenceOf:
+			case SEQUENCE_OF:
 				return new SequenceOfType();
 
-			case SetOf:
+			case SET_OF:
 				return new SetOfType();
 
 			default:

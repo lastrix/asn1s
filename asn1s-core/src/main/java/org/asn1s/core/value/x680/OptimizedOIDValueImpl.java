@@ -83,7 +83,7 @@ public final class OptimizedOIDValueImpl implements ObjectIdentifierValue
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.Oid )
+		if( o.getKind() == Kind.OID )
 			return compareArrays( asIDArray(), o.toObjectIdentifierValue().asIDArray() );
 
 		return getKind().compareTo( o.getKind() );

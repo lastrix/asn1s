@@ -45,14 +45,14 @@ public final class SetOfType extends AbstractCollectionOfType
 	private SetOfType( @Nullable ComponentType componentType )
 	{
 		super( componentType );
-		setEncoding( TagEncoding.universal( UniversalType.Set ) );
+		setEncoding( TagEncoding.universal( UniversalType.SET ) );
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		return Family.SetOf;
+		return Family.SET_OF;
 	}
 
 	@NotNull

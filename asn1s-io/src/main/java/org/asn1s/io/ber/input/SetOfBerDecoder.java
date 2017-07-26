@@ -37,7 +37,7 @@ final class SetOfBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.SetOf;
+		assert context.getType().getFamily() == Family.SET_OF;
 		assert context.getTag().isConstructed();
 		return SequenceOfBerDecoder.readComponents( context );
 	}

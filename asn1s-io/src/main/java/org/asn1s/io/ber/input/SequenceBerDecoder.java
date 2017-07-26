@@ -39,7 +39,7 @@ final class SequenceBerDecoder extends AbstractCollectionBerDecoder
 	@Override
 	protected Family getRequiredFamily()
 	{
-		return Family.Sequence;
+		return Family.SEQUENCE;
 	}
 
 	@Nullable

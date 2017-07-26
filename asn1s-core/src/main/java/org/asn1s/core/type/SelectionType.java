@@ -95,7 +95,7 @@ public final class SelectionType extends AbstractType
 		Type resolved = ref.resolve( scope );
 		resolved.validate( scope );
 
-		if( resolved.getFamily() != Family.Choice )
+		if( resolved.getFamily() != Family.CHOICE )
 			throw new ResolutionException( "Unable to find choice type, found: " + resolved );
 
 		type = resolved.getNamedType( name );

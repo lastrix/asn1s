@@ -126,7 +126,7 @@ public class FixedValueSetFieldType extends AbstractFieldType
 	@Override
 	public Kind getClassFieldKind()
 	{
-		return Kind.ValueSet;
+		return Kind.VALUE_SET;
 	}
 
 	@Override

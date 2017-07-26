@@ -56,65 +56,65 @@ public final class CoreModule extends AbstractModule
 {
 	private enum CoreType
 	{
-		Boolean( UniversalType.Boolean, new BooleanType() ),
-		Integer( UniversalType.Integer, new IntegerType() ),
-		Null( UniversalType.Null, new NullType() ),
-		Real( UniversalType.Real, new RealType() ),
+		BOOLEAN( UniversalType.BOOLEAN, new BooleanType() ),
+		INTEGER( UniversalType.INTEGER, new IntegerType() ),
+		NULL( UniversalType.NULL, new NullType() ),
+		REAL( UniversalType.REAL, new RealType() ),
 
-		OidIri( UniversalType.OidIri, new IriType() ),
-		ObjectIdentifier( UniversalType.ObjectIdentifier, new ObjectIdentifierType() ),
-		RelativeOidIri( UniversalType.RelativeOidIri, new RelativeOidIriType() ),
-		RelativeOid( UniversalType.RelativeOid, new RelativeOidType() ),
+		OID_IRI( UniversalType.OID_IRI, new IriType() ),
+		OBJECT_IDENTIFIER( UniversalType.OBJECT_IDENTIFIER, new ObjectIdentifierType() ),
+		RELATIVE_OID_IRI( UniversalType.RELATIVE_OID_IRI, new RelativeOidIriType() ),
+		RELATIVE_OID( UniversalType.RELATIVE_OID, new RelativeOidType() ),
 
-		BMPString( UniversalType.BMPString ),
-		GeneralString( UniversalType.GeneralString ),
-		GraphicString( UniversalType.GraphicString ),
-		IA5String( UniversalType.IA5String ),
-		NumericString( UniversalType.NumericString ),
-		PrintableString( UniversalType.PrintableString ),
-		T61String( UniversalType.T61String ),
-		UniversalString( UniversalType.UniversalString ),
-		UTF8String( UniversalType.UTF8String ),
-		VideotexString( UniversalType.VideotexString ),
-		VisibleString( UniversalType.VisibleString ),
+		BMP_STRING( UniversalType.BMP_STRING ),
+		GENERAL_STRING( UniversalType.GENERAL_STRING ),
+		GRAPHIC_STRING( UniversalType.GRAPHIC_STRING ),
+		IA5_STRING( UniversalType.IA5_STRING ),
+		NUMERIC_STRING( UniversalType.NUMERIC_STRING ),
+		PRINTABLE_STRING( UniversalType.PRINTABLE_STRING ),
+		T61_STRING( UniversalType.T61_STRING ),
+		UNIVERSAL_STRING( UniversalType.UNIVERSAL_STRING ),
+		UTF8_STRING( UniversalType.UTF8_STRING ),
+		VIDEOTEX_STRING( UniversalType.VIDEOTEX_STRING ),
+		VISIBLE_STRING( UniversalType.VISIBLE_STRING ),
 
-		Teletex( UniversalType.Teletex ),
-		ISO646String( UniversalType.ISO646String ),
+		TELETEX( UniversalType.TELETEX ),
+		ISO_646_STRING( UniversalType.ISO_646_STRING ),
 
-		BitString( UniversalType.BitString, new BitStringType() ),
-		CharacterString( UniversalType.CharacterString, new CharacterStringType() ),
-		OctetString( UniversalType.OctetString, new OctetStringType() ),
-		ObjectDescriptor( UniversalType.ObjectDescriptor, new ObjectDescriptorType() ),
+		BIT_STRING( UniversalType.BIT_STRING, new BitStringType() ),
+		CHARACTER_STRING( UniversalType.CHARACTER_STRING, new CharacterStringType() ),
+		OCTET_STRING( UniversalType.OCTET_STRING, new OctetStringType() ),
+		OBJECT_DESCRIPTOR( UniversalType.OBJECT_DESCRIPTOR, new ObjectDescriptorType() ),
 
-		Time( UniversalType.Time, new TimeType() ),
+		TIME( UniversalType.TIME, new TimeType() ),
 
 		/*
 		 * X.680, p 38.4.3
 		 * DATE-TIME ::= [UNIVERSAL 33] IMPLICIT TIME (SETTINGS "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=L"
 		 */
-		DateTime( UniversalType.DateTime, new SettingsConstraintTemplate( "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=L" ) ),
+		DATE_TIME( UniversalType.DATE_TIME, new SettingsConstraintTemplate( "Basic=Date-Time Date=YMD Year=Basic Time=HMS Local-or-UTC=L" ) ),
 		/*
 		 * X.680, p 38.4.2
 		 * DATE ::= [UNIVERSAL 31] IMPLICIT TIME (SETTINGS "Basic=Date Date=YMD Year=Basic")
 		 */
-		Date( UniversalType.Date, new SettingsConstraintTemplate( "Basic=Date Date=YMD Year=Basic" ) ),
+		DATE( UniversalType.DATE, new SettingsConstraintTemplate( "Basic=Date Date=YMD Year=Basic" ) ),
 		/*
 		 * X.680, p 38.4.4
 		 * DURATION ::= [UNIVERSAL 34] IMPLICIT TIME (SETTINGS "Basic=Interval Interval-type=D")
 		 */
-		Duration( UniversalType.Duration, new SettingsConstraintTemplate( "Basic=Interval Interval-type=D" ) ),
+		DURATION( UniversalType.DURATION, new SettingsConstraintTemplate( "Basic=Interval Interval-type=D" ) ),
 		/*
 		 * X.680, p 38.4.2
 		 * TIME-OF-DAY ::= [UNIVERSAL 32] IMPLICIT TIME (SETTINGS "Basic=Time Time=HMS Local-or-UTC=L")
 		 */
-		TimeOfDay( UniversalType.TimeOfDay, new SettingsConstraintTemplate( "Basic=Time Time=HMS Local-or-UTC=L" ) ),
+		TIME_OF_DAY( UniversalType.TIME_OF_DAY, new SettingsConstraintTemplate( "Basic=Time Time=HMS Local-or-UTC=L" ) ),
 
-		GeneralizedTime( UniversalType.GeneralizedTime, new GeneralizedTimeType() ),
-		UTCTime( UniversalType.UTCTime, new UTCTimeType() ),
+		GENERALIZED_TIME( UniversalType.GENERALIZED_TIME, new GeneralizedTimeType() ),
+		UTC_TIME( UniversalType.UTC_TIME, new UTCTimeType() ),
 
-		EmbeddedPdv( UniversalType.EmbeddedPdv, new EmbeddedPdvType() ),
-		External( UniversalType.External, new ExternalType() ),
-		TypeIdentifier( "TYPE-IDENTIFIER", new TypeIdentifierClass() );
+		EMBEDDED_PDV( UniversalType.EMBEDDED_PDV, new EmbeddedPdvType() ),
+		EXTERNAL( UniversalType.EXTERNAL, new ExternalType() ),
+		TYPE_IDENTIFIER( "TYPE-IDENTIFIER", new TypeIdentifierClass() );
 
 		private final String typeName;
 		private final Type instanceType;
@@ -138,8 +138,8 @@ public final class CoreModule extends AbstractModule
 		CoreType( UniversalType universalType, SettingsConstraintTemplate constraintTemplate )
 		{
 			typeName = universalType.typeName().getName();
-			TagEncoding encoding = TagEncoding.create( TagMethod.Unknown, TagMethod.Implicit, TagClass.Universal, universalType.tagNumber() );
-			instanceType = new ConstrainedType( constraintTemplate, new TaggedTypeImpl( encoding, UniversalType.Time.ref() ) );
+			TagEncoding encoding = TagEncoding.create( TagMethod.UNKNOWN, TagMethod.IMPLICIT, TagClass.UNIVERSAL, universalType.tagNumber() );
+			instanceType = new ConstrainedType( constraintTemplate, new TaggedTypeImpl( encoding, UniversalType.TIME.ref() ) );
 		}
 
 		public String getName()

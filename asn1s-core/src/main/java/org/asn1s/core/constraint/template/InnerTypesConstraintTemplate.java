@@ -69,13 +69,13 @@ public class InnerTypesConstraintTemplate implements ConstraintTemplate
 	private static final Collection<Family> ALLOWED =
 			EnumSet.copyOf(
 					Arrays.asList(
-							Family.Set,
-							Family.Sequence,
-							Family.Choice,
-							//Family.CharacterString,
-							//Family.Real,
-							Family.External,
-							Family.EmbeddedPdv
+							Family.SET,
+							Family.SEQUENCE,
+							Family.CHOICE,
+							//Family.CHARACTER_STRING,
+							//Family.REAL,
+							Family.EXTERNAL,
+							Family.EMBEDDED_PDV
 					)
 			);
 }

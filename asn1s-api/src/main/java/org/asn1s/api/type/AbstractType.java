@@ -39,7 +39,7 @@ public abstract class AbstractType implements Type
 
 	}
 
-	private State state = State.None;
+	private State state = State.NONE;
 	private String namespace;
 
 	@Override
@@ -71,7 +71,7 @@ public abstract class AbstractType implements Type
 			onDispose();
 		} finally
 		{
-			state = State.Disposed;
+			state = State.DISPOSED;
 		}
 	}
 
@@ -84,18 +84,18 @@ public abstract class AbstractType implements Type
 	@Override
 	public final void validate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		if( getState() != State.None )
+		if( getState() != State.NONE )
 			return;
 
-		state = State.Validating;
+		state = State.VALIDATING;
 
 		try
 		{
 			onValidate( scope );
-			state = State.Done;
+			state = State.DONE;
 		} catch( Exception e )
 		{
-			state = State.Failed;
+			state = State.FAILED;
 			//noinspection ProhibitedExceptionThrown
 			throw e;
 		}

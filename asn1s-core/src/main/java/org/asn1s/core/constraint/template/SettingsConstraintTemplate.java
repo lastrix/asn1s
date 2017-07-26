@@ -45,23 +45,23 @@ public class SettingsConstraintTemplate implements ConstraintTemplate
 
 	public enum Setting
 	{
-		Time,
-		Local_or_UTC,
-		Midnight,
-		Interval_type,
-		SE_point,
-		Recurrence,
-		Date,
-		Year
+		TIME,
+		LOCAL_OR_UTC,
+		MIDNIGHT,
+		INTERVAL_TYPE,
+		SE_POINT,
+		RECURRENCE,
+		DATE,
+		YEAR
 	}
 
 	public enum BasicType
 	{
-		Date( Setting.Time, Setting.Local_or_UTC, Setting.Midnight, Setting.Interval_type, Setting.SE_point, Setting.Recurrence ),
-		Time( Setting.Date, Setting.Year, Setting.Interval_type, Setting.SE_point, Setting.Recurrence ),
-		Date_Time( Setting.Interval_type, Setting.SE_point, Setting.Recurrence ),
-		Interval( Setting.Recurrence ),
-		Rec_Interval;
+		DATE( Setting.TIME, Setting.LOCAL_OR_UTC, Setting.MIDNIGHT, Setting.INTERVAL_TYPE, Setting.SE_POINT, Setting.RECURRENCE ),
+		TIME( Setting.DATE, Setting.YEAR, Setting.INTERVAL_TYPE, Setting.SE_POINT, Setting.RECURRENCE ),
+		DATE_TIME( Setting.INTERVAL_TYPE, Setting.SE_POINT, Setting.RECURRENCE ),
+		INTERVAL( Setting.RECURRENCE ),
+		REC_INTERVAL;
 
 		private final Set<Setting> prohibited;
 
@@ -106,13 +106,13 @@ public class SettingsConstraintTemplate implements ConstraintTemplate
 				if( basicType != null )
 					throw new IllegalArgumentException( "Basic redefinition" );
 
-				basicType = BasicType.valueOf( value.replace( '-', '_' ) );
+				basicType = BasicType.valueOf( value.replace( '-', '_' ).toUpperCase() );
 			}
 			else
 			{
 				// basic type should be declared as first name=value pair, so no actual checks is required.
 				assert basicType != null;
-				Setting setting = Setting.valueOf( property.replace( '-', '_' ) );
+				Setting setting = Setting.valueOf( property.replace( '-', '_' ).toUpperCase() );
 				if( basicType.isProhibited( setting ) )
 					throw new IllegalArgumentException( "Illegal property '" + settings + "' for basic: " + basicType );
 
@@ -126,7 +126,7 @@ public class SettingsConstraintTemplate implements ConstraintTemplate
 
 	public static void assertType( @NotNull Type type ) throws ValidationException
 	{
-		if( type.getFamily() != Family.Time )
+		if( type.getFamily() != Family.TIME )
 			throw new ValidationException( "Unable to apply to type: " + type );
 	}
 }

@@ -30,10 +30,10 @@ package org.asn1s.api.encoding;
  */
 public enum EncodingInstructions
 {
-	Default( null ),
-	Tag( "TAG" ),
-	Per( "PER" ),
-	Xer( "XER" );
+	DEFAULT( null ),
+	TAG( "TAG" ),
+	PER( "PER" ),
+	XER( "XER" );
 
 	EncodingInstructions( String name )
 	{
@@ -46,7 +46,7 @@ public enum EncodingInstructions
 	{
 		for( EncodingInstructions instructions : values() )
 		{
-			if( instructions != Default && instructions.name().equalsIgnoreCase( value ) )
+			if( instructions != DEFAULT && instructions.name().equalsIgnoreCase( value ) )
 				return instructions;
 		}
 		throw new IllegalArgumentException( "Invalid encoding instruction: " + value );

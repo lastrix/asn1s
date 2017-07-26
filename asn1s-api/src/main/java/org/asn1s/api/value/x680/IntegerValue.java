@@ -136,6 +136,6 @@ public interface IntegerValue extends Value
 	@Override
 	default Kind getKind()
 	{
-		return Kind.Integer;
+		return Kind.INTEGER;
 	}
 }

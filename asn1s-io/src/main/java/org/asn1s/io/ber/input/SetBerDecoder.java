@@ -39,7 +39,7 @@ public class SetBerDecoder extends AbstractCollectionBerDecoder
 	@Override
 	protected Family getRequiredFamily()
 	{
-		return Family.Set;
+		return Family.SET;
 	}
 
 	@Nullable

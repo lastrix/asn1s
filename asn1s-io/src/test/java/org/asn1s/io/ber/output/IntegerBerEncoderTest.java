@@ -46,7 +46,7 @@ import static org.mockito.Mockito.*;
 public class IntegerBerEncoderTest
 {
 
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.INTEGER.tagNumber() );
 
 	@Test
 	public void testWriteLong_0() throws Exception
@@ -141,7 +141,7 @@ public class IntegerBerEncoderTest
 	public void testEncode_0() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new IntegerValueInt( 0 );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -156,7 +156,7 @@ public class IntegerBerEncoderTest
 	public void testEncode_minus_1() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new IntegerValueInt( -1 );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -171,7 +171,7 @@ public class IntegerBerEncoderTest
 	public void testEncode_256() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new IntegerValueInt( 256 );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -187,7 +187,7 @@ public class IntegerBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		Value value = new IntegerValueInt( 256 );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -200,7 +200,7 @@ public class IntegerBerEncoderTest
 	public void testEncode_fail_value() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new RealValueFloat( 0.0f );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

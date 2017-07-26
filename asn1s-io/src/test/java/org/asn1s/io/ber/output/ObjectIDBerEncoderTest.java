@@ -45,7 +45,7 @@ import static org.mockito.Mockito.*;
 
 public class ObjectIDBerEncoderTest
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.ObjectIdentifier.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.OBJECT_IDENTIFIER.tagNumber() );
 	private static final Value OPTIMIZED_OID_VALUE = new OptimizedOIDValueImpl(
 			Arrays.asList( new NamedValueImpl( "itu", new IntegerValueInt( 0 ) ),
 			               new NamedValueImpl( "recommendation", new IntegerValueInt( 0 ) ),
@@ -57,7 +57,7 @@ public class ObjectIDBerEncoderTest
 	public void testEncode_NoHeader() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.ObjectIdentifier.ref().resolve( scope );
+		Type type = UniversalType.OBJECT_IDENTIFIER.ref().resolve( scope );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			new ObjectIDBerEncoder().encode( new WriterContext( writer, scope, type, OPTIMIZED_OID_VALUE, false ) );
@@ -72,7 +72,7 @@ public class ObjectIDBerEncoderTest
 	public void testEncode_Buffered() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.ObjectIdentifier.ref().resolve( scope );
+		Type type = UniversalType.OBJECT_IDENTIFIER.ref().resolve( scope );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.isBufferingAvailable() ).thenReturn( true );
@@ -91,7 +91,7 @@ public class ObjectIDBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			new ObjectIDBerEncoder().encode( new WriterContext( writer, scope, type, OPTIMIZED_OID_VALUE, false ) );
@@ -103,7 +103,7 @@ public class ObjectIDBerEncoderTest
 	public void testEncode_fail_value() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.ObjectIdentifier.ref().resolve( scope );
+		Type type = UniversalType.OBJECT_IDENTIFIER.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

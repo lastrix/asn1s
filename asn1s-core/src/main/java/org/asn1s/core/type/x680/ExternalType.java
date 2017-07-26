@@ -58,7 +58,7 @@ public final class ExternalType extends BuiltinType
 
 	public ExternalType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.External ) );
+		setEncoding( TagEncoding.universal( UniversalType.EXTERNAL ) );
 		type = createSubType();
 	}
 
@@ -88,13 +88,13 @@ public final class ExternalType extends BuiltinType
 	@Override
 	public Family getFamily()
 	{
-		return Family.External;
+		return Family.EXTERNAL;
 	}
 
 	@Override
 	public String toString()
 	{
-		return UniversalType.External.typeName().toString();
+		return UniversalType.EXTERNAL.typeName().toString();
 	}
 
 	@NotNull
@@ -124,12 +124,12 @@ public final class ExternalType extends BuiltinType
 	private static Type createSubType()
 	{
 		List<ConstraintTemplate> templates = Arrays.asList(
-				new ComponentConstraintTemplate( "syntaxes", null, Presence.Absent ),
-				new ComponentConstraintTemplate( "transfer-syntax", null, Presence.Absent ),
-				new ComponentConstraintTemplate( "fixed", null, Presence.Absent ) );
+				new ComponentConstraintTemplate( "syntaxes", null, Presence.ABSENT ),
+				new ComponentConstraintTemplate( "transfer-syntax", null, Presence.ABSENT ),
+				new ComponentConstraintTemplate( "fixed", null, Presence.ABSENT ) );
 
 		InnerTypesConstraintTemplate identificationTypeConstraintsTemplate = new InnerTypesConstraintTemplate( templates, true );
-		ConstraintTemplate identificationConstraintTemplate = new ComponentConstraintTemplate( "identification", identificationTypeConstraintsTemplate, Presence.Present );
+		ConstraintTemplate identificationConstraintTemplate = new ComponentConstraintTemplate( "identification", identificationTypeConstraintsTemplate, Presence.PRESENT );
 		ConstraintTemplate template = new InnerTypesConstraintTemplate( Collections.singletonList( identificationConstraintTemplate ), true );
 		return new ConstrainedType( template, EmbeddedPdvType.createSequenceType() );
 	}

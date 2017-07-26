@@ -58,6 +58,6 @@ public interface RealValue extends Value
 	@Override
 	default Kind getKind()
 	{
-		return Kind.Real;
+		return Kind.REAL;
 	}
 }

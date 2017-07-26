@@ -59,12 +59,12 @@ public interface Enumerated extends Type
 	@Override
 	default Family getFamily()
 	{
-		return Family.Enumerated;
+		return Family.ENUMERATED;
 	}
 
 	enum ItemKind
 	{
-		Primary,
-		Extension
+		PRIMARY,
+		EXTENSION
 	}
 }

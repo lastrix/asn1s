@@ -50,7 +50,7 @@ public class BitStringBerDecoderTest
 	public void testDecode_ber() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.BitString.ref().resolve( scope );
+		Type type = UniversalType.BIT_STRING.ref().resolve( scope );
 		Value expected = CoreUtils.byteArrayFromBitString( "'0101'b" );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -65,10 +65,10 @@ public class BitStringBerDecoderTest
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new BitStringBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}

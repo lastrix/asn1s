@@ -46,11 +46,11 @@ public class ChoiceInterpolationTest
 
 		Ref<Type> intRef = factory.builtin( "INTEGER" );
 
-		CollectionType choice = factory.collection( Family.Choice );
-		choice.addComponent( Kind.Primary, "a", intRef );
-		choice.addComponent( Kind.Primary, "b", intRef );
-		choice.addComponent( Kind.Primary, "c", intRef );
-		choice.addComponent( Kind.Primary, "d", intRef );
+		CollectionType choice = factory.collection( Family.CHOICE );
+		choice.addComponent( Kind.PRIMARY, "a", intRef );
+		choice.addComponent( Kind.PRIMARY, "b", intRef );
+		choice.addComponent( Kind.PRIMARY, "c", intRef );
+		choice.addComponent( Kind.PRIMARY, "d", intRef );
 
 		DefinedType type = factory.define( "MyChoice", choice, null );
 		Assert.assertNotNull( "Type must not be null", type );

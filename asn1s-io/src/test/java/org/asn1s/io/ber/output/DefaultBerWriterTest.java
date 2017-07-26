@@ -71,11 +71,11 @@ public class DefaultBerWriterTest
 		Scope scope = module.createScope();
 
 		ConstraintTemplate constraintTemplate = factory.constraints().valueRange( new RealValueFloat( 0.0f ), false, null, false );
-		Type tagged = factory.types().constrained( constraintTemplate, UniversalType.Real.ref() );
+		Type tagged = factory.types().constrained( constraintTemplate, UniversalType.REAL.ref() );
 		Type defined = factory.types().define( "MyReal", tagged, null );
 		module.validate();
 		Value value = new RealValueBig( new BigDecimal( BigInteger.valueOf( 34645344 ).pow( 15636 ) ) );
-		try( Asn1Writer writer = new DefaultBerWriter( BerRules.Der ) )
+		try( Asn1Writer writer = new DefaultBerWriter( BerRules.DER ) )
 		{
 			writer.write( scope, defined, value );
 			Assert.assertEquals( "Arrays have different length", 117900, writer.toByteArray().length );
@@ -89,10 +89,10 @@ public class DefaultBerWriterTest
 		Module module = factory.dummyModule();
 		Scope scope = module.createScope();
 
-		Type tagged = factory.tagged( TagEncoding.application( 2048 ), UniversalType.Integer.ref() );
+		Type tagged = factory.tagged( TagEncoding.application( 2048 ), UniversalType.INTEGER.ref() );
 		Type defined = factory.define( "MyTagged", tagged, null );
 		module.validate();
-		try( Asn1Writer writer = new DefaultBerWriter( BerRules.Der ) )
+		try( Asn1Writer writer = new DefaultBerWriter( BerRules.DER ) )
 		{
 			writer.write( scope, defined, new IntegerValueInt( 0 ) );
 
@@ -109,9 +109,9 @@ public class DefaultBerWriterTest
 		Scope scope = module.createScope();
 
 		try( ByteArrayOutputStream os = new ByteArrayOutputStream();
-		     Asn1Writer writer = new DefaultBerWriter( BerRules.Der, os ) )
+		     Asn1Writer writer = new DefaultBerWriter( BerRules.DER, os ) )
 		{
-			writer.write( scope, UniversalType.Integer.ref().resolve( scope ), new IntegerValueInt( 0 ) );
+			writer.write( scope, UniversalType.INTEGER.ref().resolve( scope ), new IntegerValueInt( 0 ) );
 			writer.toByteArray();
 			Assert.fail( "Must fail!" );
 		}
@@ -124,14 +124,14 @@ public class DefaultBerWriterTest
 		Module module = factory.types().dummyModule();
 		Scope scope = module.createScope();
 
-		CollectionType choiceType = factory.types().collection( Family.Choice );
+		CollectionType choiceType = factory.types().collection( Family.CHOICE );
 
-		CollectionType sequenceType = factory.types().collection( Family.Sequence );
-		sequenceType.addComponent( Kind.Primary, "a", UniversalType.Integer.ref() );
-		sequenceType.addComponent( Kind.Primary, "b", UniversalType.Real.ref() );
+		CollectionType sequenceType = factory.types().collection( Family.SEQUENCE );
+		sequenceType.addComponent( Kind.PRIMARY, "a", UniversalType.INTEGER.ref() );
+		sequenceType.addComponent( Kind.PRIMARY, "b", UniversalType.REAL.ref() );
 
-		choiceType.addComponent( Kind.Primary, "seq", sequenceType );
-		choiceType.addComponent( Kind.Primary, "b", UniversalType.Real.ref() );
+		choiceType.addComponent( Kind.PRIMARY, "seq", sequenceType );
+		choiceType.addComponent( Kind.PRIMARY, "b", UniversalType.REAL.ref() );
 
 		DefinedType type = factory.types().define( "My-Choice", choiceType, null );
 		module.validate();
@@ -154,24 +154,24 @@ public class DefaultBerWriterTest
 
 		Ref<Type> type1 = factory.types().builtin( "INTEGER" );
 
-		TagEncoding type2Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Implicit, TagClass.Application, 3 );
+		TagEncoding type2Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.IMPLICIT, TagClass.APPLICATION, 3 );
 		DefinedType type2 = factory.types().define( "Type2",
 		                                            factory.types().tagged( type2Encoding, type1 ),
 		                                            null );
 
-		TagEncoding type3Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.ContextSpecific, 2 );
+		TagEncoding type3Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.EXPLICIT, TagClass.CONTEXT_SPECIFIC, 2 );
 
 		DefinedType type3 = factory.types().define( "Type3",
 		                                            factory.types().tagged( type3Encoding, type2 ),
 		                                            null );
 
-		TagEncoding type4Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Implicit, TagClass.Application, 7 );
+		TagEncoding type4Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.IMPLICIT, TagClass.APPLICATION, 7 );
 
 		DefinedType type4 = factory.types().define( "Type4",
 		                                            factory.types().tagged( type4Encoding, type3 ),
 		                                            null );
 
-		TagEncoding type5Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Implicit, TagClass.ContextSpecific, 2 );
+		TagEncoding type5Encoding = TagEncoding.create( module.getTagMethod(), TagMethod.IMPLICIT, TagClass.CONTEXT_SPECIFIC, 2 );
 
 		DefinedType type5 = factory.types().define( "Type5",
 		                                            factory.types().tagged( type5Encoding, type2 ),
@@ -203,7 +203,7 @@ public class DefaultBerWriterTest
 	private static byte[] writeValue( Scope scope, Ref<Type> type, Value value ) throws Exception
 	{
 		byte[] result;
-		try( Asn1Writer writer = new DefaultBerWriter( BerRules.Der ) )
+		try( Asn1Writer writer = new DefaultBerWriter( BerRules.DER ) )
 		{
 			writer.write( scope, type, value );
 			result = writer.toByteArray();

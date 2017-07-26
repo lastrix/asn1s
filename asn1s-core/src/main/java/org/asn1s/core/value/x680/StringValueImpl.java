@@ -48,10 +48,10 @@ public final class StringValueImpl implements StringValue
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.CString )
+		if( o.getKind() == Kind.C_STRING )
 			return asString().compareTo( o.toStringValue().asString() );
 
-		if( o.getKind() == Kind.Time )
+		if( o.getKind() == Kind.TIME )
 			return -o.compareTo( this );
 
 		return getKind().compareTo( o.getKind() );

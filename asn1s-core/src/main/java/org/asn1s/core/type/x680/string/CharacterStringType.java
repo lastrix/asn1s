@@ -49,7 +49,7 @@ public final class CharacterStringType extends BuiltinType
 
 	public CharacterStringType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.CharacterString ) );
+		setEncoding( TagEncoding.universal( UniversalType.CHARACTER_STRING ) );
 	}
 
 	@Override
@@ -69,13 +69,13 @@ public final class CharacterStringType extends BuiltinType
 	@Override
 	public Family getFamily()
 	{
-		return Family.CharacterString;
+		return Family.CHARACTER_STRING;
 	}
 
 	@Override
 	public String toString()
 	{
-		return UniversalType.CharacterString.typeName().toString();
+		return UniversalType.CHARACTER_STRING.typeName().toString();
 	}
 
 	@NotNull

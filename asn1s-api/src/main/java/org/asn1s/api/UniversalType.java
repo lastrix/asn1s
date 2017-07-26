@@ -38,45 +38,45 @@ import java.util.regex.Pattern;
 public enum UniversalType
 {
 	//Reserved0( "Reserved0", 0 ),
-	Boolean( "BOOLEAN", 1 ),
-	Integer( "INTEGER", 2 ),
-	BitString( "BIT STRING", 3 ),
-	OctetString( "OCTET STRING", 4 ),
-	Null( "NULL", 5 ),
-	ObjectIdentifier( "OBJECT IDENTIFIER", 6 ),
-	ObjectDescriptor( "ObjectDescriptor", 7 ),
-	External( "EXTERNAL", 8 ),
-	InstanceOf( "INSTANCE OF", 8 ),
-	Real( "REAL", 9 ),
-	Enumerated( "ENUMERATED", 10 ),
-	EmbeddedPdv( "EMBEDDED PDV", 11 ),
-	UTF8String( "UTF8String", 12, "UTF-8", null ),
-	RelativeOid( "RELATIVE-OID", 13 ),
-	Time( "TIME", 14 ),
+	BOOLEAN( "BOOLEAN", 1 ),
+	INTEGER( "INTEGER", 2 ),
+	BIT_STRING( "BIT STRING", 3 ),
+	OCTET_STRING( "OCTET STRING", 4 ),
+	NULL( "NULL", 5 ),
+	OBJECT_IDENTIFIER( "OBJECT IDENTIFIER", 6 ),
+	OBJECT_DESCRIPTOR( "ObjectDescriptor", 7 ),
+	EXTERNAL( "EXTERNAL", 8 ),
+	INSTANCE_OF( "INSTANCE OF", 8 ),
+	REAL( "REAL", 9 ),
+	ENUMERATED( "ENUMERATED", 10 ),
+	EMBEDDED_PDV( "EMBEDDED PDV", 11 ),
+	UTF8_STRING( "UTF8String", 12, "UTF-8", null ),
+	RELATIVE_OID( "RELATIVE-OID", 13 ),
+	TIME( "TIME", 14 ),
 	//Reserved1( "Reserved1", 15 ),
-	Sequence( "Sequence", 16 ),
-	Set( "Set", 17 ),
-	NumericString( "NumericString", 18, "US-ASCII", Pattern.compile( "^[0-9 ]+$" ) ),
-	PrintableString( "PrintableString", 19, "US-ASCII", Pattern.compile( "^[A-Za-z0-9 '()+,\\-/:=?]*$" ) ),
-	T61String( "T61String", 20, EncodingUtils.ISO_8859_1, null ),
-	Teletex( "Teletex", 20, EncodingUtils.ISO_8859_1, null ),//alias to T61String
-	VideotexString( "VideotexString", 21, EncodingUtils.ISO_8859_1, null ),
-	IA5String( "IA5String", 22, EncodingUtils.ISO_8859_1, null ),
-	UTCTime( "UTCTime", 23 ),
-	GeneralizedTime( "GeneralizedTime", 24 ),
-	GraphicString( "GraphicString", 25, EncodingUtils.ISO_8859_1, null ),
-	VisibleString( "VisibleString", 26, EncodingUtils.ISO_8859_1, null ),
-	ISO646String( "ISO646String", 26, EncodingUtils.ISO_8859_1, null ),// alias to VisibleString
-	GeneralString( "GeneralString", 27, EncodingUtils.ISO_8859_1, null ),
-	UniversalString( "UniversalString", 28, "UTF-32BE", null ),
-	CharacterString( "CHARACTER STRING", 29 ),
-	BMPString( "BMPString", 30, "UTF-16BE", null ),
-	Date( "DATE", 31 ),
-	TimeOfDay( "TIME-OF-DAY", 32 ),
-	DateTime( "DATE-TIME", 33 ),
-	Duration( "DURATION", 34 ),
-	OidIri( "OID-IRI", 35 ),
-	RelativeOidIri( "RELATIVE-OID-IRI", 36 );
+	SEQUENCE( "Sequence", 16 ),
+	SET( "Set", 17 ),
+	NUMERIC_STRING( "NumericString", 18, "US-ASCII", Pattern.compile( "^[0-9 ]+$" ) ),
+	PRINTABLE_STRING( "PrintableString", 19, "US-ASCII", Pattern.compile( "^[A-Za-z0-9 '()+,\\-/:=?]*$" ) ),
+	T61_STRING( "T61String", 20, EncodingUtils.ISO_8859_1, null ),
+	TELETEX( "Teletex", 20, EncodingUtils.ISO_8859_1, null ),//alias to T61String
+	VIDEOTEX_STRING( "VideotexString", 21, EncodingUtils.ISO_8859_1, null ),
+	IA5_STRING( "IA5String", 22, EncodingUtils.ISO_8859_1, null ),
+	UTC_TIME( "UTCTime", 23 ),
+	GENERALIZED_TIME( "GeneralizedTime", 24 ),
+	GRAPHIC_STRING( "GraphicString", 25, EncodingUtils.ISO_8859_1, null ),
+	VISIBLE_STRING( "VisibleString", 26, EncodingUtils.ISO_8859_1, null ),
+	ISO_646_STRING( "ISO646String", 26, EncodingUtils.ISO_8859_1, null ),// alias to VisibleString
+	GENERAL_STRING( "GeneralString", 27, EncodingUtils.ISO_8859_1, null ),
+	UNIVERSAL_STRING( "UniversalString", 28, "UTF-32BE", null ),
+	CHARACTER_STRING( "CHARACTER STRING", 29 ),
+	BMP_STRING( "BMPString", 30, "UTF-16BE", null ),
+	DATE( "DATE", 31 ),
+	TIME_OF_DAY( "TIME-OF-DAY", 32 ),
+	DATE_TIME( "DATE-TIME", 33 ),
+	DURATION( "DURATION", 34 ),
+	OID_IRI( "OID-IRI", 35 ),
+	RELATIVE_OID_IRI( "RELATIVE-OID-IRI", 36 );
 
 	private final TypeName typeName;
 	private final int tagNumber;
@@ -138,19 +138,19 @@ public enum UniversalType
 
 		switch( this )
 		{
-			case BitString:
+			case BIT_STRING:
 				return "BITSTRING".equals( name );
 
-			case OctetString:
+			case OCTET_STRING:
 				return "OCTETSTRING".equals( name );
 
-			case ObjectIdentifier:
+			case OBJECT_IDENTIFIER:
 				return "OBJECTIDENTIFIER".equals( name );
 
-			case EmbeddedPdv:
+			case EMBEDDED_PDV:
 				return "EMBEDDEDPDV".equals( name );
 
-			case CharacterString:
+			case CHARACTER_STRING:
 				return "CHARACTERSTRING".equals( name );
 
 			default:

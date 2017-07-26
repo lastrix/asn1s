@@ -53,21 +53,21 @@ abstract class AbstractBerReader implements Asn1Reader
 
 	static
 	{
-		DECODERS.put( Family.Boolean, new BooleanBerDecoder() );
-		DECODERS.put( Family.Integer, new IntegerBerDecoder() );
-		DECODERS.put( Family.Enumerated, new EnumeratedBerDecoder() );
-		DECODERS.put( Family.Real, new RealBerDecoder() );
-		DECODERS.put( Family.BitString, new BitStringBerDecoder() );
-		DECODERS.put( Family.OctetString, new OctetStringBerDecoder() );
-		DECODERS.put( Family.Null, new NullBerDecoder() );
-		DECODERS.put( Family.Sequence, new SequenceBerDecoder() );
-		DECODERS.put( Family.SequenceOf, new SequenceOfBerDecoder() );
-		DECODERS.put( Family.SetOf, new SetOfBerDecoder() );
-		DECODERS.put( Family.Set, new SetBerDecoder() );
-		DECODERS.put( Family.RestrictedString, new StringBerDecoder() );
-		DECODERS.put( Family.UTCTime, new UTCTimeBerDecoder() );
-		DECODERS.put( Family.GeneralizedTime, new GeneralizedTimeBerDecoder() );
-		DECODERS.put( Family.Oid, new ObjectIDBerDecoder() );
+		DECODERS.put( Family.BOOLEAN, new BooleanBerDecoder() );
+		DECODERS.put( Family.INTEGER, new IntegerBerDecoder() );
+		DECODERS.put( Family.ENUMERATED, new EnumeratedBerDecoder() );
+		DECODERS.put( Family.REAL, new RealBerDecoder() );
+		DECODERS.put( Family.BIT_STRING, new BitStringBerDecoder() );
+		DECODERS.put( Family.OCTET_STRING, new OctetStringBerDecoder() );
+		DECODERS.put( Family.NULL, new NullBerDecoder() );
+		DECODERS.put( Family.SEQUENCE, new SequenceBerDecoder() );
+		DECODERS.put( Family.SEQUENCE_OF, new SequenceOfBerDecoder() );
+		DECODERS.put( Family.SET_OF, new SetOfBerDecoder() );
+		DECODERS.put( Family.SET, new SetBerDecoder() );
+		DECODERS.put( Family.RESTRICTED_STRING, new StringBerDecoder() );
+		DECODERS.put( Family.UTC_TIME, new UTCTimeBerDecoder() );
+		DECODERS.put( Family.GENERALIZED_TIME, new GeneralizedTimeBerDecoder() );
+		DECODERS.put( Family.OID, new ObjectIDBerDecoder() );
 	}
 
 	AbstractBerReader( ValueFactory factory )
@@ -99,16 +99,16 @@ abstract class AbstractBerReader implements Asn1Reader
 		if( context.getType().hasConstraint() )
 			return readInternal( context.toSiblingContext() );
 
-		if( context.getType().isTagged() && ( (TaggedType)context.getType() ).getInstructions() == EncodingInstructions.Tag )
+		if( context.getType().isTagged() && ( (TaggedType)context.getType() ).getInstructions() == EncodingInstructions.TAG )
 			return readTaggedType( context );
 
 		if( context.getType().getSibling() != null )
 			return readInternal( context.toSiblingContext() );
 
-		if( context.getType().getFamily() == Family.Choice )
+		if( context.getType().getFamily() == Family.CHOICE )
 			return readChoiceType( context );
 
-		if( context.getType().getFamily() == Family.OpenType )
+		if( context.getType().getFamily() == Family.OPEN_TYPE )
 			return readOpenType( context );
 
 		if( context.getTag() == null )
@@ -174,7 +174,7 @@ abstract class AbstractBerReader implements Asn1Reader
 
 	private Value readTaggedType( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		TagEncoding encoding = (TagEncoding)context.getType().getEncoding( EncodingInstructions.Tag );
+		TagEncoding encoding = (TagEncoding)context.getType().getEncoding( EncodingInstructions.TAG );
 		if( encoding == null )
 			throw new IllegalStateException();
 
@@ -185,17 +185,17 @@ abstract class AbstractBerReader implements Asn1Reader
 		//context = context.toSiblingContext();
 		if( context.isImplicit() )
 		{
-			if( encoding.getTagMethod() == TagMethod.Implicit )
+			if( encoding.getTagMethod() == TagMethod.IMPLICIT )
 				return readInternal( context.toSiblingContext() );
 
 			context.resetTagInfo( false );
 			return readInternal( context.toSiblingContext() );
 		}
 
-		context.setImplicit( encoding.getTagMethod() == TagMethod.Implicit );
+		context.setImplicit( encoding.getTagMethod() == TagMethod.IMPLICIT );
 		if( context.hasTag() )
 		{
-			if( baseType.getFamily() != Family.Choice )
+			if( baseType.getFamily() != Family.CHOICE )
 				return readInternal( context.toSiblingContext() );
 
 			context.resetTagInfo( context.isImplicit() );
@@ -222,7 +222,7 @@ abstract class AbstractBerReader implements Asn1Reader
 		CollectionType type = (CollectionType)context.getType();
 		for( ComponentType component : type.getComponents( true ) )
 		{
-			TagEncoding encoding = (TagEncoding)component.getEncoding( EncodingInstructions.Tag );
+			TagEncoding encoding = (TagEncoding)component.getEncoding( EncodingInstructions.TAG );
 			if( context.isSameTagEncoding( encoding ) )
 			{
 				context = context.toSiblingContext( component );

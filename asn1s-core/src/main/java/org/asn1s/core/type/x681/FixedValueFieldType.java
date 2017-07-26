@@ -129,7 +129,7 @@ public class FixedValueFieldType extends AbstractFieldType
 			throw new IllegalValueException( "Unable to accept ref: " + ref );
 
 		Value.Kind kind = ( (Value)rawObject ).getKind();
-		if( kind == Value.Kind.Object )
+		if( kind == Value.Kind.OBJECT )
 		{
 			ObjectValue value = ( (Value)rawObject ).toObjectValue();
 			Ref<?> valueRef = value.getFields().get( getName() );
@@ -225,7 +225,7 @@ public class FixedValueFieldType extends AbstractFieldType
 	@Override
 	public Kind getClassFieldKind()
 	{
-		return Kind.Value;
+		return Kind.VALUE;
 	}
 
 	@Override

@@ -165,8 +165,8 @@ public class ConstraintSuiteTest
 		Scope scope = module.createScope();
 		for( DefinedValue value : module.getValueResolver().getValues() )
 		{
-			checkValueWriteRead( scope, value, BerRules.Ber, asn1Factory );
-			checkValueWriteRead( scope, value, BerRules.Der, asn1Factory );
+			checkValueWriteRead( scope, value, BerRules.BER, asn1Factory );
+			checkValueWriteRead( scope, value, BerRules.DER, asn1Factory );
 		}
 	}
 

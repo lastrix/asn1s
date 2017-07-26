@@ -94,7 +94,7 @@ public final class RealValueDouble implements RealValue
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.Real )
+		if( o.getKind() == Kind.REAL )
 		{
 			RealValue realValue = o.toRealValue();
 			if( realValue.ordinal() > ordinal() )
@@ -102,7 +102,7 @@ public final class RealValueDouble implements RealValue
 			return Double.compare( asDouble(), realValue.asDouble() );
 		}
 
-		if( o.getKind() == Kind.Integer )
+		if( o.getKind() == Kind.INTEGER )
 		{
 			IntegerValue integerValue = o.toIntegerValue();
 			if( integerValue.ordinal() > ordinal() )
@@ -111,7 +111,7 @@ public final class RealValueDouble implements RealValue
 			return Double.compare( asDouble(), integerValue.asDouble() );
 		}
 
-		if( o.getKind() == Kind.Name )
+		if( o.getKind() == Kind.NAME )
 			return CoreUtils.compareNumberToNamed( this, o.toNamedValue() );
 
 		return getKind().compareTo( o.getKind() );

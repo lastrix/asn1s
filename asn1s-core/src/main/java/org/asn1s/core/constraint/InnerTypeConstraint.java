@@ -61,12 +61,12 @@ public class InnerTypeConstraint implements Constraint
 		type.accept( scope, value );
 
 		value = RefUtils.toBasicValue( scope, value );
-		if( value.getKind() == Kind.NamedCollection )
+		if( value.getKind() == Kind.NAMED_COLLECTION )
 		{
 			for( NamedValue componentValue : value.toValueCollection().asNamedValueList() )
 				constraint.check( scope, componentValue );
 		}
-		else if( value.getKind() == Kind.Collection )
+		else if( value.getKind() == Kind.COLLECTION )
 		{
 			for( Ref<Value> ref : value.toValueCollection().asValueList() )
 				constraint.check( scope, ref );

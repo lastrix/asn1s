@@ -53,17 +53,17 @@ public class InnerTypesConstraintTest
 		Asn1Factory factory = new DefaultAsn1Factory();
 		Module module = factory.types().dummyModule();
 
-		CollectionType sequenceType = factory.types().collection( Family.Sequence );
+		CollectionType sequenceType = factory.types().collection( Family.SEQUENCE );
 		sequenceType.setExtensible( true );
-		sequenceType.addComponent( Kind.Primary, "a", factory.types().builtin( "INTEGER" ) ).setOptional( true );
-		sequenceType.addComponent( Kind.Primary, "b", factory.types().builtin( "REAL" ) );
+		sequenceType.addComponent( Kind.PRIMARY, "a", factory.types().builtin( "INTEGER" ) ).setOptional( true );
+		sequenceType.addComponent( Kind.PRIMARY, "b", factory.types().builtin( "REAL" ) );
 
 		DefinedType type = factory.types().define( "My-Type", sequenceType, null );
 		module.validate();
 
 		Ref<Value> realValueRef = factory.values().real( 0.0f );
 		ConstraintTemplate constraint = factory.constraints().innerTypes(
-				Collections.singletonList( factory.constraints().component( "b", factory.constraints().value( realValueRef ), Presence.Present ) ),
+				Collections.singletonList( factory.constraints().component( "b", factory.constraints().value( realValueRef ), Presence.PRESENT ) ),
 				false );
 
 		ValueCollection value = factory.values().collection( true );

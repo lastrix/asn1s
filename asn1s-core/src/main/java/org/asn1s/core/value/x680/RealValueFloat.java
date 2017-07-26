@@ -88,7 +88,7 @@ public final class RealValueFloat implements RealValue
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.Real )
+		if( o.getKind() == Kind.REAL )
 		{
 			RealValue realValue = o.toRealValue();
 			if( realValue.ordinal() > ordinal() )
@@ -96,7 +96,7 @@ public final class RealValueFloat implements RealValue
 			return Float.compare( asFloat(), realValue.asFloat() );
 		}
 
-		if( o.getKind() == Kind.Integer )
+		if( o.getKind() == Kind.INTEGER )
 		{
 			IntegerValue integerValue = o.toIntegerValue();
 			if( integerValue.ordinal() > ordinal() )
@@ -105,7 +105,7 @@ public final class RealValueFloat implements RealValue
 			return Float.compare( asFloat(), integerValue.asFloat() );
 		}
 
-		if( o.getKind() == Kind.Name )
+		if( o.getKind() == Kind.NAME )
 			return CoreUtils.compareNumberToNamed( this, o.toNamedValue() );
 
 		return getKind().compareTo( o.getKind() );

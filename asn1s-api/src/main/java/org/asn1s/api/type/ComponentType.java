@@ -92,7 +92,7 @@ public interface ComponentType extends NamedType
 	 */
 	default boolean isExplicitlyTagged()
 	{
-		return getComponentType().isTagged() && ( (TaggedType)getComponentType() ).getInstructions() == EncodingInstructions.Tag;
+		return getComponentType().isTagged() && ( (TaggedType)getComponentType() ).getInstructions() == EncodingInstructions.TAG;
 	}
 
 	@NotNull
@@ -142,8 +142,8 @@ public interface ComponentType extends NamedType
 
 	enum Kind
 	{
-		Primary, // goes before extension
-		Secondary, // goes after extension
-		Extension
+		PRIMARY, // goes before extension
+		SECONDARY, // goes after extension
+		EXTENSION
 	}
 }

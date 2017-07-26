@@ -54,7 +54,7 @@ public final class ObjectDescriptorType extends BuiltinType
 
 	public ObjectDescriptorType()
 	{
-		type = new TaggedTypeImpl( TagEncoding.create( TagMethod.Unknown, TagMethod.Implicit, TagClass.Universal, UniversalType.ObjectDescriptor.tagNumber() ), UniversalType.GraphicString.ref() );
+		type = new TaggedTypeImpl( TagEncoding.create( TagMethod.UNKNOWN, TagMethod.IMPLICIT, TagClass.UNIVERSAL, UniversalType.OBJECT_DESCRIPTOR.tagNumber() ), UniversalType.GRAPHIC_STRING.ref() );
 	}
 
 	private Type type;
@@ -82,14 +82,14 @@ public final class ObjectDescriptorType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.ObjectDescriptor.typeName().toString();
+		return UniversalType.OBJECT_DESCRIPTOR.typeName().toString();
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		return Family.ObjectDescriptor;
+		return Family.OBJECT_DESCRIPTOR;
 	}
 
 	@NotNull

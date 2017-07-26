@@ -71,8 +71,8 @@ public class ByteArrayValueImpl implements ByteArrayValue
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.ByteArray
-				|| o.getKind() == Kind.Name && o.toNamedValue().getReferenceKind() == Kind.ByteArray )
+		if( o.getKind() == Kind.BYTE_ARRAY
+				|| o.getKind() == Kind.NAME && o.toNamedValue().getReferenceKind() == Kind.BYTE_ARRAY )
 		{
 			ByteArrayValue other = o.toByteArrayValue();
 			if( isEmpty() && other.isEmpty() )

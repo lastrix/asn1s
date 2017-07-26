@@ -30,8 +30,8 @@ package org.asn1s.api.constraint;
  */
 public enum Presence
 {
-	None,
-	Present,
-	Absent,
-	Optional
+	NONE,
+	PRESENT,
+	ABSENT,
+	OPTIONAL
 }

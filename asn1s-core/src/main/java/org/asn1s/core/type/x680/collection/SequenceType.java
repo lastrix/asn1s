@@ -46,7 +46,7 @@ public class SequenceType extends AbstractCollectionType
 	public SequenceType( boolean automaticTags )
 	{
 		super( automaticTags );
-		setEncoding( TagEncoding.universal( UniversalType.Sequence ) );
+		setEncoding( TagEncoding.universal( UniversalType.SEQUENCE ) );
 	}
 
 	private int extensionIndexStart = Integer.MAX_VALUE;
@@ -90,7 +90,7 @@ public class SequenceType extends AbstractCollectionType
 	@Override
 	public Family getFamily()
 	{
-		return Family.Sequence;
+		return Family.SEQUENCE;
 	}
 
 	@Override

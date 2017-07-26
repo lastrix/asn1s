@@ -43,8 +43,8 @@ public class DateValueImpl implements DateValue
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.Time
-				|| o.getKind() == Kind.Name && o.toNamedValue().getReferenceKind() == Kind.Time )
+		if( o.getKind() == Kind.TIME
+				|| o.getKind() == Kind.NAME && o.toNamedValue().getReferenceKind() == Kind.TIME )
 			return value.compareTo( o.toDateValue().asInstant() );
 
 		return getKind().compareTo( o.getKind() );

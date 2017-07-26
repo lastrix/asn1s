@@ -51,7 +51,7 @@ public class ValueCollectionTest
 		collection.addNamed( "base", factory.values().integer( 2 ) );
 		collection.addNamed( "exponent", factory.values().integer( -5 ) );
 
-		DefinedValue value = factory.types().define( "a-real", UniversalType.Real.ref(), collection, null );
+		DefinedValue value = factory.types().define( "a-real", UniversalType.REAL.ref(), collection, null );
 
 		module.validate();
 
@@ -69,7 +69,7 @@ public class ValueCollectionTest
 		collection.addNamed( "base", factory.values().integer( 10 ) );
 		collection.addNamed( "exponent", factory.values().integer( 2 ) );
 
-		DefinedValue value = factory.types().define( "a-real", UniversalType.Real.ref(), collection, null );
+		DefinedValue value = factory.types().define( "a-real", UniversalType.REAL.ref(), collection, null );
 
 		module.validate();
 

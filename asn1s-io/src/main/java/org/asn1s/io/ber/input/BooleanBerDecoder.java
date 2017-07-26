@@ -38,7 +38,7 @@ final class BooleanBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.Boolean;
+		assert context.getType().getFamily() == Family.BOOLEAN;
 		assert context.getLength() == 1;
 		byte content = context.read();
 		return content == BerUtils.BOOLEAN_FALSE ? BooleanValue.FALSE : BooleanValue.TRUE;

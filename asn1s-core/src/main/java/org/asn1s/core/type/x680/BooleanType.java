@@ -54,7 +54,7 @@ public final class BooleanType extends BuiltinType
 
 	public BooleanType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.Boolean ) );
+		setEncoding( TagEncoding.universal( UniversalType.BOOLEAN ) );
 	}
 
 	@Override
@@ -69,10 +69,10 @@ public final class BooleanType extends BuiltinType
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind == Kind.Boolean )
+		if( kind == Kind.BOOLEAN )
 			return value;
 
-		if( kind == Kind.Integer )
+		if( kind == Kind.INTEGER )
 			return value.toIntegerValue().isZero() ? BooleanValue.FALSE : BooleanValue.TRUE;
 
 		throw new IllegalValueException( "Unable to optimize value: " + valueRef );
@@ -82,7 +82,7 @@ public final class BooleanType extends BuiltinType
 	@Override
 	public Family getFamily()
 	{
-		return Family.Boolean;
+		return Family.BOOLEAN;
 	}
 
 	@NotNull
@@ -97,7 +97,7 @@ public final class BooleanType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.Boolean.typeName().toString();
+		return UniversalType.BOOLEAN.typeName().toString();
 	}
 
 	@Override

@@ -57,11 +57,11 @@ public class SizeConstraintTemplate implements ConstraintTemplate
 	{
 		if( isAllowed( type.getFamily() ) )
 		{
-			Type intType = UniversalType.Integer.ref().resolve( scope );
+			Type intType = UniversalType.INTEGER.ref().resolve( scope );
 			Constraint constraint = template.build( scope, intType );
 			constraint.assertConstraintTypes( ALLOWED_SUBTYPE_CONSTRAINTS );
 			Value minimumValue = constraint.getMinimumValue( scope );
-			if( minimumValue.getKind() != Kind.Integer || !minimumValue.toIntegerValue().isInt() )
+			if( minimumValue.getKind() != Kind.INTEGER || !minimumValue.toIntegerValue().isInt() )
 				throw new ValidationException( "Minimum value is not an integer: " + minimumValue );
 
 			return new SizeConstraint( type, constraint, minimumValue.toIntegerValue().asInt() );
@@ -77,19 +77,19 @@ public class SizeConstraintTemplate implements ConstraintTemplate
 	private static final Collection<Family> ALLOWED =
 			EnumSet.copyOf(
 					Arrays.asList(
-							Family.BitString,
-							Family.ObjectDescriptor,
-							Family.OctetString,
-							Family.RestrictedString,
-							Family.SequenceOf,
-							Family.SetOf,
-							Family.UnrestrictedString
+							Family.BIT_STRING,
+							Family.OBJECT_DESCRIPTOR,
+							Family.OCTET_STRING,
+							Family.RESTRICTED_STRING,
+							Family.CHARACTER_STRING,
+							Family.SEQUENCE_OF,
+							Family.SET_OF
 					)
 			);
 
 	private static final Collection<ConstraintType> ALLOWED_SUBTYPE_CONSTRAINTS =
 			EnumSet.copyOf( Arrays.asList(
-					ConstraintType.Value,
-					ConstraintType.ValueRange
+					ConstraintType.VALUE,
+					ConstraintType.VALUE_RANGE
 			) );
 }

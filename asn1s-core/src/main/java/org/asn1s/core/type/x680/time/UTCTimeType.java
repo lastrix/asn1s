@@ -57,14 +57,14 @@ public final class UTCTimeType extends AbstractTimeType
 
 	public UTCTimeType()
 	{
-		setEncoding( TagEncoding.create( TagMethod.Unknown, TagMethod.Implicit, TagClass.Universal, UniversalType.UTCTime.tagNumber() ) );
+		setEncoding( TagEncoding.create( TagMethod.UNKNOWN, TagMethod.IMPLICIT, TagClass.UNIVERSAL, UniversalType.UTC_TIME.tagNumber() ) );
 	}
 
 	@Override
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		Value value = valueRef.resolve( scope );
-		if( value.getKind() != Kind.Time )
+		if( value.getKind() != Kind.TIME )
 			throw new IllegalValueException( "Unable to use value: " + value );
 	}
 
@@ -84,7 +84,7 @@ public final class UTCTimeType extends AbstractTimeType
 	@Override
 	public Family getFamily()
 	{
-		return Family.UTCTime;
+		return Family.UTC_TIME;
 	}
 
 	@NotNull

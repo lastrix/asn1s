@@ -50,12 +50,12 @@ public class ComponentConstraintTest
 		Asn1Factory factory = new DefaultAsn1Factory();
 		Module module = factory.types().dummyModule();
 
-		CollectionType sequenceType = factory.types().collection( Family.Sequence );
+		CollectionType sequenceType = factory.types().collection( Family.SEQUENCE );
 		Ref<Type> intTypeRef = factory.types().builtin( "INTEGER" );
-		sequenceType.addComponent( Kind.Primary, "a", intTypeRef ).setOptional( true );
-		sequenceType.addComponent( Kind.Primary, "b", intTypeRef );
+		sequenceType.addComponent( Kind.PRIMARY, "a", intTypeRef ).setOptional( true );
+		sequenceType.addComponent( Kind.PRIMARY, "b", intTypeRef );
 
-		ConstraintTemplate constraint = factory.constraints().component( "a", null, Presence.Absent );
+		ConstraintTemplate constraint = factory.constraints().component( "a", null, Presence.ABSENT );
 		Type constrainedType = factory.types().constrained( constraint, sequenceType );
 		factory.types().define( "My-Type", constrainedType, null );
 
@@ -73,15 +73,15 @@ public class ComponentConstraintTest
 		value1.addNamed( "b", factory.values().integer( "1" ) );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint, value1, sequenceType, scope ) );
 
-		ConstraintTemplate constraint1 = factory.constraints().component( "a", null, Presence.Present );
+		ConstraintTemplate constraint1 = factory.constraints().component( "a", null, Presence.PRESENT );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint1, value, sequenceType, scope ) );
 		assertFalse( "Constraint not failed", ConstraintTestUtils.checkConstraint( constraint1, value1, sequenceType, scope ) );
 
-		ConstraintTemplate constraint2 = factory.constraints().component( "a", new BooleanConstraintTemplate( false ), Presence.Optional );
+		ConstraintTemplate constraint2 = factory.constraints().component( "a", new BooleanConstraintTemplate( false ), Presence.OPTIONAL );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint2, value, sequenceType, scope ) );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint2, value1, sequenceType, scope ) );
 
-		ConstraintTemplate constraint3 = factory.constraints().component( "a", new BooleanConstraintTemplate( true ), Presence.Optional );
+		ConstraintTemplate constraint3 = factory.constraints().component( "a", new BooleanConstraintTemplate( true ), Presence.OPTIONAL );
 		assertFalse( "Constraint not failed", ConstraintTestUtils.checkConstraint( constraint3, value, sequenceType, scope ) );
 		assertTrue( "Constraint failure", ConstraintTestUtils.checkConstraint( constraint3, value1, sequenceType, scope ) );
 	}

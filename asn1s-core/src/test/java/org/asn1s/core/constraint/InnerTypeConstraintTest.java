@@ -47,7 +47,7 @@ public class InnerTypeConstraintTest
 		Asn1Factory factory = new DefaultAsn1Factory();
 		Module module = factory.types().dummyModule();
 
-		CollectionOfType sequenceOfType = factory.types().collectionOf( Family.SequenceOf );
+		CollectionOfType sequenceOfType = factory.types().collectionOf( Family.SEQUENCE_OF );
 		sequenceOfType.setComponent( TypeUtils.DUMMY, factory.types().builtin( "INTEGER" ) );
 
 		factory.types().define( "My-Type", sequenceOfType, null );

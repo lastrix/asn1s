@@ -33,9 +33,9 @@ interface SyntaxObject
 
 	enum Kind
 	{
-		ValueField,
-		TypeField,
-		Keyword,
-		Group
+		VALUE_FIELD,
+		TYPE_FIELD,
+		KEYWORD,
+		GROUP
 	}
 }

@@ -53,27 +53,27 @@ END
 		Ref<Type> intRef = factory.builtin( "INTEGER" );
 		DefinedType cccType = factory.define( "CCC", factory.tagged( TagEncoding.application( 7 ), intRef ), null );
 
-		CollectionType aSeq = factory.collection( Type.Family.Sequence );
-		aSeq.addComponent( ComponentType.Kind.Primary, "a", factory.tagged( TagEncoding.context( 0, TagMethod.Implicit ), intRef ) ).setOptional( true );
+		CollectionType aSeq = factory.collection( Type.Family.SEQUENCE );
+		aSeq.addComponent( ComponentType.Kind.PRIMARY, "a", factory.tagged( TagEncoding.context( 0, TagMethod.IMPLICIT ), intRef ) ).setOptional( true );
 		DefinedType aType = factory.define( "A", aSeq, null );
 
-		CollectionType bSeq = factory.collection( Type.Family.Sequence );
-		bSeq.addComponentsFromType( ComponentType.Kind.Primary, aType.toRef() );
-		bSeq.addComponent( ComponentType.Kind.Primary, "b", intRef ).setOptional( true );
+		CollectionType bSeq = factory.collection( Type.Family.SEQUENCE );
+		bSeq.addComponentsFromType( ComponentType.Kind.PRIMARY, aType.toRef() );
+		bSeq.addComponent( ComponentType.Kind.PRIMARY, "b", intRef ).setOptional( true );
 		DefinedType bType = factory.define( "B", bSeq, null );
 
-		CollectionType chChoice = factory.collection( Type.Family.Choice );
-		chChoice.addComponent( ComponentType.Kind.Primary, "a", intRef );
-		chChoice.addComponent( ComponentType.Kind.Primary, "b", intRef );
+		CollectionType chChoice = factory.collection( Type.Family.CHOICE );
+		chChoice.addComponent( ComponentType.Kind.PRIMARY, "a", intRef );
+		chChoice.addComponent( ComponentType.Kind.PRIMARY, "b", intRef );
 		DefinedType chType = factory.define( "CH", chChoice, null );
 
-		CollectionType cSeq = factory.collection( Type.Family.Sequence );
+		CollectionType cSeq = factory.collection( Type.Family.SEQUENCE );
 		cSeq.setExtensible( true );
-		cSeq.addComponent( ComponentType.Kind.Extension, "e", intRef );
-		cSeq.addComponentsFromType( ComponentType.Kind.Secondary, bType.toRef() );
-		cSeq.addComponent( ComponentType.Kind.Secondary, "ch", chType ).setOptional( true );
-		cSeq.addComponent( ComponentType.Kind.Secondary, "c", cccType.toRef() );
-		cSeq.addComponent( ComponentType.Kind.Secondary, "d", intRef );//factory.tagged( TagEncoding.context( 8, TagMethod.Implicit ), intRef )
+		cSeq.addComponent( ComponentType.Kind.EXTENSION, "e", intRef );
+		cSeq.addComponentsFromType( ComponentType.Kind.SECONDARY, bType.toRef() );
+		cSeq.addComponent( ComponentType.Kind.SECONDARY, "ch", chType ).setOptional( true );
+		cSeq.addComponent( ComponentType.Kind.SECONDARY, "c", cccType.toRef() );
+		cSeq.addComponent( ComponentType.Kind.SECONDARY, "d", intRef );//factory.tagged( TagEncoding.context( 8, TagMethod.IMPLICIT ), intRef )
 		DefinedType cType = factory.define( "C", cSeq, null );
 
 		module.validate();

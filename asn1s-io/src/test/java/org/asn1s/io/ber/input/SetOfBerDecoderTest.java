@@ -48,7 +48,7 @@ public class SetOfBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetOfType type = new SetOfType();
-		type.setComponent( "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.INTEGER.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );

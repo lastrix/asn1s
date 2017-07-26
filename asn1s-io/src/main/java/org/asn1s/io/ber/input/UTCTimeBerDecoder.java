@@ -37,7 +37,7 @@ public class UTCTimeBerDecoder extends AbstractTimeBerDecoder
 	@Override
 	protected Family getRequiredFamily()
 	{
-		return Family.UTCTime;
+		return Family.UTC_TIME;
 	}
 
 	@Override

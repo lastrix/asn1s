@@ -56,7 +56,7 @@ public final class CollectionUtils
 		for( Ref<Value> valueRef : valueList )
 		{
 			NamedValue value = (NamedValue)valueRef;
-			if( value.getReferenceKind() != Kind.Integer || !value.toIntegerValue().isLong() )
+			if( value.getReferenceKind() != Kind.INTEGER || !value.toIntegerValue().isLong() )
 				throw new IllegalStateException();
 
 			Long longValue = value.toIntegerValue().asLong();

@@ -50,13 +50,13 @@ public class ObjectValue implements Value
 	@Override
 	public Kind getKind()
 	{
-		return Kind.Object;
+		return Kind.OBJECT;
 	}
 
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.Object )
+		if( o.getKind() == Kind.OBJECT )
 			return compareToObjectValue( o.toObjectValue() );
 
 		// TODO: to object comparison

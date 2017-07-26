@@ -38,8 +38,8 @@ import java.util.Collection;
 
 final class SequenceBerEncoder extends AbstractCollectionBerEncoder
 {
-	public static final Tag TAG = new Tag( TagClass.Universal, true, UniversalType.Sequence.tagNumber() );
-	private static final Tag TAG_INSTANCE_OF = new Tag( TagClass.Universal, true, UniversalType.InstanceOf.tagNumber() );
+	public static final Tag TAG = new Tag( TagClass.UNIVERSAL, true, UniversalType.SEQUENCE.tagNumber() );
+	private static final Tag TAG_INSTANCE_OF = new Tag( TagClass.UNIVERSAL, true, UniversalType.INSTANCE_OF.tagNumber() );
 
 	@NotNull
 	@Override
@@ -59,6 +59,6 @@ final class SequenceBerEncoder extends AbstractCollectionBerEncoder
 	@Override
 	protected Family getRequiredFamily()
 	{
-		return Family.Sequence;
+		return Family.SEQUENCE;
 	}
 }

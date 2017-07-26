@@ -37,7 +37,7 @@ final class IntegerBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.Integer;
+		assert context.getType().getFamily() == Family.INTEGER;
 		assert context.getLength() >= 0;
 		return readInteger( context.getReader(), context.getLength() );
 	}

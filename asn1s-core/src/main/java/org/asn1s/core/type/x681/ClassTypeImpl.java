@@ -60,7 +60,7 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 	@Override
 	public Family getFamily()
 	{
-		return Family.ObjectClass;
+		return Family.OBJECT_CLASS;
 	}
 
 	@Nullable
@@ -147,7 +147,7 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 		scope = getScope( scope );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind == Kind.Object )
+		if( kind == Kind.OBJECT )
 			assertObjectFields( scope, value.toObjectValue().getFields() );
 		else
 			throw new IllegalValueException( "Unable to accept value: " + valueRef );
@@ -159,7 +159,7 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 	{
 		scope = getScope( scope );
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Kind.Object )
+		if( value.getKind() == Kind.OBJECT )
 			return optimizeObject( scope, value.toObjectValue() );
 
 		throw new IllegalValueException( "Unable to optimize value: " + valueRef );

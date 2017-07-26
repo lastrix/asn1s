@@ -44,18 +44,18 @@ import static org.mockito.Mockito.*;
 @SuppressWarnings( {"resource", "MagicNumber"} )
 public class GeneralizedTimeBerEncoderTest
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.GeneralizedTime.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.GENERALIZED_TIME.tagNumber() );
 	private static final String TIME_VALUE = "20170601115700Z";
 
 	@Test
 	public void testWrite_Der() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.GeneralizedTime.ref().resolve( scope );
+		Type type = UniversalType.GENERALIZED_TIME.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseGeneralizedTime( TIME_VALUE ) );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Der );
+			when( writer.getRules() ).thenReturn( BerRules.DER );
 			new GeneralizedTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 15 );
@@ -68,11 +68,11 @@ public class GeneralizedTimeBerEncoderTest
 	public void testWrite_Ber() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.GeneralizedTime.ref().resolve( scope );
+		Type type = UniversalType.GENERALIZED_TIME.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseGeneralizedTime( TIME_VALUE ) );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Ber );
+			when( writer.getRules() ).thenReturn( BerRules.BER );
 			new GeneralizedTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 13 );
@@ -85,7 +85,7 @@ public class GeneralizedTimeBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseGeneralizedTime( TIME_VALUE ) );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -98,7 +98,7 @@ public class GeneralizedTimeBerEncoderTest
 	public void testEncode_fail_value() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.GeneralizedTime.ref().resolve( scope );
+		Type type = UniversalType.GENERALIZED_TIME.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

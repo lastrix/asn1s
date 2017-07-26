@@ -58,13 +58,13 @@ public class InnerTypesConstraint implements Constraint
 		this.constraints = constraints;
 		this.partial = partial;
 
-		if( type.getFamily() == Family.Choice )
+		if( type.getFamily() == Family.CHOICE )
 		{
 			boolean hasPresent = false;
 			for( Constraint constraint : constraints )
 			{
 				ComponentConstraint componentConstraint = (ComponentConstraint)constraint;
-				if( componentConstraint.getPresence() == Presence.Present )
+				if( componentConstraint.getPresence() == Presence.PRESENT )
 				{
 					if( hasPresent )
 						throw new IllegalArgumentException( "For choice Types there should be at most one PRESENT keyword for component constraint, please see X.680, 51.8.10.2, G.5.6 for details." );
@@ -86,9 +86,9 @@ public class InnerTypesConstraint implements Constraint
 		Value value = valueRef.resolve( scope );
 		type.accept( scope, value );
 
-		if( type.getFamily() == Family.Choice )
+		if( type.getFamily() == Family.CHOICE )
 			checkNamedValue( scope, value );
-		else if( value.getKind() == Kind.NamedCollection )
+		else if( value.getKind() == Kind.NAMED_COLLECTION )
 			checkNamedCollection( scope, value );
 		else
 			throw new IllegalStateException();
@@ -96,7 +96,7 @@ public class InnerTypesConstraint implements Constraint
 
 	private void checkNamedValue( Scope scope, Value value ) throws ValidationException, ResolutionException
 	{
-		if( value.getKind() != Kind.Name )
+		if( value.getKind() != Kind.NAME )
 			throw new IllegalStateException();
 
 		NamedValue namedValue = value.toNamedValue();

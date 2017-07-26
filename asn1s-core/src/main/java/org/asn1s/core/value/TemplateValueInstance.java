@@ -76,7 +76,7 @@ public class TemplateValueInstance implements Value
 	@Override
 	public Kind getKind()
 	{
-		return Kind.TemplateInstance;
+		return Kind.TEMPLATE_INSTANCE;
 	}
 
 	@Override

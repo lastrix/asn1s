@@ -41,7 +41,7 @@ final class SequenceOfBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.SequenceOf;
+		assert context.getType().getFamily() == Family.SEQUENCE_OF;
 		assert context.getTag().isConstructed();
 		return readComponents( context );
 	}

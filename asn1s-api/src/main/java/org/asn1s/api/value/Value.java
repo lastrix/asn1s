@@ -141,21 +141,21 @@ public interface Value extends Ref<Value>, Comparable<Value>, Asn1ModelObject
 
 	enum Kind
 	{
-		Boolean,
-		ByteArray,
-		CString,
-		Collection,
-		Empty,
-		Integer,
-		Iri,
-		Name,
-		NamedCollection,
-		Null,
-		Object,
-		Oid,
-		OpenType,
-		Real,
-		TemplateInstance,
-		Time
+		BOOLEAN,
+		BYTE_ARRAY,
+		C_STRING,
+		COLLECTION,
+		EMPTY,
+		INTEGER,
+		IRI,
+		NAME,
+		NAMED_COLLECTION,
+		NULL,
+		OBJECT,
+		OID,
+		OPEN_TYPE,
+		REAL,
+		TEMPLATE_INSTANCE,
+		TIME
 	}
 }

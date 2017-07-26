@@ -42,6 +42,6 @@ public interface DateValue extends Value
 	@Override
 	default Kind getKind()
 	{
-		return Kind.Time;
+		return Kind.TIME;
 	}
 }

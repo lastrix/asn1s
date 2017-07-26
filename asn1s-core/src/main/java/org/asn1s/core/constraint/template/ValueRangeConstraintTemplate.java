@@ -83,9 +83,9 @@ public class ValueRangeConstraintTemplate implements ConstraintTemplate
 	private static final Collection<Family> ALLOWED =
 			EnumSet.copyOf(
 					Arrays.asList(
-							Family.Integer,
-							Family.Real,
-							Family.RestrictedString
+							Family.INTEGER,
+							Family.REAL,
+							Family.RESTRICTED_STRING
 					)
 			);
 }

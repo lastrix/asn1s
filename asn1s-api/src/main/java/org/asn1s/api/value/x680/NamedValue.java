@@ -42,7 +42,7 @@ public interface NamedValue extends Value
 	@Override
 	default Kind getKind()
 	{
-		return Kind.Name;
+		return Kind.NAME;
 	}
 
 	/**
@@ -55,6 +55,6 @@ public interface NamedValue extends Value
 	default Kind getReferenceKind()
 	{
 		Ref<Value> ref = getValueRef();
-		return ref instanceof Value ? ( (Value)ref ).getKind() : Kind.Empty;
+		return ref instanceof Value ? ( (Value)ref ).getKind() : Kind.EMPTY;
 	}
 }

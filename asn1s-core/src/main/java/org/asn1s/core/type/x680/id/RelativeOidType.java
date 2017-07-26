@@ -48,7 +48,7 @@ public final class RelativeOidType extends BuiltinType
 
 	public RelativeOidType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.RelativeOid ) );
+		setEncoding( TagEncoding.universal( UniversalType.RELATIVE_OID ) );
 	}
 
 	@Override
@@ -67,14 +67,14 @@ public final class RelativeOidType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.RelativeOid.typeName().toString();
+		return UniversalType.RELATIVE_OID.typeName().toString();
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		return Family.RelativeOid;
+		return Family.RELATIVE_OID;
 	}
 
 	@NotNull

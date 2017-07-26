@@ -49,7 +49,7 @@ public class ObjectIDBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.Oid;
+		assert context.getType().getFamily() == Family.OID;
 		assert context.getLength() > 0;
 
 		List<Ref<Value>> list = new ArrayList<>();

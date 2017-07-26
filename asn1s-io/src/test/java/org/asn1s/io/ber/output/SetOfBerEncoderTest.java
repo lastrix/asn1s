@@ -49,21 +49,21 @@ import static org.mockito.Mockito.when;
 
 public class SetOfBerEncoderTest
 {
-	public static final Tag TAG = new Tag( TagClass.Universal, true, UniversalType.Set.tagNumber() );
+	public static final Tag TAG = new Tag( TagClass.UNIVERSAL, true, UniversalType.SET.tagNumber() );
 
 	@Test
 	public void testWriteSetOf_Buffered() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetOfType type = new SetOfType();
-		type.setComponent( "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.INTEGER.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );
 		ValueCollection value = new ValueCollectionImpl( false );
 		Value valueInt = new IntegerValueInt( 0 );
 		value.add( valueInt );
-		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.DER ) )
 		{
 			new SetOfBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			byte[] bytes = writer.toByteArray();
@@ -76,14 +76,14 @@ public class SetOfBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetOfType type = new SetOfType();
-		type.setComponent( "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.INTEGER.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );
 		ValueCollection value = new ValueCollectionImpl( false );
 		Value valueInt = new IntegerValueInt( 0 );
 		value.add( valueInt );
-		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Ber ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.BER ) )
 		{
 			new SetOfBerEncoder().encode( new WriterContext( writer, scope, type, value, true )
 			{
@@ -103,7 +103,7 @@ public class SetOfBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetOfType type = new SetOfType();
-		type.setComponent( "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.INTEGER.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );
@@ -113,7 +113,7 @@ public class SetOfBerEncoderTest
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
 			when( writer.isBufferingAvailable() ).thenReturn( false );
-			when( writer.getRules() ).thenReturn( BerRules.Der );
+			when( writer.getRules() ).thenReturn( BerRules.DER );
 			new SetOfBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			fail( "Must fail" );
 		}
@@ -124,14 +124,14 @@ public class SetOfBerEncoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		SetOfType type = new SetOfType();
-		type.setComponent( "a", UniversalType.Integer.ref() );
+		type.setComponent( "a", UniversalType.INTEGER.ref() );
 		type.validate( scope );
 		ComponentType component = type.getComponentType();
 		Assert.assertNotNull( "No component a", component );
 		ValueCollection value = new ValueCollectionImpl( false );
 		Value valueInt = new IntegerValueInt( 0 );
 		value.add( valueInt );
-		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.Der ) )
+		try( AbstractBerWriter writer = new DefaultBerWriter( BerRules.DER ) )
 		{
 			new SetOfBerEncoder().encode( new WriterContext( writer, scope, type, value, false ) );
 			byte[] bytes = writer.toByteArray();
@@ -143,7 +143,7 @@ public class SetOfBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new ValueCollectionImpl( true );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

@@ -43,18 +43,18 @@ import static org.mockito.Mockito.*;
 
 public class UTCTimeBerEncoderTest
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.UTCTime.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.UTC_TIME.tagNumber() );
 	private static final String TIME_VALUE = "170601115700Z";
 
 	@Test
 	public void testWrite_Der() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.UTCTime.ref().resolve( scope );
+		Type type = UniversalType.UTC_TIME.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseUTCTime( TIME_VALUE ) );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Der );
+			when( writer.getRules() ).thenReturn( BerRules.DER );
 			new UTCTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 13 );
@@ -67,11 +67,11 @@ public class UTCTimeBerEncoderTest
 	public void testWrite_Ber() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.UTCTime.ref().resolve( scope );
+		Type type = UniversalType.UTC_TIME.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseUTCTime( TIME_VALUE ) );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
-			when( writer.getRules() ).thenReturn( BerRules.Ber );
+			when( writer.getRules() ).thenReturn( BerRules.BER );
 			new UTCTimeBerEncoder().encode( new WriterContext( writer, scope, type, value, true ) );
 			verify( writer ).getRules();
 			verify( writer ).writeHeader( TAG, 11 );
@@ -84,7 +84,7 @@ public class UTCTimeBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = new DateValueImpl( TimeUtils.parseUTCTime( TIME_VALUE ) );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -97,7 +97,7 @@ public class UTCTimeBerEncoderTest
 	public void testEncode_fail_value() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.UTCTime.ref().resolve( scope );
+		Type type = UniversalType.UTC_TIME.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

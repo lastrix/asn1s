@@ -38,7 +38,7 @@ final class RealBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.Real;
+		assert context.getType().getFamily() == Family.REAL;
 		assert !context.getTag().isConstructed();
 
 		if( context.getLength() == 0 )

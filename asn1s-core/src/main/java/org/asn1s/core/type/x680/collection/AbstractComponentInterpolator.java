@@ -187,7 +187,7 @@ abstract class AbstractComponentInterpolator
 
 		private void addComponentType( Collection<ComponentType> list, ComponentType source, int version, int index )
 		{
-			if( source.getState() == State.Done )
+			if( source.getState() == State.DONE )
 				componentFamilyMap.put( source.getComponentName(), source.getFamily() );
 
 			list.add( isShouldKeep( source, version, index ) ? source : createComponentType( source, version, index ) );
@@ -363,9 +363,9 @@ abstract class AbstractComponentInterpolator
 		@NotNull
 		private TagMethod selectTagMethod( ComponentType component )
 		{
-			boolean isChoice = componentFamilyMap.get( component.getComponentName() ) == Family.Choice;
-			boolean noEncodingAvailable = component.getEncoding( EncodingInstructions.Tag ) == null;
-			return isChoice && noEncodingAvailable ? TagMethod.Explicit : TagMethod.Implicit;
+			boolean isChoice = componentFamilyMap.get( component.getComponentName() ) == Family.CHOICE;
+			boolean noEncodingAvailable = component.getEncoding( EncodingInstructions.TAG ) == null;
+			return isChoice && noEncodingAvailable ? TagMethod.EXPLICIT : TagMethod.IMPLICIT;
 		}
 
 	}

@@ -41,13 +41,13 @@ import java.io.IOException;
  */
 final class BooleanBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Boolean.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.BOOLEAN.tagNumber() );
 
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.Boolean;
-		assert context.getValue().getKind() == Kind.Boolean;
+		assert context.getType().getFamily() == Family.BOOLEAN;
+		assert context.getValue().getKind() == Kind.BOOLEAN;
 		context.writeHeader( TAG, 1 );
 		boolean value = context.getValue().toBooleanValue().asBoolean();
 		context.write( value ? BerUtils.BOOLEAN_TRUE : BerUtils.BOOLEAN_FALSE );

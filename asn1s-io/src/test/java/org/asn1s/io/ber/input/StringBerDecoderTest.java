@@ -47,7 +47,7 @@ public class StringBerDecoderTest
 	public void testDecode() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.UTF8String.ref().resolve( scope );
+		Type type = UniversalType.UTF8_STRING.ref().resolve( scope );
 		Value value = new StringValueImpl( "Example" );
 		byte[] result = InputUtils.writeValue( scope, type, value );
 		int totalWritten = result.length - 2;
@@ -61,7 +61,7 @@ public class StringBerDecoderTest
 				System.arraycopy( result, 2, invocationOnMock.getArguments()[0], 0, totalWritten );
 				return totalWritten;
 			} );
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new StringBerDecoder().decode( new ReaderContext( reader, scope, type, tag, totalWritten, false ) );
 			verify( reader ).getValueFactory();
 			verify( reader ).read( any( byte[].class ) );
@@ -73,10 +73,10 @@ public class StringBerDecoderTest
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new StringBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}

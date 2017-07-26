@@ -44,17 +44,17 @@ public abstract class TagEncoding implements IEncoding
 {
 	public static TagEncoding application( int tagNumber )
 	{
-		return new ResolvedTagEncoding( TagMethod.Unknown, TagMethod.Unknown, TagClass.Application, tagNumber );
+		return new ResolvedTagEncoding( TagMethod.UNKNOWN, TagMethod.UNKNOWN, TagClass.APPLICATION, tagNumber );
 	}
 
 	public static TagEncoding context( int tagNumber, TagMethod tagMethod )
 	{
-		return new ResolvedTagEncoding( TagMethod.Unknown, tagMethod, TagClass.ContextSpecific, tagNumber );
+		return new ResolvedTagEncoding( TagMethod.UNKNOWN, tagMethod, TagClass.CONTEXT_SPECIFIC, tagNumber );
 	}
 
 	public static TagEncoding universal( UniversalType type )
 	{
-		return new ResolvedTagEncoding( TagMethod.Unknown, TagMethod.Unknown, TagClass.Universal, type.tagNumber() );
+		return new ResolvedTagEncoding( TagMethod.UNKNOWN, TagMethod.UNKNOWN, TagClass.UNIVERSAL, type.tagNumber() );
 	}
 
 	public static TagEncoding create( @NotNull TagMethod moduleTagMethod, @NotNull TagMethod tagMethod, @Nullable TagClass tagClass, int tagNumber )
@@ -69,14 +69,14 @@ public abstract class TagEncoding implements IEncoding
 
 	protected TagEncoding( TagMethod tagMethod, TagClass tagClass )
 	{
-		this( TagMethod.Unknown, tagMethod, tagClass );
+		this( TagMethod.UNKNOWN, tagMethod, tagClass );
 	}
 
 	TagEncoding( @NotNull TagMethod moduleTagMethod, @NotNull TagMethod tagMethod, @Nullable TagClass tagClass )
 	{
 		this.moduleTagMethod = moduleTagMethod;
 		this.tagMethod = tagMethod;
-		this.tagClass = tagClass == null ? TagClass.Application : tagClass;
+		this.tagClass = tagClass == null ? TagClass.APPLICATION : tagClass;
 	}
 
 	private final TagMethod moduleTagMethod;
@@ -91,12 +91,12 @@ public abstract class TagEncoding implements IEncoding
 
 	public TagMethod getTagMethod()
 	{
-		if( tagMethod != TagMethod.Unknown )
+		if( tagMethod != TagMethod.UNKNOWN )
 			return tagMethod;
 
-		if( moduleTagMethod == TagMethod.Explicit || moduleTagMethod == TagMethod.Unknown )
-			return TagMethod.Explicit;
-		return TagMethod.Implicit;
+		if( moduleTagMethod == TagMethod.EXPLICIT || moduleTagMethod == TagMethod.UNKNOWN )
+			return TagMethod.EXPLICIT;
+		return TagMethod.IMPLICIT;
 	}
 
 	public TagMethod getTagMethodDirect()
@@ -129,7 +129,7 @@ public abstract class TagEncoding implements IEncoding
 	@Override
 	public String toString()
 	{
-		if( tagMethod == TagMethod.Unknown )
+		if( tagMethod == TagMethod.UNKNOWN )
 			return "[ " + tagClass.name().toUpperCase() + ' ' + getTagNumber() + " ]";
 		return "[ " + tagClass.name().toUpperCase() + ' ' + getTagNumber() + " ] " + tagMethod.name().toUpperCase();
 	}
@@ -137,7 +137,7 @@ public abstract class TagEncoding implements IEncoding
 	@Override
 	public EncodingInstructions getEncodingInstructions()
 	{
-		return EncodingInstructions.Tag;
+		return EncodingInstructions.TAG;
 	}
 
 	public abstract int getTagNumber();
@@ -185,7 +185,7 @@ public abstract class TagEncoding implements IEncoding
 		{
 			Value value = RefUtils.toBasicValue( scope, tagNumberRef );
 
-			if( value.getKind() != Kind.Integer || !value.toIntegerValue().isInt() )
+			if( value.getKind() != Kind.INTEGER || !value.toIntegerValue().isInt() )
 				throw new ResolutionException( "Only integer values supported for tags that may be cast to Integer java type" );
 
 			int tagNumber = value.toIntegerValue().asInt();

@@ -63,7 +63,7 @@ public final class ObjectIdentifierType extends BuiltinType
 
 	public ObjectIdentifierType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.ObjectIdentifier ) );
+		setEncoding( TagEncoding.universal( UniversalType.OBJECT_IDENTIFIER ) );
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public final class ObjectIdentifierType extends BuiltinType
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind == Kind.Oid )
+		if( kind == Kind.OID )
 			assertValueFormCollection( scope, value );
 		else
 			throw new IllegalValueException( "Not an object identifier value: " + valueRef );
@@ -82,7 +82,7 @@ public final class ObjectIdentifierType extends BuiltinType
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
 		Value value = valueRef.resolve( scope );
-		if( value.getKind() == Kind.Oid )
+		if( value.getKind() == Kind.OID )
 		{
 			if( value instanceof NonOptimizedOIDValueImpl )
 				return optimizeValue( scope, (NonOptimizedOIDValueImpl)value );
@@ -104,12 +104,12 @@ public final class ObjectIdentifierType extends BuiltinType
 	private static void optimizeValueImpl( Value value, List<NamedValue> optimized ) throws IllegalValueException
 	{
 		Kind kind = value.getKind();
-		if( kind == Kind.Name )
+		if( kind == Kind.NAME )
 		{
 			NamedValue namedValue = value.toNamedValue();
-			if( namedValue.getReferenceKind() == Kind.Integer )
+			if( namedValue.getReferenceKind() == Kind.INTEGER )
 				optimized.add( namedValue );
-			else if( namedValue.getReferenceKind() == Kind.Empty )
+			else if( namedValue.getReferenceKind() == Kind.EMPTY )
 			{
 				long number = resolveName( namedValue.getName(), optimized.size(), optimized );
 				optimized.add( new NamedValueImpl( namedValue.getName(), new IntegerValueLong( number ) ) );
@@ -117,9 +117,9 @@ public final class ObjectIdentifierType extends BuiltinType
 			else
 				throw new IllegalValueException( "Unable to use value as oid: " + value );
 		}
-		else if( kind == Kind.Integer )
+		else if( kind == Kind.INTEGER )
 			optimized.add( NamedValueImpl.nameless( value ) );
-		else if( kind == Kind.Oid )
+		else if( kind == Kind.OID )
 			optimized.addAll( value.toObjectIdentifierValue().asNamedValueList() );
 		else
 			throw new IllegalValueException( "Unable to use value as oid: " + value );
@@ -128,14 +128,14 @@ public final class ObjectIdentifierType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.ObjectIdentifier.typeName().toString();
+		return UniversalType.OBJECT_IDENTIFIER.typeName().toString();
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		return Family.Oid;
+		return Family.OID;
 	}
 
 	@NotNull
@@ -161,10 +161,10 @@ public final class ObjectIdentifierType extends BuiltinType
 	private static void assertValueFormCollection( Scope scope, Value value ) throws IllegalValueException, ConstraintViolationException
 	{
 		List<NamedValue> values = new ArrayList<>();
-		if( value.getKind() == Kind.NamedCollection )
+		if( value.getKind() == Kind.NAMED_COLLECTION )
 			for( NamedValue namedValue : value.toValueCollection().asNamedValueList() )
 				values.add( validateValueReference( scope, namedValue ) );
-		else if( value.getKind() == Kind.Oid )
+		else if( value.getKind() == Kind.OID )
 			for( NamedValue namedValue : value.toObjectIdentifierValue().asNamedValueList() )
 				values.add( validateValueReference( scope, namedValue ) );
 		else
@@ -180,7 +180,7 @@ public final class ObjectIdentifierType extends BuiltinType
 		for( NamedValue value : list )
 		{
 			idx++;
-			if( value.getKind() == Kind.Null )
+			if( value.getKind() == Kind.NULL )
 				collection.add( new NamedValueImpl( value.getName(), new IntegerValueLong( resolveName( value.getName(), idx, collection ) ) ) );
 			else
 				collection.add( value );
@@ -301,7 +301,7 @@ public final class ObjectIdentifierType extends BuiltinType
 		{
 			return new NamedValueImpl( namedValue.getName(), NullValue.INSTANCE );
 		}
-		if( namedValue.getReferenceKind() != Kind.Integer )
+		if( namedValue.getReferenceKind() != Kind.INTEGER )
 			throw new IllegalValueException( "Only integer values allowed" );
 
 		if( namedValue.toIntegerValue().asLong() < 0L )

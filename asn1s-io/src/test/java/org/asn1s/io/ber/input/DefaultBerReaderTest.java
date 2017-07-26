@@ -57,7 +57,7 @@ public class DefaultBerReaderTest
 		Scope scope = module.createScope();
 
 		ConstraintTemplate constraintTemplate = factory.constraints().valueRange( new RealValueFloat( 0.0f ), false, null, false );
-		Type tagged = factory.types().constrained( constraintTemplate, UniversalType.Real.ref() );
+		Type tagged = factory.types().constrained( constraintTemplate, UniversalType.REAL.ref() );
 		Type defined = factory.types().define( "MyReal", tagged, null );
 		module.validate();
 		Value expected = new RealValueBig( new BigDecimal( BigInteger.valueOf( 34645 ).pow( 16663 ) ) );
@@ -77,7 +77,7 @@ public class DefaultBerReaderTest
 		Module module = factory.dummyModule();
 		Scope scope = module.createScope();
 
-		Type tagged = factory.tagged( TagEncoding.application( 2048 ), UniversalType.Integer.ref() );
+		Type tagged = factory.tagged( TagEncoding.application( 2048 ), UniversalType.INTEGER.ref() );
 		Type defined = factory.define( "MyTagged", tagged, null );
 		module.validate();
 		Value expected = new IntegerValueInt( 0 );

@@ -48,7 +48,7 @@ public class TimeTest
 		Asn1Factory factory = new DefaultAsn1Factory();
 		Module module = factory.types().dummyModule();
 
-		DefinedType type = factory.types().define( "GenInst", UniversalType.GeneralizedTime.ref(), null );
+		DefinedType type = factory.types().define( "GenInst", UniversalType.GENERALIZED_TIME.ref(), null );
 
 		Ref<Value> value = factory.values().timeValue( Instant.now() );
 		StringValue cString = factory.values().cString( "20170701080136.345Z" );
@@ -57,7 +57,7 @@ public class TimeTest
 		type.accept( scope, value );
 		type.optimize( scope, cString );
 
-		Assert.assertEquals( "Optimized value is not Time.", Kind.Time, type.optimize( scope, cString ).getKind() );
+		Assert.assertEquals( "Optimized value is not Time.", Kind.TIME, type.optimize( scope, cString ).getKind() );
 	}
 
 	@Test
@@ -66,7 +66,7 @@ public class TimeTest
 		Asn1Factory factory = new DefaultAsn1Factory();
 		Module module = factory.types().dummyModule();
 
-		DefinedType type = factory.types().define( "GenInst", UniversalType.UTCTime.ref(), null );
+		DefinedType type = factory.types().define( "GenInst", UniversalType.UTC_TIME.ref(), null );
 
 		Ref<Value> value = factory.values().timeValue( Instant.now() );
 		StringValue cString = factory.values().cString( "170701081514Z" );
@@ -75,6 +75,6 @@ public class TimeTest
 		type.accept( scope, value );
 		type.optimize( scope, cString );
 
-		Assert.assertEquals( "Optimized value is not Time.", Kind.Time, type.optimize( scope, cString ).getKind() );
+		Assert.assertEquals( "Optimized value is not Time.", Kind.TIME, type.optimize( scope, cString ).getKind() );
 	}
 }

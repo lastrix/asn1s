@@ -59,13 +59,13 @@ public class SequenceTest
 		Module module = factory.types().dummyModule();
 
 		Ref<Type> intType = factory.types().builtin( "INTEGER" );
-		CollectionType sequenceType = factory.types().collection( Type.Family.Sequence );
-		sequenceType.addComponent( Kind.Primary, "a", intType ).setOptional( true );
-		sequenceType.addComponent( Kind.Primary, "b", intType ).setOptional( true );
-		sequenceType.addComponent( Kind.Extension, "c", intType ).setOptional( true );
-		sequenceType.addComponent( Kind.Secondary, "d", intType );
+		CollectionType sequenceType = factory.types().collection( Type.Family.SEQUENCE );
+		sequenceType.addComponent( Kind.PRIMARY, "a", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.PRIMARY, "b", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.EXTENSION, "c", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.SECONDARY, "d", intType );
 
-		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
+		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.EXPLICIT, TagClass.APPLICATION, 1 );
 		DefinedType type =
 				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ), null );
 
@@ -82,13 +82,13 @@ public class SequenceTest
 		Module module = factory.types().dummyModule();
 
 		Ref<Type> intType = factory.types().builtin( "INTEGER" );
-		CollectionType sequenceType = factory.types().collection( Type.Family.Sequence );
-		sequenceType.addComponent( Kind.Primary, "a", intType ).setOptional( true );
-		sequenceType.addComponent( Kind.Primary, "b", intType ).setOptional( true );
-		sequenceType.addComponent( Kind.Extension, "c", intType ).setOptional( true );
-		sequenceType.addComponent( Kind.Secondary, "d", intType );
+		CollectionType sequenceType = factory.types().collection( Type.Family.SEQUENCE );
+		sequenceType.addComponent( Kind.PRIMARY, "a", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.PRIMARY, "b", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.EXTENSION, "c", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.SECONDARY, "d", intType );
 
-		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
+		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.EXPLICIT, TagClass.APPLICATION, 1 );
 		DefinedType templateType =
 				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ),
 				                        Collections.singletonList( factory.types().templateParameter( 0, "S-Type", null ) ) );
@@ -108,13 +108,13 @@ public class SequenceTest
 		Module module = factory.types().dummyModule();
 
 		Ref<Type> intType = factory.types().builtin( "INTEGER" );
-		CollectionType sequenceType = factory.types().collection( Type.Family.Sequence );
-		sequenceType.addComponent( Kind.Primary, "a", intType ).setOptional( true );
-		sequenceType.addComponent( Kind.Primary, "b", intType ).setOptional( true );
-		sequenceType.addComponent( Kind.Extension, "c", intType ).setOptional( true );
-		sequenceType.addComponent( Kind.Secondary, "d", intType );
+		CollectionType sequenceType = factory.types().collection( Type.Family.SEQUENCE );
+		sequenceType.addComponent( Kind.PRIMARY, "a", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.PRIMARY, "b", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.EXTENSION, "c", intType ).setOptional( true );
+		sequenceType.addComponent( Kind.SECONDARY, "d", intType );
 
-		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.Explicit, TagClass.Application, 1 );
+		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.EXPLICIT, TagClass.APPLICATION, 1 );
 		DefinedType type =
 				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ), null );
 

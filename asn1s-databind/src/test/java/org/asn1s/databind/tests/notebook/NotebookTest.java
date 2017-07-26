@@ -47,7 +47,7 @@ public class NotebookTest
 	{
 		ModuleSet moduleSet = new ModuleSet();
 		ModuleImpl module = new ModuleImpl( new ModuleReference( "My-Module" ), moduleSet );
-		module.setTagMethod( TagMethod.Automatic );
+		module.setTagMethod( TagMethod.AUTOMATIC );
 		Asn1Context context = new Asn1Context( module, new DefaultAsn1Factory( moduleSet ) );
 		context.mapType( Note.class );
 		//noinspection unused

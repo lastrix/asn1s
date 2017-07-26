@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 
 public final class RefUtils
 {
-	//private static final Pattern TIME_VALUE_PATTERN = Pattern.compile( "^\"[0-9+\\-:.,/CDHMRPSTWZ]+\"$" );
+	//private static final Pattern TIME_VALUE_PATTERN = PATTERN.compile( "^\"[0-9+\\-:.,/CDHMRPSTWZ]+\"$" );
 
 	private RefUtils()
 	{
@@ -115,7 +115,7 @@ public final class RefUtils
 	public static Value toBasicValue( Scope scope, Ref<Value> ref ) throws ResolutionException
 	{
 		Value value = ref.resolve( scope );
-		if( value.getKind() == Kind.Name )
+		if( value.getKind() == Kind.NAME )
 		{
 			NamedValue namedValue = value.toNamedValue();
 			if( namedValue.getValueRef() == null )

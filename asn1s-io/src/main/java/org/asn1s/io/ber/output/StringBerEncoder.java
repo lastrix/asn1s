@@ -42,15 +42,15 @@ public class StringBerEncoder implements BerEncoder
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.RestrictedString;
-		assert context.getValue().getKind() == Kind.CString;
+		assert context.getType().getFamily() == Family.RESTRICTED_STRING;
+		assert context.getValue().getKind() == Kind.C_STRING;
 		Type type = context.getType();
 		while( !( type instanceof StringType ) )
 		{
 			assert type != null;
 			type = type.getSibling();
 		}
-		Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+		Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 		byte[] bytes = context.getValue().toStringValue().asString().getBytes( ( (StringType)type ).getCharset() );
 		context.writeHeader( tag, bytes.length );
 		context.write( bytes );

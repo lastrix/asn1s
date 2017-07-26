@@ -35,12 +35,12 @@ public interface Validation
 
 	default boolean isValidated()
 	{
-		return getState() == State.Done;
+		return getState() == State.DONE;
 	}
 
 	default boolean isDisposed()
 	{
-		return getState() == State.Disposed;
+		return getState() == State.DISPOSED;
 	}
 
 	void validate( @NotNull Scope scope ) throws ValidationException, ResolutionException;

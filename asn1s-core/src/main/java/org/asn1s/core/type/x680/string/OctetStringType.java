@@ -54,7 +54,7 @@ public final class OctetStringType extends BuiltinType
 
 	public OctetStringType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.OctetString ) );
+		setEncoding( TagEncoding.universal( UniversalType.OCTET_STRING ) );
 	}
 
 	@Override
@@ -62,8 +62,8 @@ public final class OctetStringType extends BuiltinType
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		boolean isConvertibleToBA = kind == Kind.CString && CoreUtils.isConvertibleToByteArrayValue( value.toStringValue().asString() );
-		if( kind != Kind.ByteArray && !isConvertibleToBA )
+		boolean isConvertibleToBA = kind == Kind.C_STRING && CoreUtils.isConvertibleToByteArrayValue( value.toStringValue().asString() );
+		if( kind != Kind.BYTE_ARRAY && !isConvertibleToBA )
 			throw new IllegalValueException( "Illegal OCTET STRING value: " + valueRef );
 	}
 
@@ -73,7 +73,7 @@ public final class OctetStringType extends BuiltinType
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind == Kind.ByteArray )
+		if( kind == Kind.BYTE_ARRAY )
 			return value;
 
 		throw new IllegalValueException( "Unable to optimize value: " + valueRef );
@@ -82,14 +82,14 @@ public final class OctetStringType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.OctetString.typeName().toString();
+		return UniversalType.OCTET_STRING.typeName().toString();
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		return Family.OctetString;
+		return Family.OCTET_STRING;
 	}
 
 	@NotNull

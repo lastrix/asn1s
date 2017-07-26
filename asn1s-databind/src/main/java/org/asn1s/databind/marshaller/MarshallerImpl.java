@@ -60,7 +60,7 @@ public class MarshallerImpl implements Marshaller
 			throw new IllegalStateException( "Binder returned no value to write" );
 
 		DefinedType asnType = type.getAsnType();
-		try( Asn1Writer writer = new DefaultBerWriter( BerRules.Der, os ) )
+		try( Asn1Writer writer = new DefaultBerWriter( BerRules.DER, os ) )
 		{
 			writer.write( asnType.createScope(), asnType, value );
 		} catch( Exception e )

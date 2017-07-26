@@ -35,6 +35,7 @@ import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.*;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
 import org.asn1s.core.type.TaggedTypeImpl;
 import org.asn1s.core.type.x680.collection.SequenceType;
 import org.jetbrains.annotations.NotNull;
@@ -46,13 +47,13 @@ public class InstanceOfType extends SequenceType
 		super( true );
 		this.classTypeRef = classTypeRef;
 		createComponents( classTypeRef );
-		setEncoding( TagEncoding.universal( UniversalType.InstanceOf ) );
+		setEncoding( TagEncoding.universal( UniversalType.INSTANCE_OF ) );
 	}
 
 	private void createComponents( Ref<Type> classTypeRef )
 	{
-		addComponent( ComponentType.Kind.Primary, "type-id", new ClassFieldRef( classTypeRef, "&id" ) );
-		addComponent( ComponentType.Kind.Primary, "value", new TaggedTypeImpl( TagEncoding.context( 0, TagMethod.Explicit ), new ClassFieldRef( classTypeRef, "&Type" ) ) );
+		addComponent( ComponentType.Kind.PRIMARY, "type-id", new ClassFieldRef( classTypeRef, "&id" ) );
+		addComponent( ComponentType.Kind.PRIMARY, "value", new TaggedTypeImpl( TagEncoding.context( 0, TagMethod.EXPLICIT ), new ClassFieldRef( classTypeRef, "&Type" ) ) );
 	}
 
 	private final Ref<Type> classTypeRef;
@@ -62,7 +63,7 @@ public class InstanceOfType extends SequenceType
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Value.Kind.Object )
+		if( value.getKind() == Kind.OBJECT )
 			classType.accept( scope, valueRef );
 		else
 			super.accept( scope, valueRef );
@@ -73,7 +74,7 @@ public class InstanceOfType extends SequenceType
 	{
 		super.onValidate( scope );
 		Type type = classTypeRef.resolve( scope );
-		if( type.getFamily() != Family.ObjectClass )
+		if( type.getFamily() != Family.OBJECT_CLASS )
 			throw new ValidationException( "Is not ObjectClass: " + type );
 
 		while( type instanceof DefinedType )

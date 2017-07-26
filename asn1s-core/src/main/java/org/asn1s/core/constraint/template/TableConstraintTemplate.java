@@ -53,7 +53,7 @@ import java.util.List;
 
 public class TableConstraintTemplate implements ConstraintTemplate
 {
-	private static final List<Kind> REQUIRED_KINDS = Collections.singletonList( Kind.Object );
+	private static final List<Kind> REQUIRED_KINDS = Collections.singletonList( Kind.OBJECT );
 	@NotNull
 	private final Ref<Type> objectSet;
 
@@ -98,7 +98,7 @@ public class TableConstraintTemplate implements ConstraintTemplate
 	private static Constraint buildInstanceOfConstraint( Constraint specs ) throws IllegalValueException
 	{
 		Collection<Value> values = new ArrayList<>();
-		specs.collectValues( values, Collections.singletonList( Kind.Object ) );
+		specs.collectValues( values, Collections.singletonList( Kind.OBJECT ) );
 		return new InstanceOfConstraint( (List<ObjectValue>)(Object)values );
 	}
 

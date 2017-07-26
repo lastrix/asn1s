@@ -52,7 +52,7 @@ public class RealBerDecoderTest
 	public void testDecode_Bin() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		RealValueDouble expected = new RealValueDouble( 0.15625d );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -67,7 +67,7 @@ public class RealBerDecoderTest
 	public void testDecode_NR3() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		RealValueBig expected = new RealValueBig( BigDecimal.valueOf( 4.25d ) );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -82,7 +82,7 @@ public class RealBerDecoderTest
 	public void testDecode_Zero() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Real.ref().resolve( scope );
+		Type type = UniversalType.REAL.ref().resolve( scope );
 		Value expected = new RealValueFloat( 0.0f );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -98,10 +98,10 @@ public class RealBerDecoderTest
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new RealBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}

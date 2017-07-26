@@ -101,7 +101,7 @@ final class ComponentsFromType extends AbstractType
 	{
 		type.validate( scope );
 		Family family = type.getFamily();
-		if( family != Family.Sequence && family != Family.Set )
+		if( family != Family.SEQUENCE && family != Family.SET )
 			throw new ValidationException( "ComponentsFromType should point to: " + requiredFamily );
 
 		while( !( type instanceof CollectionType ) )

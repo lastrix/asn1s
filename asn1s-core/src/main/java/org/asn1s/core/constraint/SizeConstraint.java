@@ -74,11 +74,11 @@ public class SizeConstraint implements Constraint
 		value = RefUtils.toBasicValue( scope, value );
 
 		int size = -1;
-		if( value.getKind() == Kind.Collection || value.getKind() == Kind.NamedCollection )
+		if( value.getKind() == Kind.COLLECTION || value.getKind() == Kind.NAMED_COLLECTION )
 			size = value.toValueCollection().size();
-		else if( value.getKind() == Kind.ByteArray )
-			size = value.toByteArrayValue().size( type.getFamily() == Family.BitString );
-		else if( value.getKind() == Kind.CString )
+		else if( value.getKind() == Kind.BYTE_ARRAY )
+			size = value.toByteArrayValue().size( type.getFamily() == Family.BIT_STRING );
+		else if( value.getKind() == Kind.C_STRING )
 			size = value.toStringValue().length();
 
 		if( size == -1 )
@@ -106,7 +106,7 @@ public class SizeConstraint implements Constraint
 		if( !SizeConstraintTemplate.isAllowed( type.getFamily() ) )
 			throw new ValidationException( "Type is not allowed for Size constraint: " + type );
 
-		Type intType = UniversalType.Integer.ref().resolve( scope );
+		Type intType = UniversalType.INTEGER.ref().resolve( scope );
 		return new SizeConstraint( type, constraint.copyForType( scope, intType ), minimumValue );
 	}
 
@@ -120,7 +120,7 @@ public class SizeConstraint implements Constraint
 	@Override
 	public void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException
 	{
-		if( !allowedTypes.contains( ConstraintType.Size ) )
+		if( !allowedTypes.contains( ConstraintType.SIZE ) )
 			throw new ValidationException( "'Size' constraint is not allowed" );
 	}
 }

@@ -53,7 +53,7 @@ public class NullType extends BuiltinType
 
 	public NullType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.Null ) );
+		setEncoding( TagEncoding.universal( UniversalType.NULL ) );
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class NullType extends BuiltinType
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Kind.Null )
+		if( value.getKind() == Kind.NULL )
 			return value;
 
 		throw new IllegalValueException( "Unable to optimize value of kind: " + value.getKind() + ". Value: " + valueRef );
@@ -77,13 +77,13 @@ public class NullType extends BuiltinType
 	@Override
 	public Family getFamily()
 	{
-		return Family.Null;
+		return Family.NULL;
 	}
 
 	@Override
 	public String toString()
 	{
-		return UniversalType.Null.typeName().toString();
+		return UniversalType.NULL.typeName().toString();
 	}
 
 	@NotNull

@@ -55,7 +55,7 @@ public @interface Property
 	int index() default -1;
 
 	/**
-	 * Type for this component. Values from this component must be acceptable by Type.
+	 * Type for this component. Values from this component must be acceptable by TYPE.
 	 *
 	 * @return string
 	 */
@@ -78,12 +78,12 @@ public @interface Property
 	 *
 	 * @return TagClass
 	 */
-	TagClass tagClass() default TagClass.ContextSpecific;
+	TagClass tagClass() default TagClass.CONTEXT_SPECIFIC;
 
 	/**
 	 * Default tagging method
 	 *
 	 * @return TagMethod
 	 */
-	TagMethod tagMethod() default TagMethod.Automatic;
+	TagMethod tagMethod() default TagMethod.AUTOMATIC;
 }

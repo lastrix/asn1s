@@ -38,7 +38,7 @@ public class OctetStringBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.OctetString;
+		assert context.getType().getFamily() == Family.OCTET_STRING;
 		assert !context.getTag().isConstructed();
 		if( context.getLength() == -1 )
 			return readByteArrayValueIndefinite( context.getReader(), 0 );

@@ -88,13 +88,13 @@ public class RealValueBig implements RealValue
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		if( o.getKind() == Kind.Real )
+		if( o.getKind() == Kind.REAL )
 			return asBigDecimal().compareTo( o.toRealValue().asBigDecimal() );
 
-		if( o.getKind() == Kind.Integer )
+		if( o.getKind() == Kind.INTEGER )
 			return asBigDecimal().compareTo( o.toIntegerValue().asBigDecimal() );
 
-		if( o.getKind() == Kind.Name )
+		if( o.getKind() == Kind.NAME )
 			return CoreUtils.compareNumberToNamed( this, o.toNamedValue() );
 
 		return getKind().compareTo( o.getKind() );

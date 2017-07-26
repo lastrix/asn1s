@@ -63,7 +63,7 @@ public final class RealType extends BuiltinType
 
 	public RealType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.Real ) );
+		setEncoding( TagEncoding.universal( UniversalType.REAL ) );
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public final class RealType extends BuiltinType
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind != Kind.Integer && kind != Kind.Real )
+		if( kind != Kind.INTEGER && kind != Kind.REAL )
 			throw new IllegalValueException( "Only numeric types acceptable" );
 	}
 
@@ -79,7 +79,7 @@ public final class RealType extends BuiltinType
 	@Override
 	public Family getFamily()
 	{
-		return Family.Real;
+		return Family.REAL;
 	}
 
 	@NotNull
@@ -93,7 +93,7 @@ public final class RealType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.Real.typeName().toString();
+		return UniversalType.REAL.typeName().toString();
 	}
 
 	@Override
@@ -114,10 +114,10 @@ public final class RealType extends BuiltinType
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind == Kind.Real )
+		if( kind == Kind.REAL )
 			return value;
 
-		if( kind == Kind.Integer )
+		if( kind == Kind.INTEGER )
 		{
 			if( value instanceof IntegerValueInt )
 				return new RealValueFloat( ( (IntegerValue)value ).asFloat() );
@@ -131,7 +131,7 @@ public final class RealType extends BuiltinType
 			throw new IllegalStateException( "Unsupported REAL class: " + valueRef.getClass().getName() );
 		}
 
-		if( kind == Kind.NamedCollection )
+		if( kind == Kind.NAMED_COLLECTION )
 		{
 			ValueCollection collection = value.toValueCollection();
 			List<Value> values = new ArrayList<>( collection.asNamedValueList() );
@@ -177,11 +177,11 @@ public final class RealType extends BuiltinType
 	@Nullable
 	private static Long tryRecoverLong( Value value, String name )
 	{
-		if( value.getKind() != Kind.Name )
+		if( value.getKind() != Kind.NAME )
 			return null;
 
 		NamedValue namedValue = value.toNamedValue();
-		if( !name.equals( namedValue.getName() ) || namedValue.getReferenceKind() != Kind.Integer )
+		if( !name.equals( namedValue.getName() ) || namedValue.getReferenceKind() != Kind.INTEGER )
 			return null;
 
 		IntegerValue integerValue = namedValue.toIntegerValue();

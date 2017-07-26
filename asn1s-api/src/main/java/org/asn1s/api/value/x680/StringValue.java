@@ -43,6 +43,6 @@ public interface StringValue extends Value
 	@Override
 	default Kind getKind()
 	{
-		return Kind.CString;
+		return Kind.C_STRING;
 	}
 }

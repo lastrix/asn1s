@@ -111,7 +111,7 @@ public class WriterContext
 	{
 		if( type instanceof ComponentType && !( (ComponentType)type ).isDummy() )
 		{
-			if( value.getKind() == Kind.Name )
+			if( value.getKind() == Kind.NAME )
 			{
 
 				if( !value.toNamedValue().getName().equals( ( (NamedType)type ).getName() ) )

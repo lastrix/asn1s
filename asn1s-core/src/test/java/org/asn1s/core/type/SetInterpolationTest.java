@@ -46,11 +46,11 @@ public class SetInterpolationTest
 
 		Ref<Type> intRef = factory.builtin( "INTEGER" );
 
-		CollectionType set = factory.collection( Family.Set );
-		set.addComponent( Kind.Primary, "a", intRef );
-		set.addComponent( Kind.Primary, "b", intRef ).setOptional( true );
-		set.addComponent( Kind.Extension, "c", intRef );
-		set.addComponent( Kind.Secondary, "d", intRef );
+		CollectionType set = factory.collection( Family.SET );
+		set.addComponent( Kind.PRIMARY, "a", intRef );
+		set.addComponent( Kind.PRIMARY, "b", intRef ).setOptional( true );
+		set.addComponent( Kind.EXTENSION, "c", intRef );
+		set.addComponent( Kind.SECONDARY, "d", intRef );
 
 		DefinedType type = factory.define( "MySet", set, null );
 

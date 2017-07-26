@@ -46,7 +46,7 @@ public class ModuleImpl extends AbstractModule
 	public static ModuleImpl newDummy( ModuleResolver resolver )
 	{
 		ModuleImpl module = new ModuleImpl( new ModuleReference( DUMMY ), resolver );
-		module.setTagMethod( TagMethod.Automatic );
+		module.setTagMethod( TagMethod.AUTOMATIC );
 		return module;
 	}
 
@@ -57,7 +57,7 @@ public class ModuleImpl extends AbstractModule
 
 	private boolean allTypesExtensible;
 	private Collection<String> exports = new ArrayList<>();
-	private TagMethod tagMethod = TagMethod.Unknown;
+	private TagMethod tagMethod = TagMethod.UNKNOWN;
 
 	@Override
 	public Module getCoreModule()

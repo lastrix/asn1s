@@ -68,7 +68,7 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 		if( additionalEnumeration != null )
 			this.additionalEnumeration.addAll( additionalEnumeration );
 		this.extensible = extensible;
-		setEncoding( TagEncoding.universal( UniversalType.Enumerated ) );
+		setEncoding( TagEncoding.universal( UniversalType.ENUMERATED ) );
 	}
 
 	private final List<NamedValue> enumeration = new ArrayList<>();
@@ -84,11 +84,11 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 		NamedValue value = new NamedValueImpl( name, valueRef );
 		switch( kind )
 		{
-			case Primary:
+			case PRIMARY:
 				enumeration.add( value );
 				break;
 
-			case Extension:
+			case EXTENSION:
 				additionalEnumeration.add( value );
 				break;
 
@@ -163,7 +163,7 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
 		Value value = valueRef.resolve( scope );
-		if( value.getKind() == Kind.Name )
+		if( value.getKind() == Kind.NAME )
 		{
 			Value registered = getNamedValue( ( (NamedValue)value ).getName() );
 			if( registered != null )
@@ -171,7 +171,7 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 		}
 
 		value = RefUtils.toBasicValue( scope, value );
-		if( value.getKind() == Kind.Integer )
+		if( value.getKind() == Kind.INTEGER )
 		{
 			NamedValue registered = findValue( value.toIntegerValue() );
 			if( registered != null )
@@ -220,8 +220,8 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 	public String toString()
 	{
 		if( extensible )
-			return UniversalType.Enumerated.typeName().toString() + '{' + StringUtils.join( enumeration, ", " ) + ", ...," + StringUtils.join( additionalEnumeration, ", " ) + '}';
-		return UniversalType.Enumerated.typeName().toString() + '{' + StringUtils.join( enumeration, ", " ) + '}';
+			return UniversalType.ENUMERATED.typeName().toString() + '{' + StringUtils.join( enumeration, ", " ) + ", ...," + StringUtils.join( additionalEnumeration, ", " ) + '}';
+		return UniversalType.ENUMERATED.typeName().toString() + '{' + StringUtils.join( enumeration, ", " ) + '}';
 	}
 
 	private static final class EnumerationValidator
@@ -249,7 +249,7 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 			Long counter = 0L;
 			for( NamedValue value : preProcessValues() )
 			{
-				if( value.getReferenceKind() == Kind.Integer )
+				if( value.getReferenceKind() == Kind.INTEGER )
 				{
 					result.add( value );
 					continue;
@@ -268,7 +268,7 @@ public final class EnumeratedType extends BuiltinType implements Enumerated
 			for( NamedValue value : enumeration )
 			{
 				value = value.resolve( scope ).toNamedValue();
-				if( value.getReferenceKind() == Kind.Integer || value.getReferenceKind() == Kind.Empty )
+				if( value.getReferenceKind() == Kind.INTEGER || value.getReferenceKind() == Kind.EMPTY )
 					preprocessed.add( value );
 				else throw new ValidationException( "Illegal value: " + value );
 			}

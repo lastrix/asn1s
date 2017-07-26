@@ -54,11 +54,11 @@ final class BerDecoderUtils
 
 	static boolean isComponentTag( Tag tag, NamedType namedType )
 	{
-		TagEncoding encoding = (TagEncoding)namedType.getEncoding( EncodingInstructions.Tag );
+		TagEncoding encoding = (TagEncoding)namedType.getEncoding( EncodingInstructions.TAG );
 		if( encoding != null && encoding.isEqualToTag( tag ) )
 			return true;
 
-		if( namedType.getFamily() == Family.Choice )
+		if( namedType.getFamily() == Family.CHOICE )
 		{
 			if( findChoiceComponent( tag, namedType ) )
 				return true;

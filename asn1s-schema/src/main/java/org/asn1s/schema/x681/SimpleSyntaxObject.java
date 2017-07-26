@@ -31,7 +31,7 @@ public class SimpleSyntaxObject implements SyntaxObject
 {
 	SimpleSyntaxObject( Kind kind, String name )
 	{
-		if( kind != Kind.TypeField && kind != Kind.ValueField && kind != Kind.Keyword || StringUtils.isBlank( name ) )
+		if( kind != Kind.TYPE_FIELD && kind != Kind.VALUE_FIELD && kind != Kind.KEYWORD || StringUtils.isBlank( name ) )
 			throw new IllegalArgumentException();
 
 		this.kind = kind;

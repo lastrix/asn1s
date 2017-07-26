@@ -43,6 +43,6 @@ public interface OpenTypeValue extends Value
 	@Override
 	default Kind getKind()
 	{
-		return Kind.OpenType;
+		return Kind.OPEN_TYPE;
 	}
 }

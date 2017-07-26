@@ -49,7 +49,7 @@ public class NullBerDecoderTest
 	public void testDecode_true() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Null.ref().resolve( scope );
+		Type type = UniversalType.NULL.ref().resolve( scope );
 		Value expected = NullValue.INSTANCE;
 		byte[] result = InputUtils.writeValue( scope, type, expected );
 		try( ByteArrayInputStream is = new ByteArrayInputStream( result );
@@ -64,10 +64,10 @@ public class NullBerDecoderTest
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new NullBerDecoder().decode( new ReaderContext( reader, scope, type, tag, 0, false ) );
 			fail( "Must fail" );
 		}
@@ -77,10 +77,10 @@ public class NullBerDecoderTest
 	public void testDecode_fail_length() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Null.ref().resolve( scope );
+		Type type = UniversalType.NULL.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new NullBerDecoder().decode( new ReaderContext( reader, scope, type, tag, 1, false ) );
 			fail( "Must fail" );
 		}

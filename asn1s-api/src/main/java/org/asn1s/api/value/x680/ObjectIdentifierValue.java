@@ -40,6 +40,6 @@ public interface ObjectIdentifierValue extends Value
 	@Override
 	default Kind getKind()
 	{
-		return Kind.Oid;
+		return Kind.OID;
 	}
 }

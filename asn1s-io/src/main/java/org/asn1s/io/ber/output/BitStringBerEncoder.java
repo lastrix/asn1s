@@ -39,20 +39,20 @@ import java.io.IOException;
 
 final class BitStringBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.BitString.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.BIT_STRING.tagNumber() );
 
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.BitString;
-		assert context.getValue().getKind() == Kind.ByteArray;
+		assert context.getType().getFamily() == Family.BIT_STRING;
+		assert context.getValue().getKind() == Kind.BYTE_ARRAY;
 		ByteArrayValue arrayValue = context.getValue().toByteArrayValue();
 		boolean hasNamedValues = !context.getType().getNamedValues().isEmpty();
 
 		byte[] bytes = arrayValue.asByteArray();
 		int usedBits = arrayValue.getUsedBits();
 		int emptyBits = bytes.length * 8 - usedBits;
-		if( context.getRules() == BerRules.Der )
+		if( context.getRules() == BerRules.DER )
 		{
 			boolean hasSizeConstraint = Boolean.TRUE.equals( context.getScope().getScopeOption( ConstraintUtils.OPTION_HAS_SIZE_CONSTRAINT ) );
 

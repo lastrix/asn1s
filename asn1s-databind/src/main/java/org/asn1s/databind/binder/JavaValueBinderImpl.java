@@ -105,7 +105,7 @@ public class JavaValueBinderImpl implements JavaValueBinder
 
 	private <T> T sequenceToJava( Value asn1Value, SequenceMappedType type )
 	{
-		assert asn1Value.getKind() == Kind.NamedCollection;
+		assert asn1Value.getKind() == Kind.NAMED_COLLECTION;
 		ValueCollection collection = asn1Value.toValueCollection();
 		T result = BinderUtils.newInstance( type, sequenceMappedTypeParameters( type, collection ) );
 		for( MappedField field : type.getFields() )
@@ -182,7 +182,7 @@ public class JavaValueBinderImpl implements JavaValueBinder
 
 	private Object sequenceOfToJava( Value asn1Value, SequenceOfMappedType type )
 	{
-		assert asn1Value.getKind() == Kind.Collection || asn1Value.getKind() == Kind.NamedCollection;
+		assert asn1Value.getKind() == Kind.COLLECTION || asn1Value.getKind() == Kind.NAMED_COLLECTION;
 		ValueCollection collection = asn1Value.toValueCollection();
 		Type javaType = type.getJavaType();
 		if( javaType instanceof Class<?> )
@@ -231,7 +231,7 @@ public class JavaValueBinderImpl implements JavaValueBinder
 			throw new IllegalStateException( "Unable to use references: " + ref );
 
 		Value value = (Value)ref;
-		if( value.getKind() == Kind.Name )
+		if( value.getKind() == Kind.NAME )
 		{
 			ref = value.toNamedValue().getValueRef();
 			if( !( ref instanceof Value ) )

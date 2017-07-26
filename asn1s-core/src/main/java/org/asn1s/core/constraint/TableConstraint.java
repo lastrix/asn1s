@@ -71,13 +71,13 @@ public class TableConstraint implements Constraint, InstanceOfTypeSelector
 
 		for( Value value : values )
 		{
-			assert value.getKind() == Kind.Object;
+			assert value.getKind() == Kind.OBJECT;
 			if( isFiltered( value.toObjectValue(), scope ) )
 				continue;
 			Ref<?> ref = value.toObjectValue().getFields().get( name );
 			if( ref instanceof Type )
 			{
-				assert checkValue.getKind() == Kind.OpenType;
+				assert checkValue.getKind() == Kind.OPEN_TYPE;
 				Ref<Type> openType = checkValue.toOpenTypeValue().getType();
 				assert openType instanceof Type;
 				//noinspection ObjectEquality
@@ -117,7 +117,7 @@ public class TableConstraint implements Constraint, InstanceOfTypeSelector
 		Value levelValue = levels.getValue()[item.getLevel()];
 		Type levelType = levels.getKey()[item.getLevel()];
 
-		if( levelValue.getKind() != Kind.NamedCollection )
+		if( levelValue.getKind() != Kind.NAMED_COLLECTION )
 			throw new IllegalValueException( "Unable to fetch collection value: " + levelValue );
 
 		Value filter = levelValue.toValueCollection().getNamedValue( item.getName() );
@@ -158,7 +158,7 @@ public class TableConstraint implements Constraint, InstanceOfTypeSelector
 	{
 		for( Value value : values )
 		{
-			assert value.getKind() == Kind.Object;
+			assert value.getKind() == Kind.OBJECT;
 			if( isFilteredOrResolutionException( value.toObjectValue(), scope ) )
 				continue;
 			Ref<?> ref = value.toObjectValue().getFields().get( name );

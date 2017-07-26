@@ -48,7 +48,7 @@ public final class ChoiceType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = valueRef.resolve( scope );
-		if( value.getKind() != Kind.Name )
+		if( value.getKind() != Kind.NAME )
 			throw new IllegalArgumentException( "Unable to accept value of kind: " + value.getKind() );
 
 		scope.setValueLevel( value );
@@ -70,7 +70,7 @@ public final class ChoiceType extends AbstractCollectionType
 	{
 		scope = scope.typedScope( this );
 		Value value = valueRef.resolve( scope );
-		if( value.getKind() != Kind.Name )
+		if( value.getKind() != Kind.NAME )
 			throw new IllegalArgumentException( "Unable to accept value of kind: " + value.getKind() );
 
 		scope.setValueLevel( value );
@@ -92,7 +92,7 @@ public final class ChoiceType extends AbstractCollectionType
 	@Override
 	public Family getFamily()
 	{
-		return Family.Choice;
+		return Family.CHOICE;
 	}
 
 	@Override

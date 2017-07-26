@@ -95,7 +95,7 @@ final class ComponentTypeImpl extends AbstractComponentType
 
 	private Value getComponentValue( Value value ) throws IllegalValueException
 	{
-		if( isDummy() || value.getKind() != Value.Kind.Name )
+		if( isDummy() || value.getKind() != Value.Kind.NAME )
 			return value;
 
 		NamedValue namedValue = value.toNamedValue();
@@ -119,7 +119,7 @@ final class ComponentTypeImpl extends AbstractComponentType
 	@Nullable
 	private Value optimizeComponentValue( Scope scope, Value value ) throws ResolutionException, ValidationException
 	{
-		Ref<Value> referenced = isDummy() || value.getKind() != Value.Kind.Name
+		Ref<Value> referenced = isDummy() || value.getKind() != Value.Kind.NAME
 				? value
 				: getReferencedValueOrDie( value );
 

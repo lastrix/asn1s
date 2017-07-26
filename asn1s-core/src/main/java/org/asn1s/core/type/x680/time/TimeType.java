@@ -48,7 +48,7 @@ public final class TimeType extends BuiltinType
 
 	public TimeType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.Time ) );
+		setEncoding( TagEncoding.universal( UniversalType.TIME ) );
 	}
 
 	@Override
@@ -67,14 +67,14 @@ public final class TimeType extends BuiltinType
 	@Override
 	public String toString()
 	{
-		return UniversalType.Time.typeName().toString();
+		return UniversalType.TIME.typeName().toString();
 	}
 
 	@NotNull
 	@Override
 	public Family getFamily()
 	{
-		return Family.Time;
+		return Family.TIME;
 	}
 
 	@NotNull

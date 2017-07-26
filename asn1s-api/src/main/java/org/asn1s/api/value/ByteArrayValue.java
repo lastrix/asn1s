@@ -37,7 +37,7 @@ public interface ByteArrayValue extends Value
 	@Override
 	default Kind getKind()
 	{
-		return Kind.ByteArray;
+		return Kind.BYTE_ARRAY;
 	}
 
 	boolean isEmpty();

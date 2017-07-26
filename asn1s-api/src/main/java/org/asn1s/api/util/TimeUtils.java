@@ -44,7 +44,7 @@ public final class TimeUtils
 	public static final String GENERALIZED_TIME_FORMAT = "yyyyMMddHHmmss.SSS";
 	@SuppressWarnings( "ConstantConditions" )
 	@NotNull
-	public static final Charset CHARSET = UniversalType.VisibleString.charset();
+	public static final Charset CHARSET = UniversalType.VISIBLE_STRING.charset();
 
 	private TimeUtils()
 	{
@@ -100,10 +100,10 @@ public final class TimeUtils
 
 //	private static final String TIME_FORMAT = "HHmmss";
 //	private static final String TIME_FORMAT_COLONS = "HH:mm:ss";
-//	private static final Pattern TIME_PATTERN = Pattern.compile( "(([0-1][0-9]|2[0-3])([0-5][0-9])([0-5][0-9])|([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]))" );
+//	private static final Pattern TIME_PATTERN = PATTERN.compile( "(([0-1][0-9]|2[0-3])([0-5][0-9])([0-5][0-9])|([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]))" );
 //
 //	private static final String DATE_FORMAT = "yyyyMMdd";
-//	private static final Pattern DATE_PATTERN = Pattern.compile( "[0-9]{4}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])" );
+//	private static final Pattern DATE_PATTERN = PATTERN.compile( "[0-9]{4}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])" );
 
 
 	private static final class GeneralizedParser

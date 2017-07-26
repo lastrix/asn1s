@@ -42,13 +42,13 @@ import java.io.IOException;
  */
 final class IntegerBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Integer.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.INTEGER.tagNumber() );
 
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.Integer;
-		assert context.getValue().getKind() == Kind.Integer;
+		assert context.getType().getFamily() == Family.INTEGER;
+		assert context.getValue().getKind() == Kind.INTEGER;
 		writeLong( context.getWriter(), context.getValue().toIntegerValue().asLong(), TAG, context.isWriteHeader() );
 	}
 

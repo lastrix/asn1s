@@ -72,8 +72,8 @@ public class DefinedTypeTemplateTest
 
 		Value aValue = singleInteger.getNamedValue( "a" );
 		Assert.assertNotNull( "No value found", aValue );
-		Assert.assertEquals( "Is not named value", Kind.Name, aValue.getKind() );
-		Assert.assertEquals( "Is not integer value", Kind.Integer, aValue.toNamedValue().getReferenceKind() );
+		Assert.assertEquals( "Is not named value", Kind.NAME, aValue.getKind() );
+		Assert.assertEquals( "Is not integer value", Kind.INTEGER, aValue.toNamedValue().getReferenceKind() );
 		Assert.assertEquals( "Illegal value resolve", 2L, aValue.toIntegerValue().asLong() );
 	}
 
@@ -111,9 +111,9 @@ public class DefinedTypeTemplateTest
 		Module module = factory.types().dummyModule();
 
 		Ref<Type> intType = factory.types().builtin( "INTEGER" );
-		CollectionType collectionType = factory.types().collection( Family.Sequence );
-		collectionType.addComponent( ComponentType.Kind.Primary, "a", intType );
-		collectionType.addComponent( ComponentType.Kind.Primary, "b", intType );
+		CollectionType collectionType = factory.types().collection( Family.SEQUENCE );
+		collectionType.addComponent( ComponentType.Kind.PRIMARY, "a", intType );
+		collectionType.addComponent( ComponentType.Kind.PRIMARY, "b", intType );
 
 		DefinedType type = factory.types().define( "CollectionType", collectionType, null );
 		ValueCollection collection = factory.values().collection( true );
@@ -128,10 +128,10 @@ public class DefinedTypeTemplateTest
 
 		module.validate();
 
-		Assert.assertEquals( "Not collection value", Kind.NamedCollection, value.getKind() );
+		Assert.assertEquals( "Not collection value", Kind.NAMED_COLLECTION, value.getKind() );
 		NamedValue a = value.toValueCollection().getNamedValue( "a" );
 		Assert.assertNotNull( "No component 'a'", a );
-		Assert.assertEquals( "Not integer", Kind.Integer, a.getReferenceKind() );
+		Assert.assertEquals( "Not integer", Kind.INTEGER, a.getReferenceKind() );
 		Assert.assertEquals( "Illegal value", integerValue, a.toIntegerValue() );
 
 	}

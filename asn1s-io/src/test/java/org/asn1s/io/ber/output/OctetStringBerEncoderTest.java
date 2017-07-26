@@ -41,13 +41,13 @@ import static org.mockito.Mockito.*;
 
 public class OctetStringBerEncoderTest
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.OctetString.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.OCTET_STRING.tagNumber() );
 
 	@Test
 	public void testEncode_Empty() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Type type = UniversalType.OCTET_STRING.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromHexString( "''H" );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -61,7 +61,7 @@ public class OctetStringBerEncoderTest
 	public void testEncode_AF() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Type type = UniversalType.OCTET_STRING.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromHexString( "'AF'H" );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -76,7 +76,7 @@ public class OctetStringBerEncoderTest
 	public void testEncode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		Value value = CoreUtils.byteArrayFromHexString( "'AF'H" );
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{
@@ -89,7 +89,7 @@ public class OctetStringBerEncoderTest
 	public void testEncode_fail_value() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.OctetString.ref().resolve( scope );
+		Type type = UniversalType.OCTET_STRING.ref().resolve( scope );
 		Value value = BooleanValue.TRUE;
 		try( AbstractBerWriter writer = mock( AbstractBerWriter.class ) )
 		{

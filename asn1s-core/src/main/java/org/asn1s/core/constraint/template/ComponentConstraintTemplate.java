@@ -54,7 +54,7 @@ public class ComponentConstraintTemplate implements ConstraintTemplate
 		if( presence == null )
 		{
 			log.warn( "'presence' is null, probable bug detected. The value will be replaced with 'None'." );
-			presence = Presence.None;
+			presence = Presence.NONE;
 		}
 
 		RefUtils.assertValueRef( name );
@@ -89,9 +89,9 @@ public class ComponentConstraintTemplate implements ConstraintTemplate
 	private static final Collection<Family> ALLOWED =
 			EnumSet.copyOf(
 					Arrays.asList(
-							Family.Choice,
-							Family.Sequence,
-							Family.Set
+							Family.CHOICE,
+							Family.SEQUENCE,
+							Family.SET
 					)
 			);
 }

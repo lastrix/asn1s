@@ -53,7 +53,7 @@ public class EnumeratedBerDecoderTest
 	{
 		Scope scope = CoreModule.getInstance().createScope();
 		Enumerated type = new EnumeratedType();
-		type.addItem( ItemKind.Primary, "a", new IntegerValueInt( 0 ) );
+		type.addItem( ItemKind.PRIMARY, "a", new IntegerValueInt( 0 ) );
 		type.validate( scope );
 		Value expected = type.optimize( scope, new IntegerValueInt( 0 ) );
 		byte[] result = InputUtils.writeValue( scope, type, expected );
@@ -69,10 +69,10 @@ public class EnumeratedBerDecoderTest
 	public void testDecode_fail_type() throws Exception
 	{
 		Scope scope = CoreModule.getInstance().createScope();
-		Type type = UniversalType.Integer.ref().resolve( scope );
+		Type type = UniversalType.INTEGER.ref().resolve( scope );
 		try( AbstractBerReader reader = mock( DefaultBerReader.class ) )
 		{
-			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.Tag ) ).toTag( false );
+			Tag tag = ( (TagEncoding)type.getEncoding( EncodingInstructions.TAG ) ).toTag( false );
 			new EnumeratedBerDecoder().decode( new ReaderContext( reader, scope, type, tag, -1, false ) );
 			fail( "Must fail" );
 		}

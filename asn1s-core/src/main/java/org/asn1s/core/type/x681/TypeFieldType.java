@@ -109,7 +109,7 @@ public class TypeFieldType extends AbstractFieldType
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, IllegalValueException, ConstraintViolationException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Value.Kind.OpenType )
+		if( value.getKind() == Value.Kind.OPEN_TYPE )
 			return value;
 
 		throw new IllegalValueException( "Unable to accept value of kind: " + value.getKind() + ". Only OpenType values allowed." );
@@ -130,13 +130,13 @@ public class TypeFieldType extends AbstractFieldType
 	@Override
 	public Family getFamily()
 	{
-		return Family.OpenType;
+		return Family.OPEN_TYPE;
 	}
 
 	@Override
 	public Kind getClassFieldKind()
 	{
-		return Kind.Type;
+		return Kind.TYPE;
 	}
 
 	@Override

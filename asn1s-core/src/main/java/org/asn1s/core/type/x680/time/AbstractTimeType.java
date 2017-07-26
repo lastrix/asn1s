@@ -47,10 +47,10 @@ public abstract class AbstractTimeType extends BuiltinType
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind == Kind.Time )
+		if( kind == Kind.TIME )
 			return value;
 
-		if( kind == Kind.CString )
+		if( kind == Kind.C_STRING )
 		{
 			String timeValueString = value.toStringValue().asString();
 			if( isAllowedValue( timeValueString ) )

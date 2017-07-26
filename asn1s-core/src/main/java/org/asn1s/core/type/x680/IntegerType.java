@@ -67,7 +67,7 @@ public class IntegerType extends AbstractBuiltinTypeWithNamedValues
 	public IntegerType( @Nullable Collection<NamedValue> namedValues )
 	{
 		super( namedValues );
-		setEncoding( TagEncoding.universal( UniversalType.Integer ) );
+		setEncoding( TagEncoding.universal( UniversalType.INTEGER ) );
 	}
 
 	//////////////////////////////////// Overrides /////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ public class IntegerType extends AbstractBuiltinTypeWithNamedValues
 	@Override
 	public Family getFamily()
 	{
-		return Family.Integer;
+		return Family.INTEGER;
 	}
 
 	@Override
@@ -84,7 +84,7 @@ public class IntegerType extends AbstractBuiltinTypeWithNamedValues
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind != Kind.Integer )
+		if( kind != Kind.INTEGER )
 			throw new IllegalValueException( "Not an integer value: " + value );
 	}
 
@@ -94,7 +94,7 @@ public class IntegerType extends AbstractBuiltinTypeWithNamedValues
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
 		Kind kind = value.getKind();
-		if( kind == Kind.Integer )
+		if( kind == Kind.INTEGER )
 			return value;
 
 		throw new IllegalValueException( "Unable to optimize value of kind: " + kind + ". Value: " + value );
@@ -132,7 +132,7 @@ public class IntegerType extends AbstractBuiltinTypeWithNamedValues
 	private static NamedValue validateIntegerTypeValue( Scope scope, NamedValue value, Collection<Long> uniqueCheck, boolean onlyPositive ) throws ValidationException, ResolutionException
 	{
 		value = value.resolve( scope ).toNamedValue();
-		if( value.getReferenceKind() != Kind.Integer )
+		if( value.getReferenceKind() != Kind.INTEGER )
 			throw new ValidationException( "Named value references non-integer value" );
 
 		Long longValue = value.toIntegerValue().asLong();

@@ -64,12 +64,12 @@ public class InstanceOfConstraint implements Constraint, InstanceOfTypeSelector
 	public void check( Scope scope, Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		Value resolve = valueRef.resolve( scope );
-		assert resolve.getKind() == Kind.NamedCollection;
+		assert resolve.getKind() == Kind.NAMED_COLLECTION;
 
 		ValueCollection collection = resolve.toValueCollection();
 		NamedValue value = collection.getNamedValue( "type-id" );
 		assert value != null;
-		assert value.getReferenceKind() == Kind.Oid;
+		assert value.getReferenceKind() == Kind.OID;
 		Type expectedType = selectTypeById( value.toObjectIdentifierValue() );
 
 		if( expectedType == null )
@@ -77,7 +77,7 @@ public class InstanceOfConstraint implements Constraint, InstanceOfTypeSelector
 
 		NamedValue valueField = collection.getNamedValue( "value" );
 		assert valueField != null;
-		assert valueField.getReferenceKind() == Kind.OpenType;
+		assert valueField.getReferenceKind() == Kind.OPEN_TYPE;
 
 		OpenTypeValue typeValue = valueField.toOpenTypeValue();
 		if( !Objects.equals( typeValue.getType(), expectedType ) )
@@ -102,11 +102,11 @@ public class InstanceOfConstraint implements Constraint, InstanceOfTypeSelector
 		if( values.length != 1 )
 			throw new ResolutionException( "Corrupted data, there is no registered InstanceOf Sequence in Scope structure" );
 		Value level = values[0];
-		if( level != null && level.getKind() == Kind.NamedCollection )
+		if( level != null && level.getKind() == Kind.NAMED_COLLECTION )
 		{
 			ValueCollection collection = level.toValueCollection();
 			NamedValue value = collection.getNamedValue( "type-id" );
-			if( value != null && value.getReferenceKind() == Kind.Oid )
+			if( value != null && value.getReferenceKind() == Kind.OID )
 				return value.toObjectIdentifierValue();
 		}
 

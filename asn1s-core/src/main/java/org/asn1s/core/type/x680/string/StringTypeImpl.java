@@ -80,13 +80,13 @@ public class StringTypeImpl extends BuiltinType implements StringType
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Kind.CString )
+		if( value.getKind() == Kind.C_STRING )
 		{
 			assertCString( value );
 			return;
 		}
 
-		if( value.getKind() == Kind.Collection )
+		if( value.getKind() == Kind.COLLECTION )
 		{
 			ValueCollection collection = value.toValueCollection();
 			StringValue stringValue = tryBuildStringValue( scope, collection );
@@ -102,13 +102,13 @@ public class StringTypeImpl extends BuiltinType implements StringType
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
 		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Kind.CString )
+		if( value.getKind() == Kind.C_STRING )
 		{
 			assertCString( value );
 			return value;
 		}
 
-		if( value.getKind() == Kind.Collection )
+		if( value.getKind() == Kind.COLLECTION )
 		{
 			ValueCollection collection = value.toValueCollection();
 			StringValue stringValue = tryBuildStringValue( scope, collection );
@@ -126,7 +126,7 @@ public class StringTypeImpl extends BuiltinType implements StringType
 	@Override
 	public Family getFamily()
 	{
-		return Family.RestrictedString;
+		return Family.RESTRICTED_STRING;
 	}
 
 	@NotNull

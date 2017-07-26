@@ -42,7 +42,7 @@ public abstract class AbstractDefinedValue implements DefinedValue
 		this.name = name;
 	}
 
-	private State state = State.None;
+	private State state = State.NONE;
 	private Module module;
 	private final String name;
 
@@ -82,18 +82,18 @@ public abstract class AbstractDefinedValue implements DefinedValue
 	@Override
 	public void validate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		if( state != State.None )
+		if( state != State.NONE )
 			return;
 
-		state = State.Validating;
+		state = State.VALIDATING;
 
 		try
 		{
 			onValidate( scope );
-			state = State.Done;
+			state = State.DONE;
 		} catch( Throwable e )
 		{
-			state = State.Failed;
+			state = State.FAILED;
 			//noinspection ProhibitedExceptionThrown
 			throw e;
 		}
@@ -105,7 +105,7 @@ public abstract class AbstractDefinedValue implements DefinedValue
 		if( isDisposed() )
 			return;
 
-		state = State.Disposed;
+		state = State.DISPOSED;
 
 		onDispose();
 		module = null;

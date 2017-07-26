@@ -142,7 +142,7 @@ public class ValueRangeConstraint implements Constraint
 	@Override
 	public void assertConstraintTypes( Collection<ConstraintType> allowedTypes ) throws ValidationException
 	{
-		if( !allowedTypes.contains( ConstraintType.ValueRange ) )
+		if( !allowedTypes.contains( ConstraintType.VALUE_RANGE ) )
 			throw new ValidationException( "'ValueRange' constraint is not allowed" );
 	}
 

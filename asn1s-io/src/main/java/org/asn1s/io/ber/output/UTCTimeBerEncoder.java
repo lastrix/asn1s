@@ -39,14 +39,14 @@ import java.io.IOException;
 
 public class UTCTimeBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.UTCTime.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.UTC_TIME.tagNumber() );
 
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.UTCTime;
-		assert context.getValue().getKind() == Kind.Time;
-		String content = TimeUtils.formatInstant( context.getValue().toDateValue().asInstant(), TimeUtils.UTC_TIME_FORMAT, context.getRules() != BerRules.Der );
+		assert context.getType().getFamily() == Family.UTC_TIME;
+		assert context.getValue().getKind() == Kind.TIME;
+		String content = TimeUtils.formatInstant( context.getValue().toDateValue().asInstant(), TimeUtils.UTC_TIME_FORMAT, context.getRules() != BerRules.DER );
 		byte[] bytes = content.getBytes( TimeUtils.CHARSET );
 		context.writeHeader( TAG, bytes.length );
 		context.write( bytes );

@@ -57,7 +57,7 @@ public final class ExtensionAdditionGroupType extends AbstractType implements Co
 	@Override
 	public ComponentType addComponent( @NotNull Kind kind, @NotNull String name, @NotNull Ref<Type> typeRef )
 	{
-		if( kind != Kind.Extension )
+		if( kind != Kind.EXTENSION )
 			throw new IllegalArgumentException();
 
 		ComponentType componentType = new ComponentTypeImpl( 0, name, typeRef );
@@ -68,7 +68,7 @@ public final class ExtensionAdditionGroupType extends AbstractType implements Co
 	@Override
 	public void addComponentsFromType( Kind kind, @NotNull Ref<Type> typeRef )
 	{
-		if( kind != Kind.Extension )
+		if( kind != Kind.EXTENSION )
 			throw new IllegalArgumentException();
 		components.add( new ComponentsFromType( typeRef, family ) );
 	}

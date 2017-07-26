@@ -106,7 +106,7 @@ public class DefinedValueImpl extends AbstractDefinedValue
 	public Kind getKind()
 	{
 		if( value == null )
-			return Kind.Null;
+			return Kind.NULL;
 
 		return value.getKind();
 	}
@@ -133,8 +133,31 @@ public class DefinedValueImpl extends AbstractDefinedValue
 	}
 
 	@Override
+	public boolean equals( Object obj )
+	{
+		if( this == obj ) return true;
+		if( !( obj instanceof DefinedValueImpl ) ) return false;
+		if( !super.equals( obj ) ) return false;
+
+		DefinedValueImpl definedValue = (DefinedValueImpl)obj;
+
+		//noinspection SimplifiableIfStatement
+		if( !String.valueOf( getTypeRef() ).equals( String.valueOf( definedValue.getTypeRef() ) ) ) return false;
+		return String.valueOf( getValueRef() ).equals( String.valueOf( definedValue.getValueRef() ) );
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = super.hashCode();
+		result = 31 * result + String.valueOf( getTypeRef() ).hashCode();
+		result = 31 * result + String.valueOf( getValueRef() ).hashCode();
+		return result;
+	}
+
+	@Override
 	public String toString()
 	{
-		return getName() + " ::= " + value;
+		return '*' + getName() + '*';
 	}
 }

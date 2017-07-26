@@ -59,7 +59,7 @@ public final class EmbeddedPdvType extends BuiltinType
 
 	public EmbeddedPdvType()
 	{
-		setEncoding( TagEncoding.universal( UniversalType.EmbeddedPdv ) );
+		setEncoding( TagEncoding.universal( UniversalType.EMBEDDED_PDV ) );
 		type = createSubType();
 	}
 
@@ -89,13 +89,13 @@ public final class EmbeddedPdvType extends BuiltinType
 	@Override
 	public Family getFamily()
 	{
-		return Family.EmbeddedPdv;
+		return Family.EMBEDDED_PDV;
 	}
 
 	@Override
 	public String toString()
 	{
-		return UniversalType.EmbeddedPdv.typeName().toString();
+		return UniversalType.EMBEDDED_PDV.typeName().toString();
 	}
 
 	@NotNull
@@ -124,7 +124,7 @@ public final class EmbeddedPdvType extends BuiltinType
 	private static Type createSubType()
 	{
 		ConstraintTemplate template = new InnerTypesConstraintTemplate(
-				Collections.singletonList( new ComponentConstraintTemplate( "data-value-descriptor", null, Presence.Absent ) ),
+				Collections.singletonList( new ComponentConstraintTemplate( "data-value-descriptor", null, Presence.ABSENT ) ),
 				true
 		);
 		return new ConstrainedType( template, createSequenceType() );
@@ -150,26 +150,26 @@ public final class EmbeddedPdvType extends BuiltinType
 		SequenceType pdvType = new SequenceType( true );
 		ChoiceType identification = new ChoiceType( true );
 
-		Ref<Type> oidRef = UniversalType.ObjectIdentifier.ref();
+		Ref<Type> oidRef = UniversalType.OBJECT_IDENTIFIER.ref();
 		SequenceType identification_syntaxes = new SequenceType( true );
-		identification_syntaxes.addComponent( Kind.Primary, "abstract", oidRef );
-		identification_syntaxes.addComponent( Kind.Primary, "transfer", oidRef );
+		identification_syntaxes.addComponent( Kind.PRIMARY, "abstract", oidRef );
+		identification_syntaxes.addComponent( Kind.PRIMARY, "transfer", oidRef );
 
-		identification.addComponent( Kind.Primary, "syntaxes", identification_syntaxes );
-		identification.addComponent( Kind.Primary, "syntax", oidRef );
-		identification.addComponent( Kind.Primary, "presentation-context-id", UniversalType.Integer.ref() );
+		identification.addComponent( Kind.PRIMARY, "syntaxes", identification_syntaxes );
+		identification.addComponent( Kind.PRIMARY, "syntax", oidRef );
+		identification.addComponent( Kind.PRIMARY, "presentation-context-id", UniversalType.INTEGER.ref() );
 
 		SequenceType contextNegotiation = new SequenceType( true );
-		contextNegotiation.addComponent( Kind.Primary, "presentation-context-id", UniversalType.Integer.ref() );
-		contextNegotiation.addComponent( Kind.Primary, "transfer-syntax", oidRef );
+		contextNegotiation.addComponent( Kind.PRIMARY, "presentation-context-id", UniversalType.INTEGER.ref() );
+		contextNegotiation.addComponent( Kind.PRIMARY, "transfer-syntax", oidRef );
 
-		identification.addComponent( Kind.Primary, "context-negotiation", contextNegotiation );
-		identification.addComponent( Kind.Primary, "transfer-syntax", oidRef );
-		identification.addComponent( Kind.Primary, "fixed", UniversalType.Null.ref() );
+		identification.addComponent( Kind.PRIMARY, "context-negotiation", contextNegotiation );
+		identification.addComponent( Kind.PRIMARY, "transfer-syntax", oidRef );
+		identification.addComponent( Kind.PRIMARY, "fixed", UniversalType.NULL.ref() );
 
-		pdvType.addComponent( Kind.Primary, "identification", identification );
-		pdvType.addComponent( Kind.Primary, "data-value-descriptor", UniversalType.ObjectDescriptor.ref() ).setOptional( true );
-		pdvType.addComponent( Kind.Primary, "string-value", UniversalType.OctetString.ref() );
+		pdvType.addComponent( Kind.PRIMARY, "identification", identification );
+		pdvType.addComponent( Kind.PRIMARY, "data-value-descriptor", UniversalType.OBJECT_DESCRIPTOR.ref() ).setOptional( true );
+		pdvType.addComponent( Kind.PRIMARY, "string-value", UniversalType.OCTET_STRING.ref() );
 		return pdvType;
 	}
 }

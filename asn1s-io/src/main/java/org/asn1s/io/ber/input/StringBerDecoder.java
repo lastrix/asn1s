@@ -39,7 +39,7 @@ public class StringBerDecoder implements BerDecoder
 	@Override
 	public Value decode( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
-		assert context.getType().getFamily() == Family.RestrictedString;
+		assert context.getType().getFamily() == Family.RESTRICTED_STRING;
 		Type type = context.getType();
 		while( !( type instanceof StringType ) )
 		{

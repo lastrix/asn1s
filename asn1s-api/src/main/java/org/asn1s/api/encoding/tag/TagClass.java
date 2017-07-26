@@ -30,10 +30,10 @@ package org.asn1s.api.encoding.tag;
  */
 public enum TagClass
 {
-	Universal( 0 ),
-	Application( 1 << 6 ),
-	Private( 3 << 6 ),
-	ContextSpecific( 2 << 6 );
+	UNIVERSAL( 0 ),
+	APPLICATION( 1 << 6 ),
+	PRIVATE( 3 << 6 ),
+	CONTEXT_SPECIFIC( 2 << 6 );
 
 	TagClass( int code )
 	{

@@ -66,14 +66,14 @@ public class PermittedAlphabetConstraintTemplate implements ConstraintTemplate
 	private static final Collection<Family> ALLOWED =
 			EnumSet.copyOf(
 					Arrays.asList(
-							Family.ObjectDescriptor,
-							Family.RestrictedString
+							Family.OBJECT_DESCRIPTOR,
+							Family.RESTRICTED_STRING
 					)
 			);
 
 	private static final Collection<ConstraintType> ALLOWED_SUBTYPE_CONSTRAINTS =
 			EnumSet.copyOf( Arrays.asList(
-					ConstraintType.Value,
-					ConstraintType.ValueRange
+					ConstraintType.VALUE,
+					ConstraintType.VALUE_RANGE
 			) );
 }

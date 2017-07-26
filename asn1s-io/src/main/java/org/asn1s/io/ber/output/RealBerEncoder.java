@@ -43,16 +43,16 @@ import java.math.BigDecimal;
 @SuppressWarnings( "NumericCastThatLosesPrecision" )
 final class RealBerEncoder implements BerEncoder
 {
-	private static final Tag TAG = new Tag( TagClass.Universal, false, UniversalType.Real.tagNumber() );
+	private static final Tag TAG = new Tag( TagClass.UNIVERSAL, false, UniversalType.REAL.tagNumber() );
 	private static final long ZERO_DOUBLE_BITS = Double.doubleToLongBits( 0.0d );
 	private static final long NEGATIVE_ZERO_DOUBLE_BITS = Double.doubleToLongBits( -0.0d );
 
 	@Override
 	public void encode( @NotNull WriterContext context ) throws IOException
 	{
-		assert context.getType().getFamily() == Family.Real;
-		assert context.getValue().getKind() == Kind.Real || context.getValue().getKind() == Kind.Integer;
-		if( context.getValue().getKind() == Kind.Real )
+		assert context.getType().getFamily() == Family.REAL;
+		assert context.getValue().getKind() == Kind.REAL || context.getValue().getKind() == Kind.INTEGER;
+		if( context.getValue().getKind() == Kind.REAL )
 			writeRealValue( context );
 		else
 			writeIntegerValue( context );
