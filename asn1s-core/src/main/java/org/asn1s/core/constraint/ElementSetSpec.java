@@ -71,11 +71,11 @@ public class ElementSetSpec implements Constraint
 			}
 		}
 
-		if( violation != null )
-			throw violation;
+		if( violation == null )
+			// this should never happen
+			throw new IllegalStateException();
 
-		// this should never happen
-		throw new IllegalStateException();
+		throw violation;
 	}
 
 	@NotNull

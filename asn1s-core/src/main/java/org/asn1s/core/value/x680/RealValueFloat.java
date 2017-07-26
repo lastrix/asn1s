@@ -82,7 +82,7 @@ public final class RealValueFloat implements RealValue
 	@Override
 	public BigDecimal asBigDecimal()
 	{
-		return new BigDecimal( value );
+		return BigDecimal.valueOf( value );
 	}
 
 	@Override
