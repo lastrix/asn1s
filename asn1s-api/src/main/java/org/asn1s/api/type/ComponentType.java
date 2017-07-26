@@ -39,11 +39,10 @@ import java.util.List;
 @SuppressWarnings( "ConstantDeclaredInInterface" )
 public interface ComponentType extends NamedType
 {
-	String DUMMY = "dummy";
 
 	default boolean isDummy()
 	{
-		return DUMMY.equals( getName() );
+		return TypeUtils.DUMMY.equals( getName() );
 	}
 
 	@Nullable

@@ -29,6 +29,7 @@ import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.constraint.Constraint;
 import org.asn1s.api.constraint.ConstraintType;
+import org.asn1s.api.constraint.ConstraintUtils;
 import org.asn1s.api.exception.ConstraintViolationException;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
@@ -56,20 +57,8 @@ public class Elements implements Constraint
 	public void check( Scope scope, Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		elements.check( scope, valueRef );
-
-		if( exclusion != null )
-		{
-			ConstraintViolationException violation = null;
-			try
-			{
-				exclusion.check( scope, valueRef );
-			} catch( ConstraintViolationException e )
-			{
-				violation = e;
-			}
-			if( violation == null )
-				throw new ConstraintViolationException( "Value must not be in: " + exclusion );
-		}
+		if( exclusion != null && ConstraintUtils.isConstraintSucceeds( exclusion, scope, valueRef ) )
+			throw new ConstraintViolationException( "Value must not be in set: " + exclusion );
 	}
 
 	@NotNull

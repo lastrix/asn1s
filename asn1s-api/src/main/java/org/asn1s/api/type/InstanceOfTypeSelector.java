@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 
 public interface InstanceOfTypeSelector
 {
-	String KEY = InstanceOfTypeSelector.class.getSimpleName();
 
 	@NotNull
 	Type resolveInstanceOfType( @NotNull Scope scope ) throws ResolutionException;

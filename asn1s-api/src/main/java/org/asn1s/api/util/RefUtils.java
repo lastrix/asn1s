@@ -42,7 +42,7 @@ import java.util.regex.Pattern;
 
 public final class RefUtils
 {
-	private static final Pattern TIME_VALUE_PATTERN = Pattern.compile( "^\"[0-9+\\-:.,/CDHMRPSTWZ]+\"$" );
+	//private static final Pattern TIME_VALUE_PATTERN = Pattern.compile( "^\"[0-9+\\-:.,/CDHMRPSTWZ]+\"$" );
 
 	private RefUtils()
 	{

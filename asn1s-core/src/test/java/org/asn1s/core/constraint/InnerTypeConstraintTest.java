@@ -30,8 +30,8 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.CollectionOfType;
-import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type.Family;
+import org.asn1s.api.type.TypeUtils;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.DefaultAsn1Factory;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class InnerTypeConstraintTest
 		Module module = factory.types().dummyModule();
 
 		CollectionOfType sequenceOfType = factory.types().collectionOf( Family.SequenceOf );
-		sequenceOfType.setComponent( ComponentType.DUMMY, factory.types().builtin( "INTEGER" ) );
+		sequenceOfType.setComponent( TypeUtils.DUMMY, factory.types().builtin( "INTEGER" ) );
 
 		factory.types().define( "My-Type", sequenceOfType, null );
 		module.validate();

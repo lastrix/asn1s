@@ -28,8 +28,6 @@ package org.asn1s.core.type.x681;
 import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.EncodingInstructions;
-import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
@@ -63,12 +61,6 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 	public Family getFamily()
 	{
 		return Family.ObjectClass;
-	}
-
-	@Override
-	public IEncoding getEncoding( EncodingInstructions instructions )
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	@Nullable
@@ -209,11 +201,5 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 
 			field.acceptRef( scope, ref );
 		}
-	}
-
-	@Override
-	protected void onDispose()
-	{
-
 	}
 }

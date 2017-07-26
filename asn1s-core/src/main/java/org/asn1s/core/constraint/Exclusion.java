@@ -29,6 +29,7 @@ import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.constraint.Constraint;
 import org.asn1s.api.constraint.ConstraintType;
+import org.asn1s.api.constraint.ConstraintUtils;
 import org.asn1s.api.exception.ConstraintViolationException;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
@@ -52,16 +53,7 @@ public class Exclusion implements Constraint
 	@Override
 	public void check( Scope scope, Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
-		ConstraintViolationException violation = null;
-		try
-		{
-			constraint.check( scope, valueRef );
-		} catch( ConstraintViolationException e )
-		{
-			violation = e;
-		}
-
-		if( violation == null )
+		if( ConstraintUtils.isConstraintSucceeds( constraint, scope, valueRef ) )
 			throw new ConstraintViolationException( "Value must not be in set: " + constraint );
 	}
 

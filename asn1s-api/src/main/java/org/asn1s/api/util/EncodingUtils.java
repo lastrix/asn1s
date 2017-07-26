@@ -23,47 +23,14 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.type;
+package org.asn1s.api.util;
 
-import org.asn1s.api.Asn1ModelObject;
-import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.value.Value;
-import org.jetbrains.annotations.NotNull;
-
-public interface ClassFieldType extends NamedType
+public final class EncodingUtils
 {
-	boolean hasDefault();
+	public static final String ISO_8859_1 = "ISO-8859-1";
 
-	Ref<? extends Asn1ModelObject> getDefault();
-
-	boolean isUnique();
-
-	boolean isOptional();
-
-	default boolean isRequired()
+	private EncodingUtils()
 	{
-		return !isOptional() && !hasDefault();
-	}
 
-	@Override
-	default void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
-	{
-		acceptRef( scope, valueRef );
-	}
-
-	void acceptRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException;
-
-	Ref<? extends Asn1ModelObject> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException;
-
-	Kind getClassFieldKind();
-
-	enum Kind
-	{
-		Type,
-		Value,
-		ValueSet
 	}
 }

@@ -101,7 +101,13 @@ public abstract class AbstractType implements Type
 		}
 	}
 
-	protected abstract void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException;
+	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
+	{
+		throw new UnsupportedOperationException( "Not implemented in children" );
+	}
 
-	protected abstract void onDispose();
+	protected void onDispose()
+	{
+		// nothing to do by default
+	}
 }

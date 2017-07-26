@@ -71,7 +71,7 @@ public class FixedValueSetFieldType extends AbstractFieldType
 	}
 
 	@Override
-	public Ref<?> getDefault()
+	public Ref<? extends Type> getDefault()
 	{
 		return defaultFieldType;
 	}
@@ -110,7 +110,7 @@ public class FixedValueSetFieldType extends AbstractFieldType
 	}
 
 	@Override
-	public Ref<?> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException
+	public Ref<? extends Type> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -26,7 +26,7 @@
 package org.asn1s.io.ber.output;
 
 import org.asn1s.api.UniversalType;
-import org.asn1s.api.constraint.Constraint;
+import org.asn1s.api.constraint.ConstraintUtils;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.type.Type.Family;
@@ -54,7 +54,7 @@ final class BitStringBerEncoder implements BerEncoder
 		int emptyBits = bytes.length * 8 - usedBits;
 		if( context.getRules() == BerRules.Der )
 		{
-			boolean hasSizeConstraint = Boolean.TRUE.equals( context.getScope().getScopeOption( Constraint.OPTION_HAS_SIZE_CONSTRAINT ) );
+			boolean hasSizeConstraint = Boolean.TRUE.equals( context.getScope().getScopeOption( ConstraintUtils.OPTION_HAS_SIZE_CONSTRAINT ) );
 
 			if( !hasSizeConstraint && hasNamedValues )
 			{

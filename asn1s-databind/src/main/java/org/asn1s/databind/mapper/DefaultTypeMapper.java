@@ -186,7 +186,7 @@ public class DefaultTypeMapper implements TypeMapper
 
 		TypeFactory factory = context.getAsn1Factory().types();
 		CollectionOfType collection = factory.collectionOf( Family.SequenceOf );
-		collection.setComponent( ComponentType.DUMMY, listItemMappedType.getAsnType() );
+		collection.setComponent( TypeUtils.DUMMY, listItemMappedType.getAsnType() );
 		DefinedType definedListType = factory.define( asn1TypeName, collection, null );
 		SequenceOfMappedType result = new SequenceOfMappedType( type );
 		result.setAsnType( definedListType );
@@ -255,7 +255,7 @@ public class DefaultTypeMapper implements TypeMapper
 		if( asnType == null )
 			asnType = scope -> type.getComponentType().getAsnType();
 
-		collection.setComponent( ComponentType.DUMMY, asnType );
+		collection.setComponent( TypeUtils.DUMMY, asnType );
 		type.setAsnType( factory.define( asn1TypeName, collection, null ) );
 	}
 

@@ -25,6 +25,7 @@
 
 package org.asn1s.api.constraint;
 
+import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.IllegalValueException;
@@ -42,11 +43,8 @@ import java.util.Collection;
  * 1. Build constraint for specific type using resolve(Scope), where Scope must be Type
  * 2. Run checks for whatever reason on any value that was accepted by type
  */
-public interface Constraint
+public interface Constraint extends Asn1ModelObject
 {
-	String OPTION_HAS_SIZE_CONSTRAINT = "constraints.has_size_constraint";
-	String OPTION_SIZE_CONSTRAINT = "constraints.size_constraint";
-
 	void check( Scope scope, Ref<Value> valueRef ) throws ValidationException, ResolutionException;
 
 	default void collectValues( @NotNull Collection<Value> values, @NotNull Collection<Kind> requiredKinds ) throws IllegalValueException

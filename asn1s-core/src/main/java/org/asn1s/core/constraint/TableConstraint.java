@@ -182,7 +182,7 @@ public class TableConstraint implements Constraint, InstanceOfTypeSelector
 	@Override
 	public void setScopeOptions( Scope scope )
 	{
-		scope.setScopeOption( InstanceOfTypeSelector.KEY, this );
+		scope.setScopeOption( TypeUtils.INSTANCE_OF_TYPE_KEY, this );
 	}
 
 	@Override

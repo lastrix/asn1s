@@ -28,6 +28,7 @@ package org.asn1s.api;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.TypeName;
 import org.asn1s.api.type.TypeNameRef;
+import org.asn1s.api.util.EncodingUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,16 +58,16 @@ public enum UniversalType
 	Set( "Set", 17 ),
 	NumericString( "NumericString", 18, "US-ASCII", Pattern.compile( "^[0-9 ]+$" ) ),
 	PrintableString( "PrintableString", 19, "US-ASCII", Pattern.compile( "^[A-Za-z0-9 '()+,\\-/:=?]*$" ) ),
-	T61String( "T61String", 20, "ISO-8859-1", null ),
-	Teletex( "Teletex", 20, "ISO-8859-1", null ),//alias to T61String
-	VideotexString( "VideotexString", 21, "ISO-8859-1", null ),
-	IA5String( "IA5String", 22, "ISO-8859-1", null ),
+	T61String( "T61String", 20, EncodingUtils.ISO_8859_1, null ),
+	Teletex( "Teletex", 20, EncodingUtils.ISO_8859_1, null ),//alias to T61String
+	VideotexString( "VideotexString", 21, EncodingUtils.ISO_8859_1, null ),
+	IA5String( "IA5String", 22, EncodingUtils.ISO_8859_1, null ),
 	UTCTime( "UTCTime", 23 ),
 	GeneralizedTime( "GeneralizedTime", 24 ),
-	GraphicString( "GraphicString", 25, "ISO-8859-1", null ),
-	VisibleString( "VisibleString", 26, "ISO-8859-1", null ),
-	ISO646String( "ISO646String", 26, "ISO-8859-1", null ),// alias to VisibleString
-	GeneralString( "GeneralString", 27, "ISO-8859-1", null ),
+	GraphicString( "GraphicString", 25, EncodingUtils.ISO_8859_1, null ),
+	VisibleString( "VisibleString", 26, EncodingUtils.ISO_8859_1, null ),
+	ISO646String( "ISO646String", 26, EncodingUtils.ISO_8859_1, null ),// alias to VisibleString
+	GeneralString( "GeneralString", 27, EncodingUtils.ISO_8859_1, null ),
 	UniversalString( "UniversalString", 28, "UTF-32BE", null ),
 	CharacterString( "CHARACTER STRING", 29 ),
 	BMPString( "BMPString", 30, "UTF-16BE", null ),

@@ -110,13 +110,13 @@ public abstract class TagEncoding implements IEncoding
 	}
 
 	@Override
-	public boolean equals( Object obj )
+	public final boolean equals( Object obj )
 	{
 		return this == obj || obj instanceof TagEncoding && toString().equals( obj.toString() );
 	}
 
 	@Override
-	public int hashCode()
+	public final int hashCode()
 	{
 		return toString().hashCode();
 	}

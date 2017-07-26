@@ -30,6 +30,7 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.constraint.Constraint;
 import org.asn1s.api.constraint.ConstraintType;
+import org.asn1s.api.constraint.ConstraintUtils;
 import org.asn1s.api.exception.ConstraintViolationException;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
@@ -112,8 +113,8 @@ public class SizeConstraint implements Constraint
 	@Override
 	public void setScopeOptions( Scope scope )
 	{
-		scope.setScopeOption( OPTION_HAS_SIZE_CONSTRAINT, true );
-		scope.setScopeOption( OPTION_SIZE_CONSTRAINT, minimumValue );
+		scope.setScopeOption( ConstraintUtils.OPTION_HAS_SIZE_CONSTRAINT, true );
+		scope.setScopeOption( ConstraintUtils.OPTION_SIZE_CONSTRAINT, minimumValue );
 	}
 
 	@Override

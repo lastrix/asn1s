@@ -30,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
-import org.asn1s.api.constraint.Constraint;
+import org.asn1s.api.constraint.ConstraintUtils;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
@@ -107,14 +107,14 @@ public class BitStringType extends AbstractBuiltinTypeWithNamedValues
 	}
 
 	@NotNull
-	private Value optimizeCollection( @NotNull Scope scope, Value value ) throws IllegalValueException, ResolutionException
+	private static Value optimizeCollection( @NotNull Scope scope, Value value ) throws IllegalValueException, ResolutionException
 	{
 		int desiredSize = -1;
-		if( Boolean.TRUE.equals( scope.getScopeOption( Constraint.OPTION_HAS_SIZE_CONSTRAINT ) ) )
+		if( Boolean.TRUE.equals( scope.getScopeOption( ConstraintUtils.OPTION_HAS_SIZE_CONSTRAINT ) ) )
 		{
-			assert scope.getScopeOption( Constraint.OPTION_SIZE_CONSTRAINT ) != null;
+			assert scope.getScopeOption( ConstraintUtils.OPTION_SIZE_CONSTRAINT ) != null;
 			//noinspection ConstantConditions
-			desiredSize = scope.getScopeOption( Constraint.OPTION_SIZE_CONSTRAINT );
+			desiredSize = scope.getScopeOption( ConstraintUtils.OPTION_SIZE_CONSTRAINT );
 		}
 		String bString = CollectionUtils.convertToBString( assertCollection( scope, value.toValueCollection() ), desiredSize );
 		return CoreUtils.byteArrayFromBitString( bString );

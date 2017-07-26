@@ -81,7 +81,7 @@ public class FixedValueFieldType extends AbstractFieldType
 	}
 
 	@Override
-	public Ref<?> getDefault()
+	public Ref<? extends Value> getDefault()
 	{
 		return defaultValue;
 	}
@@ -150,7 +150,7 @@ public class FixedValueFieldType extends AbstractFieldType
 
 	@SuppressWarnings( "unchecked" )
 	@Override
-	public Ref<?> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException
+	public Ref<? extends Value> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException
 	{
 		if( ref instanceof ValueNameRef || ref instanceof Value )
 			return optimize( scope, (Ref<Value>)ref );

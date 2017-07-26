@@ -25,6 +25,7 @@
 
 package org.asn1s.core.type.x681;
 
+import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ConstraintViolationException;
@@ -63,7 +64,7 @@ public class TypeFieldType extends AbstractFieldType
 	}
 
 	@Override
-	public Ref<?> getDefault()
+	public Ref<? extends Type> getDefault()
 	{
 		return defaultType;
 	}
@@ -99,7 +100,8 @@ public class TypeFieldType extends AbstractFieldType
 	@Override
 	public void acceptRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, IllegalValueException, ConstraintViolationException
 	{
-
+		// TODO: validate type
+		// nothing to do right now.
 	}
 
 	@NotNull
@@ -115,13 +117,13 @@ public class TypeFieldType extends AbstractFieldType
 
 	@SuppressWarnings( "unchecked" )
 	@Override
-	public Ref<?> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException
+	public Ref<? extends Asn1ModelObject> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException
 	{
 		Object resolve = ref.resolve( scope );
 		if( resolve instanceof Value )
 			return optimize( scope, (Ref<Value>)resolve );
 
-		return (Ref<?>)resolve;
+		return (Ref<? extends Asn1ModelObject>)resolve;
 	}
 
 	@NotNull

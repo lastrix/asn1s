@@ -25,6 +25,7 @@
 
 package org.asn1s.api.value;
 
+import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
@@ -50,7 +51,7 @@ import org.jetbrains.annotations.NotNull;
  * </p>
  */
 @SuppressWarnings( "ClassReferencesSubclass" )
-public interface Value extends Ref<Value>, Comparable<Value>
+public interface Value extends Ref<Value>, Comparable<Value>, Asn1ModelObject
 {
 	/**
 	 * Kind of value, used for logical separation between implementations

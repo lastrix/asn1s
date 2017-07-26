@@ -23,47 +23,35 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.type;
+package org.asn1s.api.constraint;
 
-import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
+import org.asn1s.api.exception.ConstraintViolationException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
 
-public interface ClassFieldType extends NamedType
+public final class ConstraintUtils
 {
-	boolean hasDefault();
+	public static final String OPTION_HAS_SIZE_CONSTRAINT = "constraints.has_size_constraint";
+	public static final String OPTION_SIZE_CONSTRAINT = "constraints.size_constraint";
 
-	Ref<? extends Asn1ModelObject> getDefault();
-
-	boolean isUnique();
-
-	boolean isOptional();
-
-	default boolean isRequired()
+	private ConstraintUtils()
 	{
-		return !isOptional() && !hasDefault();
+
 	}
 
-	@Override
-	default void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
+	public static boolean isConstraintSucceeds( @NotNull Constraint constraint, @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
-		acceptRef( scope, valueRef );
-	}
-
-	void acceptRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException;
-
-	Ref<? extends Asn1ModelObject> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException;
-
-	Kind getClassFieldKind();
-
-	enum Kind
-	{
-		Type,
-		Value,
-		ValueSet
+		try
+		{
+			constraint.check( scope, valueRef );
+			return true;
+		} catch( ConstraintViolationException ignored )
+		{
+			return false;
+		}
 	}
 }

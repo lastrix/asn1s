@@ -86,10 +86,8 @@ final class IntegerBerEncoder implements BerEncoder
 			byte current = getByteByIndex( value, i );
 			byte next = i > 0 ? getByteByIndex( value, i - 1 ) : 0;
 			// if 9 zeros or ones follows each other - skip them all together
-			if( i > 0 && isSkipping( current, next ) )
-				continue;
-
-			break;
+			if( i == 0 || !isSkipping( current, next ) )
+				break;
 		}
 		return i + 1;
 	}

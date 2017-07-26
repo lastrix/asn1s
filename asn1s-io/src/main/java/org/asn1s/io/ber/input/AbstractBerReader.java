@@ -119,7 +119,7 @@ abstract class AbstractBerReader implements Asn1Reader
 
 	private Value readOpenType( @NotNull ReaderContext context ) throws Asn1Exception, IOException
 	{
-		InstanceOfTypeSelector selector = context.getScope().getScopeOption( InstanceOfTypeSelector.KEY );
+		InstanceOfTypeSelector selector = context.getScope().getScopeOption( TypeUtils.INSTANCE_OF_TYPE_KEY );
 		if( selector == null )
 			throw new ResolutionException( "Unable to locate InstanceOfTypeSelector." );
 

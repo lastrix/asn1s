@@ -108,12 +108,12 @@ public class InnerTypesConstraint implements Constraint
 		for( Constraint constraint : constraints )
 		{
 			String name = ( (ComponentConstraint)constraint ).getName();
-			if( !name.equals( namedValue.getName() ) )
-				continue;
-
-			constraint.check( scope, namedValue );
-			checked = true;
-			break;
+			if( name.equals( namedValue.getName() ) )
+			{
+				constraint.check( scope, namedValue );
+				checked = true;
+				break;
+			}
 		}
 
 		if( !partial && !checked )

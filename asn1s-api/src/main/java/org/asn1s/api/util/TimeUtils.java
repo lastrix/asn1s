@@ -34,6 +34,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
+import java.time.temporal.TemporalUnit;
 import java.util.regex.Pattern;
 
 @SuppressWarnings( "NumericCastThatLosesPrecision" )
@@ -72,67 +73,185 @@ public final class TimeUtils
 		return result;
 	}
 
-	public static boolean isTimeValue( CharSequence value )
-	{
-		return isUTCTimeValue( value )
-				|| isGeneralizedTimeValue( value )
-				|| TIME_PATTERN.matcher( value ).matches()
-				|| DATE_PATTERN.matcher( value ).matches();
-	}
-
 	public static boolean isUTCTimeValue( CharSequence value )
 	{
-		return UTC_PATTERN.matcher( value ).matches();
+		return UTCParser.isValid( value );
 	}
 
 	public static boolean isGeneralizedTimeValue( CharSequence value )
 	{
-		return G_PATTERN.matcher( value ).matches();
+		return GeneralizedParser.isValid( value );
 	}
 
 	public static Instant parseGeneralizedTime( String value )
 	{
-		if( !isGeneralizedTimeValue( value ) )
+		if( !GeneralizedParser.isValid( value ) )
 			throw new IllegalArgumentException( "Not an GeneralizedTime string: " + value );
-		return fromGeneralized( value ).atZone( ZoneId.of( "GMT" ) ).toInstant();
+
+		return new GeneralizedParser( value ).asInstant();
 	}
 
 	public static Instant parseUTCTime( String value )
 	{
-		if( !isUTCTimeValue( value ) )
+		if( !UTCParser.isValid( value ) )
 			throw new IllegalArgumentException( "Not an UTCTime string: " + value );
-		return fromUTC( value ).atZone( ZoneId.of( "GMT" ) ).toInstant();
+		return new UTCParser( value ).asInstant();
 	}
 
-	public static Instant parseUnknownTime( String value )
+//	private static final String TIME_FORMAT = "HHmmss";
+//	private static final String TIME_FORMAT_COLONS = "HH:mm:ss";
+//	private static final Pattern TIME_PATTERN = Pattern.compile( "(([0-1][0-9]|2[0-3])([0-5][0-9])([0-5][0-9])|([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]))" );
+//
+//	private static final String DATE_FORMAT = "yyyyMMdd";
+//	private static final Pattern DATE_PATTERN = Pattern.compile( "[0-9]{4}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])" );
+
+
+	private static final class GeneralizedParser
 	{
-		value = value.replace( ',', '.' );
-		if( isUTCTimeValue( value ) )
-			return fromUTC( value );
-
-		if( isGeneralizedTimeValue( value ) )
-			return fromGeneralized( value );
-
-		if( TIME_PATTERN.matcher( value ).matches() )
-			return DateTimeFormatter.ofPattern( value.indexOf( ':' ) == -1 ? TIME_FORMAT : TIME_FORMAT_COLONS ).parse( value, Instant:: from );
-
-		if( DATE_PATTERN.matcher( value ).matches() )
-			return DateTimeFormatter.ofPattern( DATE_FORMAT ).parse( value, Instant:: from );
-
-		throw new IllegalArgumentException( "Not an time value: " + value );
-	}
-
-	private static Instant fromUTC( String value )
-	{
-		if( value.endsWith( "Z" ) || value.indexOf( '-' ) == -1 && value.indexOf( '+' ) == -1 )
+		private GeneralizedParser( String value )
 		{
-			value = value.endsWith( "Z" ) ? value.substring( 0, value.length() - 1 ) : value;
-			if( value.length() == 10 )
-				return DateTimeFormatter.ofPattern( UTC_FORMAT ).withZone( ZoneId.of( "GMT" ) ).parse( value, Instant:: from );
-
-			return DateTimeFormatter.ofPattern( UTC_FORMAT_S ).withZone( ZoneId.of( "GMT" ) ).parse( value, Instant:: from );
+			this.value = value;
 		}
-		else
+
+		private final String value;
+		private int formatType;
+		private double fracture;
+		private Instant result;
+
+		private Instant asInstant()
+		{
+			if( value.indexOf( '.' ) == -1 )
+				return asInstantNoFracture( value );
+
+			splitValue();
+			addFracture();
+			return result;
+		}
+
+		@SuppressWarnings( "fallthrough" )
+		private void addFracture()
+		{
+			switch( formatType )
+			{
+				case VALUE_DEFAULT_FORMAT:
+					appendFracture( MINUTES_IN_HOUR, ChronoUnit.MINUTES );
+				case VALUE_FORMAT_WITH_MINUTES:
+					appendFracture( SECONDS_IN_MINUTE, ChronoUnit.SECONDS );
+				case VALUE_FORMAT_WITH_SECONDS:
+					appendFracture( MILLIS_IN_SECOND, ChronoUnit.MILLIS );
+					break;
+
+				default:
+					throw new IllegalArgumentException( "Unable to use format type: " + formatType );
+			}
+		}
+
+		private void appendFracture( double base, TemporalUnit unit )
+		{
+			double raw = base * fracture;
+			long units = (long)raw;
+			if( units != 0 )
+				result = result.plus( units, unit );
+			fracture = raw % 1;
+		}
+
+		private void splitValue()
+		{
+			int idx = value.indexOf( '.' );
+			int end = idx + 1;
+			char c = value.charAt( end );
+			while( Character.isDigit( c ) )
+			{
+				end++;
+				if( value.length() == end )
+					break;
+				c = value.charAt( end );
+			}
+
+			String baseValue = value.length() == end ? value.substring( 0, idx ) : value.substring( 0, idx ) + value.substring( end );
+			formatType = idx;
+			result = asInstantNoFracture( baseValue );
+			String fractureValue = value.substring( idx + 1, end );
+			fracture = Long.parseLong( fractureValue ) / StrictMath.pow( DECIMAL_BASE, fractureValue.length() );
+		}
+
+		private static Instant asInstantNoFracture( String value )
+		{
+			if( value.endsWith( "Z" ) )
+			{
+				String cleared = value.substring( 0, value.length() - 1 );
+				return buildInstant( cleared, cleared.length(), false );
+			}
+
+			int idx = value.replace( '-', '+' ).indexOf( '+' );
+			if( idx == -1 )
+				return buildInstant( value, value.length(), false );
+			return buildInstant( value, idx, true );
+		}
+
+		private static Instant buildInstant( CharSequence value, int length, boolean withTz )
+		{
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern( getValueFormat( length, withTz ) );
+			if( !withTz )
+				formatter = formatter.withZone( ZoneId.of( "GMT" ) );
+
+			return formatter.parse( value, Instant:: from );
+		}
+
+		@NotNull
+		private static String getValueFormat( int length, boolean withTz )
+		{
+			if( length == VALUE_DEFAULT_FORMAT )
+				return withTz ? G_FORMAT + 'Z' : G_FORMAT;
+
+			if( length == VALUE_FORMAT_WITH_MINUTES )
+				return withTz ? G_FORMAT_M + 'Z' : G_FORMAT_M;
+
+			if( length == VALUE_FORMAT_WITH_SECONDS )
+				return withTz ? G_FORMAT_M_S + 'Z' : G_FORMAT_M_S;
+
+			throw new IllegalArgumentException( "Unable to detect format for length: " + length );
+		}
+
+		private static boolean isValid( CharSequence value )
+		{
+			return G_PATTERN.matcher( value ).matches();
+		}
+
+		private static final String G_FORMAT = "yyyyMMddHH";
+		private static final String G_FORMAT_M = "yyyyMMddHHmm";
+		private static final String G_FORMAT_M_S = "yyyyMMddHHmmss";
+		private static final double SECONDS_IN_MINUTE = 60.0d;
+		private static final double MILLIS_IN_SECOND = 1000.0d;
+		private static final double MINUTES_IN_HOUR = 60.0d;
+		private static final int VALUE_DEFAULT_FORMAT = 10;
+		private static final int VALUE_FORMAT_WITH_MINUTES = 12;
+		private static final int VALUE_FORMAT_WITH_SECONDS = 14;
+		private static final double DECIMAL_BASE = 10.0d;
+		private static final Pattern G_PATTERN = Pattern.compile( "[0-9]{4}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])([0-1][0-9]|2[0-3])(([0-5][0-9])([0-5][0-9])?)?([.,][0-9]+)?(Z|[+\\-]([0-1][0-9]|2[0-3])([0-5][0-9]))?" );
+	}
+
+	private static final class UTCParser
+	{
+		private UTCParser( String value )
+		{
+			this.value = value;
+		}
+
+		private final String value;
+
+		@NotNull
+		private Instant asInstant()
+		{
+			return isGMT() ? asInstantFromGMT() : asInstantFromCustomTz();
+		}
+
+		private boolean isGMT()
+		{
+			return value.endsWith( "Z" ) || value.indexOf( '-' ) == -1 && value.indexOf( '+' ) == -1;
+		}
+
+		private Instant asInstantFromCustomTz()
 		{
 			int idx = value.replace( '-', '+' ).indexOf( '+' );
 			if( idx == 10 )
@@ -140,127 +259,25 @@ public final class TimeUtils
 
 			return DateTimeFormatter.ofPattern( UTC_FORMAT_S_TZ ).parse( value, Instant:: from );
 		}
-	}
 
-	private static Instant fromGeneralized( String value )
-	{
-		if( value.indexOf( '.' ) == -1 )
-			return parseGeneralizedImpl( value );
-
-		int idx = value.indexOf( '.' );
-		int end = idx + 1;
-		char c = value.charAt( end );
-		while( Character.isDigit( c ) )
+		private Instant asInstantFromGMT()
 		{
-			end++;
-			if( value.length() == end )
-				break;
-			c = value.charAt( end );
+			String valueCleared = value.endsWith( "Z" ) ? value.substring( 0, value.length() - 1 ) : value;
+			if( valueCleared.length() == 10 )
+				return DateTimeFormatter.ofPattern( UTC_FORMAT ).withZone( ZoneId.of( "GMT" ) ).parse( valueCleared, Instant:: from );
+
+			return DateTimeFormatter.ofPattern( UTC_FORMAT_S ).withZone( ZoneId.of( "GMT" ) ).parse( valueCleared, Instant:: from );
 		}
 
-		String noFracture = value.length() == end ? value.substring( 0, idx ) : value.substring( 0, idx ) + value.substring( end );
-		String fracturePart = value.substring( idx + 1, end );
-		//noinspection MagicNumber
-		double fracture = Long.parseLong( fracturePart ) / StrictMath.pow( 10.0d, fracturePart.length() );
-		Instant instant = parseGeneralizedImpl( noFracture );
-		if( idx == 10 )
-			// no minutes, no seconds
-			instant = appendFractureMinutes( instant, fracture );
-		else //noinspection MagicNumber
-			if( idx == 12 )
-			{
-				// no seconds
-				instant = appendFractureSeconds( instant, fracture );
-			}
-			else
-				instant = appendFractureMillis( instant, fracture );
-
-		return instant;
-
-	}
-
-	private static Instant appendFractureMinutes( Instant instant, double fracture )
-	{
-		double rawMinutes = MINUTES_IN_HOUR * fracture;
-		long minutes = (long)rawMinutes;
-		if( minutes != 0 )
-			instant = instant.plus( minutes, ChronoUnit.MINUTES );
-		return appendFractureSeconds( instant, fraction( rawMinutes ) );
-	}
-
-	private static Instant appendFractureSeconds( Instant instant, double fraction )
-	{
-		double rawSeconds = SECONDS_IN_MINUTE * fraction;
-		long seconds = (long)rawSeconds;
-		if( seconds != 0 )
-			instant = instant.plus( seconds, ChronoUnit.SECONDS );
-		return appendFractureMillis( instant, fraction( rawSeconds ) );
-	}
-
-	private static Instant appendFractureMillis( Instant instant, double fraction )
-	{
-		long millis = (long)( MILLIS_IN_SECOND * fraction );
-		if( millis != 0 )
-			return instant.plus( millis, ChronoUnit.MILLIS );
-		return instant;
-	}
-
-	private static double fraction( double value )
-	{
-		return value % 1;
-	}
-
-	private static Instant parseGeneralizedImpl( String value )
-	{
-		if( value.endsWith( "Z" ) )
+		private static boolean isValid( CharSequence value )
 		{
-			value = value.substring( 0, value.length() - 1 );
-			return generalizedToInstant( value, value.length(), false );
+			return UTC_PATTERN.matcher( value ).matches();
 		}
 
-		int idx = value.replace( '-', '+' ).indexOf( '+' );
-		if( idx == -1 )
-			return generalizedToInstant( value, value.length(), false );
-		return generalizedToInstant( value, idx, true );
+		private static final String UTC_FORMAT = "yyMMddHHmm";
+		private static final String UTC_FORMAT_TZ = "yyMMddHHmmZ";
+		private static final String UTC_FORMAT_S = "yyMMddHHmmss";
+		private static final String UTC_FORMAT_S_TZ = "yyMMddHHmmssZ";
+		private static final Pattern UTC_PATTERN = Pattern.compile( "[0-9]{2}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])([0-1][0-9]|2[0-3])([0-5][0-9])([0-5][0-9])?(Z|[+\\-]([0-1][0-9]|2[0-3])([0-5][0-9]))?" );
 	}
-
-	private static Instant generalizedToInstant( CharSequence value, int length, boolean withTz )
-	{
-		DateTimeFormatter formatter;
-		if( length == 10 )
-			formatter = DateTimeFormatter.ofPattern( withTz ? G_FORMAT + 'Z' : G_FORMAT );
-		else
-			//noinspection MagicNumber
-			if( length == 12 )
-				formatter = DateTimeFormatter.ofPattern( withTz ? G_FORMAT_M + 'Z' : G_FORMAT_M );
-			else
-				formatter = DateTimeFormatter.ofPattern( withTz ? G_FORMAT_M_S + 'Z' : G_FORMAT_M_S );
-
-		if( !withTz )
-			formatter = formatter.withZone( ZoneId.of( "GMT" ) );
-
-		return formatter.parse( value, Instant:: from );
-	}
-
-	private static final String UTC_FORMAT = "yyMMddHHmm";
-	private static final String UTC_FORMAT_TZ = "yyMMddHHmmZ";
-	private static final String UTC_FORMAT_S = "yyMMddHHmmss";
-	private static final String UTC_FORMAT_S_TZ = "yyMMddHHmmssZ";
-	private static final Pattern UTC_PATTERN = Pattern.compile( "[0-9]{2}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])([0-1][0-9]|2[0-3])([0-5][0-9])([0-5][0-9])?(Z|[+\\-]([0-1][0-9]|2[0-3])([0-5][0-9]))?" );
-
-	private static final String G_FORMAT = "yyyyMMddHH";
-	private static final String G_FORMAT_M = "yyyyMMddHHmm";
-	private static final String G_FORMAT_M_S = "yyyyMMddHHmmss";
-	private static final Pattern G_PATTERN = Pattern.compile( "[0-9]{4}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])([0-1][0-9]|2[0-3])(([0-5][0-9])([0-5][0-9])?)?([.,][0-9]+)?(Z|[+\\-]([0-1][0-9]|2[0-3])([0-5][0-9]))?" );
-
-	private static final String TIME_FORMAT = "HHmmss";
-	private static final String TIME_FORMAT_COLONS = "HH:mm:ss";
-	private static final Pattern TIME_PATTERN = Pattern.compile( "(([0-1][0-9]|2[0-3])([0-5][0-9])([0-5][0-9])|([0-1][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]))" );
-
-	private static final String DATE_FORMAT = "yyyyMMdd";
-	private static final Pattern DATE_PATTERN = Pattern.compile( "[0-9]{4}(0[0-9]|1[0-2])([0-2][0-9]|3[0-1])" );
-
-	private static final int SECONDS_IN_MINUTE = 60;
-	private static final int MILLIS_IN_SECOND = 1000;
-	private static final int MINUTES_IN_HOUR = 60;
 }

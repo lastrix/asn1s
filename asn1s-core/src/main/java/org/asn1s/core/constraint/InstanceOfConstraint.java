@@ -35,6 +35,7 @@ import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.InstanceOfTypeSelector;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.TypeUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
@@ -141,6 +142,6 @@ public class InstanceOfConstraint implements Constraint, InstanceOfTypeSelector
 	@Override
 	public void setScopeOptions( Scope scope )
 	{
-		scope.setScopeOption( InstanceOfTypeSelector.KEY, this );
+		scope.setScopeOption( TypeUtils.INSTANCE_OF_TYPE_KEY, this );
 	}
 }

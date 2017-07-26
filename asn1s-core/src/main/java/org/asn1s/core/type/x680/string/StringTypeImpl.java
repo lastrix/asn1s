@@ -140,13 +140,7 @@ public class StringTypeImpl extends BuiltinType implements StringType
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
-		// do nothing
-	}
-
-	@Override
-	protected void onDispose()
-	{
-
+		// do nothing by default
 	}
 
 	@Override
