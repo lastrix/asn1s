@@ -30,6 +30,7 @@ import org.antlr.v4.runtime.atn.PredictionMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Asn1Factory;
+import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.module.Module;
@@ -56,13 +57,14 @@ import java.util.*;
 public class AbstractSyntaxParser
 {
 	private static final Log log = LogFactory.getLog( AbstractSyntaxParser.class );
+	private static final String MSG_EXPECTED_TOKEN_NOT_FOUND = "Expected token does not found: ";
 
 	private final ModuleResolver resolver;
 	private final Asn1Factory factory;
 	private final Module module;
 	private final ClassType classType;
 	private final GroupSyntaxObject root;
-	private Map<String, Ref<?>> resultMap;
+	private Map<String, Ref<? extends Asn1ModelObject>> resultMap;
 	private CommonTokenStream tokenStream;
 
 	public AbstractSyntaxParser( ModuleResolver resolver, Asn1Factory factory, Module module, ClassType classType )
@@ -76,7 +78,7 @@ public class AbstractSyntaxParser
 		parseGroupItems( root, new LinkedList<>( classType.getSyntaxList() ), false );
 	}
 
-	public Map<String, Ref<?>> parse( String value ) throws Exception
+	public Map<String, Ref<? extends Asn1ModelObject>> parse( String value ) throws Exception
 	{
 		try( Reader r = new StringReader( value ) )
 		{
@@ -132,7 +134,7 @@ public class AbstractSyntaxParser
 			return false;
 
 		if( !start )
-			throw new IllegalStateException( "Expected token does not found: " + object.getText() );
+			throw new IllegalStateException( MSG_EXPECTED_TOKEN_NOT_FOUND + object.getText() );
 		return true;
 	}
 
@@ -142,7 +144,7 @@ public class AbstractSyntaxParser
 			return false;
 
 		if( !start )
-			throw new IllegalStateException( "Expected token does not found: " + object.getText() );
+			throw new IllegalStateException( MSG_EXPECTED_TOKEN_NOT_FOUND + object.getText() );
 		return true;
 	}
 
@@ -156,7 +158,7 @@ public class AbstractSyntaxParser
 		}
 
 		if( !start )
-			throw new IllegalStateException( "Expected token does not found: " + object.getText() + ", got: " + token.getText() );
+			throw new IllegalStateException( MSG_EXPECTED_TOKEN_NOT_FOUND + object.getText() + ", got: " + token.getText() );
 		return true;
 	}
 
@@ -251,14 +253,14 @@ public class AbstractSyntaxParser
 	{
 		Token nextToken = tokenStream.LT( 2 );
 		if( nextToken.getType() != tokenType )
-			throw new IllegalStateException( "Expected token does not found" );
+			throw new IllegalStateException( MSG_EXPECTED_TOKEN_NOT_FOUND + tokenType );
 		tokenStream.consume();
 		tokenStream.consume();
 		registerFieldRef( object.getText(), type.ref() );
 		return true;
 	}
 
-	private void registerFieldRef( String name, Ref<?> ref )
+	private void registerFieldRef( String name, Ref<? extends Asn1ModelObject> ref )
 	{
 		if( resultMap.containsKey( name ) )
 			throw new IllegalStateException( "Trying to redefine value for field: " + name );
@@ -440,7 +442,7 @@ public class AbstractSyntaxParser
 		}
 
 		@NotNull
-		private Ref<?> createReference( @Nullable Token moduleToken, @NotNull Token referenceToken )
+		private Ref<? extends Asn1ModelObject> createReference( @Nullable Token moduleToken, @NotNull Token referenceToken )
 		{
 			if( RefUtils.isValueRef( referenceToken.getText() ) )
 			{
