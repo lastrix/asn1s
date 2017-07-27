@@ -26,6 +26,7 @@
 package org.asn1s.core.type.x681;
 
 import org.apache.commons.lang3.StringUtils;
+import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.IllegalValueException;
@@ -168,8 +169,8 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 	private Value optimizeObject( Scope scope, ObjectValue objectValue ) throws ValidationException, ResolutionException
 	{
 		Collection<String> visited = new HashSet<>();
-		Map<String, Ref<?>> result = new HashMap<>();
-		for( Entry<String, Ref<?>> entry : objectValue.getFields().entrySet() )
+		Map<String, Ref<? extends Asn1ModelObject>> result = new HashMap<>();
+		for( Entry<String, Ref<? extends Asn1ModelObject>> entry : objectValue.getFields().entrySet() )
 		{
 			ClassFieldType fieldType = getField( entry.getKey() );
 			if( fieldType == null )
@@ -186,7 +187,7 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 		return new ObjectValue( result );
 	}
 
-	private void assertObjectFields( Scope scope, Map<String, Ref<?>> map ) throws ValidationException, ResolutionException
+	private void assertObjectFields( Scope scope, Map<String, Ref<? extends Asn1ModelObject>> map ) throws ValidationException, ResolutionException
 	{
 		for( ClassFieldType field : fields )
 		{

@@ -138,12 +138,6 @@ public class StringTypeImpl extends BuiltinType implements StringType
 	}
 
 	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
-	{
-		// do nothing by default
-	}
-
-	@Override
 	@Nullable
 	public StringValue tryBuildStringValue( Scope scope, ValueCollection collection )
 	{

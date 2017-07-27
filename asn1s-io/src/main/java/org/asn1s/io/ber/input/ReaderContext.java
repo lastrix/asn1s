@@ -77,17 +77,12 @@ public final class ReaderContext
 		return scope;
 	}
 
-	public boolean hasTag()
+	boolean hasTag()
 	{
 		return tag != null;
 	}
 
-	public boolean isEoc()
-	{
-		return tag.isEoc() && length == 0;
-	}
-
-	public boolean isSameTagEncoding( TagEncoding encoding )
+	boolean isSameTagEncoding( TagEncoding encoding )
 	{
 		return encoding.getTagClass() == tag.getTagClass() && encoding.getTagNumber() == tag.getTagNumber();
 	}
@@ -117,24 +112,24 @@ public final class ReaderContext
 		return length;
 	}
 
-	public boolean isImplicit()
+	boolean isImplicit()
 	{
 		return implicit;
 	}
 
-	public void setImplicit( boolean implicit )
+	void setImplicit( boolean implicit )
 	{
 		this.implicit = implicit;
 	}
 
-	public void resetTagInfo( boolean implicit )
+	void resetTagInfo( boolean implicit )
 	{
 		tag = null;
 		length = -1;
 		this.implicit = implicit;
 	}
 
-	public void readTagInfo( boolean assertTagValue ) throws IOException
+	void readTagInfo( boolean assertTagValue ) throws IOException
 	{
 		tag = reader.readTag();
 		length = reader.readLength();
@@ -142,11 +137,11 @@ public final class ReaderContext
 			assertTag( type, tag );
 	}
 
-	public boolean readTagInfoEocPossible( boolean definite ) throws IOException
+	boolean readTagInfoEocPossible( boolean definite ) throws IOException
 	{
 		tag = reader.readTag();
 		length = reader.readLength();
-		return !definite && isEoc();
+		return !definite && tag.isEoc() && length == 0;
 
 	}
 
@@ -163,7 +158,7 @@ public final class ReaderContext
 			throw new IOException( "Invalid tag: " + tag );
 	}
 
-	public ReaderContext toSiblingContext()
+	ReaderContext toSiblingContext()
 	{
 		type = type.getSibling();
 		assert type != null;
@@ -171,17 +166,17 @@ public final class ReaderContext
 		return this;
 	}
 
-	public ReaderContext toSiblingContext( @NotNull Type componentType )
+	ReaderContext toSiblingContext( @NotNull Type componentType )
 	{
 		return new ReaderContext( reader, componentType.getScope( scope ), componentType, tag, length, implicit );
 	}
 
-	public ReaderContext toSiblingContext( @NotNull Type componentType, Tag tag, int length )
+	private ReaderContext toSiblingContext( @NotNull Type componentType, Tag tag, int length )
 	{
 		return new ReaderContext( reader, componentType.getScope( scope ), componentType, tag, length, false );
 	}
 
-	public Value readComponentType( @NotNull Type componentType, Tag tag, int length ) throws IOException, Asn1Exception
+	Value readComponentType( @NotNull Type componentType, Tag tag, int length ) throws IOException, Asn1Exception
 	{
 		return reader.readInternal( toSiblingContext( componentType, tag, length ) );
 	}
@@ -196,42 +191,32 @@ public final class ReaderContext
 		return reader.read( buffer );
 	}
 
-	public int position()
+	int position()
 	{
 		return reader.position();
 	}
 
-	public Tag readTag() throws IOException
-	{
-		return reader.readTag();
-	}
-
-	public int readLength() throws IOException
-	{
-		return reader.readLength();
-	}
-
-	public Value readInternal( @NotNull ReaderContext context ) throws IOException, Asn1Exception
+	Value readInternal( @NotNull ReaderContext context ) throws IOException, Asn1Exception
 	{
 		return reader.readInternal( context );
 	}
 
-	public void ensureConstructedRead( int start, int length, @Nullable Tag tag ) throws IOException
+	void ensureConstructedRead( int start, int length, @Nullable Tag tag ) throws IOException
 	{
 		reader.ensureConstructedRead( start, length, tag );
 	}
 
-	public void skipToEoc() throws IOException
+	void skipToEoc() throws IOException
 	{
 		reader.skipToEoc();
 	}
 
-	public void skip( int amount ) throws IOException
+	void skip( int amount ) throws IOException
 	{
 		reader.skip( amount );
 	}
 
-	protected ReaderContext copy()
+	public ReaderContext copy()
 	{
 		return new ReaderContext( reader, scope, type, tag, length, implicit );
 	}

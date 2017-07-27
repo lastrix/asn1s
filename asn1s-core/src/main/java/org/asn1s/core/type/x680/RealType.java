@@ -96,18 +96,6 @@ public final class RealType extends BuiltinType
 		return UniversalType.REAL.typeName().toString();
 	}
 
-	@Override
-	protected void onValidate( @NotNull Scope scope )
-	{
-		// do nothing
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		// do nothing
-	}
-
 	@NotNull
 	@Override
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException

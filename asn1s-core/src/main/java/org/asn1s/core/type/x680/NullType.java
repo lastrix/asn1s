@@ -93,16 +93,4 @@ public class NullType extends BuiltinType
 		log.warn( "Copying builtin type!" );
 		return new NullType();
 	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
-	{
-		// do nothing
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		// do nothing
-	}
 }

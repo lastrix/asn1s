@@ -25,6 +25,7 @@
 
 package org.asn1s.schema;
 
+import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.UniversalType;
 import org.asn1s.core.DefaultAsn1Factory;
@@ -54,7 +55,7 @@ public class AbstractSyntaxParserTest
 		ModuleSet moduleSet = new ModuleSet();
 		DefaultAsn1Factory factory = new DefaultAsn1Factory( moduleSet );
 		AbstractSyntaxParser parser = new AbstractSyntaxParser( moduleSet, factory, CoreModule.getInstance(), classType );
-		Map<String, Ref<?>> result = parser.parse( "Super-Type IDENTIFIED BY { rootOid 3 } CONSTRAINED BY TYPE-Constraint" );
+		Map<String, Ref<? extends Asn1ModelObject>> result = parser.parse( "Super-Type IDENTIFIED BY { rootOid 3 } CONSTRAINED BY TYPE-Constraint" );
 		Assert.assertNotNull( "No result", result );
 	}
 }

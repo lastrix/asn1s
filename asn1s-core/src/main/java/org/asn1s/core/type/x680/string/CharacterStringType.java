@@ -27,12 +27,9 @@ package org.asn1s.core.type.x680.string;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
 import org.asn1s.core.type.BuiltinType;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,19 +47,6 @@ public final class CharacterStringType extends BuiltinType
 	public CharacterStringType()
 	{
 		setEncoding( TagEncoding.universal( UniversalType.CHARACTER_STRING ) );
-	}
-
-	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
-	{
-		throw new UnsupportedOperationException( "Not implemented" );
-	}
-
-	@NotNull
-	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
-	{
-		throw new UnsupportedOperationException( "Not implemented" );
 	}
 
 	@NotNull
@@ -84,17 +68,5 @@ public final class CharacterStringType extends BuiltinType
 	{
 		log.warn( "Copying builtin type!" );
 		return new CharacterStringType();
-	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope )
-	{
-		// nothing to do
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		// nothing to do
 	}
 }

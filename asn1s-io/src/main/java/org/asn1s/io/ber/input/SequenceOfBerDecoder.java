@@ -52,8 +52,6 @@ final class SequenceOfBerDecoder implements BerDecoder
 		CollectionOfType type = (CollectionOfType)ctx.getType();
 		ValueFactory valueFactory = ctx.getValueFactory();
 		ComponentType componentType = type.getComponentType();
-		if( componentType == null )
-			throw new IllegalStateException();
 
 		boolean isDummy = !componentType.isDummy();
 		if( ctxLength == 0 )

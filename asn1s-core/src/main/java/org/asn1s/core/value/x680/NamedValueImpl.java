@@ -92,7 +92,6 @@ public class NamedValueImpl extends AbstractNestingValue implements NamedValue
 	@Override
 	public Value resolve( Scope scope ) throws ResolutionException
 	{
-		//noinspection ObjectEquality
 		if( resolved )
 			return this;
 

@@ -74,9 +74,6 @@ final class SequenceOfBerEncoder implements BerEncoder
 			return;
 
 		ComponentType componentType = type.getComponentType();
-		if( componentType == null )
-			throw new IllegalStateException();
-
 		ctx.getScope().setValueLevel( collection );
 		for( Ref<Value> ref : collection.asValueList() )
 		{

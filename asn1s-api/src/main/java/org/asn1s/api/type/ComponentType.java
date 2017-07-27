@@ -36,7 +36,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.List;
 
-@SuppressWarnings( "ConstantDeclaredInInterface" )
 public interface ComponentType extends NamedType
 {
 

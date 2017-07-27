@@ -99,16 +99,4 @@ public final class OctetStringType extends BuiltinType
 		log.warn( "Copying builtin type!" );
 		return new OctetStringType();
 	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope )
-	{
-		// nothing to do
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		// nothing to do
-	}
 }

@@ -99,16 +99,4 @@ public final class BooleanType extends BuiltinType
 	{
 		return UniversalType.BOOLEAN.typeName().toString();
 	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope )
-	{
-		// nothing to do
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		// nothing to do
-	}
 }

@@ -1333,7 +1333,7 @@ objectDefn returns [Ref<Value> result]
     |   braceConsumer { $result = new AbstractSyntaxObjectRef(tokens2string($braceConsumer.start, $braceConsumer.stop)); }
     ;
 
-fieldSettings returns [Map<String, Ref<?>> result]
+fieldSettings returns [Map<String, Ref<? extends Asn1ModelObject>> result]
     @init { $result = new HashMap<>(); }
     :
     (
@@ -1342,7 +1342,7 @@ fieldSettings returns [Map<String, Ref<?>> result]
     )?
     ;
 
-fieldSetting [Map<String, Ref<?>> fieldMap]
+fieldSetting [Map<String, Ref<? extends Asn1ModelObject>> fieldMap]
     :   FieldIdentifier setting
         {
             if ( $fieldMap.containsKey($FieldIdentifier.text) )
@@ -1351,7 +1351,7 @@ fieldSetting [Map<String, Ref<?>> fieldMap]
         }
     ;
 
-setting returns [Ref<?> result]
+setting returns [Ref<?  extends Asn1ModelObject> result]
     :   type        { $result = $type.result; }
     |   value       { $result = $value.result; }
     |   valueSet    { $result = $valueSet.result; }

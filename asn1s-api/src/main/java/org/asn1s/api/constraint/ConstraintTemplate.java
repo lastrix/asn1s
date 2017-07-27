@@ -25,6 +25,7 @@
 
 package org.asn1s.api.constraint;
 
+import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
@@ -36,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
  * Interface for processing constraints. Every constraint must be built before actual usage.
  * All it's values, params and other stuff must be resolved.
  */
-public interface ConstraintTemplate extends Ref<ConstraintTemplate>
+public interface ConstraintTemplate extends Ref<ConstraintTemplate>, Asn1ModelObject
 {
 	Constraint build( @NotNull Scope scope, @NotNull Type type ) throws ResolutionException, ValidationException;
 

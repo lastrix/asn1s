@@ -65,7 +65,7 @@ public abstract class AbstractName<T extends AbstractName<T>> implements Compara
 		if( this == obj ) return true;
 		if( !( obj instanceof AbstractName ) ) return false;
 
-		AbstractName typeName = (AbstractName)obj;
+		AbstractName<?> typeName = (AbstractName<?>)obj;
 
 		//noinspection SimplifiableIfStatement
 		if( !getName().equals( typeName.getName() ) ) return false;

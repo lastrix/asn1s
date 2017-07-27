@@ -27,12 +27,9 @@ package org.asn1s.core.type.x680.id;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
 import org.asn1s.core.type.BuiltinType;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,19 +46,6 @@ public final class RelativeOidIriType extends BuiltinType
 	public RelativeOidIriType()
 	{
 		setEncoding( TagEncoding.universal( UniversalType.RELATIVE_OID_IRI ) );
-	}
-
-	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
-	{
-		throw new UnsupportedOperationException();
-	}
-
-	@NotNull
-	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
-	{
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -83,17 +67,5 @@ public final class RelativeOidIriType extends BuiltinType
 	{
 		log.warn( "Copying builtin type!" );
 		return new RelativeOidIriType();
-	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope )
-	{
-		// nothing to do
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		// nothing to do
 	}
 }

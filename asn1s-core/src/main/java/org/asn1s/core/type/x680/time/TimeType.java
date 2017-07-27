@@ -57,13 +57,6 @@ public final class TimeType extends BuiltinType
 		throw new UnsupportedOperationException();
 	}
 
-	@NotNull
-	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef )
-	{
-		throw new UnsupportedOperationException();
-	}
-
 	@Override
 	public String toString()
 	{
@@ -83,17 +76,5 @@ public final class TimeType extends BuiltinType
 	{
 		log.warn( "Copying builtin type!" );
 		return new TimeType();
-	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope )
-	{
-		// nothing to do
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		// nothing to do
 	}
 }

@@ -146,18 +146,6 @@ public final class ObjectIdentifierType extends BuiltinType
 		return new ObjectIdentifierType();
 	}
 
-	@Override
-	protected void onValidate( @NotNull Scope scope )
-	{
-		// nothing to do
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		// nothing to do
-	}
-
 	private static void assertValueFormCollection( Scope scope, Value value ) throws IllegalValueException, ConstraintViolationException
 	{
 		List<NamedValue> values = new ArrayList<>();

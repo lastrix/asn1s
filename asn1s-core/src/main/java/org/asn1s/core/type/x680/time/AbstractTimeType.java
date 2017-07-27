@@ -61,21 +61,10 @@ public abstract class AbstractTimeType extends BuiltinType
 	}
 
 	@Override
-	protected void onValidate( @NotNull Scope scope )
-	{
-	}
-
-	@Override
-	protected void onDispose()
-	{
-	}
-
-	@Override
 	public String toString()
 	{
 		return getFamily().name();
 	}
-
 
 	protected abstract Instant parseValue( String value );
 

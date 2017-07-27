@@ -332,7 +332,7 @@ public class CoreTypeFactory implements TypeFactory
 
 	@NotNull
 	@Override
-	public Value object( @NotNull Map<String, Ref<?>> map )
+	public Value object( @NotNull Map<String, Ref<? extends Asn1ModelObject>> map )
 	{
 		return new ObjectValue( map );
 	}

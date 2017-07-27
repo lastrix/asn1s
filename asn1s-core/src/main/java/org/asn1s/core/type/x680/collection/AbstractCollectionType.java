@@ -190,7 +190,6 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 		return result;
 	}
 
-	@SuppressWarnings( "unchecked" )
 	@Override
 	public List<Type> getRawComponents()
 	{

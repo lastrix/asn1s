@@ -64,14 +64,6 @@ abstract class AbstractFieldType extends AbstractType implements ClassFieldType
 		return null;
 	}
 
-	@NotNull
-	@Override
-	public Family getFamily()
-	{
-		// object fields may not have any type family
-		throw new UnsupportedOperationException();
-	}
-
 	@Override
 	public boolean isUnique()
 	{

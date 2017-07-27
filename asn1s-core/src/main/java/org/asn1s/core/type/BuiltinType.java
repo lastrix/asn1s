@@ -25,9 +25,13 @@
 
 package org.asn1s.core.type;
 
+import org.asn1s.api.Scope;
 import org.asn1s.api.encoding.EncodingInstructions;
 import org.asn1s.api.encoding.IEncoding;
+import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.AbstractType;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -61,6 +65,12 @@ public abstract class BuiltinType extends AbstractType
 	public final int hashCode()
 	{
 		return toString().hashCode();
+	}
+
+	@Override
+	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
+	{
+		// nothing to do, builtin type may have no validation logic
 	}
 
 	@Override

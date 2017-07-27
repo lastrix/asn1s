@@ -115,7 +115,6 @@ public abstract class AbstractDefinedValue implements DefinedValue
 	public int compareTo( @NotNull Value o )
 	{
 		assert isValidated();
-		//noinspection CompareToUsesNonFinalVariable
 		return getValue().compareTo( o );
 	}
 
