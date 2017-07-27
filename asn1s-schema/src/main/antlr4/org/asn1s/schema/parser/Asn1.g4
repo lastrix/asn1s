@@ -568,7 +568,13 @@ templateTypeParameter[List<TemplateParameter> paramList]
     :
         templateTypeParameterGovernor?
         Identifier
-        { $paramList.add(typeFactory.templateParameter( paramList.size(), $Identifier.getText(), $templateTypeParameterGovernor.governor )); }
+        {
+            $paramList.add(
+                    typeFactory.templateParameter(
+                            paramList.size(),
+                            $Identifier.getText(),
+                            $templateTypeParameterGovernor.governor ));
+        }
     ;
 
 templateTypeParameterGovernor returns [Ref<Type> governor]
@@ -1333,7 +1339,7 @@ objectDefn returns [Ref<Value> result]
     |   braceConsumer { $result = new AbstractSyntaxObjectRef(tokens2string($braceConsumer.start, $braceConsumer.stop)); }
     ;
 
-fieldSettings returns [Map<String, Ref<? extends Asn1ModelObject>> result]
+fieldSettings returns [Map<String, Ref<?>> result]
     @init { $result = new HashMap<>(); }
     :
     (
@@ -1342,7 +1348,7 @@ fieldSettings returns [Map<String, Ref<? extends Asn1ModelObject>> result]
     )?
     ;
 
-fieldSetting [Map<String, Ref<? extends Asn1ModelObject>> fieldMap]
+fieldSetting [Map<String, Ref<?>> fieldMap]
     :   FieldIdentifier setting
         {
             if ( $fieldMap.containsKey($FieldIdentifier.text) )
@@ -1351,7 +1357,7 @@ fieldSetting [Map<String, Ref<? extends Asn1ModelObject>> fieldMap]
         }
     ;
 
-setting returns [Ref<?  extends Asn1ModelObject> result]
+setting returns [Ref<? > result]
     :   type        { $result = $type.result; }
     |   value       { $result = $value.result; }
     |   valueSet    { $result = $valueSet.result; }

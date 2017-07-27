@@ -118,10 +118,14 @@ public class InstanceOfConstraint implements Constraint, InstanceOfTypeSelector
 	{
 		for( ObjectValue object : objects )
 		{
-			Ref<?> ref = object.getFields().get( "&id" );
+			Ref<?> ref = object.getField( "&id" );
 			assert ref instanceof Value;
 			if( value.isEqualTo( (Value)ref ) )
-				return (Type)object.getFields().get( "&Type" );
+			{
+				Ref<Type> typeRef = object.getField( "&Type" );
+				assert typeRef instanceof Type;
+				return (Type)typeRef;
+			}
 		}
 		return null;
 	}

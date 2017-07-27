@@ -75,6 +75,4 @@ abstract class AbstractFieldType extends AbstractType implements ClassFieldType
 	{
 		return optional;
 	}
-
-
 }

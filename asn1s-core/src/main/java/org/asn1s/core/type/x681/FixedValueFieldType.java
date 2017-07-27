@@ -80,10 +80,11 @@ public class FixedValueFieldType extends AbstractFieldType
 		return defaultValueRef != null;
 	}
 
+	@SuppressWarnings( "unchecked" )
 	@Override
-	public Ref<? extends Value> getDefault()
+	public <T> Ref<T> getDefault()
 	{
-		return defaultValue;
+		return (Ref<T>)defaultValue;
 	}
 
 	@Nullable
@@ -121,7 +122,7 @@ public class FixedValueFieldType extends AbstractFieldType
 
 	@SuppressWarnings( "unchecked" )
 	@Override
-	public void acceptRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException
+	public <T> void acceptRef( @NotNull Scope scope, Ref<T> ref ) throws ResolutionException, ValidationException
 	{
 		scope = getScope( scope );
 		Object rawObject = ref.resolve( scope );
@@ -132,10 +133,10 @@ public class FixedValueFieldType extends AbstractFieldType
 		if( kind == Value.Kind.OBJECT )
 		{
 			ObjectValue value = ( (Value)rawObject ).toObjectValue();
-			Ref<?> valueRef = value.getFields().get( getName() );
-			Object resolve = valueRef.resolve( scope );
-			assert resolve instanceof Value;
-			fieldType.accept( scope, (Ref<Value>)resolve );
+			Ref<Value> valueRef = value.getField( getName() );
+			assert valueRef != null;
+			Value resolve = valueRef.resolve( scope );
+			fieldType.accept( scope, resolve );
 		}
 		else
 			fieldType.accept( scope, (Ref<Value>)rawObject );
@@ -150,10 +151,10 @@ public class FixedValueFieldType extends AbstractFieldType
 
 	@SuppressWarnings( "unchecked" )
 	@Override
-	public Ref<? extends Value> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException
+	public <T> T optimizeRef( @NotNull Scope scope, Ref<T> ref ) throws ResolutionException, ValidationException
 	{
 		if( ref instanceof ValueNameRef || ref instanceof Value )
-			return optimize( scope, (Ref<Value>)ref );
+			return (T)optimize( scope, (Ref<Value>)ref );
 
 		throw new IllegalValueException( "Unable to optimize ref: " + ref );
 	}

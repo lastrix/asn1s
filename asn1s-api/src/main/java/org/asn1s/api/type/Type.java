@@ -40,7 +40,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-public interface Type extends Ref<Type>, Disposable, Validation, Scoped, Asn1ModelObject
+public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 {
 	/**
 	 * Returns true if current type is tagged. Exactly this instance.

@@ -74,7 +74,7 @@ public class TableConstraint implements Constraint, InstanceOfTypeSelector
 			assert value.getKind() == Kind.OBJECT;
 			if( isFiltered( value.toObjectValue(), scope ) )
 				continue;
-			Ref<?> ref = value.toObjectValue().getFields().get( name );
+			Ref<?> ref = value.toObjectValue().getField( name );
 			if( ref instanceof Type )
 			{
 				assert checkValue.getKind() == Kind.OPEN_TYPE;
@@ -129,7 +129,7 @@ public class TableConstraint implements Constraint, InstanceOfTypeSelector
 
 		String filterName = ( (NamedType)filterType ).getName();
 
-		Ref<?> ref = value.getFields().get( filterName );
+		Ref<Value> ref = value.getField( filterName );
 		if( !( ref instanceof Value ) )
 			throw new ValidationException( "Not an value ref: " + ref );
 
@@ -158,7 +158,7 @@ public class TableConstraint implements Constraint, InstanceOfTypeSelector
 			assert value.getKind() == Kind.OBJECT;
 			if( isFilteredOrResolutionException( value.toObjectValue(), scope ) )
 				continue;
-			Ref<?> ref = value.toObjectValue().getFields().get( name );
+			Ref<Type> ref = value.toObjectValue().getField( name );
 			if( ref instanceof Type )
 				return (Type)ref;
 		}

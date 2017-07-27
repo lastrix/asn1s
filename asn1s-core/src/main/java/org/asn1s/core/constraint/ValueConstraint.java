@@ -69,7 +69,7 @@ public class ValueConstraint implements Constraint
 		if( type instanceof ClassFieldType )
 		{
 			assert value.getKind() == Kind.OBJECT;
-			Ref<?> newValue = value.toObjectValue().getFields().get( ( (NamedType)type ).getName() );
+			Ref<Value> newValue = value.toObjectValue().getField( ( (NamedType)type ).getName() );
 			assert newValue instanceof Value;
 			ourValue = (Value)newValue;
 		}

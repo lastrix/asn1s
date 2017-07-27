@@ -70,10 +70,11 @@ public class FixedValueSetFieldType extends AbstractFieldType
 		return defaultElementSetSpecs != null;
 	}
 
+	@SuppressWarnings( "unchecked" )
 	@Override
-	public Ref<? extends Type> getDefault()
+	public <T> Ref<T> getDefault()
 	{
-		return defaultFieldType;
+		return (Ref<T>)defaultFieldType;
 	}
 
 	@Override
@@ -97,7 +98,7 @@ public class FixedValueSetFieldType extends AbstractFieldType
 	}
 
 	@Override
-	public void acceptRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, IllegalValueException, ConstraintViolationException
+	public <T> void acceptRef( @NotNull Scope scope, Ref<T> ref ) throws ResolutionException, IllegalValueException, ConstraintViolationException
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -110,7 +111,7 @@ public class FixedValueSetFieldType extends AbstractFieldType
 	}
 
 	@Override
-	public Ref<? extends Type> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException
+	public <T> T optimizeRef( @NotNull Scope scope, Ref<T> ref ) throws ResolutionException, ValidationException
 	{
 		throw new UnsupportedOperationException();
 	}

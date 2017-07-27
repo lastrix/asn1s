@@ -25,7 +25,6 @@
 
 package org.asn1s.api.type;
 
-import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.constraint.ConstraintTemplate;
@@ -133,5 +132,5 @@ public interface TypeFactory
 	Ref<Type> typeFromObjectRef( @NotNull Ref<?> source, @Nullable List<String> path, @NotNull String name );
 
 	@NotNull
-	Value object( @NotNull Map<String, Ref<? extends Asn1ModelObject>> map );
+	Value object( @NotNull Map<String, Ref<?>> map );
 }

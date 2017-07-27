@@ -25,7 +25,6 @@
 
 package org.asn1s.api.constraint;
 
-import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.IllegalValueException;
@@ -43,7 +42,7 @@ import java.util.Collection;
  * 1. Build constraint for specific type using resolve(Scope), where Scope must be Type
  * 2. Run checks for whatever reason on any value that was accepted by type
  */
-public interface Constraint extends Asn1ModelObject
+public interface Constraint
 {
 	void check( Scope scope, Ref<Value> valueRef ) throws ValidationException, ResolutionException;
 

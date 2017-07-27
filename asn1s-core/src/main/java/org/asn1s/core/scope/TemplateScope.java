@@ -57,7 +57,7 @@ final class TemplateScope extends AbstractScope
 		{
 			TemplateParameter parameter = type.getParameter( ref );
 			if( parameter != null && RefUtils.isTypeRef( parameter.getReference() ) )
-				return (Ref<Type>)parameter.getReference();
+				return parameter.getReference();
 		}
 
 		return getParentScope().getTypeRef( ref, module );
@@ -72,7 +72,7 @@ final class TemplateScope extends AbstractScope
 		{
 			TemplateParameter parameter = type.getParameter( ref );
 			if( parameter != null && parameter.isValueRef() )
-				return (Ref<Value>)parameter.getReference();
+				return parameter.getReference();
 		}
 		return getParentScope().getValueRef( ref, module );
 	}

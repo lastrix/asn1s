@@ -25,26 +25,33 @@
 
 package org.asn1s.api.value.x681;
 
-import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.Map.Entry;
 
 public class ObjectValue implements Value
 {
-	public ObjectValue( Map<String, Ref<? extends Asn1ModelObject>> fields )
+	public ObjectValue( Map<String, Ref<?>> fields )
 	{
 		this.fields = new HashMap<>( fields );
 	}
 
-	private final Map<String, Ref<? extends Asn1ModelObject>> fields;
+	private final Map<String, Ref<?>> fields;
 
-	public Map<String, Ref<? extends Asn1ModelObject>> getFields()
+	public Map<String, Ref<?>> getFields()
 	{
 		return Collections.unmodifiableMap( fields );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	@Nullable
+	public <T> Ref<T> getField( @NotNull String name )
+	{
+		return (Ref<T>)fields.get( name );
 	}
 
 	@NotNull
@@ -66,7 +73,7 @@ public class ObjectValue implements Value
 
 	private int compareToObjectValue( ObjectValue objectValue )
 	{
-		Map<String, Ref<? extends Asn1ModelObject>> rhsFields = objectValue.getFields();
+		Map<String, Ref<?>> rhsFields = objectValue.getFields();
 		int result = Integer.compare( fields.size(), rhsFields.size() );
 		if( result != 0 )
 			return result;
@@ -79,7 +86,7 @@ public class ObjectValue implements Value
 		if( result != 0 )
 			return result;
 
-		for( Entry<String, Ref<? extends Asn1ModelObject>> entry : fields.entrySet() )
+		for( Entry<String, Ref<?>> entry : fields.entrySet() )
 		{
 			Ref<?> ref = rhsFields.get( entry.getKey() );
 
@@ -104,7 +111,7 @@ public class ObjectValue implements Value
 		StringBuilder sb = new StringBuilder();
 		sb.append( "{ " );
 		boolean first = true;
-		for( Entry<String, Ref<? extends Asn1ModelObject>> entry : fields.entrySet() )
+		for( Entry<String, Ref<?>> entry : fields.entrySet() )
 		{
 			if( first )
 				first = false;

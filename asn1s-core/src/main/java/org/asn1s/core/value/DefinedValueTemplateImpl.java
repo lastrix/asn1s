@@ -69,6 +69,7 @@ public class DefinedValueTemplateImpl extends DefinedValueImpl implements Templa
 		return parentScope.templateScope( this );
 	}
 
+	@SuppressWarnings( "unchecked" )
 	@Nullable
 	@Override
 	public TemplateParameter getParameter( @NotNull String name )

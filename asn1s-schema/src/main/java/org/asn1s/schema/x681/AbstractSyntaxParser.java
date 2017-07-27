@@ -30,7 +30,6 @@ import org.antlr.v4.runtime.atn.PredictionMode;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Asn1Factory;
-import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.module.Module;
@@ -64,7 +63,7 @@ public class AbstractSyntaxParser
 	private final Module module;
 	private final ClassType classType;
 	private final GroupSyntaxObject root;
-	private Map<String, Ref<? extends Asn1ModelObject>> resultMap;
+	private Map<String, Ref<?>> resultMap;
 	private CommonTokenStream tokenStream;
 
 	public AbstractSyntaxParser( ModuleResolver resolver, Asn1Factory factory, Module module, ClassType classType )
@@ -78,7 +77,7 @@ public class AbstractSyntaxParser
 		parseGroupItems( root, new LinkedList<>( classType.getSyntaxList() ), false );
 	}
 
-	public Map<String, Ref<? extends Asn1ModelObject>> parse( String value ) throws Exception
+	public Map<String, Ref<?>> parse( String value ) throws Exception
 	{
 		try( Reader r = new StringReader( value ) )
 		{
@@ -260,7 +259,7 @@ public class AbstractSyntaxParser
 		return true;
 	}
 
-	private void registerFieldRef( String name, Ref<? extends Asn1ModelObject> ref )
+	private void registerFieldRef( String name, Ref<?> ref )
 	{
 		if( resultMap.containsKey( name ) )
 			throw new IllegalStateException( "Trying to redefine value for field: " + name );
@@ -442,7 +441,7 @@ public class AbstractSyntaxParser
 		}
 
 		@NotNull
-		private Ref<? extends Asn1ModelObject> createReference( @Nullable Token moduleToken, @NotNull Token referenceToken )
+		private Ref<?> createReference( @Nullable Token moduleToken, @NotNull Token referenceToken )
 		{
 			if( RefUtils.isValueRef( referenceToken.getText() ) )
 			{

@@ -25,7 +25,6 @@
 
 package org.asn1s.schema.x681;
 
-import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
@@ -66,7 +65,7 @@ public class AbstractSyntaxObjectRef implements Ref<Value>
 		try
 		{
 			AbstractSyntaxParser parser = new AbstractSyntaxParser( resolver, resolver.createObjectFactory(), module, classType );
-			Map<String, Ref<? extends Asn1ModelObject>> result = parser.parse( abstractSyntax );
+			Map<String, Ref<?>> result = parser.parse( abstractSyntax );
 			return new ObjectValue( result );
 		} catch( Exception e )
 		{

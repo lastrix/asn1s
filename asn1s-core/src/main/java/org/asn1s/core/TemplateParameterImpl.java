@@ -25,7 +25,6 @@
 
 package org.asn1s.core;
 
-import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.type.Type;
@@ -37,7 +36,7 @@ import org.jetbrains.annotations.Nullable;
 
 public final class TemplateParameterImpl implements TemplateParameter
 {
-	public TemplateParameterImpl( int index, @NotNull Ref<? extends Asn1ModelObject> reference, @Nullable Ref<Type> governor )
+	public TemplateParameterImpl( int index, @NotNull Ref<?> reference, @Nullable Ref<Type> governor )
 	{
 		this.index = index;
 		this.reference = reference;
@@ -45,7 +44,7 @@ public final class TemplateParameterImpl implements TemplateParameter
 	}
 
 	private final int index;
-	private final Ref<? extends Asn1ModelObject> reference;
+	private final Ref<?> reference;
 	private final Ref<Type> governor;
 
 	@Override
@@ -66,10 +65,11 @@ public final class TemplateParameterImpl implements TemplateParameter
 		throw new IllegalStateException();
 	}
 
+	@SuppressWarnings( "unchecked" )
 	@Override
-	public Ref<? extends Asn1ModelObject> getReference()
+	public <T> Ref<T> getReference()
 	{
-		return reference;
+		return (Ref<T>)reference;
 	}
 
 	@Override
@@ -91,6 +91,7 @@ public final class TemplateParameterImpl implements TemplateParameter
 		return RefUtils.isValueRef( reference );
 	}
 
+	@SuppressWarnings( "unchecked" )
 	@Override
 	public boolean equals( Object obj )
 	{

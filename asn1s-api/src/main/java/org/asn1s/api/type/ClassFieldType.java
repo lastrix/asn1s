@@ -25,7 +25,6 @@
 
 package org.asn1s.api.type;
 
-import org.asn1s.api.Asn1ModelObject;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
@@ -37,7 +36,7 @@ public interface ClassFieldType extends NamedType
 {
 	boolean hasDefault();
 
-	Ref<? extends Asn1ModelObject> getDefault();
+	<T> Ref<T> getDefault();
 
 	boolean isUnique();
 
@@ -54,9 +53,9 @@ public interface ClassFieldType extends NamedType
 		acceptRef( scope, valueRef );
 	}
 
-	void acceptRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException;
+	<T> void acceptRef( @NotNull Scope scope, Ref<T> ref ) throws ResolutionException, ValidationException;
 
-	Ref<? extends Asn1ModelObject> optimizeRef( @NotNull Scope scope, Ref<?> ref ) throws ResolutionException, ValidationException;
+	<T> T optimizeRef( @NotNull Scope scope, Ref<T> ref ) throws ResolutionException, ValidationException;
 
 	Kind getClassFieldKind();
 
