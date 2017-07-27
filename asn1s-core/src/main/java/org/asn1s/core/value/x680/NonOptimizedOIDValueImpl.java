@@ -37,6 +37,9 @@ import java.util.List;
 
 public final class NonOptimizedOIDValueImpl implements ObjectIdentifierValue
 {
+
+	private static final String MSG_NOT_OPTIMIZED = "Not optimized";
+
 	public NonOptimizedOIDValueImpl( @NotNull List<Ref<Value>> oidRefs )
 	{
 		//noinspection AssignmentToCollectionOrArrayFieldFromParameter
@@ -48,19 +51,19 @@ public final class NonOptimizedOIDValueImpl implements ObjectIdentifierValue
 	@Override
 	public Long[] asIDArray()
 	{
-		throw new UnsupportedOperationException( "Not optimized" );
+		throw new UnsupportedOperationException( MSG_NOT_OPTIMIZED );
 	}
 
 	@Override
 	public List<NamedValue> asNamedValueList()
 	{
-		throw new UnsupportedOperationException( "Not optimized" );
+		throw new UnsupportedOperationException( MSG_NOT_OPTIMIZED );
 	}
 
 	@Override
 	public int compareTo( @NotNull Value o )
 	{
-		throw new UnsupportedOperationException( "Not optimized" );
+		throw new UnsupportedOperationException( MSG_NOT_OPTIMIZED );
 	}
 
 	public List<Ref<Value>> getOidRefs()

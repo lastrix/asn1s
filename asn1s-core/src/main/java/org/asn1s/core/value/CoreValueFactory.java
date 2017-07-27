@@ -380,41 +380,17 @@ public class CoreValueFactory implements ValueFactory
 	{
 		if( decimal )
 			return new RealValueBig( new BigDecimal( mantissa ).multiply( new BigDecimal( 10 ).pow( exponent ) ) );
-		else
-		{
-			int e = exponent;
-			long scaledMantissa = mantissa;
 
-			if( ( ( e < 0 ? -e : e ) & ~MASK_DOUBLE_EXPONENT ) != 0 || ( scaledMantissa & ~( MASK_DOUBLE_MANTISSA & ~MASK_DOUBLE_ONE_BIT ) ) != 0 )
-				return createReal( BigInteger.valueOf( mantissa ), false, exponent, negative );
+		if( isDoubleOverflowMayHappen( mantissa, exponent ) )
+			return createReal( BigInteger.valueOf( mantissa ), false, exponent, negative );
 
-			if( scaledMantissa == 0 )
-				e += DOUBLE_EXP_SHIFT - 1;
-			else
-			{
-				while( ( scaledMantissa & MASK_DOUBLE_MANTISSA ) == 0L )
-				{
-					scaledMantissa <<= 8;
-					e -= 8;
-				}
+		return new DoubleCreator( mantissa, exponent, negative ).create();
+	}
 
-				while( ( scaledMantissa & MASK_DOUBLE_ONE_BIT ) == 0L )
-				{
-					scaledMantissa <<= 1;
-					e--;
-				}
-
-				scaledMantissa &= ~MASK_DOUBLE_ONE_BIT;
-				e += DOUBLE_EXP_SHIFT;
-			}
-			if( ( ( e < 0 ? -e : e ) & ~MASK_DOUBLE_EXPONENT ) != 0 || ( scaledMantissa & ~MASK_DOUBLE_MANTISSA ) != 0 )
-				return createReal( BigInteger.valueOf( mantissa ), false, exponent, negative );
-			else
-			{
-				double value = Double.longBitsToDouble( (long)e << MANTISSA_BIT_COUNT | scaledMantissa );
-				return new RealValueDouble( negative ? -value : value );
-			}
-		}
+	private static boolean isDoubleOverflowMayHappen( long mantissa, int exponent )
+	{
+		return ( ( exponent < 0 ? -exponent : exponent ) & ~MASK_DOUBLE_EXPONENT ) != 0
+				|| ( mantissa & ~( MASK_DOUBLE_MANTISSA & ~MASK_DOUBLE_ONE_BIT ) ) != 0;
 	}
 
 	/**
@@ -433,5 +409,57 @@ public class CoreValueFactory implements ValueFactory
 		if( negative )
 			result = result.negate();
 		return new RealValueBig( result );
+	}
+
+	private static final class DoubleCreator
+	{
+		private final long mantissa;
+		private final int exponent;
+		private final boolean negative;
+		private long scaledMantissa;
+		private int e;
+
+		private DoubleCreator( long mantissa, int exponent, boolean negative )
+		{
+			this.mantissa = mantissa;
+			this.exponent = exponent;
+			this.negative = negative;
+			scaledMantissa = mantissa;
+			e = exponent;
+		}
+
+		public RealValue create()
+		{
+			if( scaledMantissa == 0 )
+				e += DOUBLE_EXP_SHIFT - 1;
+			else
+				normalizeMantissa();
+
+			if( ( ( e < 0 ? -e : e ) & ~MASK_DOUBLE_EXPONENT ) != 0 || ( scaledMantissa & ~MASK_DOUBLE_MANTISSA ) != 0 )
+				return createReal( BigInteger.valueOf( mantissa ), false, exponent, negative );
+			else
+			{
+				double value = Double.longBitsToDouble( (long)e << MANTISSA_BIT_COUNT | scaledMantissa );
+				return new RealValueDouble( negative ? -value : value );
+			}
+		}
+
+		private void normalizeMantissa()
+		{
+			while( ( scaledMantissa & MASK_DOUBLE_MANTISSA ) == 0L )
+			{
+				scaledMantissa <<= 8;
+				e -= 8;
+			}
+
+			while( ( scaledMantissa & MASK_DOUBLE_ONE_BIT ) == 0L )
+			{
+				scaledMantissa <<= 1;
+				e--;
+			}
+
+			scaledMantissa &= ~MASK_DOUBLE_ONE_BIT;
+			e += DOUBLE_EXP_SHIFT;
+		}
 	}
 }

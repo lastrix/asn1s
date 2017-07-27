@@ -46,46 +46,14 @@ public final class ChoiceType extends AbstractCollectionType
 	@Override
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
-		scope = scope.typedScope( this );
-		Value value = valueRef.resolve( scope );
-		if( value.getKind() != Kind.NAME )
-			throw new IllegalArgumentException( "Unable to accept value of kind: " + value.getKind() );
-
-		scope.setValueLevel( value );
-		NamedValue namedValue = value.toNamedValue();
-
-		ComponentType componentType = getComponent( namedValue.getName(), true );
-		if( componentType == null )
-		{
-			if( !isExtensible() )
-				throw new IllegalValueException( "Unable to find component for name: " + namedValue.getName() );
-		}
-		else
-			componentType.accept( scope, namedValue );
+		new ChoiceValidator( scope, valueRef ).process();
 	}
 
 	@NotNull
 	@Override
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
-		scope = scope.typedScope( this );
-		Value value = valueRef.resolve( scope );
-		if( value.getKind() != Kind.NAME )
-			throw new IllegalArgumentException( "Unable to accept value of kind: " + value.getKind() );
-
-		scope.setValueLevel( value );
-		NamedValue namedValue = value.toNamedValue();
-
-		ComponentType componentType = getComponent( namedValue.getName(), true );
-		if( componentType == null )
-		{
-			if( !isExtensible() )
-				throw new IllegalValueException( "Unable to find component for name: " + namedValue.getName() );
-
-			return value;
-		}
-		else
-			return componentType.optimize( scope, namedValue );
+		return new ChoiceOptimizer( scope, valueRef ).process();
 	}
 
 	@NotNull
@@ -112,5 +80,80 @@ public final class ChoiceType extends AbstractCollectionType
 	{
 		setActualComponents( new ChoiceComponentsInterpolator( getScope( scope ), this ).interpolate() );
 		updateIndices();
+	}
+
+	private abstract class AbstractOperator
+	{
+		private final Scope scope;
+		private final Value value;
+
+		AbstractOperator( Scope scope, Ref<Value> valueRef ) throws ResolutionException
+		{
+			this.scope = scope.typedScope( ChoiceType.this );
+			value = valueRef.resolve( scope );
+			if( value.getKind() != Kind.NAME )
+				throw new IllegalArgumentException( "Unable to accept value of kind: " + value.getKind() );
+			this.scope.setValueLevel( value );
+		}
+
+		public Scope getScope()
+		{
+			return scope;
+		}
+
+		public Value getValue()
+		{
+			return value;
+		}
+
+		Value process() throws ResolutionException, ValidationException
+		{
+			NamedValue namedValue = value.toNamedValue();
+
+			ComponentType componentType = getComponent( namedValue.getName(), true );
+			if( componentType == null )
+				return onExtensibleComponent( namedValue );
+
+			return onComponent( componentType, namedValue );
+		}
+
+		private Value onExtensibleComponent( NamedValue namedValue ) throws IllegalValueException
+		{
+			if( !isExtensible() )
+				throw new IllegalValueException( "Unable to find component for name: " + namedValue.getName() );
+
+			return value;
+		}
+
+		protected abstract Value onComponent( ComponentType componentType, NamedValue namedValue ) throws ResolutionException, ValidationException;
+	}
+
+	private final class ChoiceValidator extends AbstractOperator
+	{
+		private ChoiceValidator( Scope scope, Ref<Value> valueRef ) throws ResolutionException
+		{
+			super( scope, valueRef );
+		}
+
+		@Override
+		protected Value onComponent( ComponentType componentType, NamedValue namedValue ) throws ResolutionException, ValidationException
+		{
+			componentType.accept( getScope(), namedValue );
+			return getValue();
+		}
+	}
+
+	private final class ChoiceOptimizer extends AbstractOperator
+	{
+		private ChoiceOptimizer( Scope scope, Ref<Value> valueRef ) throws ResolutionException
+		{
+			super( scope, valueRef );
+		}
+
+		@Override
+		protected Value onComponent( ComponentType componentType, NamedValue namedValue ) throws ResolutionException, ValidationException
+		{
+			return componentType.optimize( getScope(), namedValue );
+		}
 	}
 }
