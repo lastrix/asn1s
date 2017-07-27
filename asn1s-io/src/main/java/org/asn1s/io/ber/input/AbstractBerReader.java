@@ -45,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 abstract class AbstractBerReader implements Asn1Reader
@@ -218,8 +219,8 @@ abstract class AbstractBerReader implements Asn1Reader
 		if( !context.hasTag() )
 			context.readTagInfo( false );
 
-		CollectionType type = (CollectionType)context.getType();
-		for( ComponentType component : type.getComponents( true ) )
+		List<ComponentType> componentTypes = context.getType().getNamedTypes();
+		for( ComponentType component : componentTypes )
 		{
 			TagEncoding encoding = (TagEncoding)component.getEncoding( EncodingInstructions.TAG );
 			if( context.isSameTagEncoding( encoding ) )

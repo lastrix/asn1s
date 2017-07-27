@@ -34,6 +34,7 @@ import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.CollectionTypeExtensionGroup;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
 import org.asn1s.core.type.TaggedTypeImpl;
@@ -81,9 +82,9 @@ abstract class AbstractComponentInterpolator
 
 	List<ComponentType> interpolate() throws ValidationException, ResolutionException
 	{
-		validateComponents( type.getComponents() );
-		validateComponents( type.getExtensions() );
-		validateComponents( type.getComponentsLast() );
+		validateComponents( type.getComponents( Kind.PRIMARY ) );
+		validateComponents( type.getComponents( Kind.EXTENSION ) );
+		validateComponents( type.getComponents( Kind.SECONDARY ) );
 		new CollectionValidator( getType() ).validate();
 		List<ComponentType> components = interpolateComponents();
 		assertTagAmbiguity( components );
@@ -127,9 +128,9 @@ abstract class AbstractComponentInterpolator
 
 		private List<ComponentType> build() throws ValidationException
 		{
-			resolveComponentsImpl( comps[0], type.getComponents(), -1 );
-			resolveComponentsImpl( comps[1], type.getComponentsLast(), -1 );
-			resolveComponentsImpl( comps[2], type.getExtensions(), 2 );
+			resolveComponentsImpl( comps[0], type.getComponents( Kind.PRIMARY ), -1 );
+			resolveComponentsImpl( comps[1], type.getComponents( Kind.SECONDARY ), -1 );
+			resolveComponentsImpl( comps[2], type.getComponents( Kind.EXTENSION ), 2 );
 			registerComponents( comps[0] );
 			registerComponents( comps[2] );
 			registerComponents( comps[1] );
@@ -226,9 +227,9 @@ abstract class AbstractComponentInterpolator
 
 		public void validate() throws ValidationException
 		{
-			assertNames( type.getComponents(), names );
-			assertNames( type.getExtensions(), names );
-			assertNames( type.getComponentsLast(), names );
+			assertNames( type.getComponents( Kind.PRIMARY ), names );
+			assertNames( type.getComponents( Kind.EXTENSION ), names );
+			assertNames( type.getComponents( Kind.SECONDARY ), names );
 
 			if( isExtensionVersionProhibited() )
 				assertExtensionGroupHasNoVersion();
@@ -275,7 +276,7 @@ abstract class AbstractComponentInterpolator
 		private void assertExtensionVersions() throws ValidationException
 		{
 			int prevVersion = 1;
-			for( Type extension : type.getExtensions() )
+			for( Type extension : type.getComponents( Kind.EXTENSION ) )
 			{
 				CollectionTypeExtensionGroup group = (CollectionTypeExtensionGroup)extension;
 				if( prevVersion >= group.getVersion() )
@@ -287,14 +288,14 @@ abstract class AbstractComponentInterpolator
 
 		private void assertExtensionGroupHasNoVersion() throws ValidationException
 		{
-			for( Type extension : type.getExtensions() )
+			for( Type extension : type.getComponents( Kind.EXTENSION ) )
 				if( extension instanceof CollectionTypeExtensionGroup && ( (CollectionTypeExtensionGroup)extension ).getVersion() != -1 )
 					throw new ValidationException( "Extension group version is prohibited: " + type );
 		}
 
 		private boolean isExtensionVersionProhibited()
 		{
-			for( Type extension : type.getExtensions() )
+			for( Type extension : type.getComponents( Kind.EXTENSION ) )
 				if( isVersionProhibitedFor( extension ) )
 					return true;
 

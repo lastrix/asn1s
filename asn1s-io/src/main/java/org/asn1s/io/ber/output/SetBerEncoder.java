@@ -31,7 +31,6 @@ import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.encoding.tag.Tag;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
@@ -57,8 +56,7 @@ final class SetBerEncoder extends AbstractCollectionBerEncoder
 	protected Collection<NamedValue> getValues( @NotNull WriterContext context )
 	{
 		List<NamedValue> values = context.getValue().toValueCollection().asNamedValueList();
-		CollectionType type = (CollectionType)context.getType();
-		return context.getRules() == BerRules.DER ? sortByTag( type, values ) : values;
+		return context.getRules() == BerRules.DER ? sortByTag( context.getType(), values ) : values;
 	}
 
 	@NotNull
@@ -68,7 +66,7 @@ final class SetBerEncoder extends AbstractCollectionBerEncoder
 		return Family.SET;
 	}
 
-	private static Collection<NamedValue> sortByTag( CollectionType type, Collection<NamedValue> values )
+	private static Collection<NamedValue> sortByTag( Type type, Collection<NamedValue> values )
 	{
 		List<NamedValue> result = new ArrayList<>( values );
 		Map<String, TagEncoding> encodingMap = new HashMap<>();
@@ -86,9 +84,9 @@ final class SetBerEncoder extends AbstractCollectionBerEncoder
 		return Integer.compare( t1.getTagNumber(), t2.getTagNumber() );
 	}
 
-	private static TagEncoding getTagEncoding( CollectionType type, String name )
+	private static TagEncoding getTagEncoding( Type type, String name )
 	{
-		ComponentType component = type.getComponent( name, true );
+		ComponentType component = type.getNamedType( name );
 		if( component == null )
 			throw new IllegalStateException();
 		IEncoding encoding = component.getEncoding( EncodingInstructions.TAG );

@@ -28,6 +28,7 @@ package org.asn1s.core.type.x680.collection;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.ComponentType.Kind;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -48,7 +49,7 @@ final class SequenceComponentsInterpolator extends AbstractComponentInterpolator
 		Collection<ComponentType> optionalBlock = new LinkedList<>();
 		assertComponentsTagAmbiguity( components, optionalBlock );
 
-		if( !getType().getComponentsLast().isEmpty() )
+		if( !getType().getComponents( Kind.SECONDARY ).isEmpty() )
 			assertComponentsLastTagAmbiguity( components );
 	}
 

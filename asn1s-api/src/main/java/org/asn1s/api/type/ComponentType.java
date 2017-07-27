@@ -100,14 +100,14 @@ public interface ComponentType extends NamedType
 
 	@Nullable
 	@Override
-	default NamedType getNamedType( @NotNull String name )
+	default <T extends NamedType> T getNamedType( @NotNull String name )
 	{
 		return getComponentType().getNamedType( name );
 	}
 
 	@NotNull
 	@Override
-	default List<? extends NamedType> getNamedTypes()
+	default <T extends NamedType> List<T> getNamedTypes()
 	{
 		return getComponentType().getNamedTypes();
 	}

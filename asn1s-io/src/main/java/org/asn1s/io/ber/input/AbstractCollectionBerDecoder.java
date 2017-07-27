@@ -76,7 +76,7 @@ abstract class AbstractCollectionBerDecoder implements BerDecoder
 		{
 			this.ctx = ctx;
 			CollectionType type = (CollectionType)ctx.getType();
-			components = new LinkedList<>( type.getComponents( true ) );
+			components = new LinkedList<>( type.getNamedTypes() );
 			start = ctx.position();
 			collection = ctx.getValueFactory().collection( true );
 			ctx.getScope().setValueLevel( collection );

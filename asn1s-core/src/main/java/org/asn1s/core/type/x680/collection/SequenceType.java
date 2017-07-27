@@ -41,6 +41,8 @@ import org.asn1s.core.CoreUtils;
 import org.asn1s.core.value.x680.ValueCollectionImpl;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 public class SequenceType extends AbstractCollectionType
 {
 	public SequenceType( boolean automaticTags )
@@ -56,10 +58,8 @@ public class SequenceType extends AbstractCollectionType
 	void updateIndices()
 	{
 		super.updateIndices();
-		if( getComponents() == null )
-			throw new IllegalStateException();
-
-		for( ComponentType type : getComponents( true ) )
+		List<ComponentType> componentTypes = getNamedTypes();
+		for( ComponentType type : componentTypes )
 		{
 			if( type.getVersion() > 1 )
 			{
@@ -154,7 +154,7 @@ public class SequenceType extends AbstractCollectionType
 
 		private void processNamedValue( NamedValue value ) throws ValidationException, ResolutionException
 		{
-			ComponentType component = getComponent( value.getName(), true );
+			ComponentType component = getNamedType( value.getName() );
 			if( component == null )
 				processExtensibleComponent( value );
 			else
@@ -193,7 +193,8 @@ public class SequenceType extends AbstractCollectionType
 			if( endBound - start == 1 )
 				return;
 
-			for( ComponentType type : getComponents( true ) )
+			List<ComponentType> componentTypes = getNamedTypes();
+			for( ComponentType type : componentTypes )
 			{
 				if( type.getIndex() <= start || endBound != -1 && type.getIndex() >= endBound )
 					continue;

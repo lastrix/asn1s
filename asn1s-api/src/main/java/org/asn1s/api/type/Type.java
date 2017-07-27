@@ -113,9 +113,8 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	 * @param name component name
 	 * @return Component type based on parent - either class component, or collection component
 	 */
-	@SuppressWarnings( "ClassReferencesSubclass" )
 	@Nullable
-	default NamedType getNamedType( @NotNull String name )
+	default <T extends NamedType> T getNamedType( @NotNull String name )
 	{
 		return null;
 	}
@@ -126,7 +125,7 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	 * @return list of named types
 	 */
 	@NotNull
-	default List<? extends NamedType> getNamedTypes()
+	default <T extends NamedType> List<T> getNamedTypes()
 	{
 		return Collections.emptyList();
 	}

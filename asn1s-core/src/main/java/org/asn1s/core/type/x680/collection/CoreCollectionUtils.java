@@ -32,6 +32,7 @@ import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.Type.Family;
@@ -98,11 +99,11 @@ final class CoreCollectionUtils
 	{
 		StringBuilder sb = new StringBuilder( " { " );
 		String delimiter = ", ";
-		List<Type> components = type.getComponents();
+		List<Type> components = type.getComponents( Kind.PRIMARY );
 		if( !components.isEmpty() )
 			sb.append( StringUtils.join( components, delimiter ) );
 
-		List<Type> extensions = type.getExtensions();
+		List<Type> extensions = type.getComponents( Kind.EXTENSION );
 		if( !extensions.isEmpty() )
 		{
 			if( !components.isEmpty() )
@@ -111,7 +112,7 @@ final class CoreCollectionUtils
 			sb.append( "..." ).append( StringUtils.join( extensions, delimiter ) );
 		}
 
-		List<Type> componentsLast = type.getComponentsLast();
+		List<Type> componentsLast = type.getComponents( Kind.SECONDARY );
 		if( !componentsLast.isEmpty() )
 			sb.append( delimiter ).append( "..." ).append( StringUtils.join( componentsLast, delimiter ) );
 

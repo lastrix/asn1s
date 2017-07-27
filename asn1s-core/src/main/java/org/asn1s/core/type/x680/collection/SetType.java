@@ -110,7 +110,7 @@ public final class SetType extends AbstractCollectionType
 		{
 			this.scope = scope;
 			this.collection = collection;
-			unusedComponents = new HashSet<>( getComponents( true ) );
+			unusedComponents = new HashSet<>( getNamedTypes() );
 			extensibleRequired = new HashSet<>();
 		}
 
@@ -153,7 +153,7 @@ public final class SetType extends AbstractCollectionType
 
 		private void processComponentValue( NamedValue value ) throws ResolutionException, ValidationException
 		{
-			ComponentType component = getComponent( value.getName(), true );
+			ComponentType component = getNamedType( value.getName() );
 			if( component == null )
 				assertExtensibleValue( value );
 			else

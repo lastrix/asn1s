@@ -191,14 +191,14 @@ public class FixedValueFieldType extends AbstractFieldType
 
 	@Nullable
 	@Override
-	public NamedType getNamedType( @NotNull String name )
+	public <T extends NamedType> T getNamedType( @NotNull String name )
 	{
 		return fieldType.getNamedType( name );
 	}
 
 	@NotNull
 	@Override
-	public List<? extends NamedType> getNamedTypes()
+	public <T extends NamedType> List<T> getNamedTypes()
 	{
 		return fieldType.getNamedTypes();
 	}

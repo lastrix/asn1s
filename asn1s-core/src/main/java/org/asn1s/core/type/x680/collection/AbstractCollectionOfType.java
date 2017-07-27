@@ -71,18 +71,20 @@ abstract class AbstractCollectionOfType extends BuiltinType implements Collectio
 		return sourceComponentType;
 	}
 
+	@SuppressWarnings( "unchecked" )
 	@Nullable
 	@Override
-	public NamedType getNamedType( @NotNull String name )
+	public <T extends NamedType> T getNamedType( @NotNull String name )
 	{
-		return name.equals( actualComponentType.getComponentName() ) ? actualComponentType : null;
+		return name.equals( actualComponentType.getComponentName() ) ? (T)actualComponentType : null;
 	}
 
+	@SuppressWarnings( "unchecked" )
 	@NotNull
 	@Override
-	public List<? extends NamedType> getNamedTypes()
+	public <T extends NamedType> List<T> getNamedTypes()
 	{
-		return Collections.singletonList( actualComponentType );
+		return Collections.singletonList( (T)actualComponentType );
 	}
 
 	@Override

@@ -104,7 +104,7 @@ public final class TemplateTypeInstance extends AbstractType
 
 	@Nullable
 	@Override
-	public NamedType getNamedType( @NotNull String name )
+	public <T extends NamedType> T getNamedType( @NotNull String name )
 	{
 		if( type == null )
 			return null;
@@ -113,7 +113,7 @@ public final class TemplateTypeInstance extends AbstractType
 
 	@NotNull
 	@Override
-	public List<? extends NamedType> getNamedTypes()
+	public <T extends NamedType> List<T> getNamedTypes()
 	{
 		return type.getNamedTypes();
 	}

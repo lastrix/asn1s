@@ -32,14 +32,12 @@ import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.AbstractType;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.Type;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 final class ComponentsFromType extends AbstractType
 {
@@ -110,7 +108,7 @@ final class ComponentsFromType extends AbstractType
 			type = type.getSibling();
 		}
 
-		resolveToComponentTypes( scope, ( (CollectionType)type ).getRawComponents() );
+		resolveToComponentTypes( scope, getRawComponents( (CollectionType)type ) );
 	}
 
 	private void resolveToComponentTypes( Scope scope, Iterable<Type> rawComponents ) throws ValidationException, ResolutionException
@@ -129,6 +127,16 @@ final class ComponentsFromType extends AbstractType
 			else
 				throw new UnsupportedOperationException( component.getClass().getTypeName() );
 		}
+	}
+
+	private static Iterable<Type> getRawComponents( CollectionType type )
+	{
+		List<Type> primary = type.getComponents( Kind.PRIMARY );
+		List<Type> secondary = type.getComponents( Kind.SECONDARY );
+		Collection<Type> list = new ArrayList<>( primary.size() + secondary.size() );
+		list.addAll( primary );
+		list.addAll( secondary );
+		return list;
 	}
 
 	@NotNull

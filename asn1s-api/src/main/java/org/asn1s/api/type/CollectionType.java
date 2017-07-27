@@ -25,8 +25,7 @@
 
 package org.asn1s.api.type;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.asn1s.api.type.ComponentType.Kind;
 
 import java.util.List;
 
@@ -36,58 +35,7 @@ public interface CollectionType extends Type, ComponentTypeConsumer
 
 	boolean isExtensible();
 
-	/**
-	 * Find component by name, extensions ignored
-	 *
-	 * @param name component name
-	 * @return ComponentType or null
-	 */
-	@Nullable
-	@Override
-	default ComponentType getNamedType( @NotNull String name )
-	{
-		return getComponent( name, true );
-	}
-
-	/**
-	 * Returns list of components without extensions
-	 *
-	 * @return list of components
-	 * @see #getComponents(boolean)
-	 */
-	@NotNull
-	@Override
-	default List<ComponentType> getNamedTypes()
-	{
-		return getComponents( false );
-	}
-
-	/**
-	 * Find component by name
-	 *
-	 * @param name           component name
-	 * @param withExtensions if extensions should be used
-	 * @return ComponentType or null
-	 * @see #getNamedType(String)
-	 */
-	@Nullable
-	ComponentType getComponent( @NotNull String name, boolean withExtensions );
-
-	/**
-	 * Return list of components
-	 *
-	 * @param withExtensions if true - extensions must be included
-	 * @return list of components
-	 * @see #getNamedTypes()
-	 */
-	List<ComponentType> getComponents( boolean withExtensions );
-
-	/**
-	 * Return list of source components for this type
-	 *
-	 * @return list of components
-	 */
-	List<Type> getRawComponents();
+	List<Type> getComponents( Kind kind );
 
 	boolean isAllComponentsOptional();
 

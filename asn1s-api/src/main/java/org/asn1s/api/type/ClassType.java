@@ -40,11 +40,12 @@ public interface ClassType extends Type
 	 * @param name component name
 	 * @return ComponentType or null
 	 */
+	@SuppressWarnings( "unchecked" )
 	@Nullable
 	@Override
-	default ClassFieldType getNamedType( @NotNull String name )
+	default <T extends NamedType> T getNamedType( @NotNull String name )
 	{
-		return getField( name );
+		return (T)getField( name );
 	}
 
 	/**
@@ -53,11 +54,12 @@ public interface ClassType extends Type
 	 * @return list of components
 	 * @see #getFields()
 	 */
+	@SuppressWarnings( "unchecked" )
 	@NotNull
 	@Override
-	default List<ClassFieldType> getNamedTypes()
+	default <T extends NamedType> List<T> getNamedTypes()
 	{
-		return getFields();
+		return (List<T>)getFields();
 	}
 
 	/**

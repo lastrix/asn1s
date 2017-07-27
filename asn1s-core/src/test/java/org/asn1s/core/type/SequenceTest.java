@@ -70,7 +70,7 @@ public class SequenceTest
 				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ), null );
 
 		module.validate();
-		Assert.assertNotEquals( "Empty actual components", 0, sequenceType.getComponents( true ) );
+		Assert.assertNotEquals( "Empty actual components", 0, sequenceType.getNamedTypes() );
 
 		doTest( factory.values(), module, type, true );
 	}
@@ -119,7 +119,7 @@ public class SequenceTest
 				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ), null );
 
 		module.validate();
-		Assert.assertNotEquals( "Empty actual components", 0, sequenceType.getComponents( true ) );
+		Assert.assertNotEquals( "Empty actual components", 0, sequenceType.getNamedTypes() );
 
 		doTest( factory.values(), module, type, false );
 	}

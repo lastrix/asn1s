@@ -110,7 +110,7 @@ public final class ChoiceType extends AbstractCollectionType
 		{
 			NamedValue namedValue = value.toNamedValue();
 
-			ComponentType componentType = getComponent( namedValue.getName(), true );
+			ComponentType componentType = getNamedType( namedValue.getName() );
 			if( componentType == null )
 				return onExtensibleComponent( namedValue );
 

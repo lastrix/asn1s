@@ -29,6 +29,7 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.ComponentType.Kind;
 
 import java.util.Collection;
 import java.util.List;
@@ -43,7 +44,7 @@ final class ChoiceComponentsInterpolator extends AbstractComponentInterpolator
 	@Override
 	List<ComponentType> interpolate() throws ValidationException, ResolutionException
 	{
-		if( !getType().getComponentsLast().isEmpty() )
+		if( !getType().getComponents( Kind.SECONDARY ).isEmpty() )
 			throw new ValidationException( "Choice type may not have any Secondary components. Allowed: Primary, Extension" );
 
 		return super.interpolate();

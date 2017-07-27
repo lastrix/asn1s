@@ -91,9 +91,9 @@ abstract class AbstractCollectionBerEncoder implements BerEncoder
 			writeComponentValue( ctx, type, value );
 	}
 
-	private static void writeComponentValue( WriterContext ctx, CollectionType type, NamedValue value ) throws Asn1Exception, IOException
+	private static void writeComponentValue( WriterContext ctx, Type type, NamedValue value ) throws Asn1Exception, IOException
 	{
-		ComponentType component = type.getComponent( value.getName(), true );
+		ComponentType component = type.getNamedType( value.getName() );
 
 		// do not write default values, it's just a waste of time and memory
 		if( component != null && !RefUtils.isSameAsDefaultValue( ctx.getScope(), component, value ) )

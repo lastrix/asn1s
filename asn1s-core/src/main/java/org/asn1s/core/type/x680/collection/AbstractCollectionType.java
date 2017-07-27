@@ -31,6 +31,7 @@ import org.asn1s.api.State;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.ComponentType.Kind;
+import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.type.BuiltinType;
@@ -94,19 +95,23 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 		return value.getKind() == Value.Kind.COLLECTION || value.getKind() == Value.Kind.NAMED_COLLECTION;
 	}
 
-	List<Type> getComponents()
+	@Override
+	public List<Type> getComponents( Kind kind )
 	{
-		return Collections.unmodifiableList( components );
-	}
+		switch( kind )
+		{
+			case PRIMARY:
+				return Collections.unmodifiableList( components );
 
-	List<Type> getComponentsLast()
-	{
-		return Collections.unmodifiableList( componentsLast );
-	}
+			case SECONDARY:
+				return Collections.unmodifiableList( componentsLast );
 
-	List<Type> getExtensions()
-	{
-		return Collections.unmodifiableList( extensions );
+			case EXTENSION:
+				return Collections.unmodifiableList( extensions );
+
+			default:
+				throw new IllegalArgumentException( kind.name() );
+		}
 	}
 
 	@Override
@@ -129,15 +134,15 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 		switch( kind )
 		{
 			case PRIMARY:
-				addComponent( component );
+				components.add( component );
 				break;
 
 			case EXTENSION:
-				addExtension( component );
+				extensions.add( component );
 				break;
 
 			case SECONDARY:
-				addComponentLast( component );
+				componentsLast.add( component );
 				break;
 
 			default:
@@ -150,53 +155,26 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 		extensions.add( extensionGroup );
 	}
 
-	private void addComponent( Type component )
-	{
-		components.add( component );
-	}
-
-	private void addComponentLast( Type componentLast )
-	{
-		componentsLast.add( componentLast );
-	}
-
-	private void addExtension( Type extension )
-	{
-		extensions.add( extension );
-	}
-
+	@SuppressWarnings( "unchecked" )
 	@Nullable
 	@Override
-	public ComponentType getComponent( @NotNull String name, boolean withExtensions )
+	public <T extends NamedType> T getNamedType( @NotNull String name )
 	{
 		for( ComponentType component : actualComponents )
-			if( component.getComponentName().equals( name ) && ( withExtensions || component.getVersion() == 1 ) )
-				return component;
+			if( component.getComponentName().equals( name ) )
+				return (T)component;
 
 		return null;
 	}
 
+	@SuppressWarnings( "unchecked" )
+	@NotNull
 	@Override
-	public List<ComponentType> getComponents( boolean withExtensions )
+	public <T extends NamedType> List<T> getNamedTypes()
 	{
-		if( withExtensions )
-			return Collections.unmodifiableList( actualComponents );
-
-		List<ComponentType> result = new ArrayList<>();
-		for( ComponentType component : actualComponents )
-			if( component.getVersion() == 1 )
-				result.add( component );
-
-		return result;
-	}
-
-	@Override
-	public List<Type> getRawComponents()
-	{
-		List<Type> list = new ArrayList<>( components.size() + componentsLast.size() );
-		list.addAll( components );
-		list.addAll( componentsLast );
-		return list;
+		return actualComponents == null
+				? Collections.emptyList()
+				: Collections.unmodifiableList( (List<? extends T>)actualComponents );
 	}
 
 	void setActualComponents( List<ComponentType> actualComponents )
@@ -225,13 +203,13 @@ abstract class AbstractCollectionType extends BuiltinType implements CollectionT
 		type.setExtensible( extensible );
 
 		for( Type component : components )
-			type.addComponent( component.copy() );
+			type.addComponent( Kind.PRIMARY, component.copy() );
 
 		for( Type component : componentsLast )
-			type.addComponentLast( component.copy() );
+			type.addComponent( Kind.SECONDARY, component.copy() );
 
 		for( Type component : extensions )
-			type.addExtension( component.copy() );
+			type.addComponent( Kind.EXTENSION, component.copy() );
 
 		return type;
 	}
