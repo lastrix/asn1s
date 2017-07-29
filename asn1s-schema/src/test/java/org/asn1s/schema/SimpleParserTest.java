@@ -185,4 +185,13 @@ public class SimpleParserTest
 		for( Module module : modules )
 			module.validate();
 	}
+
+	@Test
+	public void testPduParse() throws Exception
+	{
+		ModuleSet resolver = new ModuleSet();
+		Module module = SchemaUtils.parsePdu( "int-Value INTEGER ::= 1", resolver, new DefaultAsn1Factory( resolver ) );
+		Assert.assertNotNull( "No result", module );
+
+	}
 }

@@ -35,7 +35,6 @@ import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.Type;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -55,7 +54,7 @@ final class ComponentsFromType extends AbstractType
 	private final Family requiredFamily;
 	private Type type;
 
-	@Nullable
+	@NotNull
 	@Override
 	public Type getSibling()
 	{

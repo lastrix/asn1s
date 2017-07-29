@@ -71,10 +71,10 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 	 * @return Type
 	 * @throws IllegalStateException if type is not validated
 	 */
-	@Nullable
+	@NotNull
 	default Type getSibling()
 	{
-		return null;
+		throw new IllegalStateException( "No sibling type" );
 	}
 
 	/**

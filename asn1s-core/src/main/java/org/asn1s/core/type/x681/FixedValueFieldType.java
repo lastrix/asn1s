@@ -87,7 +87,7 @@ public class FixedValueFieldType extends AbstractFieldType
 		return (Ref<T>)defaultValue;
 	}
 
-	@Nullable
+	@NotNull
 	@Override
 	public Type getSibling()
 	{

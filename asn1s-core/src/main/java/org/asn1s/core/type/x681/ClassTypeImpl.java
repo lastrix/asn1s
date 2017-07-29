@@ -58,6 +58,13 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 
 	@NotNull
 	@Override
+	public Scope getScope( @NotNull Scope parentScope )
+	{
+		return parentScope.typedScope( this );
+	}
+
+	@NotNull
+	@Override
 	public Family getFamily()
 	{
 		return Family.OBJECT_CLASS;

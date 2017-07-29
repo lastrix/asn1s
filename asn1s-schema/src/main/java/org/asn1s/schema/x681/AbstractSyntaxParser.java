@@ -53,7 +53,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
 
-public class AbstractSyntaxParser
+class AbstractSyntaxParser
 {
 	private static final Log log = LogFactory.getLog( AbstractSyntaxParser.class );
 	private static final String MSG_EXPECTED_TOKEN_NOT_FOUND = "Expected token does not found: ";
@@ -66,10 +66,11 @@ public class AbstractSyntaxParser
 	private Map<String, Ref<?>> resultMap;
 	private CommonTokenStream tokenStream;
 
-	public AbstractSyntaxParser( ModuleResolver resolver, Asn1Factory factory, Module module, ClassType classType )
+	AbstractSyntaxParser( Module module, ClassType classType )
 	{
-		this.resolver = resolver;
-		this.factory = factory;
+		assert module.getModuleResolver() != null;
+		resolver = module.getModuleResolver();
+		factory = module.getModuleResolver().createObjectFactory();
 		this.module = module;
 		this.classType = classType;
 
@@ -77,7 +78,7 @@ public class AbstractSyntaxParser
 		parseGroupItems( root, new LinkedList<>( classType.getSyntaxList() ), false );
 	}
 
-	public Map<String, Ref<?>> parse( String value ) throws Exception
+	Map<String, Ref<?>> parse( String value ) throws Exception
 	{
 		try( Reader r = new StringReader( value ) )
 		{
@@ -238,6 +239,7 @@ public class AbstractSyntaxParser
 			case Asn1Parser.TIME_OF_DAY:
 			case Asn1Parser.INTEGER:
 				registerFieldRef( object.getText(), UniversalType.forTypeName( token.getText() ).ref() );
+				tokenStream.consume();
 				return true;
 
 			case Asn1Parser.Identifier:
@@ -379,6 +381,7 @@ public class AbstractSyntaxParser
 
 		private void parseBracedValueImpl( SyntaxObject object, boolean isOid, Reader r ) throws IOException
 		{
+			assert resolver != null;
 			TokenSource lexer = new Asn1Lexer( new ANTLRInputStream( r ) );
 			CommonTokenStream valueTokenStream = new CommonTokenStream( lexer );
 			Asn1Parser parser = new Asn1Parser( valueTokenStream, resolver, factory );
@@ -430,7 +433,7 @@ public class AbstractSyntaxParser
 
 		private boolean parseExternalReference( Token token, Token nextToken )
 		{
-			if( !RefUtils.isValueRef( token.getText() ) )
+			if( !RefUtils.isValueRef( token.getText() ) && !RefUtils.isTypeRef( token.getText() ) )
 				return false;
 
 			tokenStream.consume();

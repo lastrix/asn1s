@@ -36,7 +36,6 @@ import org.asn1s.api.type.Type;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * X.680, p 30.1
@@ -57,7 +56,7 @@ public final class SelectionType extends AbstractType
 	private Ref<Type> ref;
 	private Type type;
 
-	@Nullable
+	@NotNull
 	@Override
 	public Type getSibling()
 	{

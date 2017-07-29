@@ -25,49 +25,26 @@
 
 package org.asn1s.schema.x681;
 
-import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.module.Module;
-import org.asn1s.api.module.ModuleResolver;
-import org.asn1s.api.type.ClassType;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.value.Value;
-import org.asn1s.api.value.x681.ObjectValue;
+import org.asn1s.schema.x681.SyntaxObject.Kind;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.util.Map;
-
-public class AbstractSyntaxObjectRef implements Ref<Value>
+public class GroupSyntaxObjectTest
 {
-	public AbstractSyntaxObjectRef( String abstractSyntax )
+	@Test( expected = UnsupportedOperationException.class )
+	public void testGetTextFail()
 	{
-		abstractSyntax = abstractSyntax.trim();
-		if( !abstractSyntax.startsWith( "{" ) && !abstractSyntax.endsWith( "}" ) )
-			throw new IllegalArgumentException( "Not valid abstract syntax: " + abstractSyntax );
-		this.abstractSyntax = abstractSyntax.substring( 1, abstractSyntax.length() - 1 );
+		new GroupSyntaxObject().getText();
+		Assert.fail( "Exception was not thrown" );
 	}
 
-	private final String abstractSyntax;
-
-	@Override
-	public Value resolve( Scope scope ) throws ResolutionException
+	@Test
+	public void testAddObject()
 	{
-		Type type = scope.getTypeOrDie();
-		while( !( type instanceof ClassType ) )
-			type = type.getSibling();
-
-		Module module = scope.getModule();
-		ModuleResolver resolver = module.getModuleResolver();
-		assert resolver != null;
-		ClassType classType = (ClassType)type;
-		try
-		{
-			AbstractSyntaxParser parser = new AbstractSyntaxParser( module, classType );
-			Map<String, Ref<?>> result = parser.parse( abstractSyntax );
-			return new ObjectValue( result );
-		} catch( Exception e )
-		{
-			throw new ResolutionException( "Unable to unwrap abstract syntax: " + abstractSyntax, e );
-		}
+		GroupSyntaxObject group = new GroupSyntaxObject();
+		Assert.assertEquals( "Kind is not GROUP", Kind.GROUP, group.getKind() );
+		Assert.assertTrue( "Collection is not empty", group.getObjects().isEmpty() );
+		group.addObject( new SimpleSyntaxObject( Kind.KEYWORD, "VALUE" ) );
+		Assert.assertEquals( "Collection is not empty", 1, group.getObjects().size() );
 	}
 }

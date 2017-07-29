@@ -245,7 +245,7 @@ abstract class AbstractBerWriter implements Asn1Writer
 		context.getScope().setValueLevel( context.getValue() );
 
 		NamedValue namedValue = context.getValue().toNamedValue();
-		ComponentType componentType = (ComponentType)context.getType().getNamedType( namedValue.getName() );
+		ComponentType componentType = context.getType().getNamedType( namedValue.getName() );
 		if( componentType == null )
 			throw new ResolutionException( "Unknown component: " + namedValue.getName() );
 

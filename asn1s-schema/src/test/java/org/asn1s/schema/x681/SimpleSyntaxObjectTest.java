@@ -23,38 +23,56 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.schema;
+package org.asn1s.schema.x681;
 
-import org.asn1s.api.Ref;
-import org.asn1s.api.UniversalType;
-import org.asn1s.core.DefaultAsn1Factory;
-import org.asn1s.core.module.CoreModule;
-import org.asn1s.core.module.ModuleSet;
-import org.asn1s.core.type.x681.ClassTypeImpl;
-import org.asn1s.core.type.x681.FixedValueFieldType;
-import org.asn1s.core.type.x681.TypeFieldType;
-import org.asn1s.schema.x681.AbstractSyntaxParser;
+import org.asn1s.schema.x681.SyntaxObject.Kind;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Map;
-
-public class AbstractSyntaxParserTest
+public class SimpleSyntaxObjectTest
 {
 	@Test
-	public void testParser() throws Exception
+	public void testKeyword()
 	{
-		ClassTypeImpl classType = new ClassTypeImpl();
-		classType.setSyntaxList( Arrays.asList( "&Type", "IDENTIFIED", "BY", "&id", "[", "CONSTRAINED", "BY", "&TypeConstraint", "]" ) );
-		classType.add( new FixedValueFieldType( "&id", UniversalType.OBJECT_IDENTIFIER.ref(), true, false, null ) );
-		classType.add( new TypeFieldType( "&Type", false, null ) );
-		classType.add( new TypeFieldType( "&TypeConstraint", false, null ) );
-		classType.validate( CoreModule.getInstance().createScope() );
-		ModuleSet moduleSet = new ModuleSet();
-		DefaultAsn1Factory factory = new DefaultAsn1Factory( moduleSet );
-		AbstractSyntaxParser parser = new AbstractSyntaxParser( moduleSet, factory, CoreModule.getInstance(), classType );
-		Map<String, Ref<?>> result = parser.parse( "Super-Type IDENTIFIED BY { rootOid 3 } CONSTRAINED BY TYPE-Constraint" );
-		Assert.assertNotNull( "No result", result );
+		String value = "VALUE";
+		SyntaxObject object = new SimpleSyntaxObject( Kind.KEYWORD, value );
+		Assert.assertEquals( "Values are not same", value, object.getText() );
+		Assert.assertEquals( "Values are not same", Kind.KEYWORD, object.getKind() );
+	}
+
+	@Test
+	public void testValueField()
+	{
+		String value = "&id";
+		SyntaxObject object = new SimpleSyntaxObject( Kind.KEYWORD, value );
+		Assert.assertEquals( "Values are not same", value, object.getText() );
+		Assert.assertEquals( "Values are not same", Kind.KEYWORD, object.getKind() );
+	}
+
+	@Test
+	public void testTypeField()
+	{
+		String value = "&Type";
+		SyntaxObject object = new SimpleSyntaxObject( Kind.KEYWORD, value );
+		Assert.assertEquals( "Values are not same", value, object.getText() );
+		Assert.assertEquals( "Values are not same", Kind.KEYWORD, object.getKind() );
+	}
+
+	@Test( expected = IllegalArgumentException.class )
+	public void testEmptyTextFail()
+	{
+		String value = "";
+		//noinspection unused
+		SyntaxObject object = new SimpleSyntaxObject( Kind.KEYWORD, value );
+		Assert.fail( "Exception was not thrown" );
+	}
+
+	@Test( expected = IllegalArgumentException.class )
+	public void testGroupKindFail()
+	{
+		String value = "&Type";
+		//noinspection unused
+		SyntaxObject object = new SimpleSyntaxObject( Kind.GROUP, value );
+		Assert.fail( "Exception was not thrown" );
 	}
 }

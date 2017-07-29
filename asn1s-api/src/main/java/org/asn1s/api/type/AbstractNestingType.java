@@ -60,8 +60,6 @@ public abstract class AbstractNestingType extends AbstractType
 	@Override
 	public Type getSibling()
 	{
-		if( sibling == null )
-			throw new IllegalStateException();
 		return sibling;
 	}
 
@@ -91,47 +89,47 @@ public abstract class AbstractNestingType extends AbstractType
 	@Override
 	public Family getFamily()
 	{
-		return getSibling().getFamily();
+		return sibling.getFamily();
 	}
 
 	@Nullable
 	@Override
 	public <T extends NamedType> T getNamedType( @NotNull String name )
 	{
-		return getSibling().getNamedType( name );
+		return sibling.getNamedType( name );
 	}
 
 	@NotNull
 	@Override
 	public <T extends NamedType> List<T> getNamedTypes()
 	{
-		return getSibling().getNamedTypes();
+		return sibling.getNamedTypes();
 	}
 
 	@Override
 	public boolean isConstructedValue( Scope scope, Value value )
 	{
-		return getSibling().isConstructedValue( scope, value );
+		return sibling.isConstructedValue( scope, value );
 	}
 
 	@Nullable
 	@Override
 	public NamedValue getNamedValue( @NotNull String name )
 	{
-		return getSibling().getNamedValue( name );
+		return sibling.getNamedValue( name );
 	}
 
 	@NotNull
 	@Override
 	public Collection<NamedValue> getNamedValues()
 	{
-		return getSibling().getNamedValues();
+		return sibling.getNamedValues();
 	}
 
 	@Override
 	public IEncoding getEncoding( EncodingInstructions instructions )
 	{
-		return getSibling().getEncoding( instructions );
+		return sibling.getEncoding( instructions );
 	}
 
 	protected Ref<Type> cloneSibling()
@@ -142,13 +140,13 @@ public abstract class AbstractNestingType extends AbstractType
 	@Override
 	public ElementSetSpecs asElementSetSpecs()
 	{
-		return getSibling().asElementSetSpecs();
+		return sibling.asElementSetSpecs();
 	}
 
 	@Override
 	public boolean hasElementSetSpecs()
 	{
-		return getSibling().hasElementSetSpecs();
+		return sibling.hasElementSetSpecs();
 	}
 
 	@Override

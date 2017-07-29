@@ -65,6 +65,7 @@ public final class TemplateTypeInstance extends AbstractType
 		return parentScope.templateInstanceScope( type, arguments );
 	}
 
+	@NotNull
 	@Override
 	public Type getSibling()
 	{
