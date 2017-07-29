@@ -61,6 +61,12 @@ final class ComponentsFromType extends AbstractType
 		return type;
 	}
 
+	@Override
+	public boolean hasSibling()
+	{
+		return type != null;
+	}
+
 	public List<ComponentType> getComponents()
 	{
 		return Collections.unmodifiableList( components );
@@ -120,7 +126,7 @@ final class ComponentsFromType extends AbstractType
 				throw new IllegalStateException( "No extension addition group allowed" );
 			else if( component instanceof ComponentsFromType )
 			{
-				assert component.getSibling() != null;
+				assert component.hasSibling();
 				resolveComponents( scope, component.getSibling() );
 			}
 			else

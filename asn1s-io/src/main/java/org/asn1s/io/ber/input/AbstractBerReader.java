@@ -103,7 +103,7 @@ abstract class AbstractBerReader implements Asn1Reader
 		if( context.getType().isTagged() && ( (TaggedType)context.getType() ).getInstructions() == EncodingInstructions.TAG )
 			return readTaggedType( context );
 
-		if( context.getType().getSibling() != null )
+		if( context.getType().hasSibling() )
 			return readInternal( context.toSiblingContext() );
 
 		if( context.getType().getFamily() == Family.CHOICE )

@@ -127,7 +127,7 @@ abstract class AbstractBerWriter implements Asn1Writer
 			writeTaggedType( context );
 		else if( type.getFamily() == Family.CHOICE )
 			writeChoiceType( context );
-		else if( type.getSibling() != null )
+		else if( type.hasSibling() )
 			writeInternal( context.toSiblingContext( context.isWriteHeader() ) );
 		else if( type.getFamily() == Family.OPEN_TYPE )
 			writeOpenType( context );

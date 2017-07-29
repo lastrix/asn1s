@@ -95,6 +95,12 @@ public class FixedValueFieldType extends AbstractFieldType
 	}
 
 	@Override
+	public boolean hasSibling()
+	{
+		return fieldType != null;
+	}
+
+	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
 		scope = getScope( scope );

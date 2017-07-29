@@ -63,6 +63,12 @@ public final class SelectionType extends AbstractType
 		return type;
 	}
 
+	@Override
+	public boolean hasSibling()
+	{
+		return type != null;
+	}
+
 	@NotNull
 	@Override
 	public Family getFamily()

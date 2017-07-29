@@ -123,7 +123,7 @@ public final class TaggedTypeImpl extends AbstractNestingType implements TaggedT
 	public boolean isConstructedValue( Scope scope, Value value )
 	{
 		Type thisType = getSibling();
-		while( thisType != null )
+		while( true )
 		{
 			if( thisType instanceof TaggedTypeImpl )
 			{
@@ -138,7 +138,7 @@ public final class TaggedTypeImpl extends AbstractNestingType implements TaggedT
 			if( thisType.isConstructedValue( scope, value ) )
 				return true;
 
-			if( thisType.getSibling() == null )
+			if( !thisType.hasSibling() )
 				break;
 			thisType = thisType.getSibling();
 		}

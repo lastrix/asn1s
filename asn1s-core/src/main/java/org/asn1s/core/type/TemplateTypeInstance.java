@@ -73,6 +73,12 @@ public final class TemplateTypeInstance extends AbstractType
 	}
 
 	@Override
+	public boolean hasSibling()
+	{
+		return type != null;
+	}
+
+	@Override
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		type.accept( getScope( scope ), valueRef );

@@ -64,6 +64,12 @@ public abstract class AbstractNestingType extends AbstractType
 	}
 
 	@Override
+	public boolean hasSibling()
+	{
+		return sibling != null;
+	}
+
+	@Override
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
 		sibling.accept( scope.typedScope( this ), valueRef );

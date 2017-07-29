@@ -77,6 +77,11 @@ public interface Type extends Ref<Type>, Disposable, Validation, Scoped
 		throw new IllegalStateException( "No sibling type" );
 	}
 
+	default boolean hasSibling()
+	{
+		return false;
+	}
+
 	/**
 	 * Accept value, use scope for resolution. You should chain scopes if this is required for some reason
 	 *

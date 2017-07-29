@@ -95,7 +95,7 @@ public class AbstractSyntaxObjectRefTest
 		Assert.assertNotNull( "No result", value );
 	}
 
-	@Test( expected = IllegalStateException.class )
+	@Test( expected = ResolutionException.class )
 	public void testNoClassType() throws Exception
 	{
 		AbstractSyntaxObjectRef ref = new AbstractSyntaxObjectRef( "{ ID &id }" );
