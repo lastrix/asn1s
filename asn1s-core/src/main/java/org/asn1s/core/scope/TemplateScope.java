@@ -30,6 +30,7 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.Template;
 import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.TypeName;
 import org.asn1s.api.util.RefUtils;
@@ -40,13 +41,18 @@ import org.jetbrains.annotations.Nullable;
 
 final class TemplateScope extends AbstractScope
 {
-	TemplateScope( Scope scope, Template<?> type )
+	TemplateScope( Scope scope, @Nullable Type type, Template template, Module module )
 	{
 		super( scope );
 		this.type = type;
+		this.template = template;
+		this.module = module;
 	}
 
-	private final Template<?> type;
+	@Nullable
+	private final Type type;
+	private final Template template;
+	private final Module module;
 
 	@SuppressWarnings( "unchecked" )
 	@NotNull
@@ -55,7 +61,7 @@ final class TemplateScope extends AbstractScope
 	{
 		if( module == null )
 		{
-			TemplateParameter parameter = type.getParameter( ref );
+			TemplateParameter parameter = template.getParameter( ref );
 			if( parameter != null && RefUtils.isTypeRef( parameter.getReference() ) )
 				return parameter.getReference();
 		}
@@ -70,7 +76,7 @@ final class TemplateScope extends AbstractScope
 	{
 		if( module == null )
 		{
-			TemplateParameter parameter = type.getParameter( ref );
+			TemplateParameter parameter = template.getParameter( ref );
 			if( parameter != null && parameter.isValueRef() )
 				return parameter.getReference();
 		}
@@ -85,7 +91,7 @@ final class TemplateScope extends AbstractScope
 			return getParentScope().resolveType( typeName );
 		} catch( ResolutionException ignored )
 		{
-			return type.getModule().getTypeResolver().resolve( typeName );
+			return module.getTypeResolver().resolve( typeName );
 		}
 	}
 
@@ -97,16 +103,16 @@ final class TemplateScope extends AbstractScope
 			return getParentScope().resolveValue( valueName );
 		} catch( ResolutionException ignored )
 		{
-			return type.getModule().getValueResolver().resolve( valueName );
+			return module.getValueResolver().resolve( valueName );
 		}
 	}
 
 	@Override
 	protected void fillValueLevels( Type[] types, Value[] values, int depth )
 	{
-		if( getValueLevel() != null )
+		if( getValueLevel() != null && type != null )
 		{
-			types[depth - 1] = (Type)type;
+			types[depth - 1] = type;
 			values[depth - 1] = getValueLevel();
 			depth--;
 		}

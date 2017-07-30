@@ -27,14 +27,17 @@ package org.asn1s.core.value;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
+import org.asn1s.api.Template;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.AbstractDefinedValue;
+import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DefinedValueImpl extends AbstractDefinedValue
 {
@@ -48,12 +51,40 @@ public class DefinedValueImpl extends AbstractDefinedValue
 
 	private Type type;
 	private Value value;
+	private Template template;
+
+	@Nullable
+	@Override
+	public Template getTemplate()
+	{
+		return template;
+	}
+
+	public void setTemplate( @Nullable Template template )
+	{
+		this.template = template;
+	}
+
+	@Override
+	public boolean isAbstract()
+	{
+		return template != null;
+	}
+
+	@NotNull
+	@Override
+	public Scope createScope()
+	{
+		return getModule().createScope();
+	}
 
 	@NotNull
 	@Override
 	public Scope getScope( @NotNull Scope parentScope )
 	{
-		return getModule().createScope().typedScope( getType() );
+		return template == null
+				? parentScope.typedScope( getType() )
+				: parentScope.typedScope( getType() ).templateScope( template, getType(), getModule() );
 	}
 
 	public void setTypeRef( @NotNull Ref<Type> typeRef )
@@ -123,9 +154,25 @@ public class DefinedValueImpl extends AbstractDefinedValue
 	}
 
 	@Override
+	public Value resolve( Scope scope ) throws ResolutionException
+	{
+		if( !isAbstract() )
+			return super.resolve( scope );
+
+		return this;
+	}
+
+	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		scope = getModule().createScope();
+		if( isAbstract() && !template.isInstance() )
+			throw new ValidationException( "Unable to validate abstract values" );
+
+		onValidateImpl( template == null ? createScope() : scope );
+	}
+
+	private void onValidateImpl( @NotNull Scope scope ) throws ValidationException, ResolutionException
+	{
 		type = typeRef.resolve( scope );
 		type.validate( scope );
 		scope = getScope( scope );
@@ -152,6 +199,17 @@ public class DefinedValueImpl extends AbstractDefinedValue
 		int result = super.hashCode();
 		result = 31 * result + String.valueOf( getTypeRef() ).hashCode();
 		result = 31 * result + String.valueOf( getValueRef() ).hashCode();
+		return result;
+	}
+
+	@NotNull
+	@Override
+	public DefinedValue copy()
+	{
+		DefinedValueImpl result = new DefinedValueImpl( getModule(), getName() );
+		result.setValueRef( getValueRef() );
+		result.setTypeRef( getTypeRef() );
+		result.setTemplate( getTemplate() );
 		return result;
 	}
 

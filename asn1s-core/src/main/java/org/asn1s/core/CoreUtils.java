@@ -26,13 +26,11 @@
 package org.asn1s.core;
 
 import org.apache.commons.lang3.StringUtils;
-import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
-import org.asn1s.api.TemplateParameter;
-import org.asn1s.api.Validation;
+import org.asn1s.api.*;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.ByteArrayValue;
@@ -40,7 +38,6 @@ import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x680.ValueCollection;
-import org.asn1s.core.type.DefinedTypeTemplate;
 import org.asn1s.core.value.x680.ByteArrayValueImpl;
 import org.jetbrains.annotations.NotNull;
 
@@ -86,13 +83,14 @@ public final class CoreUtils
 		throw new UnsupportedOperationException( "Unable to compare number value to " + kind );
 	}
 
-	public static void assertParameterMap( Scope scope, Map<String, TemplateParameter> parameterMap ) throws ValidationException, ResolutionException
+	public static void assertParameterMap( Scope scope, Template template ) throws ValidationException, ResolutionException
 	{
-		if( parameterMap.isEmpty() )
+		if( template.getParameterCount() == 0 )
 			throw new ValidationException( "No parameters for template type" );
 
-		for( TemplateParameter parameter : parameterMap.values() )
+		for( int i = 0; i < template.getParameterCount(); i++ )
 		{
+			TemplateParameter parameter = template.getParameter( i );
 			assertReference( parameter );
 			assertGovernor( scope, parameter );
 		}
@@ -113,7 +111,8 @@ public final class CoreUtils
 			return;
 
 		Type type = parameter.getGovernor().resolve( scope );
-		if( type instanceof DefinedTypeTemplate )
+		//noinspection ConstantConditions isAbstract is a check for template != null
+		if( type instanceof DefinedType && ( (DefinedType)type ).isAbstract() && !( (DefinedType)type ).getTemplate().isInstance() )
 			throw new ValidationException( "Unable to use Type template as governor" );
 	}
 

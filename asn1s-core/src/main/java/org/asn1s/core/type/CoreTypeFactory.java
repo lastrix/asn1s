@@ -27,7 +27,7 @@ package org.asn1s.core.type;
 
 import org.asn1s.api.BuiltinClass;
 import org.asn1s.api.Ref;
-import org.asn1s.api.TemplateParameter;
+import org.asn1s.api.Template;
 import org.asn1s.api.UniversalType;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.encoding.IEncoding;
@@ -39,14 +39,11 @@ import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.type.*;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
-import org.asn1s.api.value.ValueNameRef;
 import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.api.value.x681.ObjectValue;
-import org.asn1s.core.TemplateParameterImpl;
 import org.asn1s.core.module.ModuleImpl;
 import org.asn1s.core.module.ModuleSet;
 import org.asn1s.core.type.x680.EnumeratedType;
@@ -55,7 +52,6 @@ import org.asn1s.core.type.x680.collection.*;
 import org.asn1s.core.type.x680.string.BitStringType;
 import org.asn1s.core.type.x681.*;
 import org.asn1s.core.value.DefinedValueImpl;
-import org.asn1s.core.value.DefinedValueTemplateImpl;
 import org.asn1s.core.value.TemplateValueInstance;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -103,35 +99,22 @@ public class CoreTypeFactory implements TypeFactory
 
 	@NotNull
 	@Override
-	public TemplateParameter templateParameter( int index, @NotNull String reference, @Nullable Ref<Type> governor )
+	public DefinedType define( @NotNull String name, @NotNull Ref<Type> typeRef, @Nullable Template template )
 	{
-		Ref<?> ref = RefUtils.isTypeRef( reference )
-				? new TypeNameRef( reference, null )
-				: new ValueNameRef( reference, null );
-
-		return new TemplateParameterImpl( index, ref, governor );
-	}
-
-	@NotNull
-	@Override
-	public DefinedType define( @NotNull String name, @NotNull Ref<Type> typeRef, @Nullable Collection<TemplateParameter> parameters )
-	{
-		DefinedType type = parameters == null
-				? new DefinedTypeImpl( module, name, typeRef )
-				: new DefinedTypeTemplate( module, name, typeRef, parameters );
+		DefinedTypeImpl type = new DefinedTypeImpl( module, name, typeRef );
+		type.setTemplate( template );
 		module.getTypeResolver().add( type );
 		return type;
 	}
 
 	@NotNull
 	@Override
-	public DefinedValue define( @NotNull String name, @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef, @Nullable Collection<TemplateParameter> parameters )
+	public DefinedValue define( @NotNull String name, @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef, @Nullable Template template )
 	{
-		DefinedValueImpl value = parameters == null
-				? new DefinedValueImpl( module, name )
-				: new DefinedValueTemplateImpl( module, name, parameters );
+		DefinedValueImpl value = new DefinedValueImpl( module, name );
 		value.setTypeRef( typeRef );
 		value.setValueRef( valueRef );
+		value.setTemplate( template );
 		module.getValueResolver().add( value );
 		return value;
 	}

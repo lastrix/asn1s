@@ -95,9 +95,9 @@ public interface Scope
 
 	Value getValueLevel();
 
-	Scope templateInstanceScope( @NotNull Template<?> template, @NotNull List<Ref<?>> arguments );
+	Scope templateInstanceScope( @NotNull Template template, @NotNull List<Ref<?>> arguments );
 
-	Scope templateScope( @NotNull Template<?> template );
+	Scope templateScope( @NotNull Template template, @Nullable Type type, @NotNull Module module );
 
 	Scope typedScope( Type type );
 

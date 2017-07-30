@@ -33,6 +33,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class TypeNameRef implements Ref<Type>
 {
+	public TypeNameRef( @NotNull String name )
+	{
+		this( name, null );
+	}
+
 	public TypeNameRef( @NotNull String name, @Nullable String moduleName )
 	{
 		this( new TypeName( name, moduleName ) );

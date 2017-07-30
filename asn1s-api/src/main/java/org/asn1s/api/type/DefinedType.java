@@ -27,7 +27,9 @@ package org.asn1s.api.type;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
+import org.asn1s.api.Template;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface DefinedType extends NamedType
 {
@@ -36,8 +38,21 @@ public interface DefinedType extends NamedType
 
 	Ref<Type> toRef();
 
-	default boolean isTemplate()
+	/**
+	 * Returns true if this type can not be instantiated
+	 *
+	 * @return the abstract value
+	 */
+	default boolean isAbstract()
 	{
-		return false;
+		return getTemplate() != null;
 	}
+
+	/**
+	 * Returns non null value for parameterized types
+	 *
+	 * @return type parameters
+	 */
+	@Nullable
+	Template getTemplate();
 }

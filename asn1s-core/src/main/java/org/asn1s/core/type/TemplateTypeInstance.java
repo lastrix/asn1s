@@ -29,14 +29,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.Template;
-import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.AbstractNestingType;
+import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.util.RefUtils;
-import org.asn1s.api.value.Value;
+import org.asn1s.core.AbstractTemplateInstantiator;
+import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -57,15 +57,16 @@ public final class TemplateTypeInstance extends AbstractNestingType
 	@Override
 	public Scope getScope( @NotNull Scope parentScope )
 	{
-		//noinspection unchecked
-		return parentScope.templateInstanceScope( (Template<Type>)getSibling(), arguments );
+		Template template = ( (DefinedType)getSibling() ).getTemplate();
+		assert template != null;
+		return parentScope.templateInstanceScope( template, arguments );
 	}
 
 	@SuppressWarnings( "unchecked" )
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
 	{
-		new TemplateTypeInstantiator( scope ).newInstance();
+		new TemplateInstantiator( scope ).newInstance();
 	}
 
 	@NotNull
@@ -94,13 +95,11 @@ public final class TemplateTypeInstance extends AbstractNestingType
 		return getNamespace() + ( (NamedType)getSibling() ).getName() + '{' + StringUtils.join( arguments, ',' ) + "}.";
 	}
 
-	private final class TemplateTypeInstantiator
+	private final class TemplateInstantiator extends AbstractTemplateInstantiator
 	{
 		private final Scope scope;
-		private Scope templateScope;
-		private Scope templateInstanceScope;
 
-		TemplateTypeInstantiator( Scope scope ) throws ValidationException
+		TemplateInstantiator( Scope scope ) throws ValidationException
 		{
 			if( arguments.isEmpty() )
 				throw new ValidationException( "No arguments defined" );
@@ -109,83 +108,44 @@ public final class TemplateTypeInstance extends AbstractNestingType
 
 		void newInstance() throws ResolutionException, ValidationException
 		{
-			DefinedTypeTemplate template = resolveTypeTemplateOrDie();
-			templateScope = template.createScope();
-			templateInstanceScope = scope.templateInstanceScope( template, arguments );
-			validateArguments( template );
-			String siblingNamespace = getNamespace() + template.getName() + '{' + StringUtils.join( arguments, ',' ) + "}.";
-			setSibling( template.newInstance( templateInstanceScope, siblingNamespace ) );
+			DefinedType templateType = resolveTypeTemplateOrDie();
+			setTemplateScope( templateType.createScope() );
+			//noinspection ConstantConditions already checked non-null
+			setTemplateInstanceScope( scope.templateInstanceScope( templateType.getTemplate(), arguments ) );
+			setSibling( createInstanceOf( templateType ) );
 		}
 
-		private void validateArguments( DefinedTypeTemplate template ) throws ValidationException, ResolutionException
+		private Type createInstanceOf( DefinedType templateType ) throws ResolutionException, ValidationException
 		{
-			if( arguments.size() != template.getParameterCount() )
-				throw new ValidationException( "Template has " + template.getParameterCount() + " parameters, expected: " + arguments.size() );
-
-			Collection<Ref<?>> validatedArguments = new ArrayList<>( arguments.size() );
-			for( Ref<?> argument : arguments )
-				validatedArguments.add( validateArgument( argument, template.getParameter( validatedArguments.size() ) ) );
-
+			String siblingNamespace = getNamespace() + templateType.getName() + '{' + StringUtils.join( arguments, ',' ) + "}.";
+			DefinedTypeImpl instance = (DefinedTypeImpl)templateType.copy();
+			instance.setNamespace( siblingNamespace );
+			//noinspection ConstantConditions already checked non-null
+			List<Ref<?>> list = resolveTemplateInstance( templateType.getTemplate(), arguments );
 			arguments.clear();
-			arguments.addAll( validatedArguments );
-		}
-
-		@SuppressWarnings( "unchecked" )
-		private Ref<?> validateArgument( Ref<?> argument, TemplateParameter parameter ) throws ValidationException, ResolutionException
-		{
-			if( RefUtils.isTypeRef( argument ) )
-				return validateTypeArgument( parameter, (Ref<Type>)argument );
-
-			if( RefUtils.isValueRef( argument ) )
-				return validateValueArgument( parameter, (Ref<Value>)argument );
-
-			throw new IllegalStateException( "Unable to use argument: " + argument );
-		}
-
-		private Ref<Value> validateValueArgument( TemplateParameter parameter, Ref<Value> argument ) throws ValidationException, ResolutionException
-		{
-			if( !parameter.isValueRef() )
-				throw new ValidationException( "Parameter expects Type, but Value is present." );
-
-			if( parameter.getGovernor() == null )
-				throw new ValidationException( "TemplateParameter has no Governor for Value." );
-
-			Type type = parameter.getGovernor().resolve( templateScope );
-			return type.optimize( templateInstanceScope, argument );
-		}
-
-		private Ref<Type> validateTypeArgument( TemplateParameter parameter, Ref<Type> argument ) throws ValidationException, ResolutionException
-		{
-			if( parameter.isValueRef() )
-				throw new ValidationException( "TemplateParameter expects Value, but Type is present." );
-
-			Type type = argument.resolve( templateInstanceScope );
-			assert type != null;
-			if( !type.isValidated() )
-				type.validate( templateScope );
-
-			if( type.hasElementSetSpecs() || parameter.getGovernor() != null )
-				assertValueSet( parameter, type );
-
-			return type;
-		}
-
-		private void assertValueSet( TemplateParameter parameter, Type type ) throws ValidationException, ResolutionException
-		{
-			if( parameter.getGovernor() == null )
-				throw new ValidationException( "TemplateParameter has no governor for elementSetSpecs validation" );
-
-			Type resolve = parameter.getGovernor().resolve( templateScope );
-			type.asElementSetSpecs().copyForType( templateInstanceScope, resolve );
+			arguments.addAll( list );
+			instance.setTemplate( getNewTemplate() );
+			instance.validate( scope.templateInstanceScope( getNewTemplate(), arguments ) );
+			return instance;
 		}
 
 		@NotNull
-		private DefinedTypeTemplate resolveTypeTemplateOrDie() throws ResolutionException, ValidationException
+		private DefinedType resolveTypeTemplateOrDie() throws ResolutionException, ValidationException
 		{
 			Type resolved = getSiblingRef().resolve( scope );
-			if( !( resolved instanceof DefinedTypeTemplate ) )
-				throw new ValidationException( "TemplateTypeInstance sub type must be TemplateType" );
-			return (DefinedTypeTemplate)resolved;
+			if( !isTemplateType( resolved ) )
+				throw new ValidationException( "TemplateTypeInstance sub type must be DefinedType and has a non-instance Template" );
+			//noinspection ConstantConditions
+			CoreUtils.assertParameterMap( scope, ( (DefinedType)resolved ).getTemplate() );
+			return (DefinedType)resolved;
+		}
+
+		private boolean isTemplateType( Type resolved )
+		{
+			if( !( resolved instanceof DefinedType ) )
+				return false;
+			DefinedType type = (DefinedType)resolved;
+			return type.getTemplate() != null && !type.getTemplate().isInstance();
 		}
 	}
 }

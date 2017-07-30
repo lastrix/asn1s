@@ -44,7 +44,7 @@ import java.util.List;
 
 final class TemplateInstanceScope extends AbstractScope
 {
-	TemplateInstanceScope( @NotNull Scope scope, @NotNull Template<?> template, @NotNull List<Ref<?>> arguments )
+	TemplateInstanceScope( @NotNull Scope scope, @NotNull Template template, @NotNull List<Ref<?>> arguments )
 	{
 		super( scope );
 		this.template = template;
@@ -52,7 +52,7 @@ final class TemplateInstanceScope extends AbstractScope
 		this.arguments = arguments;
 	}
 
-	private final Template<?> template;
+	private final Template template;
 	private final List<Ref<?>> arguments;
 
 	@NotNull
@@ -100,6 +100,9 @@ final class TemplateInstanceScope extends AbstractScope
 		Ref<?> ref = arguments.get( parameter.getIndex() );
 		if( !RefUtils.isValueRef( ref ) )
 			throw new ResolutionException( "Illegal reference used for value TemplateParameter: " + ref );
+
+		if( parameter.getGovernor() == null )
+			throw new ResolutionException( "No governor defined for template parameter: " + parameter );
 
 		Value value = (Value)ref.resolve( getParentScope() );
 		try

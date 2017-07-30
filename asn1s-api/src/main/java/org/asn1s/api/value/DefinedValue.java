@@ -25,16 +25,18 @@
 
 package org.asn1s.api.value;
 
-import org.asn1s.api.Disposable;
-import org.asn1s.api.Ref;
-import org.asn1s.api.Scoped;
-import org.asn1s.api.Validation;
+import org.asn1s.api.*;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.value.x680.*;
 import org.asn1s.api.value.x681.ObjectValue;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface DefinedValue extends Value, Validation, Disposable, Scoped
 {
+	@NotNull
+	Scope createScope();
+
 	String getName();
 
 	Type getType();
@@ -43,12 +45,23 @@ public interface DefinedValue extends Value, Validation, Disposable, Scoped
 
 	Ref<Value> toRef();
 
+	@Nullable
+	Template getTemplate();
+
 	/**
-	 * Returns true if this value is template
+	 * Copy this value, allowing to use instantiation for parameterized values.
+	 *
+	 * @return copy of value
+	 */
+	@NotNull
+	DefinedValue copy();
+
+	/**
+	 * Returns true if this value is abstract and can not be instantiated directly
 	 *
 	 * @return boolean
 	 */
-	default boolean isTemplate()
+	default boolean isAbstract()
 	{
 		return false;
 	}

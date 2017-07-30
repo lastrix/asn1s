@@ -124,6 +124,13 @@ import java.util.HashMap;
 		return getModule().getValueResolver().getValueRef( name, moduleName );
 	}
 
+	public Ref<?> toReference( String reference )
+	{
+	    return RefUtils.isTypeRef( reference )
+                    ? getTypeRef( reference, null )
+                    : getValueRef( reference, null );
+	}
+
 	////////////////////////////////////// Module setup ////////////////////////////////////////////////////////////////
 	Module setupModule(ModuleReference name)
 	{
@@ -555,8 +562,8 @@ choiceType returns [CollectionType result]
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////// Misc ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-templateTypeParameterList returns [List<TemplateParameter> result]
-    @init { $result = new ArrayList<>(); }
+templateTypeParameterList returns [Template result]
+    @init { $result = new Template(); }
     :
         OPEN_BRACE
         templateTypeParameter[$result]
@@ -564,23 +571,24 @@ templateTypeParameterList returns [List<TemplateParameter> result]
         CLOSE_BRACE
     ;
 
-templateTypeParameter[List<TemplateParameter> paramList]
+templateTypeParameter[Template templateObject]
     :
         templateTypeParameterGovernor?
         Identifier
         {
-            $paramList.add(
-                    typeFactory.templateParameter(
-                            paramList.size(),
-                            $Identifier.getText(),
-                            $templateTypeParameterGovernor.governor ));
+            TemplateParameter p =
+                    new TemplateParameter(
+                          $templateObject.getParameterCount(),
+                          toReference($Identifier.getText()),
+                          $templateTypeParameterGovernor.result );
+            $templateObject.addParameter( p );
         }
     ;
 
-templateTypeParameterGovernor returns [Ref<Type> governor]
+templateTypeParameterGovernor returns [Ref<Type> result]
     :   (
-            type                { $governor = $type.result; }
-        |   definedObjectClass  { $governor = $definedObjectClass.result; }
+            type                { $result = $type.result; }
+        |   definedObjectClass  { $result = $definedObjectClass.result; }
         )
         COLON
     ;

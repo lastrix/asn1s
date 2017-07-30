@@ -25,9 +25,7 @@
 
 package org.asn1s.core.type;
 
-import org.asn1s.api.Asn1Factory;
-import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
+import org.asn1s.api.*;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.type.*;
 import org.asn1s.api.type.Type.Family;
@@ -61,9 +59,10 @@ public class DefinedTypeTemplateTest
 				                         Collections.singletonList( factory.values().named( "a", nameRef ) ) );
 
 
+		Template template = new Template();
+		template.addParameter( new TemplateParameter( 0, new ValueNameRef( "value-X-TYPE" ), intType ) );
 		DefinedType templateType =
-				factory.types().define( "TemplateInteger", integerType,
-				                        Collections.singletonList( factory.types().templateParameter( 0, "value-X-TYPE", intType ) ) );
+				factory.types().define( "TemplateInteger", integerType, template );
 
 		Ref<Type> typeInstance = factory.types().typeTemplateInstance( templateType.toRef(), Collections.singletonList( factory.values().integer( 2 ) ) );
 		DefinedType singleInteger = factory.types().define( "SingleInteger", typeInstance, null );
@@ -87,9 +86,11 @@ public class DefinedTypeTemplateTest
 		DefinedType myType = factory.define( "MyType", intType, null );
 
 
+		Template template = new Template();
+		template.addParameter( new TemplateParameter( 0, new TypeNameRef( "X-Type" ), null ) );
 		DefinedType templateType =
-				factory.define( "MyTemplate", new TypeNameRef( "X-Type", null ),
-				                Collections.singletonList( factory.templateParameter( 0, "X-Type", null ) ) );
+				factory.define( "MyTemplate", new TypeNameRef( "X-Type" ),
+				                template );
 
 		Type typeInstance = factory.typeTemplateInstance( templateType.toRef(), Collections.singletonList( myType.toRef() ) );
 		DefinedType typeInstanceType = factory.define( "MyInstanceType", typeInstance, null );
@@ -120,7 +121,9 @@ public class DefinedTypeTemplateTest
 		Ref<Value> xValue = module.getValueResolver().getValueRef( "x-Value", null );
 		collection.addNamed( "a", xValue );
 		collection.addNamed( "b", factory.values().integer( 3 ) );
-		DefinedValue valueTemplate = factory.types().define( "value-Template", type, collection, Collections.singletonList( factory.types().templateParameter( 0, "x-Value", intType ) ) );
+		Template template = new Template();
+		template.addParameter( new TemplateParameter( 0, new ValueNameRef( "x-Value" ), intType ) );
+		DefinedValue valueTemplate = factory.types().define( "value-Template", type, collection, template );
 
 		IntegerValue integerValue = factory.values().integer( 10 );
 		Value templateInstance = factory.types().valueTemplateInstance( valueTemplate.toRef(), Collections.singletonList( integerValue ) );

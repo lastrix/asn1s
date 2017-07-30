@@ -32,6 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.Template;
+import org.asn1s.api.module.Module;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.TypeName;
@@ -79,15 +80,15 @@ abstract class AbstractScope implements Scope
 	}
 
 	@Override
-	public final Scope templateInstanceScope( @NotNull Template<?> template, @NotNull List<Ref<?>> arguments )
+	public final Scope templateInstanceScope( @NotNull Template template, @NotNull List<Ref<?>> arguments )
 	{
 		return new TemplateInstanceScope( this, template, arguments );
 	}
 
 	@Override
-	public final Scope templateScope( @NotNull Template<?> template )
+	public final Scope templateScope( @NotNull Template template, @Nullable Type type, @NotNull Module module )
 	{
-		return new TemplateScope( this, template );
+		return new TemplateScope( this, type, template, module );
 	}
 
 	@Override

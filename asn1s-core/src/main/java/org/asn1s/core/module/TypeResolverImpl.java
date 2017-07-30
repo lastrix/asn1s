@@ -28,7 +28,6 @@ package org.asn1s.core.module;
 import org.asn1s.api.Disposable;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.Template;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
@@ -157,7 +156,7 @@ final class TypeResolverImpl implements TypeResolver, Disposable
 	public void validate( Scope scope ) throws ResolutionException, ValidationException
 	{
 		for( DefinedType type : typeMap.values() )
-			if( !( type instanceof Template ) )
+			if( !type.isAbstract() )
 				type.validate( scope );
 	}
 }

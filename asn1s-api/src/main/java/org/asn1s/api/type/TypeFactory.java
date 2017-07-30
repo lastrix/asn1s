@@ -26,7 +26,7 @@
 package org.asn1s.api.type;
 
 import org.asn1s.api.Ref;
-import org.asn1s.api.TemplateParameter;
+import org.asn1s.api.Template;
 import org.asn1s.api.constraint.ConstraintTemplate;
 import org.asn1s.api.encoding.IEncoding;
 import org.asn1s.api.encoding.tag.TagClass;
@@ -56,13 +56,10 @@ public interface TypeFactory
 
 	//////////////////////////////// Types /////////////////////////////////////////////////////////////////////////////
 	@NotNull
-	TemplateParameter templateParameter( int index, @NotNull String reference, @Nullable Ref<Type> governor );
+	DefinedType define( @NotNull String name, @NotNull Ref<Type> typeRef, @Nullable Template template );
 
 	@NotNull
-	DefinedType define( @NotNull String name, @NotNull Ref<Type> typeRef, @Nullable Collection<TemplateParameter> parameters );
-
-	@NotNull
-	DefinedValue define( @NotNull String name, @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef, @Nullable Collection<TemplateParameter> parameters );
+	DefinedValue define( @NotNull String name, @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef, @Nullable Template template );
 
 	@NotNull
 	Ref<Type> builtin( @NotNull String typeName );

@@ -28,9 +28,12 @@ package org.asn1s.core.value;
 import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.Template;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
+import org.asn1s.core.AbstractTemplateInstantiator;
+import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -38,38 +41,30 @@ import java.util.List;
 
 public class TemplateValueInstance implements Value
 {
-	public TemplateValueInstance( @NotNull Ref<Value> valueRef, @NotNull List<Ref<?>> refs )
+	public TemplateValueInstance( @NotNull Ref<Value> valueRef, @NotNull List<Ref<?>> arguments )
 	{
 		this.valueRef = valueRef;
-		this.refs = new ArrayList<>( refs );
+		this.arguments = new ArrayList<>( arguments );
 	}
 
 	private final Ref<Value> valueRef;
-	private final List<Ref<?>> refs;
+	private final List<Ref<?>> arguments;
 
 	private Ref<Value> getValueRef()
 	{
 		return valueRef;
 	}
 
-	private List<Ref<?>> getRefs()
+	private List<Ref<?>> getArguments()
 	{
-		return refs;
+		return arguments;
 	}
 
 	@SuppressWarnings( "unchecked" )
 	@Override
 	public Value resolve( Scope scope ) throws ResolutionException
 	{
-		Value value = valueRef.resolve( scope );
-		if( !( value instanceof Template ) )
-			throw new ResolutionException( "ValueRef must point to value template" );
-
-		Template<Value> template = (Template<Value>)value;
-		if( template.getParameterCount() != refs.size() )
-			throw new ResolutionException( "Template does not have same amount of parameters" );
-		scope = scope.templateInstanceScope( template, refs );
-		return template.newInstance( scope, template.getName() + '{' + StringUtils.join( getRefs(), ", " ) + '}' );
+		return new TemplateInstantiator( scope ).newInstance();
 	}
 
 	@NotNull
@@ -95,20 +90,76 @@ public class TemplateValueInstance implements Value
 
 		//noinspection SimplifiableIfStatement
 		if( !getValueRef().equals( instance.getValueRef() ) ) return false;
-		return getRefs().equals( instance.getRefs() );
+		return getArguments().equals( instance.getArguments() );
 	}
 
 	@Override
 	public int hashCode()
 	{
 		int result = valueRef.hashCode();
-		result = 31 * result + refs.hashCode();
+		result = 31 * result + arguments.hashCode();
 		return result;
 	}
 
 	@Override
 	public String toString()
 	{
-		return valueRef + "{" + StringUtils.join( refs, ", " ) + '}';
+		return valueRef + "{" + StringUtils.join( arguments, ", " ) + '}';
+	}
+
+	private final class TemplateInstantiator extends AbstractTemplateInstantiator
+	{
+		private final Scope scope;
+
+		private TemplateInstantiator( Scope scope )
+		{
+			this.scope = scope;
+		}
+
+		Value newInstance() throws ResolutionException
+		{
+			try
+			{
+				DefinedValue templateValue = resolveValueTemplateOrDie();
+				setTemplateScope( templateValue.createScope() );
+				//noinspection ConstantConditions already checked non-null
+				setTemplateInstanceScope( scope.templateInstanceScope( templateValue.getTemplate(), arguments ) );
+				return createInstanceOf( templateValue );
+			} catch( ValidationException e )
+			{
+				throw new ResolutionException( "Unable to create instance of value: " + getValueRef(), e );
+			}
+		}
+
+		private Value createInstanceOf( DefinedValue templateValue ) throws ResolutionException, ValidationException
+		{
+			DefinedValueImpl instance = (DefinedValueImpl)templateValue.copy();
+			//noinspection ConstantConditions already checked non-null
+			List<Ref<?>> list = resolveTemplateInstance( templateValue.getTemplate(), arguments );
+			arguments.clear();
+			arguments.addAll( list );
+			instance.setTemplate( getNewTemplate() );
+			instance.validate( scope.templateInstanceScope( getNewTemplate(), arguments ) );
+			return instance;
+		}
+
+		@NotNull
+		private DefinedValue resolveValueTemplateOrDie() throws ResolutionException, ValidationException
+		{
+			Value resolved = getValueRef().resolve( scope );
+			if( !isTemplateValue( resolved ) )
+				throw new ValidationException( "ValueRef must point to value non-instance template" );
+			//noinspection ConstantConditions
+			CoreUtils.assertParameterMap( scope, ( (DefinedValue)resolved ).getTemplate() );
+			return (DefinedValue)resolved;
+		}
+
+		private boolean isTemplateValue( Value resolved )
+		{
+			if( !( resolved instanceof DefinedValue ) )
+				return false;
+			DefinedValue type = (DefinedValue)resolved;
+			return type.getTemplate() != null && !type.getTemplate().isInstance();
+		}
 	}
 }

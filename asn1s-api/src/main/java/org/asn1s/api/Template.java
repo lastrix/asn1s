@@ -25,24 +25,55 @@
 
 package org.asn1s.api;
 
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.module.Module;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface Template<T>
-{
-	Module getModule();
+import java.util.HashMap;
+import java.util.Map;
 
-	String getName();
+public final class Template
+{
+	public Template()
+	{
+		this( false );
+	}
+
+	public Template( boolean instance )
+	{
+		this.instance = instance;
+	}
+
+	private final Map<String, TemplateParameter> parameterMap = new HashMap<>();
+	private final boolean instance;
+
+	public void addParameter( TemplateParameter parameter )
+	{
+		parameterMap.put( parameter.getName(), parameter );
+	}
 
 	@Nullable
-	TemplateParameter getParameter( @NotNull String name );
+	public TemplateParameter getParameter( @NotNull String name )
+	{
+		return parameterMap.get( name );
+	}
 
 	@NotNull
-	TemplateParameter getParameter( int index );
+	public TemplateParameter getParameter( int index )
+	{
+		for( TemplateParameter parameter : parameterMap.values() )
+			if( parameter.getIndex() == index )
+				return parameter;
 
-	int getParameterCount();
+		throw new IllegalArgumentException( "No parameter with index: " + index );
+	}
 
-	T newInstance( Scope scope, String namespace ) throws ResolutionException;
+	public int getParameterCount()
+	{
+		return parameterMap.size();
+	}
+
+	public boolean isInstance()
+	{
+		return instance;
+	}
 }

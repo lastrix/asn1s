@@ -26,24 +26,91 @@
 package org.asn1s.api;
 
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.TypeNameRef;
+import org.asn1s.api.util.RefUtils;
+import org.asn1s.api.value.ValueNameRef;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public interface TemplateParameter extends Comparable<TemplateParameter>
+public final class TemplateParameter implements Comparable<TemplateParameter>
 {
-	<T> Ref<T> getReference();
+	public TemplateParameter( int index, @NotNull Ref<?> reference, @Nullable Ref<Type> governor )
+	{
+		this.index = index;
+		this.reference = reference;
+		this.governor = governor;
+	}
 
-	String getName();
+	private final int index;
+	private final Ref<?> reference;
+	private final Ref<Type> governor;
 
-	boolean isTypeRef();
+	public int getIndex()
+	{
+		return index;
+	}
 
-	boolean isValueRef();
+	public String getName()
+	{
+		if( reference instanceof TypeNameRef )
+			return ( (TypeNameRef)reference ).getName();
 
-	int getIndex();
+		if( reference instanceof ValueNameRef )
+			return ( (ValueNameRef)reference ).getName();
 
-	Ref<Type> getGovernor();
+		throw new IllegalStateException();
+	}
+
+	@SuppressWarnings( "unchecked" )
+	public <T> Ref<T> getReference()
+	{
+		return (Ref<T>)reference;
+	}
+
+	@Nullable
+	public Ref<Type> getGovernor()
+	{
+		return governor;
+	}
+
+	public boolean isTypeRef()
+	{
+		return RefUtils.isTypeRef( reference );
+	}
+
+	public boolean isValueRef()
+	{
+		return RefUtils.isValueRef( reference );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public boolean equals( Object obj )
+	{
+		if( this == obj ) return true;
+		if( !( obj instanceof TemplateParameter ) ) return false;
+
+		TemplateParameter parameter = (TemplateParameter)obj;
+
+		return getIndex() == parameter.getIndex();
+	}
 
 	@Override
-	default int compareTo( @NotNull TemplateParameter o )
+	public int hashCode()
+	{
+		return getIndex();
+	}
+
+	@Override
+	public String toString()
+	{
+		if( getGovernor() != null )
+			return getGovernor() + ": " + reference;
+		return String.valueOf( reference );
+	}
+
+	@Override
+	public int compareTo( @NotNull TemplateParameter o )
 	{
 		return Integer.compare( getIndex(), o.getIndex() );
 	}

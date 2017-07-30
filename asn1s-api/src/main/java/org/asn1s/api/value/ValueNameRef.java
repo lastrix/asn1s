@@ -35,6 +35,11 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ValueNameRef implements Ref<Value>
 {
+	public ValueNameRef( @NotNull String name )
+	{
+		this( name, null );
+	}
+
 	public ValueNameRef( @NotNull String name, @Nullable String moduleName )
 	{
 		this( new ValueName( name, moduleName ) );
@@ -61,7 +66,7 @@ public final class ValueNameRef implements Ref<Value>
 	public Value resolve( Scope scope ) throws ResolutionException
 	{
 		Value value = scope.resolveValue( valueName );
-		if( value instanceof DefinedValue )
+		if( value instanceof DefinedValue && !( (DefinedValue)value ).isAbstract() )
 			try
 			{
 				( (Validation)value ).validate( scope );

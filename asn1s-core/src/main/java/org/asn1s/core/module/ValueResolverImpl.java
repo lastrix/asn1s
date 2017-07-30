@@ -157,6 +157,7 @@ final class ValueResolverImpl implements ValueResolver, Disposable
 	void validate( Scope scope ) throws ResolutionException, ValidationException
 	{
 		for( DefinedValue value : valueMap.values() )
-			value.validate( scope );
+			if( !value.isAbstract() )
+				value.validate( scope );
 	}
 }

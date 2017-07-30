@@ -29,6 +29,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.Ref;
+import org.asn1s.api.Template;
+import org.asn1s.api.TemplateParameter;
 import org.asn1s.api.encoding.tag.TagClass;
 import org.asn1s.api.encoding.tag.TagEncoding;
 import org.asn1s.api.encoding.tag.TagMethod;
@@ -39,6 +41,7 @@ import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.ComponentType.Kind;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.TypeNameRef;
 import org.asn1s.api.value.ValueFactory;
 import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.core.DefaultAsn1Factory;
@@ -89,9 +92,10 @@ public class SequenceTest
 		sequenceType.addComponent( Kind.SECONDARY, "d", intType );
 
 		TagEncoding encoding = TagEncoding.create( module.getTagMethod(), TagMethod.EXPLICIT, TagClass.APPLICATION, 1 );
+		Template template = new Template();
+		template.addParameter( new TemplateParameter( 0, new TypeNameRef( "S-Type" ), null ) );
 		DefinedType templateType =
-				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ),
-				                        Collections.singletonList( factory.types().templateParameter( 0, "S-Type", null ) ) );
+				factory.types().define( "MyType", factory.types().tagged( encoding, sequenceType ), template );
 
 
 		Ref<Type> instance = factory.types().typeTemplateInstance( templateType.toRef(), Collections.singletonList( intType ) );

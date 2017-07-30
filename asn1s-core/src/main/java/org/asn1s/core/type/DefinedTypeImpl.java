@@ -28,6 +28,7 @@ package org.asn1s.core.type;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
+import org.asn1s.api.Template;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.module.Module;
@@ -38,6 +39,7 @@ import org.asn1s.api.type.TypeNameRef;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.core.CoreUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 {
@@ -56,6 +58,19 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 
 	private Module module;
 	private final String name;
+	private Template template;
+
+	@Nullable
+	@Override
+	public Template getTemplate()
+	{
+		return template;
+	}
+
+	public void setTemplate( @Nullable Template template )
+	{
+		this.template = template;
+	}
 
 	@NotNull
 	@Override
@@ -68,7 +83,9 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 	@Override
 	public Scope getScope( @NotNull Scope parentScope )
 	{
-		return parentScope.typedScope( this );
+		return template == null
+				? parentScope.typedScope( this )
+				: parentScope.typedScope( this ).templateScope( template, this, getModule() );
 	}
 
 	public Module getModule()
@@ -88,22 +105,22 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 		module = null;
 	}
 
-	protected boolean isUseCreateScope()
-	{
-		return true;
-	}
-
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
-		super.onValidate( isUseCreateScope() ? createScope() : scope );
+		if( isAbstract() && !template.isInstance() )
+			throw new ValidationException( "Unable to instantiate template types" );
+
+		super.onValidate( template == null ? createScope() : getScope( scope ) );
 	}
 
 	@NotNull
 	@Override
 	public Type copy()
 	{
-		return new DefinedTypeImpl( module, getName(), cloneSibling() );
+		DefinedTypeImpl type = new DefinedTypeImpl( module, getName(), cloneSibling() );
+		type.setTemplate( template );
+		return type;
 	}
 
 	@Override
