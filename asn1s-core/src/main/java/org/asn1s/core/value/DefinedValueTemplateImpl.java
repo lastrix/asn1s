@@ -77,6 +77,17 @@ public class DefinedValueTemplateImpl extends DefinedValueImpl implements Templa
 		return parameterMap.get( name );
 	}
 
+	@NotNull
+	@Override
+	public TemplateParameter getParameter( int index )
+	{
+		for( TemplateParameter parameter : parameterMap.values() )
+			if( parameter.getIndex() == index )
+				return parameter;
+
+		throw new IllegalArgumentException( "No parameter with index: " + index );
+	}
+
 	@Override
 	public boolean isTemplate()
 	{

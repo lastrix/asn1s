@@ -73,6 +73,12 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 		return getModule().createScope().templateScope( this );
 	}
 
+	@Override
+	protected boolean isUseCreateScope()
+	{
+		return false;
+	}
+
 	@NotNull
 	@Override
 	public Scope getScope( @NotNull Scope parentScope )
@@ -138,6 +144,17 @@ public final class DefinedTypeTemplate extends DefinedTypeImpl implements Templa
 	public TemplateParameter getParameter( @NotNull String name )
 	{
 		return parameterMap.get( name );
+	}
+
+	@NotNull
+	@Override
+	public TemplateParameter getParameter( int index )
+	{
+		for( TemplateParameter parameter : parameterMap.values() )
+			if( parameter.getIndex() == index )
+				return parameter;
+
+		throw new IllegalArgumentException( "No parameter with index: " + index );
 	}
 
 	@Override

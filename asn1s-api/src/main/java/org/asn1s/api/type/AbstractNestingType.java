@@ -63,6 +63,11 @@ public abstract class AbstractNestingType extends AbstractType
 		return sibling;
 	}
 
+	protected void setSibling( Type sibling )
+	{
+		this.sibling = sibling;
+	}
+
 	@Override
 	public boolean hasSibling()
 	{
@@ -72,14 +77,14 @@ public abstract class AbstractNestingType extends AbstractType
 	@Override
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
-		sibling.accept( scope.typedScope( this ), valueRef );
+		sibling.accept( getScope( scope ), valueRef );
 	}
 
 	@NotNull
 	@Override
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
-		return sibling.optimize( scope.typedScope( this ), valueRef );
+		return sibling.optimize( getScope( scope ), valueRef );
 	}
 
 	@Override

@@ -68,7 +68,7 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 	@Override
 	public Scope getScope( @NotNull Scope parentScope )
 	{
-		return module.createScope().typedScope( this );
+		return parentScope.typedScope( this );
 	}
 
 	public Module getModule()
@@ -88,10 +88,15 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 		module = null;
 	}
 
+	protected boolean isUseCreateScope()
+	{
+		return true;
+	}
+
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
-		super.onValidate( getScope( scope ) );
+		super.onValidate( isUseCreateScope() ? createScope() : scope );
 	}
 
 	@NotNull

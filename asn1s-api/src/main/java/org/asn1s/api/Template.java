@@ -39,6 +39,9 @@ public interface Template<T>
 	@Nullable
 	TemplateParameter getParameter( @NotNull String name );
 
+	@NotNull
+	TemplateParameter getParameter( int index );
+
 	int getParameterCount();
 
 	T newInstance( Scope scope, String namespace ) throws ResolutionException;
