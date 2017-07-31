@@ -12,4 +12,7 @@ cache:
 
 script:
   - mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
-  - mvn cobertura:cobertura && bash <(curl -s https://codecov.io/bash)
+  - mvn cobertura:cobertura
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
