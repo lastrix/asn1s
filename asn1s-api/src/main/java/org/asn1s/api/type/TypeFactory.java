@@ -42,7 +42,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public interface TypeFactory
 {
@@ -127,7 +126,4 @@ public interface TypeFactory
 
 	@NotNull
 	Ref<Type> typeFromObjectRef( @NotNull Ref<?> source, @Nullable List<String> path, @NotNull String name );
-
-	@NotNull
-	Value object( @NotNull Map<String, Ref<?>> map );
 }

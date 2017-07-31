@@ -1342,7 +1342,7 @@ referencedObjects returns [ Ref<?> result ]
 // Object definition
 objectDefn returns [Ref<Value> result]
     :
-        OPEN_BRACE fieldSettings CLOSE_BRACE { $result = typeFactory.object($fieldSettings.result); }
+        OPEN_BRACE fieldSettings CLOSE_BRACE { $result = new ObjectValue( $fieldSettings.result ); }
         // TODO: some garbage may pass thru here
     |   braceConsumer { $result = new AbstractSyntaxObjectRef(tokens2string($braceConsumer.start, $braceConsumer.stop)); }
     ;

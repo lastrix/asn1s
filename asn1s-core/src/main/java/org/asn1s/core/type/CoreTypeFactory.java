@@ -43,7 +43,6 @@ import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
 import org.asn1s.api.value.x680.NamedValue;
-import org.asn1s.api.value.x681.ObjectValue;
 import org.asn1s.core.module.ModuleImpl;
 import org.asn1s.core.module.ModuleSet;
 import org.asn1s.core.type.x680.EnumeratedType;
@@ -58,7 +57,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 public class CoreTypeFactory implements TypeFactory
 {
@@ -314,12 +312,5 @@ public class CoreTypeFactory implements TypeFactory
 	public Ref<Type> typeFromObjectRef( @NotNull Ref<?> source, @Nullable List<String> path, @NotNull String name )
 	{
 		return new ClassFieldFromUnknownSourceRef( source, path, name );
-	}
-
-	@NotNull
-	@Override
-	public Value object( @NotNull Map<String, Ref<?>> map )
-	{
-		return new ObjectValue( map );
 	}
 }
