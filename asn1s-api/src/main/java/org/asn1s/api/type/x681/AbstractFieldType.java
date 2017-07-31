@@ -23,68 +23,70 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.type;
+package org.asn1s.api.type.x681;
 
+import org.asn1s.api.Ref;
+import org.asn1s.api.Scope;
+import org.asn1s.api.type.AbstractNestingType;
+import org.asn1s.api.type.Type;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-public interface ClassType extends Type
+public abstract class AbstractFieldType<T extends Ref<T>> extends AbstractNestingType implements ClassFieldType<T>
 {
-	void add( @NotNull ClassFieldType field );
-
-	/**
-	 * Find component by name, extensions ignored
-	 *
-	 * @param name component name
-	 * @return ComponentType or null
-	 */
-	@SuppressWarnings( "unchecked" )
-	@Nullable
-	@Override
-	default <T extends NamedType> T getNamedType( @NotNull String name )
+	protected AbstractFieldType( @NotNull String name, @Nullable Ref<Type> siblingRef, boolean optional )
 	{
-		return (T)getField( name );
+		super( siblingRef );
+		this.name = name;
+		this.optional = optional;
 	}
 
-	/**
-	 * Returns list of components without extensions
-	 *
-	 * @return list of components
-	 * @see #getFields()
-	 */
-	@SuppressWarnings( "unchecked" )
+	private final String name;
+	private final boolean optional;
+	private ClassType parent;
+
 	@NotNull
 	@Override
-	default <T extends NamedType> List<T> getNamedTypes()
+	public ClassType getParent()
 	{
-		return (List<T>)getFields();
+		return parent;
 	}
 
-	/**
-	 * Find component by name
-	 *
-	 * @param name component name
-	 * @return ComponentType or null
-	 * @see #getNamedType(String)
-	 */
-	@Nullable
-	ClassFieldType getField( @NotNull String name );
+	@Override
+	public void setParent( @NotNull ClassType parent )
+	{
+		this.parent = parent;
+	}
 
-	/**
-	 * Return list of components
-	 *
-	 * @return list of components
-	 * @see #getNamedTypes()
-	 */
-	List<ClassFieldType> getFields();
+	@NotNull
+	@Override
+	public Scope getScope( @NotNull Scope parentScope )
+	{
+		return parentScope.typedScope( this );
+	}
 
-	void setSyntaxList( @NotNull List<String> syntaxList );
+	@Override
+	public String getName()
+	{
+		return name;
+	}
 
-	boolean hasSyntaxList();
+	@Override
+	public boolean isUnique()
+	{
+		return false;
+	}
 
-	List<String> getSyntaxList();
+	@Override
+	public boolean isOptional()
+	{
+		return optional;
+	}
 
-	boolean isAllFieldsOptional();
+	@Override
+	protected void onDispose()
+	{
+		parent = null;
+		super.onDispose();
+	}
 }

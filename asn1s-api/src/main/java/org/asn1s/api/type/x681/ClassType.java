@@ -23,44 +23,71 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.constraint.template;
+package org.asn1s.api.type.x681;
 
 import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
-import org.asn1s.api.constraint.Constraint;
-import org.asn1s.api.constraint.ConstraintTemplate;
-import org.asn1s.api.constraint.ElementSetSpecs;
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
+import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.x681.ClassFieldType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
+import java.util.List;
 
-public class TypeConstraintTemplate implements ConstraintTemplate
+public interface ClassType extends Type
 {
-	public TypeConstraintTemplate( Ref<Type> typeRef )
-	{
-		this.typeRef = typeRef;
-		tableConstraintTemplate = new TableConstraintTemplate( typeRef, Collections.emptyList() );
-	}
+	<T extends Ref<T>> void add( @NotNull ClassFieldType<T> field );
 
-	private final Ref<Type> typeRef;
-	private final TableConstraintTemplate tableConstraintTemplate;
-
+	/**
+	 * Find component by name, extensions ignored
+	 *
+	 * @param name component name
+	 * @return ComponentType or null
+	 */
+	@SuppressWarnings( "unchecked" )
+	@Nullable
 	@Override
-	public Constraint build( @NotNull Scope scope, @NotNull Type type ) throws ResolutionException, ValidationException
+	default <T extends NamedType> T getNamedType( @NotNull String name )
 	{
-		Type resolve = typeRef.resolve( scope );
-		resolve.validate( scope );
-		if( !resolve.hasElementSetSpecs() )
-			throw new ValidationException( "Is not elementSetSpecs: " + typeRef );
-
-		if( type instanceof ClassFieldType )
-			return tableConstraintTemplate.build( scope, type );
-
-		ElementSetSpecs specs = resolve.asElementSetSpecs();
-		return specs.copyForType( scope, type );
+		return (T)getField( name );
 	}
+
+	/**
+	 * Returns list of components without extensions
+	 *
+	 * @return list of components
+	 * @see #getFields()
+	 */
+	@SuppressWarnings( "unchecked" )
+	@NotNull
+	@Override
+	default <T extends NamedType> List<T> getNamedTypes()
+	{
+		return (List<T>)getFields();
+	}
+
+	/**
+	 * Find component by name
+	 *
+	 * @param name component name
+	 * @return ComponentType or null
+	 * @see #getNamedType(String)
+	 */
+	@Nullable
+	<T extends Ref<T>> ClassFieldType<T> getField( @NotNull String name );
+
+	/**
+	 * Return list of components
+	 *
+	 * @return list of components
+	 * @see #getNamedTypes()
+	 */
+	List<ClassFieldType<?>> getFields();
+
+	void setSyntaxList( @NotNull List<String> syntaxList );
+
+	boolean hasSyntaxList();
+
+	List<String> getSyntaxList();
+
+	boolean isAllFieldsOptional();
 }

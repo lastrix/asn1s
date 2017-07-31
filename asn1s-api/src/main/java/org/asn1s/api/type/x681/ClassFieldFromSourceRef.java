@@ -23,25 +23,21 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.type.x681;
+package org.asn1s.api.type.x681;
 
 import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.type.ClassFieldType;
-import org.asn1s.api.type.ClassType;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.core.CoreUtils;
+import org.asn1s.api.util.RefUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-public class ClassFieldFromUnknownSourceRef implements Ref<Type>
+public class ClassFieldFromSourceRef implements Ref<Type>
 {
-	public ClassFieldFromUnknownSourceRef( @NotNull Ref<?> source, @Nullable List<String> path, @NotNull String name )
+	public ClassFieldFromSourceRef( @NotNull Ref<?> source, @Nullable String path, @NotNull String name )
 	{
 		if( StringUtils.isBlank( name ) )
 			throw new IllegalArgumentException( "name" );
@@ -52,20 +48,20 @@ public class ClassFieldFromUnknownSourceRef implements Ref<Type>
 	}
 
 	private final Ref<?> source;
-	private final List<String> path;
+	private final String path;
 	private final String name;
 
 	@Override
 	public Type resolve( Scope scope ) throws ResolutionException
 	{
-		if( path != null && !path.isEmpty() )
+		if( !StringUtils.isBlank( path ) )
 			throw new ResolutionException( "Paths are not supported" );
 
 		Object resolve = source.resolve( scope );
 		if( resolve instanceof Type )
 		{
 			ClassType classType = resolveClassType( scope, (Type)resolve );
-			ClassFieldType field = classType.getField( name );
+			ClassFieldType<Type> field = classType.getField( name );
 			if( field == null )
 				throw new ResolutionException( "Unable to find field '" + name + "' in class: " + resolve );
 
@@ -77,7 +73,7 @@ public class ClassFieldFromUnknownSourceRef implements Ref<Type>
 
 	private static ClassType resolveClassType( Scope scope, Type type ) throws ResolutionException
 	{
-		CoreUtils.resolutionValidate( scope, type );
+		RefUtils.resolutionValidate( scope, type );
 		while( type instanceof DefinedType )
 			type = type.getSibling();
 

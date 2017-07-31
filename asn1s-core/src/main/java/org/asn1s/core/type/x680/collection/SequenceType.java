@@ -54,6 +54,13 @@ public class SequenceType extends AbstractCollectionType
 	private int extensionIndexStart = Integer.MAX_VALUE;
 	private int extensionIndexEnd = Integer.MIN_VALUE;
 
+	@NotNull
+	@Override
+	public Scope getScope( @NotNull Scope parentScope )
+	{
+		return parentScope.typedScope( this );
+	}
+
 	@Override
 	void updateIndices()
 	{
@@ -72,7 +79,7 @@ public class SequenceType extends AbstractCollectionType
 	@Override
 	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
 	{
-		scope = scope.typedScope( this );
+		scope = getScope( scope );
 		new SequenceValidator( scope, CoreUtils.toValueCollectionOrDie( scope, valueRef ) )
 				.process();
 	}
@@ -81,7 +88,7 @@ public class SequenceType extends AbstractCollectionType
 	@Override
 	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
-		scope = scope.typedScope( this );
+		scope = getScope( scope );
 		return new SequenceOptimizer( scope, CoreUtils.toValueCollectionOrDie( scope, valueRef ) )
 				.process();
 	}
@@ -231,6 +238,7 @@ public class SequenceType extends AbstractCollectionType
 	{
 
 		private final ValueCollection result;
+		private boolean changed;
 
 		private SequenceOptimizer( Scope scope, ValueCollection collection )
 		{
@@ -243,14 +251,20 @@ public class SequenceType extends AbstractCollectionType
 		protected void onProcessComponent( NamedValue value, ComponentType component ) throws ValidationException, ResolutionException
 		{
 			Value optimize = component.optimize( getScope(), value );
-			if( !RefUtils.isSameAsDefaultValue( getScope(), component, optimize ) )
+			if( RefUtils.isSameAsDefaultValue( getScope(), component, optimize ) )
+				changed = true;
+			else
+			{
 				result.add( optimize );
+				//noinspection ObjectEquality
+				changed |= optimize != value;
+			}
 		}
 
 		@Override
 		protected Value getResult()
 		{
-			return result;
+			return changed ? result : getCollection();
 		}
 	}
 }

@@ -23,11 +23,12 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.type;
+package org.asn1s.api.type.x681;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.type.Type;
 
 public class ClassFieldRef implements Ref<Type>
 {

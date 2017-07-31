@@ -23,44 +23,23 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.constraint.template;
+package org.asn1s.api.type.x681;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.constraint.Constraint;
-import org.asn1s.api.constraint.ConstraintTemplate;
-import org.asn1s.api.constraint.ElementSetSpecs;
 import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.x681.ClassFieldType;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-
-public class TypeConstraintTemplate implements ConstraintTemplate
+public class ValueSetFromSourceRef implements Ref<Type>
 {
-	public TypeConstraintTemplate( Ref<Type> typeRef )
+	public ValueSetFromSourceRef( Ref<?> source, String path, String fieldName )
 	{
-		this.typeRef = typeRef;
-		tableConstraintTemplate = new TableConstraintTemplate( typeRef, Collections.emptyList() );
+
 	}
 
-	private final Ref<Type> typeRef;
-	private final TableConstraintTemplate tableConstraintTemplate;
-
 	@Override
-	public Constraint build( @NotNull Scope scope, @NotNull Type type ) throws ResolutionException, ValidationException
+	public Type resolve( Scope scope ) throws ResolutionException
 	{
-		Type resolve = typeRef.resolve( scope );
-		resolve.validate( scope );
-		if( !resolve.hasElementSetSpecs() )
-			throw new ValidationException( "Is not elementSetSpecs: " + typeRef );
-
-		if( type instanceof ClassFieldType )
-			return tableConstraintTemplate.build( scope, type );
-
-		ElementSetSpecs specs = resolve.asElementSetSpecs();
-		return specs.copyForType( scope, type );
+		throw new UnsupportedOperationException( "Not implemented yet" );
 	}
 }

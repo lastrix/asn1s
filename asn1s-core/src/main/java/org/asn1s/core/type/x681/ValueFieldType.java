@@ -27,72 +27,102 @@ package org.asn1s.core.type.x681;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.UniversalType;
-import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.encoding.tag.TagMethod;
+import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.x681.ClassFieldRef;
-import org.asn1s.api.type.x681.ClassType;
+import org.asn1s.api.type.x681.AbstractFieldTypeWithDefault;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
-import org.asn1s.api.value.Value.Kind;
-import org.asn1s.core.type.TaggedTypeImpl;
-import org.asn1s.core.type.x680.collection.SequenceType;
+import org.asn1s.api.value.ValueNameRef;
+import org.asn1s.api.value.x681.ObjectValue;
 import org.jetbrains.annotations.NotNull;
 
-public class InstanceOfType extends SequenceType
+public class ValueFieldType extends AbstractFieldTypeWithDefault<Value>
 {
-	public InstanceOfType( Ref<Type> classTypeRef )
+	public ValueFieldType( @NotNull String name, @NotNull Ref<Type> fieldTypeRef, boolean unique, boolean optional )
 	{
-		super( true );
-		this.classTypeRef = classTypeRef;
-		createComponents( classTypeRef );
-		setEncoding( TagEncoding.universal( UniversalType.INSTANCE_OF ) );
+		super( name, fieldTypeRef, optional );
+		RefUtils.assertValueRef( name.substring( 1 ) );
+		this.unique = unique;
 	}
 
-	private void createComponents( Ref<Type> classTypeRef )
-	{
-		addComponent( ComponentType.Kind.PRIMARY, "type-id", new ClassFieldRef( classTypeRef, "&id" ) );
-		addComponent( ComponentType.Kind.PRIMARY, "value", new TaggedTypeImpl( TagEncoding.context( 0, TagMethod.EXPLICIT ), new ClassFieldRef( classTypeRef, "&Type" ) ) );
-	}
-
-	private final Ref<Type> classTypeRef;
-	private ClassType classType;
+	private final boolean unique;
 
 	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
+	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
-		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Kind.OBJECT )
-			classType.accept( scope, valueRef );
-		else
-			super.accept( scope, valueRef );
-	}
-
-	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
-	{
+		scope = getScope( scope );
 		super.onValidate( scope );
-		Type type = classTypeRef.resolve( scope );
-		if( type.getFamily() != Family.OBJECT_CLASS )
-			throw new ValidationException( "Is not ObjectClass: " + type );
 
-		while( type instanceof DefinedType )
-			type = type.getSibling();
+		if( !hasSibling() )
+			throw new ValidationException( "FixedValueSetFieldType must have sibling type" );
 
-		if( !( type instanceof ClassType ) )
-			throw new ValidationException( "Unable to find class type" );
+		if( hasDefault() )
+			setDefault( getSibling().optimize( scope, getDefaultRef() ) );
+	}
 
-		classType = (ClassType)type;
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public void acceptRef( @NotNull Scope scope, Ref<Value> ref ) throws ResolutionException, ValidationException
+	{
+		scope = getScope( scope );
+		Value value = ref.resolve( scope );
+
+		Value.Kind kind = value.getKind();
+		if( kind == Value.Kind.OBJECT )
+		{
+			ObjectValue object = value.toObjectValue();
+			Ref<Value> valueRef = object.getField( getName() );
+			assert valueRef != null;
+			Value resolve = valueRef.resolve( scope );
+			getSibling().accept( scope, resolve );
+		}
+		else
+			getSibling().accept( scope, value );
+	}
+
+	@SuppressWarnings( "unchecked" )
+	@Override
+	public Value optimizeRef( @NotNull Scope scope, Ref<Value> ref ) throws ResolutionException, ValidationException
+	{
+		if( ref instanceof ValueNameRef || ref instanceof Value )
+			return optimize( scope, ref );
+
+		throw new IllegalValueException( "Unable to optimize ref: " + ref );
+	}
+
+	@NotNull
+	@Override
+	public Type copy()
+	{
+		ValueFieldType type = new ValueFieldType( getName(), cloneSibling(), unique, isOptional() );
+		type.setDefaultRef( getDefaultRef() );
+		return type;
+	}
+
+	@NotNull
+	@Override
+	public Family getFamily()
+	{
+		return getSibling().getFamily();
 	}
 
 	@Override
-	public boolean isInstanceOf()
+	public boolean isUnique()
 	{
-		return true;
+		return unique;
+	}
+
+	@Override
+	public Kind getClassFieldKind()
+	{
+		return Kind.VALUE;
+	}
+
+	@Override
+	public String toString()
+	{
+		return getName();
 	}
 }

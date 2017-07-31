@@ -23,56 +23,23 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.type.x681;
+package org.asn1s.api.type.x681;
 
+import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.encoding.EncodingInstructions;
-import org.asn1s.api.encoding.IEncoding;
-import org.asn1s.api.type.AbstractType;
-import org.asn1s.api.type.ClassFieldType;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.value.Value;
 
-abstract class AbstractFieldType extends AbstractType implements ClassFieldType
+public class ValueFromSourceRef implements Ref<Value>
 {
-	AbstractFieldType( @NotNull String name, boolean optional )
+	public ValueFromSourceRef( Ref<?> source, String path, String fieldName )
 	{
-		this.name = name;
-		this.optional = optional;
-	}
 
-	private final String name;
-	private final boolean optional;
-
-	@NotNull
-	@Override
-	public Scope getScope( @NotNull Scope parentScope )
-	{
-		return parentScope.typedScope( this );
 	}
 
 	@Override
-	public String getName()
+	public Value resolve( Scope scope ) throws ResolutionException
 	{
-		return name;
-	}
-
-	@Nullable
-	@Override
-	public IEncoding getEncoding( EncodingInstructions instructions )
-	{
-		return null;
-	}
-
-	@Override
-	public boolean isUnique()
-	{
-		return false;
-	}
-
-	@Override
-	public boolean isOptional()
-	{
-		return optional;
+		throw new UnsupportedOperationException( "Not implemented yet" );
 	}
 }

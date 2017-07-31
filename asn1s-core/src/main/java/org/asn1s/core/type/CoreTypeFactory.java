@@ -39,6 +39,8 @@ import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.type.*;
 import org.asn1s.api.type.Type.Family;
+import org.asn1s.api.type.x681.ClassFieldType;
+import org.asn1s.api.type.x681.ClassType;
 import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -256,61 +258,24 @@ public class CoreTypeFactory implements TypeFactory
 
 	@NotNull
 	@Override
-	public ClassFieldType typeClassField( @NotNull String name, boolean optional, @Nullable Ref<Type> defaultTypeRef )
+	public ClassFieldType<Type> typeField( @NotNull String name, boolean optional, @Nullable Ref<Type> defaultTypeRef )
 	{
 		return new TypeFieldType( name, optional, defaultTypeRef );
 	}
 
 	@NotNull
 	@Override
-	public ClassFieldType fixedTypeValueField( @NotNull String name, @NotNull Ref<Type> typeRef, boolean unique, boolean optional, @Nullable Ref<Value> defaultValue )
+	public ClassFieldType<Value> valueField( @NotNull String name, @NotNull Ref<Type> typeRef, boolean unique, boolean optional, @Nullable Ref<Value> defaultValue )
 	{
-		return new FixedValueFieldType( name, typeRef, unique, optional, defaultValue );
+		ValueFieldType type = new ValueFieldType( name, typeRef, unique, optional );
+		type.setDefaultRef( defaultValue );
+		return type;
 	}
 
 	@NotNull
 	@Override
-	public ClassFieldType variableTypeValueField( @NotNull String name, @NotNull String fieldName, boolean optional, @Nullable Ref<Value> defaultValue )
+	public ClassFieldType<Type> valueSetField( @NotNull String name, @NotNull Ref<Type> typeRef, boolean optional, @Nullable ConstraintTemplate defaultElementSetSpecs )
 	{
-		// TODO:
-		throw new UnsupportedOperationException();
-	}
-
-	@NotNull
-	@Override
-	public ClassFieldType fixedTypeValueSetField( @NotNull String name, @NotNull Ref<Type> typeRef, boolean optional, @Nullable ConstraintTemplate defaultElementSetSpecs )
-	{
-		return new FixedValueSetFieldType( name, typeRef, optional, defaultElementSetSpecs );
-	}
-
-	@NotNull
-	@Override
-	public ClassFieldType variableTypeValueSetField( @NotNull String name, @NotNull String fieldName, boolean optional, @Nullable ConstraintTemplate defaultElementSetSpecs )
-	{
-		// TODO:
-		throw new UnsupportedOperationException();
-	}
-
-	@NotNull
-	@Override
-	public Ref<Value> valueFromObjectRef( @NotNull Ref<?> source, @Nullable String path, @NotNull String name )
-	{
-		// TODO:
-		throw new UnsupportedOperationException();
-	}
-
-	@NotNull
-	@Override
-	public Ref<Type> valueSetFromObjectRef( @NotNull Ref<?> source, @Nullable String path, @NotNull String name )
-	{
-		// TODO:
-		throw new UnsupportedOperationException();
-	}
-
-	@NotNull
-	@Override
-	public Ref<Type> typeFromObjectRef( @NotNull Ref<?> source, @Nullable List<String> path, @NotNull String name )
-	{
-		return new ClassFieldFromUnknownSourceRef( source, path, name );
+		return new ValueSetFieldType( name, typeRef, optional, defaultElementSetSpecs );
 	}
 }

@@ -32,9 +32,9 @@ import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.AbstractType;
-import org.asn1s.api.type.ClassFieldType;
-import org.asn1s.api.type.ClassType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.x681.ClassFieldType;
+import org.asn1s.api.type.x681.ClassType;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
@@ -48,11 +48,12 @@ import java.util.Map.Entry;
 public class ClassTypeImpl extends AbstractType implements ClassType
 {
 	private final List<String> syntaxList = new ArrayList<>();
-	private final List<ClassFieldType> fields = new ArrayList<>();
+	private final List<ClassFieldType<?>> fields = new ArrayList<>();
 
 	@Override
-	public void add( @NotNull ClassFieldType field )
+	public <T extends Ref<T>> void add( @NotNull ClassFieldType<T> field )
 	{
+		field.setParent( this );
 		fields.add( field );
 	}
 
@@ -72,18 +73,19 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 
 	@Nullable
 	@Override
-	public ClassFieldType getField( @NotNull String name )
+	public <T extends Ref<T>> ClassFieldType<T> getField( @NotNull String name )
 	{
-		for( ClassFieldType field : fields )
+		for( ClassFieldType<?> field : fields )
 			if( field.getName().equals( name ) )
-				return field;
+				//noinspection unchecked
+				return (ClassFieldType<T>)field;
 
 		return null;
 	}
 
 	@NotNull
 	@Override
-	public List<ClassFieldType> getFields()
+	public List<ClassFieldType<?>> getFields()
 	{
 		return Collections.unmodifiableList( fields );
 	}
@@ -93,8 +95,8 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 	public Type copy()
 	{
 		ClassType result = new ClassTypeImpl();
-		for( ClassFieldType field : fields )
-			result.add( (ClassFieldType)field.copy() );
+		for( ClassFieldType<?> field : fields )
+			result.add( (ClassFieldType<?>)field.copy() );
 
 		result.setSyntaxList( syntaxList );
 		return result;
@@ -128,7 +130,7 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 	@Override
 	public boolean isAllFieldsOptional()
 	{
-		for( ClassFieldType field : fields )
+		for( ClassFieldType<?> field : fields )
 			if( field.isRequired() )
 				return false;
 
@@ -139,7 +141,7 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
 		scope = getScope( scope );
-		for( ClassFieldType field : fields )
+		for( ClassFieldType<?> field : fields )
 		{
 			field.setNamespace( getNamespace() );
 			field.validate( scope );
@@ -172,22 +174,23 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 		throw new IllegalValueException( "Unable to optimize value: " + valueRef );
 	}
 
+	@SuppressWarnings( "unchecked" )
 	private Value optimizeObject( Scope scope, ObjectValue objectValue ) throws ValidationException, ResolutionException
 	{
 		Collection<String> visited = new HashSet<>();
 		Map<String, Ref<?>> result = new HashMap<>();
 		for( Entry<String, Ref<?>> entry : objectValue.getFields().entrySet() )
 		{
-			ClassFieldType fieldType = getField( entry.getKey() );
+			ClassFieldType<Type> fieldType = getField( entry.getKey() );
 			if( fieldType == null )
 				throw new IllegalValueException( "There is no field with name: " + entry.getKey() );
 
-			Object ref = fieldType.optimizeRef( scope, entry.getValue() );
+			Object ref = fieldType.optimizeRef( scope, (Ref<Type>)entry.getValue() );
 			result.put( fieldType.getName(), (Ref<?>)ref );
 			visited.add( fieldType.getName() );
 		}
 
-		for( ClassFieldType field : fields )
+		for( ClassFieldType<?> field : fields )
 			if( !visited.contains( field.getName() ) && field.isRequired() )
 				throw new IllegalValueException( "Required component is not met: " + field.getName() );
 
@@ -196,18 +199,13 @@ public class ClassTypeImpl extends AbstractType implements ClassType
 
 	private void assertObjectFields( Scope scope, Map<String, Ref<?>> map ) throws ValidationException, ResolutionException
 	{
-		for( ClassFieldType field : fields )
+		for( ClassFieldType<?> field : fields )
 		{
-			Ref<?> ref = map.get( field.getName() );
-			if( ref == null )
-			{
-				if( field.isRequired() )
-					throw new IllegalValueException( "Unable to find required field: " + field.getName() );
-
-				continue;
-			}
-
-			field.acceptRef( scope, ref );
+			if( map.containsKey( field.getName() ) )
+				//noinspection unchecked,rawtypes
+				field.acceptRef( scope, (Ref)map.get( field.getName() ) );
+			else if( field.isRequired() )
+				throw new IllegalValueException( "Unable to find required field: " + field.getName() );
 		}
 	}
 }

@@ -43,7 +43,7 @@ import java.util.List;
 
 public abstract class AbstractNestingType extends AbstractType
 {
-	protected AbstractNestingType( Ref<Type> siblingRef )
+	protected AbstractNestingType( @Nullable Ref<Type> siblingRef )
 	{
 		this.siblingRef = siblingRef;
 	}
@@ -137,6 +137,7 @@ public abstract class AbstractNestingType extends AbstractType
 		return sibling.getNamedValues();
 	}
 
+	@Nullable
 	@Override
 	public IEncoding getEncoding( EncodingInstructions instructions )
 	{

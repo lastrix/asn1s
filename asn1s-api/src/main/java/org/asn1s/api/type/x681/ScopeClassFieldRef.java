@@ -23,76 +23,89 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.type.x681;
+package org.asn1s.api.type.x681;
 
+import org.apache.commons.lang3.StringUtils;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
-import org.asn1s.api.UniversalType;
-import org.asn1s.api.encoding.tag.TagEncoding;
-import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.ComponentType;
-import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.x681.ClassFieldRef;
-import org.asn1s.api.type.x681.ClassType;
+import org.asn1s.api.type.x681.ClassFieldType.Kind;
 import org.asn1s.api.util.RefUtils;
-import org.asn1s.api.value.Value;
-import org.asn1s.api.value.Value.Kind;
-import org.asn1s.core.type.TaggedTypeImpl;
-import org.asn1s.core.type.x680.collection.SequenceType;
 import org.jetbrains.annotations.NotNull;
 
-public class InstanceOfType extends SequenceType
+import java.util.Arrays;
+import java.util.List;
+
+public class ScopeClassFieldRef implements Ref<Type>
 {
-	public InstanceOfType( Ref<Type> classTypeRef )
+	public ScopeClassFieldRef( String fieldName )
 	{
-		super( true );
-		this.classTypeRef = classTypeRef;
-		createComponents( classTypeRef );
-		setEncoding( TagEncoding.universal( UniversalType.INSTANCE_OF ) );
+		this.fieldName = fieldName;
 	}
 
-	private void createComponents( Ref<Type> classTypeRef )
-	{
-		addComponent( ComponentType.Kind.PRIMARY, "type-id", new ClassFieldRef( classTypeRef, "&id" ) );
-		addComponent( ComponentType.Kind.PRIMARY, "value", new TaggedTypeImpl( TagEncoding.context( 0, TagMethod.EXPLICIT ), new ClassFieldRef( classTypeRef, "&Type" ) ) );
-	}
-
-	private final Ref<Type> classTypeRef;
-	private ClassType classType;
+	private final String fieldName;
 
 	@Override
-	public void accept( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ValidationException, ResolutionException
+	public Type resolve( Scope scope ) throws ResolutionException
 	{
-		Value value = RefUtils.toBasicValue( scope, valueRef );
-		if( value.getKind() == Kind.OBJECT )
-			classType.accept( scope, valueRef );
-		else
-			super.accept( scope, valueRef );
+		ClassType classType = resolveClassTypeFromScope( scope );
+		return new ClassPathResolver( classType, Arrays.asList( fieldName.split( "\\." ) ) ).resolve();
 	}
 
-	@Override
-	protected void onValidate( @NotNull Scope scope ) throws ValidationException, ResolutionException
+	private static ClassType resolveClassTypeFromScope( Scope scope ) throws ResolutionException
 	{
-		super.onValidate( scope );
-		Type type = classTypeRef.resolve( scope );
-		if( type.getFamily() != Family.OBJECT_CLASS )
-			throw new ValidationException( "Is not ObjectClass: " + type );
+		Type expectedClassFieldType = scope.getTypeOrDie();
+		if( !( expectedClassFieldType instanceof ClassFieldType ) )
+			throw new ResolutionException( "Scope has no ClassFieldType" );
 
-		while( type instanceof DefinedType )
-			type = type.getSibling();
-
-		if( !( type instanceof ClassType ) )
-			throw new ValidationException( "Unable to find class type" );
-
-		classType = (ClassType)type;
+		ClassType parent = ( (ClassFieldType<?>)expectedClassFieldType ).getParent();
+		if( !parent.isValidated() )
+			RefUtils.resolutionValidate( scope, parent );
+		return parent;
 	}
 
-	@Override
-	public boolean isInstanceOf()
+	private static final class ClassPathResolver
 	{
-		return true;
+		private ClassPathResolver( ClassType rootClass, List<String> pathParts )
+		{
+			this.rootClass = rootClass;
+			this.pathParts = pathParts;
+		}
+
+		private final ClassType rootClass;
+		private final List<String> pathParts;
+		private int position;
+		private Type currentType;
+
+		@NotNull
+		Type resolve() throws ResolutionException
+		{
+			position = 0;
+			currentType = rootClass;
+			while( position < pathParts.size() )
+				navigatePathPart();
+
+			if( !isTypeField() )
+				throw new ResolutionException( "Unable to resolve FieldType by " + StringUtils.join( pathParts, '.' ) );
+			return currentType;
+		}
+
+		private void navigatePathPart() throws ResolutionException
+		{
+			String part = pathParts.get( position );
+			currentType = currentType.getNamedType( part );
+
+			if( currentType == null )
+				throw new ResolutionException( "Unable to resolve path part: " + part + " from " + StringUtils.join( pathParts, '.' ) );
+
+			position++;
+		}
+
+		private boolean isTypeField()
+		{
+			return currentType instanceof ClassFieldType
+					&& ( (ClassFieldType<?>)currentType ).getClassFieldKind() == Kind.TYPE;
+		}
 	}
 }

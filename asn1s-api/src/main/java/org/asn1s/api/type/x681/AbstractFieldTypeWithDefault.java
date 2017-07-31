@@ -23,44 +23,62 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.core.constraint.template;
+package org.asn1s.api.type.x681;
 
+import org.asn1s.api.Disposable;
 import org.asn1s.api.Ref;
-import org.asn1s.api.Scope;
-import org.asn1s.api.constraint.Constraint;
-import org.asn1s.api.constraint.ConstraintTemplate;
-import org.asn1s.api.constraint.ElementSetSpecs;
-import org.asn1s.api.exception.ResolutionException;
-import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.Type;
-import org.asn1s.api.type.x681.ClassFieldType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-
-public class TypeConstraintTemplate implements ConstraintTemplate
+public abstract class AbstractFieldTypeWithDefault<T extends Ref<T>> extends AbstractFieldType<T>
 {
-	public TypeConstraintTemplate( Ref<Type> typeRef )
+	protected AbstractFieldTypeWithDefault( @NotNull String name, @Nullable Ref<Type> siblingRef, boolean optional )
 	{
-		this.typeRef = typeRef;
-		tableConstraintTemplate = new TableConstraintTemplate( typeRef, Collections.emptyList() );
+		super( name, siblingRef, optional );
 	}
 
-	private final Ref<Type> typeRef;
-	private final TableConstraintTemplate tableConstraintTemplate;
+	private Ref<T> defaultRef;
+	private T _default;
+
+	protected Ref<T> getDefaultRef()
+	{
+		return defaultRef;
+	}
 
 	@Override
-	public Constraint build( @NotNull Scope scope, @NotNull Type type ) throws ResolutionException, ValidationException
+	public boolean hasDefault()
 	{
-		Type resolve = typeRef.resolve( scope );
-		resolve.validate( scope );
-		if( !resolve.hasElementSetSpecs() )
-			throw new ValidationException( "Is not elementSetSpecs: " + typeRef );
+		return defaultRef != null;
+	}
 
-		if( type instanceof ClassFieldType )
-			return tableConstraintTemplate.build( scope, type );
+	@Nullable
+	@Override
+	public T getDefault()
+	{
+		return _default;
+	}
 
-		ElementSetSpecs specs = resolve.asElementSetSpecs();
-		return specs.copyForType( scope, type );
+	protected void setDefault( @NotNull T _default )
+	{
+		this._default = _default;
+	}
+
+	public void setDefaultRef( @Nullable Ref<T> defaultRef )
+	{
+		if( isOptional() && defaultRef != null )
+			throw new IllegalArgumentException( "Either optional or default must be set" );
+
+		this.defaultRef = defaultRef;
+	}
+
+	@Override
+	protected void onDispose()
+	{
+		if( defaultRef instanceof Disposable )
+			( (Disposable)defaultRef ).dispose();
+		defaultRef = null;
+		_default = null;
+		super.onDispose();
 	}
 }

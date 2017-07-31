@@ -122,7 +122,7 @@ public class DefinedTypeTemplateTest
 		collection.addNamed( "a", xValue );
 		collection.addNamed( "b", factory.values().integer( 3 ) );
 		Template template = new Template();
-		template.addParameter( new TemplateParameter( 0, new ValueNameRef( "x-Value" ), intType ) );
+		template.addParameter( new TemplateParameter( 0, xValue, intType ) );
 		DefinedValue valueTemplate = factory.types().define( "value-Template", type, collection, template );
 
 		IntegerValue integerValue = factory.values().integer( 10 );

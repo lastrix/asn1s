@@ -32,86 +32,64 @@ import org.asn1s.api.exception.ConstraintViolationException;
 import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
-import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.x681.AbstractFieldTypeWithDefault;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.type.ConstrainedType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
-public class FixedValueSetFieldType extends AbstractFieldType
+public class ValueSetFieldType extends AbstractFieldTypeWithDefault<Type>
 {
-	public FixedValueSetFieldType( @NotNull String name, @NotNull Ref<Type> fieldTypeRef, boolean optional, @Nullable ConstraintTemplate defaultElementSetSpecs )
+	public ValueSetFieldType( @NotNull String name, @NotNull Ref<Type> fieldTypeRef, boolean optional, @Nullable ConstraintTemplate defaultElementSetSpecs )
 	{
-		super( name, optional );
-		RefUtils.assertTypeRef( name.substring( 1 ) );
-		if( optional && defaultElementSetSpecs != null )
-			throw new IllegalArgumentException( "'optional' is true and 'defaultSetTypeRef' is not null at same time" );
-
-		this.fieldTypeRef = fieldTypeRef;
-
-		if( fieldTypeRef instanceof Type )
-			fieldType = (Type)fieldTypeRef;
-
+		super( name, fieldTypeRef, optional );
 		this.defaultElementSetSpecs = defaultElementSetSpecs;
+		RefUtils.assertTypeRef( name.substring( 1 ) );
+
+		if( defaultElementSetSpecs != null )
+			setDefaultRef( new ConstrainedType( defaultElementSetSpecs, fieldTypeRef ) );
 	}
 
-	private Ref<Type> fieldTypeRef;
-	private Type fieldType;
-	private ConstraintTemplate defaultElementSetSpecs;
-	private Type defaultFieldType;
-
-	@Override
-	public boolean hasDefault()
-	{
-		return defaultElementSetSpecs != null;
-	}
-
-	@SuppressWarnings( "unchecked" )
-	@Override
-	public <T> Ref<T> getDefault()
-	{
-		return (Ref<T>)defaultFieldType;
-	}
+	@Nullable
+	private final ConstraintTemplate defaultElementSetSpecs;
 
 	@Override
 	protected void onValidate( @NotNull Scope scope ) throws ResolutionException, ValidationException
 	{
 		scope = getScope( scope );
+		super.onValidate( scope );
 
-		if( fieldType == null )
-			fieldType = fieldTypeRef.resolve( scope );
-
-		if( !( fieldType instanceof DefinedType ) )
-			fieldType.setNamespace( getFullyQualifiedName() + '.' );
-
-		fieldType.validate( scope );
-
-		if( defaultElementSetSpecs != null )
+		if( hasDefault() )
 		{
-			defaultFieldType = new ConstrainedType( defaultElementSetSpecs, fieldType );
-			defaultFieldType.validate( scope );
+			setDefault( getDefaultRef().resolve( scope ) );
+			//noinspection ConstantConditions
+			getDefault().validate( scope );
 		}
 	}
 
 	@Override
-	public <T> void acceptRef( @NotNull Scope scope, Ref<T> ref ) throws ResolutionException, IllegalValueException, ConstraintViolationException
+	public void acceptRef( @NotNull Scope scope, Ref<Type> ref ) throws ResolutionException, IllegalValueException, ConstraintViolationException
 	{
 		throw new UnsupportedOperationException();
 	}
 
 	@NotNull
 	@Override
-	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, IllegalValueException, ConstraintViolationException
+	public Value optimize( @NotNull Scope scope, @NotNull Ref<Value> valueRef ) throws ResolutionException, ValidationException
 	{
-		throw new UnsupportedOperationException();
+		if( hasSibling() )
+			return getSibling().optimize( scope, valueRef );
+
+		if( hasDefault() )
+			//noinspection ConstantConditions
+			return getDefault().optimize( scope, valueRef );
+		throw new ResolutionException( "No validator defined" );
 	}
 
 	@Override
-	public <T> T optimizeRef( @NotNull Scope scope, Ref<T> ref ) throws ResolutionException, ValidationException
+	public Type optimizeRef( @NotNull Scope scope, Ref<Type> ref ) throws ResolutionException, ValidationException
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -120,22 +98,12 @@ public class FixedValueSetFieldType extends AbstractFieldType
 	@Override
 	public Type copy()
 	{
-		Ref<Type> fieldTypeCopy = Objects.equals( fieldTypeRef, fieldType ) ? fieldType.copy() : fieldTypeRef;
-		return new FixedValueSetFieldType( getName(), fieldTypeCopy, isOptional(), defaultElementSetSpecs );
+		return new ValueSetFieldType( getName(), cloneSibling(), isOptional(), defaultElementSetSpecs );
 	}
 
 	@Override
 	public Kind getClassFieldKind()
 	{
 		return Kind.VALUE_SET;
-	}
-
-	@Override
-	protected void onDispose()
-	{
-		fieldTypeRef = null;
-		fieldType = null;
-		defaultElementSetSpecs = null;
-		defaultFieldType = null;
 	}
 }

@@ -8,6 +8,7 @@ import org.asn1s.api.encoding.*;
 import org.asn1s.api.encoding.tag.*;
 import org.asn1s.api.module.*;
 import org.asn1s.api.type.*;
+import org.asn1s.api.type.x681.*;
 import org.asn1s.api.util.*;
 import org.asn1s.api.value.*;
 import org.asn1s.api.value.x680.*;
@@ -1190,7 +1191,7 @@ typeFieldSpec returns [ClassFieldType result]
     locals [boolean optional = false, Ref<Type> defaultType = null;]
     :   typeFieldReference
         (OPTIONAL { $optional = true; } | DEFAULT type { $defaultType = $type.result; } )?
-        { $result = typeFactory.typeClassField($typeFieldReference.text, $optional, $defaultType); }
+        { $result = typeFactory.typeField($typeFieldReference.text, $optional, $defaultType); }
     ;
 
 fixedTypeValueFieldSpec returns [ClassFieldType result]
@@ -1199,7 +1200,7 @@ fixedTypeValueFieldSpec returns [ClassFieldType result]
         (   UNIQUE { $unique = true; } (OPTIONAL { $optional = true; })?
         |   (OPTIONAL { $optional = true; } | DEFAULT value { $defaultValue = $value.result; } )
         )?
-        { $result = typeFactory.fixedTypeValueField($valueFieldReference.text, $type.result, $unique, $optional, $defaultValue); }
+        { $result = typeFactory.valueField($valueFieldReference.text, $type.result, $unique, $optional, $defaultValue); }
     ;
 
 variableTypeValueFieldSpec returns [ClassFieldType result]
@@ -1207,7 +1208,7 @@ variableTypeValueFieldSpec returns [ClassFieldType result]
     :   valueFieldReference
         fieldName
         (OPTIONAL { $optional = true; } | DEFAULT value { $defaultValue = $value.result; } )?
-        { $result = typeFactory.variableTypeValueField($valueFieldReference.text, $fieldName.text, $optional, $defaultValue); }
+        { $result = typeFactory.valueField($valueFieldReference.text, new ScopeClassFieldRef( $fieldName.text ), false, $optional, $defaultValue); }
     ;
 
 fixedTypeValueSetFieldSpec returns [ClassFieldType result]
@@ -1215,7 +1216,7 @@ fixedTypeValueSetFieldSpec returns [ClassFieldType result]
     :   valueSetFieldReference
         type
         (OPTIONAL { $optional = true; } | DEFAULT valueSet { $valueSetType = $valueSet.result; } )?
-        { $result = typeFactory.fixedTypeValueSetField( $valueSetFieldReference.text, $type.result, $optional, $valueSetType ); }
+        { $result = typeFactory.valueSetField( $valueSetFieldReference.text, $type.result, $optional, $valueSetType ); }
     ;
 
 variableTypeValueSetFieldSpec returns [ClassFieldType result]
@@ -1223,7 +1224,7 @@ variableTypeValueSetFieldSpec returns [ClassFieldType result]
     :   valueSetFieldReference
         fieldName
         (OPTIONAL { $optional = true; } | DEFAULT valueSet { $valueSetType = $valueSet.result; } )?
-        { $result = typeFactory.variableTypeValueSetField( $valueSetFieldReference.text, $fieldName.text, $optional, $valueSetType ); }
+        { $result = typeFactory.valueSetField( $valueSetFieldReference.text, new ScopeClassFieldRef( $fieldName.text ), $optional, $valueSetType ); }
     ;
 
 objectFieldSpec returns [ClassFieldType result]
@@ -1231,7 +1232,7 @@ objectFieldSpec returns [ClassFieldType result]
     :   objectFieldReference
         definedObjectClass
         (OPTIONAL { $optional = true; } | DEFAULT object { $defaultValue = $object.result; } )?
-        { $result = typeFactory.fixedTypeValueField($objectFieldReference.text, $definedObjectClass.result, false, $optional, $defaultValue); }
+        { $result = typeFactory.valueField($objectFieldReference.text, $definedObjectClass.result, false, $optional, $defaultValue); }
     ;
 
 objectSetFieldSpec returns [ClassFieldType result]
@@ -1239,7 +1240,7 @@ objectSetFieldSpec returns [ClassFieldType result]
     :   objectSetFieldReference
         definedObjectClass
         (OPTIONAL { $optional = true; } | DEFAULT objectSet { $valueSetType = $objectSet.result; } )?
-        { $result = typeFactory.fixedTypeValueSetField( $objectSetFieldReference.text, $definedObjectClass.result, $optional, $valueSetType ); }
+        { $result = typeFactory.valueSetField( $objectSetFieldReference.text, $definedObjectClass.result, $optional, $valueSetType ); }
     ;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1309,7 +1310,7 @@ definedObjectSet returns [Ref<Type> result]
 ////////////////////////////////////// Object Misc /////////////////////////////////////////////////////////////////////
 valueFromObject returns [Ref<Value> result]
     :   referencedObjects (DOT fieldName)? DOT valueFieldReference
-        { $result = typeFactory.valueFromObjectRef($referencedObjects.result, $fieldName.ctx == null ? null : $fieldName.text, $valueFieldReference.text); }
+        { $result = new ValueFromSourceRef($referencedObjects.result, $fieldName.ctx == null ? null : $fieldName.text, $valueFieldReference.text); }
     ;
 
 // X.681, p 15.1
@@ -1323,15 +1324,15 @@ objectSetFromObjects returns [Ref<Type> result]
 
 valueSetFromObjects returns [Ref<Type> result]
     :   referencedObjects (DOT fieldName)* DOT typeFieldReference
-        { $result = typeFactory.valueSetFromObjectRef($referencedObjects.result, $fieldName.ctx == null ? null : $fieldName.text, $typeFieldReference.text); }
+        { $result = new ValueSetFromSourceRef($referencedObjects.result, $fieldName.ctx == null ? null : $fieldName.text, $typeFieldReference.text); }
     ;
 
 typeFromObject returns [Ref<Type> result]
     locals[ List<String> pathParts = new ArrayList<>(); ]
     :   referencedObjects
-        (DOT FieldIdentifier { $pathParts.add( $FieldIdentifier.text ); })*
+        (DOT fieldName)*
         DOT FieldIdentifier
-        { $result = typeFactory.typeFromObjectRef($referencedObjects.result, $pathParts, $FieldIdentifier.text); }
+        { $result = new ClassFieldFromSourceRef( $referencedObjects.result, $fieldName.ctx == null ? null : $fieldName.text, $FieldIdentifier.text ); }
     ;
 
 referencedObjects returns [ Ref<?> result ]

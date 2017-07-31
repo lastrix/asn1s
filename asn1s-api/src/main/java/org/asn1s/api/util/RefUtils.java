@@ -27,7 +27,9 @@ package org.asn1s.api.util;
 
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
+import org.asn1s.api.Validation;
 import org.asn1s.api.exception.ResolutionException;
+import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.ComponentType;
 import org.asn1s.api.type.Type;
 import org.asn1s.api.type.TypeNameRef;
@@ -110,6 +112,17 @@ public final class RefUtils
 	{
 		if( !isIriValue( value ) )
 			throw new IllegalArgumentException( "Is not IRI value: " + value );
+	}
+
+	public static void resolutionValidate( Scope scope, Validation validation ) throws ResolutionException
+	{
+		try
+		{
+			validation.validate( scope );
+		} catch( ValidationException e )
+		{
+			throw new ResolutionException( "Unable to validate object: " + validation, e );
+		}
 	}
 
 	public static Value toBasicValue( Scope scope, Ref<Value> ref ) throws ResolutionException

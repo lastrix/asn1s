@@ -33,7 +33,7 @@ public class TypeIdentifierClass extends ClassTypeImpl
 {
 	public TypeIdentifierClass()
 	{
-		add( new FixedValueFieldType( "&id", UniversalType.OBJECT_IDENTIFIER.ref(), true, false, null ) );
+		add( new ValueFieldType( "&id", UniversalType.OBJECT_IDENTIFIER.ref(), true, false ) );
 		add( new TypeFieldType( "&Type", false, null ) );
 		setSyntaxList( Arrays.asList( "&Type", "IDENTIFIED", "BY", "&id" ) );
 	}

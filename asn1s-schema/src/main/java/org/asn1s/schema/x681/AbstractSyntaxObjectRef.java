@@ -30,8 +30,8 @@ import org.asn1s.api.Scope;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleResolver;
-import org.asn1s.api.type.ClassType;
 import org.asn1s.api.type.Type;
+import org.asn1s.api.type.x681.ClassType;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x681.ObjectValue;
 

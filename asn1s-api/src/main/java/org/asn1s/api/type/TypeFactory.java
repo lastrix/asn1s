@@ -34,6 +34,8 @@ import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.type.Type.Family;
+import org.asn1s.api.type.x681.ClassFieldType;
+import org.asn1s.api.type.x681.ClassType;
 import org.asn1s.api.value.DefinedValue;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.x680.NamedValue;
@@ -104,26 +106,11 @@ public interface TypeFactory
 	ClassType classType();
 
 	@NotNull
-	ClassFieldType typeClassField( @NotNull String name, boolean optional, @Nullable Ref<Type> defaultTypeRef );
+	ClassFieldType<Type> typeField( @NotNull String name, boolean optional, @Nullable Ref<Type> defaultTypeRef );
 
 	@NotNull
-	ClassFieldType fixedTypeValueField( @NotNull String name, @NotNull Ref<Type> typeRef, boolean unique, boolean optional, @Nullable Ref<Value> defaultValue );
+	ClassFieldType<Value> valueField( @NotNull String name, @NotNull Ref<Type> typeRef, boolean unique, boolean optional, @Nullable Ref<Value> defaultValue );
 
 	@NotNull
-	ClassFieldType variableTypeValueField( @NotNull String name, @NotNull String fieldName, boolean optional, @Nullable Ref<Value> defaultValue );
-
-	@NotNull
-	ClassFieldType fixedTypeValueSetField( @NotNull String name, @NotNull Ref<Type> typeRef, boolean optional, @Nullable ConstraintTemplate defaultElementSetSpecs );
-
-	@NotNull
-	ClassFieldType variableTypeValueSetField( @NotNull String name, @NotNull String fieldName, boolean optional, @Nullable ConstraintTemplate defaultElementSetSpecs );
-
-	@NotNull
-	Ref<Value> valueFromObjectRef( @NotNull Ref<?> source, @Nullable String path, @NotNull String name );
-
-	@NotNull
-	Ref<Type> valueSetFromObjectRef( @NotNull Ref<?> source, @Nullable String path, @NotNull String name );
-
-	@NotNull
-	Ref<Type> typeFromObjectRef( @NotNull Ref<?> source, @Nullable List<String> path, @NotNull String name );
+	ClassFieldType<Type> valueSetField( @NotNull String name, @NotNull Ref<Type> typeRef, boolean optional, @Nullable ConstraintTemplate defaultElementSetSpecs );
 }

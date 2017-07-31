@@ -35,6 +35,7 @@ import org.asn1s.api.exception.IllegalValueException;
 import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.exception.ValidationException;
 import org.asn1s.api.type.*;
+import org.asn1s.api.type.x681.ClassFieldType;
 import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.Value;
 import org.asn1s.api.value.Value.Kind;
