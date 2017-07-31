@@ -42,6 +42,7 @@ import org.asn1s.api.util.RefUtils;
 import org.asn1s.api.value.ValueFactory;
 import org.asn1s.api.value.ValueNameRef;
 import org.asn1s.schema.Asn1ErrorListener;
+import org.asn1s.schema.exception.AbstractSyntaxParserException;
 import org.asn1s.schema.parser.Asn1Lexer;
 import org.asn1s.schema.parser.Asn1Parser;
 import org.asn1s.schema.x681.SyntaxObject.Kind;
@@ -78,7 +79,7 @@ class AbstractSyntaxParser
 		parseGroupItems( root, new LinkedList<>( classType.getSyntaxList() ), false );
 	}
 
-	Map<String, Ref<?>> parse( String value ) throws Exception
+	Map<String, Ref<?>> parse( String value ) throws AbstractSyntaxParserException
 	{
 		try( Reader r = new StringReader( value ) )
 		{
@@ -88,6 +89,9 @@ class AbstractSyntaxParser
 			parseImpl();
 			//noinspection ReturnOfCollectionOrArrayField
 			return resultMap;
+		} catch( Exception e )
+		{
+			throw new AbstractSyntaxParserException( "Unable to parse value: " + value, e );
 		} finally
 		{
 			tokenStream = null;

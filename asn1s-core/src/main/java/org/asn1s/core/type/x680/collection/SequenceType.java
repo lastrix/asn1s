@@ -224,7 +224,8 @@ public class SequenceType extends AbstractCollectionType
 		@Override
 		protected void onProcessComponent( NamedValue value, ComponentType component ) throws ValidationException, ResolutionException
 		{
-			component.accept( getScope(), value );
+			//noinspection UnnecessarySuperQualifier
+			component.accept( super.getScope(), value );
 		}
 
 		@Override
@@ -247,11 +248,12 @@ public class SequenceType extends AbstractCollectionType
 			scope.setValueLevel( result );
 		}
 
+		@SuppressWarnings( "UnnecessarySuperQualifier" )
 		@Override
 		protected void onProcessComponent( NamedValue value, ComponentType component ) throws ValidationException, ResolutionException
 		{
-			Value optimize = component.optimize( getScope(), value );
-			if( RefUtils.isSameAsDefaultValue( getScope(), component, optimize ) )
+			Value optimize = component.optimize( super.getScope(), value );
+			if( RefUtils.isSameAsDefaultValue( super.getScope(), component, optimize ) )
 				changed = true;
 			else
 			{

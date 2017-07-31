@@ -67,7 +67,6 @@ public class ObjectValue implements Value
 		if( o.getKind() == Kind.OBJECT )
 			return compareToObjectValue( o.toObjectValue() );
 
-		// TODO: to object comparison
 		return getKind().compareTo( o.getKind() );
 	}
 

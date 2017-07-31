@@ -74,7 +74,7 @@ final class TemplateInstanceScope extends AbstractScope
 	{
 		if( typeName.getModuleName() == null )
 		{
-			// TODO: valueSet checks?
+			// valueSet checks are done in TemplateInstance class using Instantiator
 			Ref<?> argument = getArgument( typeName.getName() );
 			if( RefUtils.isTypeRef( argument ) )
 				return (Type)argument.resolve( getParentScope() );
