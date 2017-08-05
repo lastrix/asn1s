@@ -25,11 +25,44 @@
 
 package org.asn1s.api.util;
 
-public final class EncodingUtils
-{
-	public static final String ISO_8859_1 = "ISO-8859-1";
+import org.asn1s.api.Ref;
+import org.asn1s.api.value.Value;
+import org.asn1s.api.value.x680.IntegerValue;
+import org.asn1s.api.value.x680.NamedValue;
+import org.jetbrains.annotations.NotNull;
 
-	private EncodingUtils()
+class MyNamedValue implements NamedValue
+{
+	private final IntegerValue value;
+
+	MyNamedValue( IntegerValue value )
 	{
+		this.value = value;
+	}
+
+	@NotNull
+	@Override
+	public String getName()
+	{
+		return "a";
+	}
+
+	@NotNull
+	@Override
+	public Ref<Value> getValueRef()
+	{
+		return value;
+	}
+
+	@Override
+	public IntegerValue toIntegerValue()
+	{
+		return value;
+	}
+
+	@Override
+	public int compareTo( @NotNull Value o )
+	{
+		throw new UnsupportedOperationException();
 	}
 }

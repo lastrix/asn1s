@@ -25,11 +25,18 @@
 
 package org.asn1s.api.util;
 
-public final class EncodingUtils
-{
-	public static final String ISO_8859_1 = "ISO-8859-1";
+import org.junit.Test;
 
-	private EncodingUtils()
+import static org.junit.Assert.assertEquals;
+
+public class NRxUtilsTest
+{
+	@Test
+	public void testValues() throws Exception
 	{
+		assertEquals( "Not equal", "1.E-1", NRxUtils.toCanonicalNR3( "0.01E1" ) );
+		assertEquals( "Not equal", "+0.E1", NRxUtils.toCanonicalNR3( "0.00000E1" ) );
+		assertEquals( "Not equal", "12312.E+0", NRxUtils.toCanonicalNR3( "12312" ) );
+		assertEquals( "Not equal", "12312123121231212312123121212.E-1231212312123121231212316", NRxUtils.toCanonicalNR3( "1231212312123121231212312.1212E-1231212312123121231212312" ) );
 	}
 }

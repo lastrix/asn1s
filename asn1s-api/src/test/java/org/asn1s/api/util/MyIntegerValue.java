@@ -25,11 +25,73 @@
 
 package org.asn1s.api.util;
 
-public final class EncodingUtils
-{
-	public static final String ISO_8859_1 = "ISO-8859-1";
+import org.asn1s.api.value.Value;
+import org.asn1s.api.value.x680.IntegerValue;
+import org.jetbrains.annotations.NotNull;
 
-	private EncodingUtils()
+import java.math.BigInteger;
+
+class MyIntegerValue implements IntegerValue
+{
+	@Override
+	public boolean isInt()
 	{
+		return true;
+	}
+
+	@Override
+	public boolean isLong()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean isBigInteger()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean isZero()
+	{
+		return false;
+	}
+
+	@Override
+	public int ordinal()
+	{
+		return 0;
+	}
+
+	@Override
+	public int asInt()
+	{
+		return 1;
+	}
+
+	@Override
+	public long asLong()
+	{
+		return 1L;
+	}
+
+	@Override
+	public BigInteger asBigInteger()
+	{
+		return BigInteger.ONE;
+	}
+
+	@Override
+	public IntegerValue negate()
+	{
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int compareTo( @NotNull Value o )
+	{
+		if( o instanceof MyIntegerValue )
+			return 0;
+		throw new UnsupportedOperationException();
 	}
 }

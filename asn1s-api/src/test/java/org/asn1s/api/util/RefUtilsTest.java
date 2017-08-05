@@ -25,11 +25,73 @@
 
 package org.asn1s.api.util;
 
-public final class EncodingUtils
-{
-	public static final String ISO_8859_1 = "ISO-8859-1";
+import org.asn1s.api.Ref;
+import org.asn1s.api.type.AbstractComponentType;
+import org.asn1s.api.type.ComponentType;
+import org.asn1s.api.type.TypeNameRef;
+import org.asn1s.api.value.Value;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.junit.Test;
 
-	private EncodingUtils()
+import static org.junit.Assert.assertTrue;
+
+public class RefUtilsTest
+{
+	@Test( expected = IllegalArgumentException.class )
+	public void testNotTypeRef()
 	{
+		RefUtils.assertTypeRef( "a" );
+	}
+
+	@Test( expected = IllegalArgumentException.class )
+	public void testNotValueRef()
+	{
+		RefUtils.assertValueRef( "A" );
+	}
+
+	@Test
+	public void testSameAsDefault() throws Exception
+	{
+		MyIntegerValue value = new MyIntegerValue();
+		assertTrue( "Must be true", RefUtils.isSameAsDefaultValue( new MyScope(), new MyAbstractComponentType( value ), value ) );
+	}
+
+	private static class MyAbstractComponentType extends AbstractComponentType
+	{
+		private final MyIntegerValue value;
+
+		MyAbstractComponentType( MyIntegerValue value )
+		{
+			super( 0, "a", new TypeNameRef( "A" ) );
+			this.value = value;
+		}
+
+		@Nullable
+		@Override
+		public Value getDefaultValue()
+		{
+			return value;
+		}
+
+		@Nullable
+		@Override
+		public Ref<Value> getDefaultValueRef()
+		{
+			return value;
+		}
+
+		@Override
+		public void setDefaultValueRef( Ref<Value> ref )
+		{
+
+		}
+
+		@NotNull
+		@Override
+		public ComponentType copy()
+		{
+			throw new UnsupportedOperationException();
+		}
 	}
 }

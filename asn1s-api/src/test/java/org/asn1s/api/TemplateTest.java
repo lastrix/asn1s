@@ -23,13 +23,33 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.util;
+package org.asn1s.api;
 
-public final class EncodingUtils
+import org.asn1s.api.type.TypeNameRef;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class TemplateTest
 {
-	public static final String ISO_8859_1 = "ISO-8859-1";
-
-	private EncodingUtils()
+	@Test
+	public void testTemplate() throws Exception
 	{
+		Template template = new Template();
+		assertEquals( "Parameter count must be 0", 0, template.getParameterCount() );
+
+		template.addParameter( new TemplateParameter( 0, new TypeNameRef( "A" ), null ) );
+		assertEquals( "Parameter count must be 1", 1, template.getParameterCount() );
+		assertNotNull( "Must not be null", template.getParameter( 0 ) );
+		assertNotNull( "Must not be null", template.getParameter( "A" ) );
+		assertFalse( "Must not be instance", template.isInstance() );
+	}
+
+	@Test( expected = IllegalArgumentException.class )
+	public void testIllegalIndexGet() throws Exception
+	{
+		Template template = new Template();
+		template.getParameter( 1 );
+		fail( "Must fail" );
 	}
 }

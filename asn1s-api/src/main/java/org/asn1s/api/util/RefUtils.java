@@ -101,19 +101,6 @@ public final class RefUtils
 
 	////////////////////////////////////// Validation //////////////////////////////////////////////////////////////////
 
-	private static final Pattern IRI_PATTERN = Pattern.compile( "^\"(/[A-Za-z0-9]+)+\"$" );
-
-	public static boolean isIriValue( CharSequence value )
-	{
-		return IRI_PATTERN.matcher( value ).matches();
-	}
-
-	public static void assertIriValue( String value )
-	{
-		if( !isIriValue( value ) )
-			throw new IllegalArgumentException( "Is not IRI value: " + value );
-	}
-
 	public static void resolutionValidate( Scope scope, Validation validation ) throws ResolutionException
 	{
 		try

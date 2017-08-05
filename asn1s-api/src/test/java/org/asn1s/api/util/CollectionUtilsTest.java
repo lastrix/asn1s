@@ -25,11 +25,26 @@
 
 package org.asn1s.api.util;
 
-public final class EncodingUtils
-{
-	public static final String ISO_8859_1 = "ISO-8859-1";
+import org.asn1s.api.value.x680.IntegerValue;
+import org.junit.Test;
 
-	private EncodingUtils()
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+
+public class CollectionUtilsTest
+{
+	@Test
+	public void testConversion() throws Exception
 	{
+		IntegerValue value = new MyIntegerValue();
+		MyScope scope = new MyScope();
+		MyNamedValue namedValue = new MyNamedValue( (IntegerValue)RefUtils.toBasicValue( scope, value ) );
+		String result = CollectionUtils.convertToBString( Collections.singletonList(
+				namedValue
+		), 4 );
+		assertEquals( "Is not equals", "'0100'B", result );
+		assertEquals( "Must be equal", value, RefUtils.toBasicValue( scope, namedValue ) );
 	}
+
 }

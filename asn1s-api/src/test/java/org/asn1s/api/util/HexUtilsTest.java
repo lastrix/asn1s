@@ -25,11 +25,18 @@
 
 package org.asn1s.api.util;
 
-public final class EncodingUtils
-{
-	public static final String ISO_8859_1 = "ISO-8859-1";
+import org.junit.Test;
 
-	private EncodingUtils()
+import static org.junit.Assert.assertEquals;
+
+public class HexUtilsTest
+{
+	@Test
+	public void testConversion() throws Exception
 	{
+		assertEquals( "Is not equal", "0A", HexUtils.toHexString( new byte[]{0x0A} ) );
+		assertEquals( "Is not equal", "0A0A", HexUtils.toHexString( new byte[]{0x0A, 0x0A} ) );
+		assertEquals( "Is not equal", "", HexUtils.toHexString( new byte[]{} ) );
 	}
+
 }
