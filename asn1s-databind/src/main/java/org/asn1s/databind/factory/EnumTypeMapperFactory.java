@@ -44,7 +44,9 @@ import org.asn1s.databind.TypeMapperUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Type;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -93,55 +95,72 @@ public class EnumTypeMapperFactory implements TypeMapperFactory
 		if( namedType != null )
 			throw new IllegalArgumentException( "Unable to redefine type: " + type.getTypeName() );
 
-		EnumConverter converter = new EnumConverter( type );
-		converter.convert();
-		TypeMapper mapper = new EnumTypeMapper( converter );
-		if( log.isDebugEnabled() )
-			log.debug( "Registering type mapper: " + mapper.getKey() );
+		TypeMapper mapper = createEnumTypeMapper( type );
 
 		// register defined type as default type mapping
-		context.registerJavaClassForNamedType( type, converter.getNamedType() );
+		context.registerJavaClassForNamedType( type, mapper.getAsn1Type() );
 		context.registerTypeMapper( mapper );
 		return mapper;
 	}
 
-	private final class EnumConverter
+	@NotNull
+	private TypeMapper createEnumTypeMapper( Class<Enum<?>> type )
 	{
-		private EnumConverter( Class<Enum<?>> enumClass )
+		EnumConverter converter = new EnumConverter( factory, type );
+		converter.convert();
+		TypeMapper mapper = new EnumTypeMapper( converter );
+		if( log.isDebugEnabled() )
+			log.debug( "Created new type mapper: " + mapper.getKey() );
+		return mapper;
+	}
+
+	private static final class EnumConverter
+	{
+		private EnumConverter( Asn1Factory factory, Class<Enum<?>> enumClass )
 		{
+			this.factory = factory;
 			this.enumClass = enumClass;
-			enumConstants = enumClass.getEnumConstants();
 			type = factory.types().enumerated();
 		}
 
+		private final Asn1Factory factory;
 		private final Class<Enum<?>> enumClass;
-		private final Enum<?>[] enumConstants;
 		private final Enumerated type;
+		private final Map<Enum<?>, Field> enumFieldMap = new HashMap<>();
 
 		private EnumEntry[] entries;
 		private NamedType namedType;
+		private boolean useAnnotationValue;
 		private int i;
 
 		void convert()
 		{
-			Map<Enum<?>, Field> enumFieldMap = new HashMap<>();
-			boolean useAnnotationValue = collectFields( enumFieldMap );
-			if( enumFieldMap.isEmpty() )
-				throw new IllegalStateException( "No enum constants for type: " + enumClass.getTypeName() );
-			entries = new EnumEntry[enumFieldMap.size()];
-			i = 0;
+			initializeConverter();
 			for( Entry<Enum<?>, Field> entry : enumFieldMap.entrySet() )
-				bindConstant( useAnnotationValue, entry.getKey(), entry.getValue() );
+				bindConstant( entry.getKey(), entry.getValue() );
 
 			Asn1Enumeration annotation = enumClass.getAnnotation( Asn1Enumeration.class );
-			String asnTypeName = annotation == null || AnnotationUtils.DEFAULT.equals( annotation.name() )
-					? TypeMapperUtils.getDefaultAsnTypeName( enumClass )
-					: annotation.name();
-
-			namedType = factory.types().define( asnTypeName, type, null );
+			namedType = factory.types().define( getAsn1TypeName( annotation ), type, null );
 		}
 
-		private void bindConstant( boolean useAnnotationValue, Enum<?> enumValue, Field field )
+		private void initializeConverter()
+		{
+			EnumConstantsCollector collector = new EnumConstantsCollector( enumClass );
+			useAnnotationValue = collector.collectFields();
+			enumFieldMap.putAll( collector.getEnumFieldMap() );
+			entries = new EnumEntry[enumFieldMap.size()];
+			i = 0;
+		}
+
+		@NotNull
+		private String getAsn1TypeName( Asn1Enumeration annotation )
+		{
+			return annotation == null || AnnotationUtils.DEFAULT.equals( annotation.name() )
+					? TypeMapperUtils.getDefaultAsnTypeName( enumClass )
+					: annotation.name();
+		}
+
+		private void bindConstant( Enum<?> enumValue, Field field )
 		{
 			Asn1EnumerationItem annotation = field.getAnnotation( Asn1EnumerationItem.class );
 			String name = getConstantName( annotation, enumValue );
@@ -162,52 +181,13 @@ public class EnumTypeMapperFactory implements TypeMapperFactory
 					throw new IllegalStateException( "Duplicate enum name: " + name );
 		}
 
-		private String getConstantName( Asn1EnumerationItem annotation, Enum<?> enumValue )
+		private static String getConstantName( Asn1EnumerationItem annotation, Enum<?> enumValue )
 		{
 			if( AnnotationUtils.DEFAULT.equals( annotation.name() ) )
 				return enumValue.name().toLowerCase().replace( '_', '-' );
 			return annotation.name();
 		}
 
-		private boolean collectFields( Map<Enum<?>, Field> map )
-		{
-			boolean requireIndex = false;
-			boolean allHasIndex = true;
-			for( Field field : enumClass.getDeclaredFields() )
-			{
-				if( !field.isEnumConstant() )
-					continue;
-
-				Asn1EnumerationItem item = field.getAnnotation( Asn1EnumerationItem.class );
-				if( item == null )
-					continue;
-
-				if( item.value() == -1 )
-				{
-					if( requireIndex )
-						throw new IllegalStateException( "Enum constant should have unique index: " + field.getName() );
-					allHasIndex = false;
-				}
-				else
-				{
-					if( !allHasIndex )
-						throw new IllegalStateException( "Some enum constants has no index in class: " + enumClass.getTypeName() );
-					requireIndex = true;
-				}
-				map.put( findEnumValue( field.getName() ), field );
-			}
-			return requireIndex;
-		}
-
-		private Enum<?> findEnumValue( String name )
-		{
-			for( Enum<?> constant : enumConstants )
-			{
-				if( constant.name().equals( name ) )
-					return constant;
-			}
-			throw new IllegalArgumentException( "No enum constant: " + name );
-		}
 
 		EnumEntry[] getEntries()
 		{
@@ -223,6 +203,79 @@ public class EnumTypeMapperFactory implements TypeMapperFactory
 		{
 			return namedType;
 		}
+	}
+
+	private static final class EnumConstantsCollector
+	{
+		private EnumConstantsCollector( Class<Enum<?>> enumClass )
+		{
+			this.enumClass = enumClass;
+			enumConstants = enumClass.getEnumConstants();
+		}
+
+		private final Class<Enum<?>> enumClass;
+		private final Enum<?>[] enumConstants;
+		private final Map<Enum<?>, Field> enumFieldMap = new HashMap<>();
+		private boolean requireIndex;
+		private boolean allHasIndex;
+
+		private boolean collectFields()
+		{
+			enumFieldMap.clear();
+			requireIndex = false;
+			allHasIndex = true;
+			for( Field field : enumClass.getDeclaredFields() )
+				collectField( field );
+
+			if( enumFieldMap.isEmpty() )
+				throw new IllegalStateException( "No enum constants for type: " + enumClass.getTypeName() );
+			return requireIndex;
+		}
+
+		private void collectField( Field field )
+		{
+			if( !field.isEnumConstant() )
+				return;
+
+			Asn1EnumerationItem item = field.getAnnotation( Asn1EnumerationItem.class );
+			if( item == null )
+				return;
+
+			assertValidity( field, item );
+			enumFieldMap.put( findEnumValue( field.getName() ), field );
+		}
+
+		private void assertValidity( Member field, Asn1EnumerationItem item )
+		{
+			if( item.value() == -1 )
+			{
+				if( requireIndex )
+					throw new IllegalStateException( "Enum constant should have unique index: " + field.getName() );
+				allHasIndex = false;
+			}
+			else
+			{
+				if( !allHasIndex )
+					throw new IllegalStateException( "Some enum constants has no index in class: " + enumClass.getTypeName() );
+				requireIndex = true;
+			}
+		}
+
+		Map<Enum<?>, Field> getEnumFieldMap()
+		{
+			return Collections.unmodifiableMap( enumFieldMap );
+		}
+
+		private Enum<?> findEnumValue( String name )
+		{
+			for( Enum<?> constant : enumConstants )
+			{
+				if( constant.name().equals( name ) )
+					return constant;
+			}
+			throw new IllegalArgumentException( "No enum constant: " + name );
+		}
+
 	}
 
 	private static final class EnumEntry
