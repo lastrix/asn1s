@@ -23,43 +23,25 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.tests.chat;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+public class ObjectManager
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	private final Map<Integer, User> users = new HashMap<>();
+	private final List<Message> messages = new ArrayList<>();
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	public void addUser( User user )
+	{
+		users.put( user.getId(), user );
+	}
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
-
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	public User getUser( int id )
+	{
+		return users.get( id );
+	}
 }

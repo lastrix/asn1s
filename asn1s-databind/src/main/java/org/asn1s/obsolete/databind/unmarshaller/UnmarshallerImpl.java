@@ -23,43 +23,46 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.unmarshaller;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.type.DefinedType;
+import org.asn1s.api.value.Value;
+import org.asn1s.io.Asn1Reader;
+import org.asn1s.io.ber.input.DefaultBerReader;
+import org.asn1s.obsolete.databind.Asn1Context;
+import org.asn1s.obsolete.databind.binder.JavaValueBinder;
+import org.asn1s.obsolete.databind.binder.JavaValueBinderImpl;
+import org.asn1s.obsolete.databind.mapper.MappedType;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.io.IOException;
+import java.io.InputStream;
+
+public class UnmarshallerImpl implements Unmarshaller
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	public UnmarshallerImpl( Asn1Context context )
+	{
+		this.context = context;
+	}
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	private final Asn1Context context;
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Override
+	public <T> T unmarshal( Class<T> aClass, InputStream is ) throws IOException
+	{
+		MappedType mappedType = context.getMappedTypeByClass( aClass );
+		if( mappedType == null )
+			throw new IllegalStateException( "No mapping for class: " + aClass );
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+		DefinedType asnType = mappedType.getAsnType();
+		Value value;
+		try( Asn1Reader reader = new DefaultBerReader( is, context.getAsn1Factory().values() ) )
+		{
+			value = reader.read( asnType.createScope(), asnType );
+		} catch( Exception e )
+		{
+			throw new IOException( "Unable to read value of class: " + aClass.getCanonicalName(), e );
+		}
+		JavaValueBinder binder = new JavaValueBinderImpl( context );
+		return binder.toJava( value, mappedType );
+	}
 }

@@ -23,43 +23,49 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.marshaller;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.type.DefinedType;
+import org.asn1s.api.value.Value;
+import org.asn1s.io.Asn1Writer;
+import org.asn1s.io.ber.BerRules;
+import org.asn1s.io.ber.output.DefaultBerWriter;
+import org.asn1s.obsolete.databind.Asn1Context;
+import org.asn1s.obsolete.databind.binder.Asn1ValueBinder;
+import org.asn1s.obsolete.databind.binder.Asn1ValueBinderImpl;
+import org.asn1s.obsolete.databind.mapper.MappedType;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.io.IOException;
+import java.io.OutputStream;
+
+public class MarshallerImpl implements Marshaller
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	public MarshallerImpl( Asn1Context context )
+	{
+		this.context = context;
+	}
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	private final Asn1Context context;
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Override
+	public void marshall( Object o, OutputStream os ) throws IOException
+	{
+		MappedType type = context.getMappedTypeByClass( o.getClass() );
+		if( type == null )
+			throw new IllegalStateException( "No mapping for: " + o.getClass().getCanonicalName() );
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+		Asn1ValueBinder binder = new Asn1ValueBinderImpl( context );
+		Value value = binder.toAsn1( o, type );
+		if( value == null )
+			throw new IllegalStateException( "Binder returned no value to write" );
+
+		DefinedType asnType = type.getAsnType();
+		try( Asn1Writer writer = new DefaultBerWriter( BerRules.DER, os ) )
+		{
+			writer.write( asnType.createScope(), asnType, value );
+		} catch( Exception e )
+		{
+			throw new IOException( "Unable to write value: " + o, e );
+		}
+	}
 }

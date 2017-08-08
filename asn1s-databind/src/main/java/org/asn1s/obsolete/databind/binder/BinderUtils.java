@@ -23,102 +23,65 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.api.value;
+package org.asn1s.obsolete.databind.binder;
 
-import org.asn1s.api.Ref;
-import org.asn1s.api.type.Type;
-import org.asn1s.api.value.x680.*;
+import org.asn1s.obsolete.databind.mapper.MappedType;
+import org.asn1s.obsolete.databind.mapper.SequenceMappedType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.time.Instant;
-import java.util.List;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
-public interface ValueFactory
+final class BinderUtils
 {
-	@NotNull
-	RealValue rZero();
+	private BinderUtils()
+	{
+	}
 
-	@NotNull
-	RealValue rNegativeZero();
+	static <T> T newInstance( @NotNull MappedType type, @Nullable Object[] parameters )
+	{
+		if( parameters != null && parameters.length > 0 )
+			return newInstanceWithParameters( type, parameters );
 
-	@NotNull
-	RealValue rPositiveInfinity();
+		return newInstanceWithoutParameters( type );
+	}
 
+	@SuppressWarnings( "unchecked" )
 	@NotNull
-	RealValue rNegativeInfinity();
+	private static <T> T newInstanceWithoutParameters( @NotNull MappedType type )
+	{
+		if( !( type instanceof SequenceMappedType ) )
+			throw new UnsupportedOperationException();
 
-	@NotNull
-	RealValue rNan();
+		try
+		{
+			Constructor<T> constructor = (Constructor<T>)( (SequenceMappedType)type ).getConstructor();
+			return constructor.newInstance();
+		} catch( IllegalAccessException | InvocationTargetException | InstantiationException e )
+		{
+			throw new IllegalStateException( "Unable to create new instance of type: " + type.getTypeName(), e );
+		}
+	}
 
-	@NotNull
-	RealValue real( @NotNull String value );
+	@SuppressWarnings( "unchecked" )
+	private static <T> T newInstanceWithParameters( MappedType type, Object[] parameters )
+	{
+		if( !( type instanceof SequenceMappedType ) )
+			throw new UnsupportedOperationException();
 
-	@NotNull
-	RealValue real( float value );
+		String[] constructorParameters = ( (SequenceMappedType)type ).getConstructorParameters();
+		if( constructorParameters == null || constructorParameters.length != parameters.length )
+			throw new IllegalArgumentException( "Amount of parameters does not match constructor parameters." );
 
-	@NotNull
-	RealValue real( double value );
+		try
+		{
+			Constructor<T> constructor = (Constructor<T>)( (SequenceMappedType)type ).getConstructor();
+			return constructor.newInstance( parameters );
+		} catch( IllegalAccessException | InvocationTargetException | InstantiationException e )
+		{
+			throw new IllegalStateException( "Unable to create new instance of type: " + type.getTypeName(), e );
+		}
+	}
 
-	@NotNull
-	RealValue real( @NotNull BigDecimal value );
-
-	@NotNull
-	RealValue real( long mantissa, boolean decimal, int exponent, boolean negative );
-
-	@NotNull
-	RealValue real( BigInteger mantissa, boolean decimal, int exponent, boolean negative );
-
-	@NotNull
-	RealValue real( @NotNull IntegerValue mantissa, boolean decimal, @NotNull IntegerValue exponent, boolean negative );
-
-	@NotNull
-	IntegerValue integer( @NotNull byte[] bytes );
-
-	@NotNull
-	IntegerValue integer( @NotNull String value );
-
-	@NotNull
-	IntegerValue integer( int value );
-
-	@NotNull
-	IntegerValue integer( long value );
-
-	@NotNull
-	IntegerValue integer( @NotNull BigInteger value );
-
-	@NotNull
-	StringValue cString( @NotNull String value );
-
-	@NotNull
-	NamedValue named( @NotNull String name, @Nullable Ref<Value> valueRef );
-
-	@NotNull
-	NamedValue namedInteger( @NotNull String name, int value );
-
-	@NotNull
-	ValueCollection collection( boolean named );
-
-	@NotNull
-	ByteArrayValue hString( @NotNull String content );
-
-	@NotNull
-	ByteArrayValue bString( @NotNull String content );
-
-	@NotNull
-	ByteArrayValue byteArrayValue( int bits, @Nullable byte[] bytes );
-
-	@NotNull
-	ByteArrayValue emptyByteArray();
-
-	@NotNull
-	OpenTypeValue openTypeValue( @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef );
-
-	@NotNull
-	DateValue timeValue( @NotNull Instant instant );
-
-	@NotNull
-	ObjectIdentifierValue objectIdentifier( @NotNull List<Ref<Value>> oidRefs );
 }

@@ -23,43 +23,55 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.annotation.Asn1Enumeration;
+import org.asn1s.annotation.Asn1EnumerationItem;
+import org.asn1s.core.DefaultAsn1Factory;
+import org.junit.Test;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+public class Asn1MapperTest
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	@Test
+	public void testCreate0() throws Exception
+	{
+		DefaultAsn1Factory factory = new DefaultAsn1Factory();
+		new Asn1Mapper( factory );
+	}
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	@Test
+	public void testCreate1() throws Exception
+	{
+		DefaultAsn1Factory factory = new DefaultAsn1Factory();
+		new Asn1Mapper( factory, new Class<?>[]{Values.class} );
+	}
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Test
+	public void testCreate2() throws Exception
+	{
+		DefaultAsn1Factory factory = new DefaultAsn1Factory();
+		new Asn1Mapper( factory, "My-Module", new Class<?>[]{Values.class, ValuesWithDefaultNaming.class} );
+	}
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@Asn1Enumeration( name = "Values" )
+	public enum Values
+	{
+		@Asn1EnumerationItem( name = "a", value = 2 )
+		VALUE1,
+		@Asn1EnumerationItem( name = "b", value = 1 )
+		VALUE2,
+		@Asn1EnumerationItem( name = "c", value = 3, extension = true )
+		VALUE3
+	}
+
+	@Asn1Enumeration
+	public enum ValuesWithDefaultNaming
+	{
+		@Asn1EnumerationItem
+		VALUE1,
+		@Asn1EnumerationItem
+		VALUE2,
+		@Asn1EnumerationItem
+		VALUE3
+	}
 }

@@ -23,43 +23,58 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.builtin;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.value.ValueFactory;
+import org.asn1s.api.value.x680.BooleanValue;
+import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.value.CoreValueFactory;
+import org.asn1s.databind.TypeMapper;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Test;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.math.BigInteger;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+public class IntegerTypeMapperTest
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	private static final ValueFactory FACTORY = new CoreValueFactory();
+	@SuppressWarnings( "ConstantConditions" )
+	@NotNull
+	private static final NamedType INTEGER = CoreModule.getInstance().getTypeResolver().getType( "INTEGER" );
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	@Test
+	public void toAsn1AndBack() throws Exception
+	{
+		doTest( new IntegerTypeMapper( byte.class, INTEGER ), (byte)1 );
+		doTest( new IntegerTypeMapper( short.class, INTEGER ), (short)1 );
+		doTest( new IntegerTypeMapper( int.class, INTEGER ), 1 );
+		doTest( new IntegerTypeMapper( long.class, INTEGER ), 1L );
+		doTest( new IntegerTypeMapper( BigInteger.class, INTEGER ), BigInteger.ONE );
+	}
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	private static void doTest( TypeMapper mapper, Object value )
+	{
+		assertEquals( "Not equals", value, mapper.toJava( mapper.toAsn1( FACTORY, value ) ) );
+	}
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@Test( expected = IllegalArgumentException.class )
+	public void toAsn1Fails() throws Exception
+	{
+		TypeMapper mapper = new IntegerTypeMapper( Long.class, INTEGER );
+		mapper.toAsn1( FACTORY, true );
+		fail( "Must fail" );
+	}
+
+	@Test( expected = IllegalArgumentException.class )
+	public void toJavaFails() throws Exception
+	{
+		TypeMapper mapper = new IntegerTypeMapper( Long.class, INTEGER );
+		mapper.toJava( BooleanValue.TRUE );
+		fail( "Must fail" );
+	}
+
 }

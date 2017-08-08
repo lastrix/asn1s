@@ -23,43 +23,29 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.value.Value;
+import org.asn1s.api.value.ValueFactory;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.lang.reflect.Type;
+
+public interface TypeMapper
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	default String getKey()
+	{
+		return TypeMapperUtils.mkTypeMapperKey( getJavaType(), getAsn1Type() );
+	}
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	Type getJavaType();
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	NamedType getAsn1Type();
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@NotNull
+	Value toAsn1( @NotNull ValueFactory factory, @NotNull Object value );
+
+	@NotNull
+	Object toJava( @NotNull Value value );
 }

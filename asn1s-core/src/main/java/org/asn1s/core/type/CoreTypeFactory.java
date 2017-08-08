@@ -97,6 +97,13 @@ public class CoreTypeFactory implements TypeFactory
 		this.module = module;
 	}
 
+	@Nullable
+	@Override
+	public Module getModule()
+	{
+		return module;
+	}
+
 	@NotNull
 	@Override
 	public DefinedType define( @NotNull String name, @NotNull Ref<Type> typeRef, @Nullable Template template )

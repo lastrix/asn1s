@@ -23,43 +23,51 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.tests.chat;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.module.ModuleReference;
+import org.asn1s.core.DefaultAsn1Factory;
+import org.asn1s.core.module.ModuleImpl;
+import org.asn1s.core.module.ModuleSet;
+import org.asn1s.obsolete.databind.Asn1Context;
+import org.junit.Assert;
+import org.junit.Test;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.time.Instant;
+
+public class ChatTest
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	@Test
+	public void test() throws Exception
+	{
+		ModuleSet moduleSet = new ModuleSet();
+		ModuleImpl module = new ModuleImpl( new ModuleReference( "My-Module" ), moduleSet );
+		Asn1Context context = new Asn1Context( module, new DefaultAsn1Factory( moduleSet ) );
+		context.mapType( User.class );
+		context.mapType( Message.class );
+		module.validate();
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+		ObjectManager manager = new ObjectManager();
+		manager.addUser( new User( 1, "user", "4939022d5432rf" ) );
+		context.putGlobalParameter( "manager", manager );
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+		Message message = new Message( manager, 1, Instant.now(), 1, "Hello, World!" );
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+		byte[] bytes;
+		try( ByteArrayOutputStream os = new ByteArrayOutputStream() )
+		{
+			context.createMarshaller().marshall( message, os );
+			bytes = os.toByteArray();
+		}
+
+		Message result;
+		try( ByteArrayInputStream is = new ByteArrayInputStream( bytes ) )
+		{
+			result = context.createUnmarshaller().unmarshal( Message.class, is );
+		}
+
+		Assert.assertEquals( "Objects are not equal", message, result );
+	}
 }

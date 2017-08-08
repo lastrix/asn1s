@@ -23,43 +23,83 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.tests.notebook;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.annotation.Asn1Type;
+import org.asn1s.annotation.Constructor;
+import org.asn1s.annotation.ConstructorParam;
+import org.asn1s.annotation.Property;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.time.Instant;
+
+@Asn1Type( name = "Note" )
+public final class Note
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	@Constructor
+	public Note(
+			@ConstructorParam( "stamp" ) Instant stamp,
+			@ConstructorParam( "title" ) String title,
+			@ConstructorParam( "message" ) String message )
+	{
+		this.stamp = stamp;
+		this.title = title;
+		this.message = message;
+	}
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	@Property( typeName = "GeneralizedTime" )
+	private final Instant stamp;
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Property
+	private final String title;
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@Property
+	private final String message;
+
+	public Instant getStamp()
+	{
+		return stamp;
+	}
+
+	public String getTitle()
+	{
+		return title;
+	}
+
+	public String getMessage()
+	{
+		return message;
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		if( this == obj ) return true;
+		if( !( obj instanceof Note ) ) return false;
+
+		Note note = (Note)obj;
+
+		if( !getStamp().equals( note.getStamp() ) ) return false;
+		//noinspection SimplifiableIfStatement
+		if( !getTitle().equals( note.getTitle() ) ) return false;
+		return getMessage().equals( note.getMessage() );
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = getStamp().hashCode();
+		result = 31 * result + getTitle().hashCode();
+		result = 31 * result + getMessage().hashCode();
+		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Note{" +
+				"stamp=" + stamp +
+				", title='" + title + '\'' +
+				", message='" + message + '\'' +
+				'}';
+	}
 }

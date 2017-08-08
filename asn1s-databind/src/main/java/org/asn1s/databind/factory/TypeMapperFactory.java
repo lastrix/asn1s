@@ -23,43 +23,24 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.factory;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.databind.TypeMapper;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.lang.reflect.Type;
+
+public interface TypeMapperFactory extends Comparable<TypeMapperFactory>
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	int getPriority();
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	@Override
+	default int compareTo( @NotNull TypeMapperFactory o )
+	{
+		return Integer.compare( getPriority(), o.getPriority() );
+	}
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	boolean isSupportedFor( Type type );
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	TypeMapper mapType( Type type );
 }

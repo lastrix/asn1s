@@ -23,43 +23,24 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.mapper;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.lang.reflect.Type;
+
+public interface TypeMapper
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	String MARKER_GLOBAL_VARIABLE = "$";
+	String MARKER_LOCAL_VARIABLE = "#";
 
 	/**
-	 * Component order, two components with same index will be sorted alphabetically
+	 * Map type into ASN.1 Schema, resolve ASN.1 type name using annotations or stub generation in form:
+	 * T-Java-Bind-{typeNameWithDotsReplacedByMinus}
 	 *
-	 * @return int
+	 * @param type the type to map
+	 * @return mapped type with all information
 	 */
-	int index() default -1;
-
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
-
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@NotNull
+	MappedType mapType( @NotNull Type type );
 }

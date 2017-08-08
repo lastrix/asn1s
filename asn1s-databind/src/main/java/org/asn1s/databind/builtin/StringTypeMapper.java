@@ -23,43 +23,57 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.builtin;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
+import org.asn1s.api.value.ValueFactory;
+import org.asn1s.databind.TypeMapper;
+import org.jetbrains.annotations.NotNull;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.lang.reflect.Type;
+import java.util.Objects;
+
+public class StringTypeMapper implements TypeMapper
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	public StringTypeMapper( Class<?> javaType, NamedType asnType )
+	{
+		assert Objects.equals( javaType, String.class );
+		this.javaType = javaType;
+		this.asnType = asnType;
+	}
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	private final Class<?> javaType;
+	private final NamedType asnType;
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Override
+	public Type getJavaType()
+	{
+		return javaType;
+	}
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@Override
+	public NamedType getAsn1Type()
+	{
+		return asnType;
+	}
+
+	@NotNull
+	@Override
+	public Value toAsn1( @NotNull ValueFactory factory, @NotNull Object value )
+	{
+		if( !javaType.isAssignableFrom( value.getClass() ) )
+			throw new IllegalArgumentException( "Unable to convert value: " + value );
+		return factory.cString( (String)value );
+	}
+
+	@NotNull
+	@Override
+	public Object toJava( @NotNull Value value )
+	{
+		if( value.getKind() != Kind.C_STRING )
+			throw new IllegalArgumentException( "Unable to convert value of kind: " + value.getKind() );
+		return value.toStringValue().asString();
+	}
 }

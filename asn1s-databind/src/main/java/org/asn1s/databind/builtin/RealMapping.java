@@ -23,43 +23,51 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.builtin;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.UniversalType;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.math.BigDecimal;
+
+public enum RealMapping implements BuiltinMapping
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	FLOAT( float.class, "Float" ),
+	FLOAT_CLASS( Float.class, "Float" ),
+	DOUBLE( double.class, "Double" ),
+	DOUBLE_CLASS( Double.class, "Double" ),
+	BIG_DECIMAL( BigDecimal.class, null );
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	private final Class<?> javaType;
+	private final String asnTypeName;
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	RealMapping( Class<?> javaType, String asnTypeName )
+	{
+		this.javaType = javaType;
+		this.asnTypeName = asnTypeName;
+	}
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@Override
+	public Class<?> getJavaType()
+	{
+		return javaType;
+	}
+
+	@Override
+	public String getAsnTypeName()
+	{
+		return asnTypeName;
+	}
+
+	@Override
+	public UniversalType getUniversalType()
+	{
+		return UniversalType.REAL;
+	}
+
+	@Override
+	public boolean isRegisterAsDefault()
+	{
+		return this == BIG_DECIMAL;
+	}
+
 }

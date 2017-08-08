@@ -23,43 +23,57 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.builtin;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.value.ValueFactory;
+import org.asn1s.api.value.x680.BooleanValue;
+import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.value.CoreValueFactory;
+import org.asn1s.databind.TypeMapper;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Test;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.fail;
+
+public class ByteArrayTypeMapperTest
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	private static final ValueFactory FACTORY = new CoreValueFactory();
+	@SuppressWarnings( "ConstantConditions" )
+	@NotNull
+	private static final NamedType OCTET_STRING = CoreModule.getInstance().getTypeResolver().getType( "OCTET STRING" );
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+//	@Test
+//	public void testGetters() throws Exception
+//	{
+//		TypeMapper mapper = new ByteArrayTypeMapper( byte[].class, OCTET_STRING );
+//		assertEquals( "Not equals", OCTET_STRING, mapper.getAsn1Type() );
+//		assertEquals( "Not equals", byte[].class, mapper.getJavaType() );
+//	}
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Test
+	public void toAsn1AndBack() throws Exception
+	{
+		ByteArrayTypeMapper mapper = new ByteArrayTypeMapper( byte[].class, OCTET_STRING );
+		byte[] value = {0x0A, 0x0A};
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+		assertArrayEquals( "Not equals", value, (byte[])mapper.toJava( mapper.toAsn1( FACTORY, value ) ) );
+	}
+
+	@Test( expected = IllegalArgumentException.class )
+	public void toAsn1Fails() throws Exception
+	{
+		TypeMapper mapper = new ByteArrayTypeMapper( byte[].class, OCTET_STRING );
+		mapper.toAsn1( FACTORY, 1L );
+		fail( "Must fail" );
+	}
+
+	@Test( expected = IllegalArgumentException.class )
+	public void toJavaFails() throws Exception
+	{
+		TypeMapper mapper = new ByteArrayTypeMapper( byte[].class, OCTET_STRING );
+		mapper.toJava( BooleanValue.TRUE );
+		fail( "Must fail" );
+	}
 }

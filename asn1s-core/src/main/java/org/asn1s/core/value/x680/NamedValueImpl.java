@@ -50,7 +50,7 @@ public class NamedValueImpl extends AbstractNestingValue implements NamedValue
 		this( name, valueRef, false );
 	}
 
-	private NamedValueImpl( String name, @Nullable Ref<Value> valueRef, boolean resolved )
+	public NamedValueImpl( String name, @Nullable Ref<Value> valueRef, boolean resolved )
 	{
 		super( valueRef );
 		this.name = name;
@@ -60,7 +60,6 @@ public class NamedValueImpl extends AbstractNestingValue implements NamedValue
 	private final boolean resolved;
 
 	private final String name;
-
 
 	@NotNull
 	@Override

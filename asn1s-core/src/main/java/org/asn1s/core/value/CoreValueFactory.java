@@ -313,6 +313,13 @@ public class CoreValueFactory implements ValueFactory
 
 	@NotNull
 	@Override
+	public NamedValue namedInteger( @NotNull String name, int value )
+	{
+		return new NamedValueImpl( name, new IntegerValueInt( value ), true );
+	}
+
+	@NotNull
+	@Override
 	public ValueCollection collection( boolean named )
 	{
 		return new ValueCollectionImpl( named );

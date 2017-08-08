@@ -23,43 +23,55 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.factory;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.annotation.Asn1Type;
+import org.asn1s.api.Asn1Factory;
+import org.asn1s.databind.TypeMapper;
+import org.asn1s.databind.TypeMapperContext;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Type;
+
+public class UserClassTypeMapperFactory implements TypeMapperFactory
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	public UserClassTypeMapperFactory( TypeMapperContext context, Asn1Factory factory )
+	{
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+		this.context = context;
+		this.factory = factory;
+	}
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	private final TypeMapperContext context;
+	private final Asn1Factory factory;
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@Override
+	public int getPriority()
+	{
+		return 0;
+	}
+
+	@Override
+	public boolean isSupportedFor( Type type )
+	{
+		if( !( type instanceof Class<?> ) || ( (Class<?>)type ).isEnum() || ( (Class<?>)type ).isArray() || ( (Class<?>)type ).isAnnotation() )
+			return false;
+
+		AnnotatedElement element = (AnnotatedElement)type;
+		return element.getAnnotation( Asn1Type.class ) != null;
+	}
+
+	@Override
+	public TypeMapper mapType( Type type )
+	{
+		if( !( type instanceof Class<?> ) )
+			throw new IllegalArgumentException( "Only classes may be mapped by this factory" );
+
+		return mapClass( (Class<?>)type );
+	}
+
+	private TypeMapper mapClass( Class<?> aClass )
+	{
+		throw new UnsupportedOperationException();
+	}
 }

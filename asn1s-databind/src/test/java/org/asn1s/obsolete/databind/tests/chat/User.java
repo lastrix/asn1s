@@ -23,43 +23,87 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.tests.chat;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.annotation.Asn1Type;
+import org.asn1s.annotation.Property;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+@Asn1Type( name = "User" )
+public class User
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	@Property
+	private int id;
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	@Property
+	private String name;
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Property
+	private String accessKey;
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	public User()
+	{
+	}
+
+	public User( int id, String name, String accessKey )
+	{
+		this.id = id;
+		this.name = name;
+		this.accessKey = accessKey;
+	}
+
+	public int getId()
+	{
+		return id;
+	}
+
+	public void setId( int id )
+	{
+		this.id = id;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public void setName( String name )
+	{
+		this.name = name;
+	}
+
+	public String getAccessKey()
+	{
+		return accessKey;
+	}
+
+	public void setAccessKey( String accessKey )
+	{
+		this.accessKey = accessKey;
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		if( this == obj ) return true;
+		if( !( obj instanceof User ) ) return false;
+
+		User user = (User)obj;
+
+		return getId() == user.getId();
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return getId();
+	}
+
+	@Override
+	public String toString()
+	{
+		return "User{" +
+				"id=" + id +
+				", name='" + name + '\'' +
+				'}';
+	}
 }

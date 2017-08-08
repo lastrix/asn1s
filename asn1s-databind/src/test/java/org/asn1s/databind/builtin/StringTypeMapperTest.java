@@ -23,43 +23,48 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.builtin;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.value.ValueFactory;
+import org.asn1s.api.value.x680.BooleanValue;
+import org.asn1s.core.module.CoreModule;
+import org.asn1s.core.value.CoreValueFactory;
+import org.asn1s.databind.TypeMapper;
+import org.jetbrains.annotations.NotNull;
+import org.junit.Test;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
+public class StringTypeMapperTest
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	private static final ValueFactory FACTORY = new CoreValueFactory();
+	@SuppressWarnings( "ConstantConditions" )
+	@NotNull
+	private static final NamedType UTF8_STRING = CoreModule.getInstance().getTypeResolver().getType( "UTF8String" );
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	@Test
+	public void toAsn1AndBack() throws Exception
+	{
+		TypeMapper mapper = new StringTypeMapper( String.class, UTF8_STRING );
+		String value = "example";
+		assertEquals( "Not equals", value, mapper.toJava( mapper.toAsn1( FACTORY, value ) ) );
+	}
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Test( expected = IllegalArgumentException.class )
+	public void toAsn1Fails() throws Exception
+	{
+		TypeMapper mapper = new StringTypeMapper( String.class, UTF8_STRING );
+		mapper.toAsn1( FACTORY, 1L );
+		fail( "Must fail" );
+	}
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@Test( expected = IllegalArgumentException.class )
+	public void toJavaFails() throws Exception
+	{
+		TypeMapper mapper = new StringTypeMapper( String.class, UTF8_STRING );
+		mapper.toJava( BooleanValue.TRUE );
+		fail( "Must fail" );
+	}
 }

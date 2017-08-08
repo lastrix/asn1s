@@ -55,6 +55,9 @@ public interface TypeFactory
 
 	void setModule( @Nullable Module module );
 
+	@Nullable
+	Module getModule();
+
 	//////////////////////////////// Types /////////////////////////////////////////////////////////////////////////////
 	@NotNull
 	DefinedType define( @NotNull String name, @NotNull Ref<Type> typeRef, @Nullable Template template );

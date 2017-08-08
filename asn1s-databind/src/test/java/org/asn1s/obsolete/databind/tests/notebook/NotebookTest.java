@@ -23,43 +23,54 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.tests.notebook;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import org.asn1s.api.encoding.tag.TagMethod;
+import org.asn1s.api.module.ModuleReference;
+import org.asn1s.core.DefaultAsn1Factory;
+import org.asn1s.core.module.ModuleImpl;
+import org.asn1s.core.module.ModuleSet;
+import org.asn1s.obsolete.databind.Asn1Context;
+import org.asn1s.obsolete.databind.mapper.MappedType;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.time.Instant;
+
+public class NotebookTest
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	@Test
+	public void test() throws Exception
+	{
+		ModuleSet moduleSet = new ModuleSet();
+		ModuleImpl module = new ModuleImpl( new ModuleReference( "My-Module" ), moduleSet );
+		module.setTagMethod( TagMethod.AUTOMATIC );
+		Asn1Context context = new Asn1Context( module, new DefaultAsn1Factory( moduleSet ) );
+		context.mapType( Note.class );
+		//noinspection unused
+		MappedType mappedType = context.mapType( Book.class );
+		module.validate();
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+		Book book = new Book( "lastrix" );
+		book.addNote( new Note( Instant.now(), "Hello", "I'm new here!" ) );
+		book.addNote( new Note( Instant.now(), "Whats going on?", "Testing you." ) );
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+		byte[] bytes;
+		try( ByteArrayOutputStream os = new ByteArrayOutputStream() )
+		{
+			context.createMarshaller().marshall( book, os );
+			bytes = os.toByteArray();
+		}
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+		Book result;
+		try( ByteArrayInputStream is = new ByteArrayInputStream( bytes ) )
+		{
+			result = context.createUnmarshaller().unmarshal( Book.class, is );
+		}
+
+		Assert.assertEquals( "Objects are not equal", book, result );
+	}
 }

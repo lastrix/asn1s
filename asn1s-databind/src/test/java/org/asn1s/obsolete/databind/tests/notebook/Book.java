@@ -23,43 +23,80 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.tests.notebook;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.annotation.Asn1Type;
+import org.asn1s.annotation.Constructor;
+import org.asn1s.annotation.ConstructorParam;
+import org.asn1s.annotation.Property;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.util.ArrayList;
+import java.util.List;
+
+@Asn1Type( name = "Book" )
+public class Book
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	@Constructor
+	public Book( @ConstructorParam( "author" ) String author )
+	{
+		this.author = author;
+		notes = new ArrayList<>();
+	}
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	@Property
+	private final String author;
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Property( typeName = "NoteList" )
+	private List<Note> notes;
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+
+	public String getAuthor()
+	{
+		return author;
+	}
+
+	public void setNotes( List<Note> notes )
+	{
+		//noinspection AssignmentToCollectionOrArrayFieldFromParameter
+		this.notes = notes;
+	}
+
+	public List<Note> getNotes()
+	{
+		return notes;
+	}
+
+	public void addNote( Note note )
+	{
+		notes.add( note );
+	}
+
+	@Override
+	public boolean equals( Object obj )
+	{
+		if( this == obj ) return true;
+		if( !( obj instanceof Book ) ) return false;
+
+		Book book = (Book)obj;
+
+		//noinspection SimplifiableIfStatement
+		if( !getAuthor().equals( book.getAuthor() ) ) return false;
+		return getNotes() != null ? getNotes().equals( book.getNotes() ) : book.getNotes() == null;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result = getAuthor().hashCode();
+		result = 31 * result + ( getNotes() != null ? getNotes().hashCode() : 0 );
+		return result;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Book{" +
+				"author='" + author + '\'' +
+				'}';
+	}
 }

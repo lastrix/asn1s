@@ -23,43 +23,56 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.builtin;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.UniversalType;
+import org.jetbrains.annotations.Nullable;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+public enum StringMapping implements BuiltinMapping
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	UTF8_STRING( UniversalType.UTF8_STRING ),
+	NUMERIC_STRING( UniversalType.NUMERIC_STRING ),
+	PRINTABLE_STRING( UniversalType.PRINTABLE_STRING ),
+	T61_STRING( UniversalType.T61_STRING ),
+	TELETEX( UniversalType.TELETEX ),
+	VIDEOTEX_STRING( UniversalType.VIDEOTEX_STRING ),
+	IA5_STRING( UniversalType.IA5_STRING ),
+	GRAPHIC_STRING( UniversalType.GRAPHIC_STRING ),
+	VISIBLE_STRING( UniversalType.VISIBLE_STRING ),
+	ISO_646_STRING( UniversalType.ISO_646_STRING ),
+	GENERAL_STRING( UniversalType.GENERAL_STRING ),
+	UNIVERSAL_STRING( UniversalType.UNIVERSAL_STRING ),
+	BMP_STRING( UniversalType.BMP_STRING );
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	private final UniversalType universalType;
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	StringMapping( UniversalType universalType )
+	{
+		this.universalType = universalType;
+	}
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	@Override
+	public Class<?> getJavaType()
+	{
+		return String.class;
+	}
+
+	@Nullable
+	@Override
+	public String getAsnTypeName()
+	{
+		return null;
+	}
+
+	@Override
+	public UniversalType getUniversalType()
+	{
+		return universalType;
+	}
+
+	@Override
+	public boolean isRegisterAsDefault()
+	{
+		return this == UTF8_STRING;
+	}
 }

@@ -50,7 +50,7 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 		this.module = module;
 		this.name = name;
 
-		if( CoreUtils.CORE_MODULE_NAME.equals( module.getModuleName() ) )
+		if( !CoreUtils.CORE_MODULE_NAME.equals( module.getModuleName() ) )
 			setNamespace( module.getModuleName() + ':' );
 		else
 			setNamespace( null );

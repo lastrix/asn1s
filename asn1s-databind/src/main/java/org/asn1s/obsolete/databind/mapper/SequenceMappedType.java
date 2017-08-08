@@ -23,43 +23,81 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.obsolete.databind.mapper;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.api.type.DefinedType;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Type;
+
+public class SequenceMappedType implements MappedType
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	SequenceMappedType( Type javaType, Constructor<?> constructor, String[] constructorParameters )
+	{
+		this.javaType = javaType;
+		this.constructor = constructor;
+		//noinspection AssignmentToCollectionOrArrayFieldFromParameter
+		this.constructorParameters = constructorParameters;
+	}
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	private final Type javaType;
+	private DefinedType asnType;
+	private final Constructor<?> constructor;
+	private final String[] constructorParameters;
+	private MappedField[] fields;
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	public MappedField getFieldOrDie( String property )
+	{
+		for( MappedField field : fields )
+			if( field.getPropertyName().equals( property ) )
+				return field;
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+		throw new IllegalStateException( "Unable to find property: " + property );
+	}
+
+	@Override
+	public Type getJavaType()
+	{
+		return javaType;
+	}
+
+	@Override
+	public DefinedType getAsnType()
+	{
+		return asnType;
+	}
+
+	void setAsnType( DefinedType asnType )
+	{
+		this.asnType = asnType;
+	}
+
+	public Constructor<?> getConstructor()
+	{
+		return constructor;
+	}
+
+	public String[] getConstructorParameters()
+	{
+		//noinspection ReturnOfCollectionOrArrayField
+		return constructorParameters;
+	}
+
+	public MappedField[] getFields()
+	{
+		//noinspection ReturnOfCollectionOrArrayField
+		return fields;
+	}
+
+	void setFields( MappedField[] fields )
+	{
+		//noinspection AssignmentToCollectionOrArrayFieldFromParameter
+		this.fields = fields;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "BasicMappedType{" + javaType.getTypeName() + " => " + asnType.getName() + '}';
+	}
 }
