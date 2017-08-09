@@ -507,14 +507,17 @@ collectionType returns [CollectionType result]
             )?
         |   collectionComponentTypeList[$result, ComponentType.Kind.PRIMARY]
             (
-                COMMA ELLIPSIS exceptionSpec?
-                ( COMMA collectionExtensionComponents[$result] )?
+                COMMA ELLIPSIS
                 (
-                    COMMA ELLIPSIS
-                    COMMA collectionComponentTypeList[$result, ComponentType.Kind.SECONDARY]
-                |   COMMA ELLIPSIS { $result.setExtensible(true); }
-                )?
-            |   COMMA ELLIPSIS { $result.setExtensible(true); }
+                    exceptionSpec?
+                    ( COMMA collectionExtensionComponents[$result] )?
+                    (
+                        COMMA ELLIPSIS
+                        COMMA collectionComponentTypeList[$result, ComponentType.Kind.SECONDARY]
+                    |   COMMA ELLIPSIS { $result.setExtensible(true); }
+                    |   { $result.setExtensible(true); }
+                    )
+                )
             )?
         )?
         CLOSE_BRACE
@@ -1446,9 +1449,7 @@ abstractSyntaxWord
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 reference
-	:   typeReference
-	|   valueReference
-	|   objectClassReference
+	:   Identifier
 	;
 
 taggingMethod returns[ TagMethod result ]

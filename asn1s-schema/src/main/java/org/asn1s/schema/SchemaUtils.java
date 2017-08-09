@@ -28,6 +28,7 @@ package org.asn1s.schema;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.TokenSource;
+import org.antlr.v4.runtime.atn.PredictionMode;
 import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleResolver;
@@ -76,6 +77,7 @@ public final class SchemaUtils
 		Asn1Parser parser = new Asn1Parser( tokenStream, resolver, asn1Factory );
 		parser.addErrorListener( new Asn1ErrorListener() );
 		parser.setBuildParseTree( false );
+		parser.getInterpreter().setPredictionMode( PredictionMode.SLL );
 		return parser.startStmt().result;
 	}
 
@@ -104,6 +106,7 @@ public final class SchemaUtils
 		Asn1Parser parser = new Asn1Parser( tokenStream, resolver, asn1Factory );
 		parser.addErrorListener( new Asn1ErrorListener() );
 		parser.setBuildParseTree( false );
+		parser.getInterpreter().setPredictionMode( PredictionMode.SLL );
 		return parser.pduStmt().result;
 	}
 }
