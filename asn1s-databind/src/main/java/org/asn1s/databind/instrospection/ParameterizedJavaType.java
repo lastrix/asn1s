@@ -23,28 +23,61 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.instrospection;
 
-public final class AnnotationUtils
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.util.Objects;
+
+public class ParameterizedJavaType extends JavaType
 {
-	public static final String DEFAULT = "#default";
-
-	private AnnotationUtils()
+	public ParameterizedJavaType( Type type, JavaType rawJavaType, JavaType[] typeArguments )
 	{
+		super( type );
+		this.rawJavaType = rawJavaType;
+		this.typeArguments = typeArguments.clone();
+		copyProperties();
 	}
 
-	public static boolean isDefault( Asn1Type classAnnotation )
+	private void copyProperties()
 	{
-		return DEFAULT.equals( classAnnotation.name() );
+		JavaProperty[] rawProperties = rawJavaType.getProperties();
+		if( rawProperties == null )
+			return;
+
+		JavaProperty[] properties = new JavaProperty[rawProperties.length];
+		int i = 0;
+		for( JavaProperty property : rawProperties )
+		{
+			properties[i] = property.copy( determineActualType( property ) );
+			i++;
+		}
+		setProperties( properties );
 	}
 
-	public static boolean isDefaultName( Asn1Property property )
+	private JavaType determineActualType( JavaProperty property )
 	{
-		return DEFAULT.equals( property.name() );
+		int i = 0;
+		Type type = property.getPropertyType().getType();
+		for( TypeVariable<Class<?>> variable : rawJavaType.getTypeVariables() )
+		{
+			if( Objects.equals( variable, type ) )
+				return typeArguments[i];
+			i++;
+		}
+		throw new IllegalArgumentException( "No type variable defined: " + type );
 	}
 
-	public static boolean isDefault( String value )
+	private final JavaType rawJavaType;
+	private final JavaType[] typeArguments;
+
+	public JavaType getRawJavaType()
 	{
-		return DEFAULT.equals( value );
+		return rawJavaType;
+	}
+
+	public JavaType[] getTypeArguments()
+	{
+		return typeArguments.clone();
 	}
 }

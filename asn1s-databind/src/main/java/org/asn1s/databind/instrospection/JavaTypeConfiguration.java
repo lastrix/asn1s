@@ -23,28 +23,39 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.instrospection;
 
-public final class AnnotationUtils
+import org.asn1s.annotation.AnnotationUtils;
+import org.asn1s.annotation.Asn1Type;
+import org.asn1s.annotation.Asn1Type.Kind;
+import org.asn1s.databind.TypeMapperUtils;
+
+public final class JavaTypeConfiguration
 {
-	public static final String DEFAULT = "#default";
-
-	private AnnotationUtils()
+	public JavaTypeConfiguration( Class<?> aClass )
 	{
+		Asn1Type type = aClass.getAnnotation( Asn1Type.class );
+		asn1TypeName = AnnotationUtils.isDefault( type ) ? TypeMapperUtils.getDefaultAsnTypeName( aClass ) : type.name();
+		kind = type.kind();
+		extensible = type.extensible();
 	}
 
-	public static boolean isDefault( Asn1Type classAnnotation )
+	private final String asn1TypeName;
+	private final Kind kind;
+	private final boolean extensible;
+
+	public String getAsn1TypeName()
 	{
-		return DEFAULT.equals( classAnnotation.name() );
+		return asn1TypeName;
 	}
 
-	public static boolean isDefaultName( Asn1Property property )
+	public Kind getKind()
 	{
-		return DEFAULT.equals( property.name() );
+		return kind;
 	}
 
-	public static boolean isDefault( String value )
+	public boolean isExtensible()
 	{
-		return DEFAULT.equals( value );
+		return extensible;
 	}
 }

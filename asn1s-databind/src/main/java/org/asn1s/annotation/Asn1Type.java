@@ -41,6 +41,10 @@ public @interface Asn1Type
 	 */
 	String name() default AnnotationUtils.DEFAULT;
 
+	Kind kind() default Kind.Sequence;
+
+	boolean extensible() default false;
+
 	enum Kind
 	{
 		Set,

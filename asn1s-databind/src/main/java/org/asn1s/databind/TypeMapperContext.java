@@ -25,13 +25,18 @@
 
 package org.asn1s.databind;
 
+import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.type.NamedType;
+import org.asn1s.databind.factory.CollectionClassTypeMapperFactory;
+import org.asn1s.databind.factory.EnumTypeMapperFactory;
+import org.asn1s.databind.factory.TypeMapperFactory;
+import org.asn1s.databind.factory.UserClassTypeMapperFactory;
+import org.asn1s.databind.instrospection.Introspector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public final class TypeMapperContext
 {
@@ -48,6 +53,8 @@ public final class TypeMapperContext
 	 * {@link Class#getTypeName()} + "=" + {@link NamedType#getFullyQualifiedName()}
 	 */
 	private final Map<String, TypeMapper> typeMappers = new HashMap<>();
+	private List<TypeMapperFactory> factories;
+	private final Introspector introspector = new Introspector();
 
 	public void registerTypeMapper( @NotNull TypeMapper typeMapper )
 	{
@@ -75,7 +82,6 @@ public final class TypeMapperContext
 	 */
 	public void registerJavaClassForNamedType( @NotNull Type type, @NotNull NamedType namedType )
 	{
-		assert type instanceof Class<?>;
 		registerJavaClassForNamedType( type.getTypeName(), namedType );
 	}
 
@@ -102,5 +108,51 @@ public final class TypeMapperContext
 	public NamedType getNamedTypeForJavaName( String className )
 	{
 		return java2asn1Map.get( className );
+	}
+
+	public Introspector getIntrospector()
+	{
+		return introspector;
+	}
+
+	public void mapTypes( Asn1Factory factory, Type[] types )
+	{
+		if( factories == null )
+			factories = getTypeMapperFactories( factory );
+		for( Type type : types )
+			tryResolveOrMapType( type );
+	}
+
+	@NotNull
+	public TypeMapper mapType( Type type )
+	{
+		for( TypeMapperFactory mapperFactory : factories )
+			if( mapperFactory.isSupportedFor( type ) )
+				return mapperFactory.mapType( type );
+
+		throw new UnsupportedOperationException( "Unable to map type: " + type.getTypeName() );
+	}
+
+	private List<TypeMapperFactory> getTypeMapperFactories( Asn1Factory factory )
+	{
+		List<TypeMapperFactory> list = new ArrayList<>();
+		list.add( new UserClassTypeMapperFactory( this, factory ) );
+		list.add( new EnumTypeMapperFactory( this, factory ) );
+		list.add( new CollectionClassTypeMapperFactory( this, factory ) );
+		Collections.sort( list );
+		return list;
+	}
+
+	public TypeMapper tryResolveOrMapType( Type type )
+	{
+		NamedType namedType = getNamedTypeForJavaName( type.getTypeName() );
+		if( namedType == null )
+			return mapType( type );
+
+		TypeMapper mapper = getTypeMapper( TypeMapperUtils.mkTypeMapperKey( type, namedType ) );
+		if( mapper == null )
+			return mapType( type );
+
+		return mapper;
 	}
 }

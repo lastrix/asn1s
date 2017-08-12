@@ -23,20 +23,33 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.obsolete.databind.mapper;
+package org.asn1s.databind.factory;
 
-import org.asn1s.api.type.DefinedType;
+import org.asn1s.api.value.Value;
+import org.asn1s.core.DefaultAsn1Factory;
+import org.asn1s.databind.Asn1Mapper;
+import org.asn1s.databind.TypeMapper;
+import org.junit.Test;
 
-import java.lang.reflect.Type;
+import java.util.Arrays;
 
-public interface MappedType
+public class UserClassTypeMapperFactoryTest
 {
-	DefinedType getAsnType();
 
-	Type getJavaType();
+	private static final DefaultAsn1Factory FACTORY = new DefaultAsn1Factory();
 
-	default String getTypeName()
+	@Test
+	public void testMapping() throws Exception
 	{
-		return getJavaType().getTypeName();
+		Asn1Mapper mapper = new Asn1Mapper( FACTORY, new Class<?>[]{Element.class, TextElement.class, Attribute.class} );
+		TypeMapper typeMapper = mapper.getContext().getTypeMapper( Element.class.getTypeName() + "=Java-Bind-Module:Element" );
+
+		Element element = new Element( "root" );
+		element.setAttributes( Arrays.asList( new Attribute( "flag", "true" ), new Attribute( "options", "221" ) ) );
+		element.setSiblings( Arrays.asList( new TextElement( "value1", "Hello, World" ), new TextElement( "value2", "Good job!" ) ) );
+		Value value = typeMapper.toAsn1( FACTORY.values(), element );
+		Object o = typeMapper.toJava( value );
+		int k = 0;
 	}
+
 }

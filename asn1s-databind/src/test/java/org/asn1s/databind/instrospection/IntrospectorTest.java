@@ -23,28 +23,18 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.instrospection;
 
-public final class AnnotationUtils
+import org.asn1s.databind.factory.Element;
+import org.junit.Test;
+
+public class IntrospectorTest
 {
-	public static final String DEFAULT = "#default";
-
-	private AnnotationUtils()
+	@Test
+	public void testIntrospection() throws Exception
 	{
-	}
-
-	public static boolean isDefault( Asn1Type classAnnotation )
-	{
-		return DEFAULT.equals( classAnnotation.name() );
-	}
-
-	public static boolean isDefaultName( Asn1Property property )
-	{
-		return DEFAULT.equals( property.name() );
-	}
-
-	public static boolean isDefault( String value )
-	{
-		return DEFAULT.equals( value );
+		Introspector introspector = new Introspector();
+		JavaType type = introspector.introspect( Element.class );
+		int k = 0;
 	}
 }

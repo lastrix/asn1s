@@ -106,7 +106,7 @@ public class CoreTypeFactory implements TypeFactory
 
 	@NotNull
 	@Override
-	public DefinedType define( @NotNull String name, @NotNull Ref<Type> typeRef, @Nullable Template template )
+	public DefinedType define( @NotNull String name, @Nullable Ref<Type> typeRef, @Nullable Template template )
 	{
 		DefinedTypeImpl type = new DefinedTypeImpl( module, name, typeRef );
 		type.setTemplate( template );

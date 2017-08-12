@@ -37,6 +37,11 @@ public final class TypeMapperUtils
 		return type.getTypeName() + '=' + asnType.getFullyQualifiedName();
 	}
 
+	public static String mkTypeMapperKey( String type, String asnTypeFullyQualifiedName )
+	{
+		return type + '=' + asnTypeFullyQualifiedName;
+	}
+
 	public static String getDefaultAsnTypeName( Type type )
 	{
 		return "T-Java-Bind-" + type.getTypeName().replace( '.', '-' ).replace( '$', '-' );

@@ -54,7 +54,7 @@ import java.util.Map.Entry;
 /**
  * Converts enum values to ENUMERATED type, generates TypeMapper for handling I/O.
  */
-public class EnumTypeMapperFactory implements TypeMapperFactory
+public final class EnumTypeMapperFactory implements TypeMapperFactory
 {
 	private static final Log log = LogFactory.getLog( EnumTypeMapperFactory.class );
 

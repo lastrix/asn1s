@@ -51,6 +51,11 @@ public abstract class AbstractNestingType extends AbstractType
 	private Ref<Type> siblingRef;
 	private Type sibling;
 
+	public void setSiblingRef( Ref<Type> siblingRef )
+	{
+		this.siblingRef = siblingRef;
+	}
+
 	public Ref<Type> getSiblingRef()
 	{
 		return siblingRef;
@@ -63,7 +68,7 @@ public abstract class AbstractNestingType extends AbstractType
 		return sibling;
 	}
 
-	protected void setSibling( Type sibling )
+	public void setSibling( Type sibling )
 	{
 		this.sibling = sibling;
 	}

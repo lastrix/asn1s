@@ -43,17 +43,17 @@ import org.jetbrains.annotations.Nullable;
 
 public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 {
-	public DefinedTypeImpl( @NotNull Module module, @NotNull String name, @NotNull Ref<Type> reference )
+	public DefinedTypeImpl( @NotNull Module module, @NotNull String name, @Nullable Ref<Type> reference )
 	{
 		super( reference );
 		RefUtils.assertTypeRef( name );
 		this.module = module;
 		this.name = name;
 
-		if( !CoreUtils.CORE_MODULE_NAME.equals( module.getModuleName() ) )
-			setNamespace( module.getModuleName() + ':' );
-		else
+		if( CoreUtils.CORE_MODULE_NAME.equals( module.getModuleName() ) )
 			setNamespace( null );
+		else
+			setNamespace( module.getModuleName() + ':' );
 	}
 
 	private Module module;

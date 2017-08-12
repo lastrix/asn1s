@@ -23,43 +23,35 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.factory;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.asn1s.annotation.Asn1Property;
+import org.asn1s.annotation.Asn1Type;
 
-/**
- * Annotation for components
- */
-@Retention( RetentionPolicy.RUNTIME )
-@Target( {ElementType.METHOD, ElementType.FIELD} )
-public @interface Property
+@SuppressWarnings( "ALL" )
+@Asn1Type( name = "Text-Element" )
+public class TextElement extends AbstractElement
 {
-	/**
-	 * Component name, must be valid ASN.1 component name
-	 *
-	 * @return string
-	 */
-	String name() default "#default";
+	public TextElement()
+	{
+	}
 
-	/**
-	 * Component order, two components with same index will be sorted alphabetically
-	 *
-	 * @return int
-	 */
-	int index() default -1;
+	public TextElement( String name, String content )
+	{
+		super( name );
+		this.content = content;
+	}
 
-	/**
-	 * Type for this component. Values from this component must be acceptable by TYPE.
-	 *
-	 * @return string
-	 */
-	String typeName() default "#default";
+	@Asn1Property
+	private String content;
 
-	/**
-	 * @return true if property is optional and may be null
-	 */
-	boolean optional() default false;
+	public String getContent()
+	{
+		return content;
+	}
+
+	public void setContent( String content )
+	{
+		this.content = content;
+	}
 }

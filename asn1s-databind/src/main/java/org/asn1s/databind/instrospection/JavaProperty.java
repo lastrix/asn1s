@@ -23,28 +23,97 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.instrospection;
 
-public final class AnnotationUtils
+import org.jetbrains.annotations.Nullable;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+public class JavaProperty implements Serializable
 {
-	public static final String DEFAULT = "#default";
-
-	private AnnotationUtils()
+	public JavaProperty( String name )
 	{
+		this.name = name;
 	}
 
-	public static boolean isDefault( Asn1Type classAnnotation )
+	private final String name;
+	private Field field;
+	private Method setter;
+	private Method getter;
+	private JavaType propertyType;
+	private JavaPropertyConfiguration configuration;
+
+	public String getName()
 	{
-		return DEFAULT.equals( classAnnotation.name() );
+		return name;
 	}
 
-	public static boolean isDefaultName( Asn1Property property )
+	public Field getField()
 	{
-		return DEFAULT.equals( property.name() );
+		return field;
 	}
 
-	public static boolean isDefault( String value )
+	public void setField( @Nullable Field field )
 	{
-		return DEFAULT.equals( value );
+		this.field = field;
+	}
+
+	public Method getSetter()
+	{
+		return setter;
+	}
+
+	public void setSetter( Method setter )
+	{
+		this.setter = setter;
+	}
+
+	public Method getGetter()
+	{
+		return getter;
+	}
+
+	public void setGetter( Method getter )
+	{
+		this.getter = getter;
+	}
+
+	public JavaType getPropertyType()
+	{
+		return propertyType;
+	}
+
+	public void setPropertyType( JavaType propertyType )
+	{
+		this.propertyType = propertyType;
+	}
+
+	public JavaPropertyConfiguration getConfiguration()
+	{
+		if( configuration == null )
+			configuration = buildConfiguration();
+		return configuration;
+	}
+
+	public JavaProperty copy( JavaType propertyType )
+	{
+		JavaProperty property = new JavaProperty( name );
+		property.setField( field );
+		property.setSetter( setter );
+		property.setGetter( getter );
+		property.setPropertyType( propertyType );
+		return property;
+	}
+
+
+	private JavaPropertyConfiguration buildConfiguration()
+	{
+		if( field == null && setter == null && getter == null )
+			throw new IllegalStateException();
+
+
+		return new JavaPropertyConfiguration( name, field, setter, getter );
 	}
 }

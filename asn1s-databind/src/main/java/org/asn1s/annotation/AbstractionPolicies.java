@@ -25,26 +25,14 @@
 
 package org.asn1s.annotation;
 
-public final class AnnotationUtils
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention( RetentionPolicy.RUNTIME )
+@Target( ElementType.TYPE )
+public @interface AbstractionPolicies
 {
-	public static final String DEFAULT = "#default";
-
-	private AnnotationUtils()
-	{
-	}
-
-	public static boolean isDefault( Asn1Type classAnnotation )
-	{
-		return DEFAULT.equals( classAnnotation.name() );
-	}
-
-	public static boolean isDefaultName( Asn1Property property )
-	{
-		return DEFAULT.equals( property.name() );
-	}
-
-	public static boolean isDefault( String value )
-	{
-		return DEFAULT.equals( value );
-	}
+	AbstractionPolicy[] value() default {};
 }

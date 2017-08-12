@@ -25,26 +25,45 @@
 
 package org.asn1s.annotation;
 
-public final class AnnotationUtils
+import org.asn1s.api.type.ComponentType.Kind;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Annotation for components
+ */
+@Retention( RetentionPolicy.RUNTIME )
+@Target( {ElementType.METHOD, ElementType.FIELD} )
+public @interface Asn1Property
 {
-	public static final String DEFAULT = "#default";
+	/**
+	 * Component name, must be valid ASN.1 component name
+	 *
+	 * @return string
+	 */
+	String name() default "#default";
 
-	private AnnotationUtils()
-	{
-	}
+	/**
+	 * Component order, two components with same index will be sorted alphabetically
+	 *
+	 * @return int
+	 */
+	int index() default -1;
 
-	public static boolean isDefault( Asn1Type classAnnotation )
-	{
-		return DEFAULT.equals( classAnnotation.name() );
-	}
+	/**
+	 * Type for this component. Values from this component must be acceptable by TYPE.
+	 *
+	 * @return string
+	 */
+	String typeName() default "#default";
 
-	public static boolean isDefaultName( Asn1Property property )
-	{
-		return DEFAULT.equals( property.name() );
-	}
+	/**
+	 * @return true if property is optional and may be null
+	 */
+	boolean optional() default false;
 
-	public static boolean isDefault( String value )
-	{
-		return DEFAULT.equals( value );
-	}
+	Kind componentKind() default Kind.PRIMARY;
 }

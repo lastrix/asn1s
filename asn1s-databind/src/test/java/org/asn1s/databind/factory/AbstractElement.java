@@ -23,28 +23,33 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.factory;
 
-public final class AnnotationUtils
+import org.asn1s.annotation.Asn1Property;
+import org.asn1s.annotation.Asn1Type;
+
+@Asn1Type( name = "Abstract-Element" )
+public abstract class AbstractElement
 {
-	public static final String DEFAULT = "#default";
-
-	private AnnotationUtils()
+	protected AbstractElement()
 	{
 	}
 
-	public static boolean isDefault( Asn1Type classAnnotation )
+	protected AbstractElement( String name )
 	{
-		return DEFAULT.equals( classAnnotation.name() );
+		this.name = name;
 	}
 
-	public static boolean isDefaultName( Asn1Property property )
+	@Asn1Property
+	private String name;
+
+	public String getName()
 	{
-		return DEFAULT.equals( property.name() );
+		return name;
 	}
 
-	public static boolean isDefault( String value )
+	public void setName( String name )
 	{
-		return DEFAULT.equals( value );
+		this.name = name;
 	}
 }

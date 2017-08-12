@@ -23,28 +23,79 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.instrospection;
 
-public final class AnnotationUtils
+import org.asn1s.annotation.Asn1Type;
+import org.jetbrains.annotations.Nullable;
+
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+
+public class JavaType
 {
-	public static final String DEFAULT = "#default";
-
-	private AnnotationUtils()
+	JavaType( Type type )
 	{
+		this.type = type;
+		if( type instanceof Class<?> && ( (AnnotatedElement)type ).getAnnotation( Asn1Type.class ) != null )
+			configuration = new JavaTypeConfiguration( (Class<?>)type );
 	}
 
-	public static boolean isDefault( Asn1Type classAnnotation )
+	private final Type type;
+	private TypeVariable<Class<?>>[] typeVariables;
+	private JavaType superClass;
+	private JavaType[] interfaces;
+	private JavaProperty[] properties;
+	private JavaTypeConfiguration configuration;
+
+	public TypeVariable<Class<?>>[] getTypeVariables()
 	{
-		return DEFAULT.equals( classAnnotation.name() );
+		return typeVariables.clone();
 	}
 
-	public static boolean isDefaultName( Asn1Property property )
+	public void setTypeVariables( TypeVariable<Class<?>>[] typeVariables )
 	{
-		return DEFAULT.equals( property.name() );
+		this.typeVariables = typeVariables.clone();
 	}
 
-	public static boolean isDefault( String value )
+	public Type getType()
 	{
-		return DEFAULT.equals( value );
+		return type;
+	}
+
+	public JavaType getSuperClass()
+	{
+		return superClass;
+	}
+
+	public void setSuperClass( JavaType superClass )
+	{
+		this.superClass = superClass;
+	}
+
+	public JavaType[] getInterfaces()
+	{
+		return interfaces.clone();
+	}
+
+	public void setInterfaces( JavaType[] interfaces )
+	{
+		this.interfaces = interfaces.clone();
+	}
+
+	@Nullable
+	public JavaProperty[] getProperties()
+	{
+		return properties == null ? null : properties.clone();
+	}
+
+	public void setProperties( JavaProperty[] properties )
+	{
+		this.properties = properties.clone();
+	}
+
+	public JavaTypeConfiguration getConfiguration()
+	{
+		return configuration;
 	}
 }

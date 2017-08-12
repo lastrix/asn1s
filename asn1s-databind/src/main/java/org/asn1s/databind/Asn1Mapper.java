@@ -30,15 +30,9 @@ import org.asn1s.api.exception.Asn1Exception;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleReference;
 import org.asn1s.databind.builtin.*;
-import org.asn1s.databind.factory.EnumTypeMapperFactory;
-import org.asn1s.databind.factory.TypeMapperFactory;
-import org.asn1s.databind.factory.UserClassTypeMapperFactory;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class Asn1Mapper
 {
@@ -60,34 +54,8 @@ public class Asn1Mapper
 		Module module = factory.types().module( new ModuleReference( moduleName ) );
 		initBuiltinTypes();
 		if( types != null && types.length > 0 )
-			mapTypes( types );
+			context.mapTypes( factory, types );
 		module.validate();
-	}
-
-	private void mapTypes( Type[] types )
-	{
-		List<TypeMapperFactory> factories = getTypeMapperFactories();
-		for( Type type : types )
-			mapType( factories, type );
-	}
-
-	private List<TypeMapperFactory> getTypeMapperFactories()
-	{
-		List<TypeMapperFactory> list = new ArrayList<>();
-		list.add( new UserClassTypeMapperFactory( context, factory ) );
-		list.add( new EnumTypeMapperFactory( context, factory ) );
-		Collections.sort( list );
-		return list;
-	}
-
-	private static void mapType( Iterable<TypeMapperFactory> factories, Type type )
-	{
-		for( TypeMapperFactory mapperFactory : factories )
-			if( mapperFactory.isSupportedFor( type ) )
-			{
-				mapperFactory.mapType( type );
-				break;
-			}
 	}
 
 	private final TypeMapperContext context = new TypeMapperContext();
@@ -102,5 +70,10 @@ public class Asn1Mapper
 		typeFactory.generate( StringTypeMapper.class, StringMapping.values() );
 		typeFactory.generate( DateTypeMapper.class, DateMapping.values() );
 		typeFactory.generate( ByteArrayTypeMapper.class, ByteArrayMapping.values() );
+	}
+
+	public TypeMapperContext getContext()
+	{
+		return context;
 	}
 }

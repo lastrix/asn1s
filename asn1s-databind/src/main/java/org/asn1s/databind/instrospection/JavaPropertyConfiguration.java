@@ -23,28 +23,69 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.instrospection;
 
-public final class AnnotationUtils
+import org.asn1s.annotation.AnnotationUtils;
+import org.asn1s.annotation.Asn1Property;
+import org.asn1s.api.type.ComponentType.Kind;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+public class JavaPropertyConfiguration
 {
-	public static final String DEFAULT = "#default";
 
-	private AnnotationUtils()
+	public JavaPropertyConfiguration( String name, Field field, Method setter, Method getter )
 	{
+		Asn1Property property = findAnnotationProperty( field, setter, getter );
+		asn1Name = AnnotationUtils.isDefaultName( property ) ? name.replace( '_', '-' ) : property.name();
+		kind = property.componentKind();
+		index = property.index();
+		optional = property.optional();
+		typeName = property.typeName();
 	}
 
-	public static boolean isDefault( Asn1Type classAnnotation )
+	private final String asn1Name;
+	private final Kind kind;
+	private final int index;
+	private final boolean optional;
+	private final String typeName;
+
+	private static Asn1Property findAnnotationProperty( Field field, Method setter, Method getter )
 	{
-		return DEFAULT.equals( classAnnotation.name() );
+		Asn1Property annotation = field.getAnnotation( Asn1Property.class );
+		if( annotation != null )
+			return annotation;
+
+		annotation = setter.getAnnotation( Asn1Property.class );
+		if( annotation != null )
+			return annotation;
+
+		return getter.getAnnotation( Asn1Property.class );
 	}
 
-	public static boolean isDefaultName( Asn1Property property )
+	public String getAsn1Name()
 	{
-		return DEFAULT.equals( property.name() );
+		return asn1Name;
 	}
 
-	public static boolean isDefault( String value )
+	public Kind getKind()
 	{
-		return DEFAULT.equals( value );
+		return kind;
+	}
+
+	public int getIndex()
+	{
+		return index;
+	}
+
+	public boolean isOptional()
+	{
+		return optional;
+	}
+
+	public String getTypeName()
+	{
+		return typeName;
 	}
 }

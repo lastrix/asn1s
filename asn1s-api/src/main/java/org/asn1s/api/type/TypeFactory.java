@@ -60,7 +60,7 @@ public interface TypeFactory
 
 	//////////////////////////////// Types /////////////////////////////////////////////////////////////////////////////
 	@NotNull
-	DefinedType define( @NotNull String name, @NotNull Ref<Type> typeRef, @Nullable Template template );
+	DefinedType define( @NotNull String name, @Nullable Ref<Type> typeRef, @Nullable Template template );
 
 	@NotNull
 	DefinedValue define( @NotNull String name, @NotNull Ref<Type> typeRef, @NotNull Ref<Value> valueRef, @Nullable Template template );

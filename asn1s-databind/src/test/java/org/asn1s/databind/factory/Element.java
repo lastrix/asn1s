@@ -23,28 +23,53 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.annotation;
+package org.asn1s.databind.factory;
 
-public final class AnnotationUtils
+import org.asn1s.annotation.Asn1ElementTypes;
+import org.asn1s.annotation.Asn1Property;
+import org.asn1s.annotation.Asn1Type;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+@SuppressWarnings( "ALL" )
+@Asn1Type( name = "Element" )
+public final class Element extends AbstractElement
 {
-	public static final String DEFAULT = "#default";
-
-	private AnnotationUtils()
+	public Element()
 	{
 	}
 
-	public static boolean isDefault( Asn1Type classAnnotation )
+	public Element( String name )
 	{
-		return DEFAULT.equals( classAnnotation.name() );
+		super( name );
 	}
 
-	public static boolean isDefaultName( Asn1Property property )
+	@Asn1Property( optional = true )
+	@Asn1ElementTypes( {Element.class, TextElement.class} )
+	private List<TextElement> siblings;
+
+	@Asn1Property( optional = true )
+	private List<Attribute> attributes;
+
+	public List<Attribute> getAttributes()
 	{
-		return DEFAULT.equals( property.name() );
+		return Collections.unmodifiableList( attributes );
 	}
 
-	public static boolean isDefault( String value )
+	public void setAttributes( List<Attribute> attributes )
 	{
-		return DEFAULT.equals( value );
+		this.attributes = new ArrayList<>( attributes );
+	}
+
+	public List<TextElement> getSiblings()
+	{
+		return Collections.unmodifiableList( siblings );
+	}
+
+	public void setSiblings( List<TextElement> siblings )
+	{
+		this.siblings = new ArrayList<>( siblings );
 	}
 }

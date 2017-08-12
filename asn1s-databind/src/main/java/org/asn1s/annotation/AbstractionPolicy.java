@@ -25,26 +25,66 @@
 
 package org.asn1s.annotation;
 
-public final class AnnotationUtils
+import org.asn1s.api.type.ComponentType.Kind;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Type;
+
+@Retention( RetentionPolicy.RUNTIME )
+@Target( ElementType.TYPE )
+public @interface AbstractionPolicy
 {
-	public static final String DEFAULT = "#default";
 
-	private AnnotationUtils()
+	Policy value() default Policy.Copy;
+
+	Kind componentKind() default Kind.PRIMARY;
+
+	int index() default -1;
+
+	Class<?> type();
+
+	enum Policy
 	{
+		Copy,
+		ComponentsFrom
 	}
 
-	public static boolean isDefault( Asn1Type classAnnotation )
+	final class AbstractionPolicyValue
 	{
-		return DEFAULT.equals( classAnnotation.name() );
-	}
+		public AbstractionPolicyValue( Policy policy, int index, Kind componentKind, Type type )
+		{
+			this.policy = policy;
+			this.index = index;
+			this.componentKind = componentKind;
+			this.type = type;
+		}
 
-	public static boolean isDefaultName( Asn1Property property )
-	{
-		return DEFAULT.equals( property.name() );
-	}
+		private final Policy policy;
+		private final int index;
+		private final Kind componentKind;
+		private final Type type;
 
-	public static boolean isDefault( String value )
-	{
-		return DEFAULT.equals( value );
+		public Policy getPolicy()
+		{
+			return policy;
+		}
+
+		public int getIndex()
+		{
+			return index;
+		}
+
+		public Kind getComponentKind()
+		{
+			return componentKind;
+		}
+
+		public Type getType()
+		{
+			return type;
+		}
 	}
 }
