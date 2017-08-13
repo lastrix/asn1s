@@ -25,57 +25,19 @@
 
 package org.asn1s.databind;
 
-import org.asn1s.api.Asn1Factory;
-import org.asn1s.api.encoding.tag.TagMethod;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.module.Module;
-import org.asn1s.api.module.ModuleReference;
-import org.asn1s.databind.builtin.*;
-import org.jetbrains.annotations.Nullable;
+import org.asn1s.annotation.CollectionSettings;
 
-import java.lang.reflect.Type;
-
-public class Asn1Mapper
+public class TypeMetadata
 {
-	private static final String DEFAULT_MODULE_NAME = "Java-Bind-Module";
+	private CollectionSettings collectionSettings;
 
-	public Asn1Mapper( Asn1Factory factory ) throws Asn1Exception
+	public CollectionSettings getCollectionSettings()
 	{
-		this( factory, DEFAULT_MODULE_NAME, null );
+		return collectionSettings;
 	}
 
-	public Asn1Mapper( Asn1Factory factory, @Nullable Type[] types ) throws Asn1Exception
+	public void setCollectionSettings( CollectionSettings collectionSettings )
 	{
-		this( factory, DEFAULT_MODULE_NAME, types );
-	}
-
-	public Asn1Mapper( Asn1Factory factory, String moduleName, @Nullable Type[] types ) throws Asn1Exception
-	{
-		this.factory = factory;
-		Module module = factory.types().module( new ModuleReference( moduleName ) );
-		module.setTagMethod( TagMethod.AUTOMATIC );
-		initBuiltinTypes();
-		if( types != null && types.length > 0 )
-			context.mapTypes( factory, types );
-		module.validate();
-	}
-
-	private final TypeMapperContext context = new TypeMapperContext();
-	private final Asn1Factory factory;
-
-	private void initBuiltinTypes()
-	{
-		BuiltinTypeFactory typeFactory = new BuiltinTypeFactory( context, factory );
-		typeFactory.generate( IntegerTypeMapper.class, IntegerMapping.values() );
-		typeFactory.generate( RealTypeMapper.class, RealMapping.values() );
-		typeFactory.generate( BooleanTypeMapper.class, BooleanMapping.values() );
-		typeFactory.generate( StringTypeMapper.class, StringMapping.values() );
-		typeFactory.generate( DateTypeMapper.class, DateMapping.values() );
-		typeFactory.generate( ByteArrayTypeMapper.class, ByteArrayMapping.values() );
-	}
-
-	public TypeMapperContext getContext()
-	{
-		return context;
+		this.collectionSettings = collectionSettings;
 	}
 }

@@ -27,10 +27,10 @@ package org.asn1s.databind;
 
 import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.type.NamedType;
-import org.asn1s.databind.factory.CollectionClassTypeMapperFactory;
 import org.asn1s.databind.factory.EnumTypeMapperFactory;
 import org.asn1s.databind.factory.TypeMapperFactory;
-import org.asn1s.databind.factory.UserClassTypeMapperFactory;
+import org.asn1s.databind.factory.collection.CollectionClassTypeMapperFactory;
+import org.asn1s.databind.factory.userspace.UserClassTypeMapperFactory;
 import org.asn1s.databind.instrospection.Introspector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -120,15 +120,15 @@ public final class TypeMapperContext
 		if( factories == null )
 			factories = getTypeMapperFactories( factory );
 		for( Type type : types )
-			tryResolveOrMapType( type );
+			tryResolveOrMapType( type, null );
 	}
 
 	@NotNull
-	public TypeMapper mapType( Type type )
+	public TypeMapper mapType( Type type, @Nullable TypeMetadata metadata )
 	{
 		for( TypeMapperFactory mapperFactory : factories )
 			if( mapperFactory.isSupportedFor( type ) )
-				return mapperFactory.mapType( type );
+				return mapperFactory.mapType( type, metadata );
 
 		throw new UnsupportedOperationException( "Unable to map type: " + type.getTypeName() );
 	}
@@ -143,15 +143,15 @@ public final class TypeMapperContext
 		return list;
 	}
 
-	public TypeMapper tryResolveOrMapType( Type type )
+	public TypeMapper tryResolveOrMapType( Type type, @Nullable TypeMetadata metadata )
 	{
 		NamedType namedType = getNamedTypeForJavaName( type.getTypeName() );
 		if( namedType == null )
-			return mapType( type );
+			return mapType( type, metadata );
 
 		TypeMapper mapper = getTypeMapper( TypeMapperUtils.mkTypeMapperKey( type, namedType ) );
 		if( mapper == null )
-			return mapType( type );
+			return mapType( type, metadata );
 
 		return mapper;
 	}

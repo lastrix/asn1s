@@ -23,59 +23,32 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.databind;
+package org.asn1s.annotation;
 
-import org.asn1s.api.Asn1Factory;
-import org.asn1s.api.encoding.tag.TagMethod;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.module.Module;
-import org.asn1s.api.module.ModuleReference;
-import org.asn1s.databind.builtin.*;
-import org.jetbrains.annotations.Nullable;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.lang.reflect.Type;
-
-public class Asn1Mapper
+@Retention( RetentionPolicy.RUNTIME )
+@Target( {ElementType.FIELD, ElementType.METHOD} )
+public @interface CollectionSettings
 {
-	private static final String DEFAULT_MODULE_NAME = "Java-Bind-Module";
+	/**
+	 * Defines basic type which should be used for creation of array or collection
+	 *
+	 * @return Class&lt;?&gt;
+	 */
+	Class<?> baseType() default BaseClass.class;
 
-	public Asn1Mapper( Asn1Factory factory ) throws Asn1Exception
+	/**
+	 * Possible types for array/collection
+	 *
+	 * @return array of Class&lt;?&gt;
+	 */
+	Class<?>[] value();
+
+	final class BaseClass
 	{
-		this( factory, DEFAULT_MODULE_NAME, null );
-	}
-
-	public Asn1Mapper( Asn1Factory factory, @Nullable Type[] types ) throws Asn1Exception
-	{
-		this( factory, DEFAULT_MODULE_NAME, types );
-	}
-
-	public Asn1Mapper( Asn1Factory factory, String moduleName, @Nullable Type[] types ) throws Asn1Exception
-	{
-		this.factory = factory;
-		Module module = factory.types().module( new ModuleReference( moduleName ) );
-		module.setTagMethod( TagMethod.AUTOMATIC );
-		initBuiltinTypes();
-		if( types != null && types.length > 0 )
-			context.mapTypes( factory, types );
-		module.validate();
-	}
-
-	private final TypeMapperContext context = new TypeMapperContext();
-	private final Asn1Factory factory;
-
-	private void initBuiltinTypes()
-	{
-		BuiltinTypeFactory typeFactory = new BuiltinTypeFactory( context, factory );
-		typeFactory.generate( IntegerTypeMapper.class, IntegerMapping.values() );
-		typeFactory.generate( RealTypeMapper.class, RealMapping.values() );
-		typeFactory.generate( BooleanTypeMapper.class, BooleanMapping.values() );
-		typeFactory.generate( StringTypeMapper.class, StringMapping.values() );
-		typeFactory.generate( DateTypeMapper.class, DateMapping.values() );
-		typeFactory.generate( ByteArrayTypeMapper.class, ByteArrayMapping.values() );
-	}
-
-	public TypeMapperContext getContext()
-	{
-		return context;
 	}
 }

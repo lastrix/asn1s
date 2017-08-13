@@ -47,8 +47,8 @@ public final class Element extends AbstractElement
 	}
 
 	@Asn1Property( optional = true )
-	@Asn1ElementTypes( {Element.class, TextElement.class} )
-	private List<TextElement> siblings;
+	@CollectionSettings( {Element.class, TextElement.class} )
+	private List<AbstractElement> siblings;
 
 	@Asn1Property( optional = true )
 	private List<Attribute> attributes;
@@ -63,12 +63,12 @@ public final class Element extends AbstractElement
 		this.attributes = new ArrayList<>( attributes );
 	}
 
-	public List<TextElement> getSiblings()
+	public List<AbstractElement> getSiblings()
 	{
 		return siblings == null ? Collections.emptyList() : Collections.unmodifiableList( siblings );
 	}
 
-	public void setSiblings( List<TextElement> siblings )
+	public void setSiblings( List<AbstractElement> siblings )
 	{
 		this.siblings = new ArrayList<>( siblings );
 	}

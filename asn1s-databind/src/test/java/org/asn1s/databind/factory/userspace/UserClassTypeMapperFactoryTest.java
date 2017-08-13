@@ -23,59 +23,45 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.databind;
+package org.asn1s.databind.factory.userspace;
 
-import org.asn1s.api.Asn1Factory;
-import org.asn1s.api.encoding.tag.TagMethod;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.module.Module;
-import org.asn1s.api.module.ModuleReference;
-import org.asn1s.databind.builtin.*;
-import org.jetbrains.annotations.Nullable;
+import org.asn1s.api.value.Value;
+import org.asn1s.core.DefaultAsn1Factory;
+import org.asn1s.databind.Asn1Mapper;
+import org.asn1s.databind.TypeMapper;
+import org.asn1s.databind.factory.Attribute;
+import org.asn1s.databind.factory.Element;
+import org.asn1s.databind.factory.TextElement;
+import org.junit.Test;
 
-import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
 
-public class Asn1Mapper
+public class UserClassTypeMapperFactoryTest
 {
-	private static final String DEFAULT_MODULE_NAME = "Java-Bind-Module";
 
-	public Asn1Mapper( Asn1Factory factory ) throws Asn1Exception
+	private static final DefaultAsn1Factory FACTORY = new DefaultAsn1Factory();
+
+	@Test
+	public void testMapping() throws Exception
 	{
-		this( factory, DEFAULT_MODULE_NAME, null );
+		Asn1Mapper mapper = new Asn1Mapper( FACTORY, new Class<?>[]{Element.class, TextElement.class, Attribute.class} );
+		TypeMapper typeMapper = mapper.getContext().getTypeMapper( Element.class.getTypeName() + "=Java-Bind-Module:Element" );
+
+		Element siblingSibling = new Element( "sub-item" );
+		siblingSibling.setAttributes( Arrays.asList( new Attribute( "id", "22" ), new Attribute( "type", "subtype" ) ) );
+		siblingSibling.setSiblings( Collections.singletonList( new TextElement( "text", "content" ) ) );
+
+		Element sibling = new Element( "sibling" );
+		sibling.setAttributes( Arrays.asList( new Attribute( "id", "2" ), new Attribute( "type", "plain" ) ) );
+		sibling.setSiblings( Arrays.asList( new TextElement( "text", "wow!" ), siblingSibling ) );
+
+		Element element = new Element( "root" );
+		element.setAttributes( Arrays.asList( new Attribute( "flag", "true" ), new Attribute( "options", "221" ) ) );
+		element.setSiblings( Arrays.asList( sibling, new TextElement( "value1", "Hello, World" ), new TextElement( "value2", "Good job!" ) ) );
+		Value value = typeMapper.toAsn1( FACTORY.values(), element );
+		Element o = (Element)typeMapper.toJava( value );
+		int k = 0;
 	}
 
-	public Asn1Mapper( Asn1Factory factory, @Nullable Type[] types ) throws Asn1Exception
-	{
-		this( factory, DEFAULT_MODULE_NAME, types );
-	}
-
-	public Asn1Mapper( Asn1Factory factory, String moduleName, @Nullable Type[] types ) throws Asn1Exception
-	{
-		this.factory = factory;
-		Module module = factory.types().module( new ModuleReference( moduleName ) );
-		module.setTagMethod( TagMethod.AUTOMATIC );
-		initBuiltinTypes();
-		if( types != null && types.length > 0 )
-			context.mapTypes( factory, types );
-		module.validate();
-	}
-
-	private final TypeMapperContext context = new TypeMapperContext();
-	private final Asn1Factory factory;
-
-	private void initBuiltinTypes()
-	{
-		BuiltinTypeFactory typeFactory = new BuiltinTypeFactory( context, factory );
-		typeFactory.generate( IntegerTypeMapper.class, IntegerMapping.values() );
-		typeFactory.generate( RealTypeMapper.class, RealMapping.values() );
-		typeFactory.generate( BooleanTypeMapper.class, BooleanMapping.values() );
-		typeFactory.generate( StringTypeMapper.class, StringMapping.values() );
-		typeFactory.generate( DateTypeMapper.class, DateMapping.values() );
-		typeFactory.generate( ByteArrayTypeMapper.class, ByteArrayMapping.values() );
-	}
-
-	public TypeMapperContext getContext()
-	{
-		return context;
-	}
 }

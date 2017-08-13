@@ -25,9 +25,13 @@
 
 package org.asn1s.databind.instrospection;
 
+import org.asn1s.annotation.Asn1Property;
+import org.asn1s.annotation.CollectionSettings;
+import org.asn1s.databind.TypeMetadata;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Serializable;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -112,8 +116,28 @@ public class JavaProperty implements Serializable
 	{
 		if( field == null && setter == null && getter == null )
 			throw new IllegalStateException();
+		return new JavaPropertyConfiguration( name, getAnnotatedElement() );
+	}
 
+	public TypeMetadata toTypeMetadata()
+	{
+		TypeMetadata metadata = new TypeMetadata();
+		AnnotatedElement element = getAnnotatedElement();
+		metadata.setCollectionSettings( element.getAnnotation( CollectionSettings.class ) );
+		return metadata;
+	}
 
-		return new JavaPropertyConfiguration( name, field, setter, getter );
+	private AnnotatedElement getAnnotatedElement()
+	{
+		if( field != null && field.getAnnotation( Asn1Property.class ) != null )
+			return field;
+
+		if( getter != null && getter.getAnnotation( Asn1Property.class ) != null )
+			return getter;
+
+		if( setter != null && setter.getAnnotation( Asn1Property.class ) != null )
+			return setter;
+
+		throw new UnsupportedOperationException();
 	}
 }

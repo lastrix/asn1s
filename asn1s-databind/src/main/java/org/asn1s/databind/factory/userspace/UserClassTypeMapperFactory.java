@@ -23,9 +23,8 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.databind.factory;
+package org.asn1s.databind.factory.userspace;
 
-import org.apache.commons.lang3.StringUtils;
 import org.asn1s.annotation.AnnotationUtils;
 import org.asn1s.annotation.Asn1Type;
 import org.asn1s.annotation.Asn1Type.Kind;
@@ -36,13 +35,11 @@ import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.DefinedType;
 import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type.Family;
-import org.asn1s.api.value.Value;
-import org.asn1s.api.value.ValueFactory;
-import org.asn1s.api.value.x680.NamedValue;
-import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.databind.TypeMapper;
 import org.asn1s.databind.TypeMapperContext;
 import org.asn1s.databind.TypeMapperUtils;
+import org.asn1s.databind.TypeMetadata;
+import org.asn1s.databind.factory.TypeMapperFactory;
 import org.asn1s.databind.instrospection.JavaProperty;
 import org.asn1s.databind.instrospection.JavaPropertyConfiguration;
 import org.asn1s.databind.instrospection.JavaType;
@@ -51,7 +48,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserClassTypeMapperFactory implements TypeMapperFactory
 {
@@ -88,7 +86,7 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 	}
 
 	@Override
-	public TypeMapper mapType( Type type )
+	public TypeMapper mapType( Type type, TypeMetadata metadata )
 	{
 		if( !isSupportedFor( type ) )
 			throw new IllegalArgumentException( "Only classes may be mapped by this factory" );
@@ -107,15 +105,6 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 		context.registerJavaClassForNamedType( mapper.getJavaType(), mapper.getAsn1Type() );
 		new TypeMapperBuilder( mapper ).build();
 		return mapper;
-	}
-
-	private void buildSiblingType( UserClassTypeMapper mapper )
-	{
-		Asn1Type classAnnotation = mapper.getJavaType().getAnnotation( Asn1Type.class );
-
-		CollectionType collection = factory.types().collection( classAnnotation.kind() == Kind.Sequence ? Family.SEQUENCE : Family.SET );
-
-		( (AbstractNestingType)mapper.getAsn1Type() ).setSiblingRef( collection );
 	}
 
 	private UserClassTypeMapper createBlankMapper( Class<?> aClass )
@@ -185,7 +174,7 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 							? tryFindTypeMapper( type )
 							: context.getTypeMapper( TypeMapperUtils.mkTypeMapperKey( typeName, conf.getTypeName() ) );
 			if( propertyTypeMapper == null )
-				propertyTypeMapper = context.mapType( type );
+				propertyTypeMapper = context.mapType( type, property.toTypeMetadata() );
 
 			collection.addComponent( conf.getKind(), conf.getAsn1Name(), propertyTypeMapper.getAsn1Type() ).setOptional( conf.isOptional() );
 
@@ -206,186 +195,6 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 			if( namedType == null )
 				return null;
 			return context.getTypeMapper( TypeMapperUtils.mkTypeMapperKey( type, namedType ) );
-		}
-	}
-
-	private static final class UserClassTypeMapper implements TypeMapper
-	{
-		private UserClassTypeMapper( Class<?> javaType, NamedType asnType )
-		{
-			this.javaType = javaType;
-			this.asnType = asnType;
-		}
-
-		private final Class<?> javaType;
-		private final NamedType asnType;
-		private ClassFieldInfo[] fieldMappers;
-		private Instantiator instantiator;
-
-		@Override
-		public Class<?> getJavaType()
-		{
-			return javaType;
-		}
-
-		@Override
-		public NamedType getAsn1Type()
-		{
-			return asnType;
-		}
-
-		ClassFieldInfo[] getFieldMappers()
-		{
-			return fieldMappers.clone();
-		}
-
-		void setFieldMappers( ClassFieldInfo[] fieldMappers )
-		{
-			this.fieldMappers = fieldMappers.clone();
-		}
-
-		Instantiator getInstantiator()
-		{
-			return instantiator;
-		}
-
-		void setInstantiator( Instantiator instantiator )
-		{
-			this.instantiator = instantiator;
-		}
-
-		@NotNull
-		@Override
-		public Value toAsn1( @NotNull ValueFactory factory, @NotNull Object value )
-		{
-			if( !Objects.equals( javaType, value.getClass() ) )
-				throw new IllegalArgumentException( "Unable to handle type: " + value.getClass() );
-			ValueCollection collection = factory.collection( true );
-			try
-			{
-				for( ClassFieldInfo fieldMapper : fieldMappers )
-				{
-					Value propertyValue = toAsn1Value( factory, value, fieldMapper );
-					if( propertyValue != null )
-						collection.addNamed( fieldMapper.getAsnName(), propertyValue );
-				}
-			} catch( Exception e )
-			{
-				throw new IllegalStateException( e );
-			}
-			return collection;
-		}
-
-		@Nullable
-		private static Value toAsn1Value( @NotNull ValueFactory factory, @NotNull Object value, ClassFieldInfo fieldMapper ) throws InvocationTargetException, IllegalAccessException
-		{
-			Object propertyValue = fieldMapper.getValue( value );
-			if( propertyValue != null )
-				return fieldMapper.getMapper().toAsn1( factory, propertyValue );
-
-			if( fieldMapper.isOptional() )
-				return null;
-
-			throw new IllegalStateException( "Unable to handle null value for property: " + fieldMapper.getName() );
-		}
-
-		@NotNull
-		@Override
-		public Object toJava( @NotNull Value value )
-		{
-			if( value.getKind() != Value.Kind.NAMED_COLLECTION )
-				throw new IllegalArgumentException( "Unable to handle value of kind: " + value.getKind() );
-
-			try
-			{
-				Iterable<NamedValue> namedValues = new LinkedList<>( value.toValueCollection().asNamedValueList() );
-				Object o = createInstance( namedValues );
-				for( NamedValue namedValue : namedValues )
-				{
-					ClassFieldInfo fieldMapper = getFieldMapper( namedValue.getName() );
-					assert namedValue.getValueRef() != null;
-					Object java = fieldMapper.getMapper().toJava( (Value)namedValue.getValueRef() );
-					fieldMapper.setValue( o, java );
-				}
-				return o;
-			} catch( Exception e )
-			{
-				throw new IllegalStateException( e );
-			}
-		}
-
-		private Object createInstance( Iterable<NamedValue> namedValues )
-		{
-			if( !instantiator.hasParameters() )
-				return instantiator.newInstance();
-
-			String[] parameters = instantiator.getParameters();
-			assert parameters != null;
-			Object[] arguments = new Object[parameters.length];
-			Iterator<NamedValue> iterator = namedValues.iterator();
-			while( iterator.hasNext() )
-			{
-				NamedValue next = iterator.next();
-				int index = findParameterIndex( parameters, next.getName() );
-				if( index == -1 )
-					continue;
-				ClassFieldInfo fieldMapper = getFieldMapper( next.getName() );
-				assert next.getValueRef() != null;
-				Object java = fieldMapper.getMapper().toJava( (Value)next.getValueRef() );
-				arguments[index] = java;
-				iterator.remove();
-			}
-
-			assertNonOptionalParameters( parameters, arguments );
-			return instantiator.newInstance( arguments );
-		}
-
-		private void assertNonOptionalParameters( String[] parameters, Object[] arguments )
-		{
-			int count = parameters.length;
-			for( int i = 0; i < count; i++ )
-			{
-				if( arguments[i] != null )
-					continue;
-
-				ClassFieldInfo fieldMapper = getFieldMapper( parameters[i] );
-				if( !fieldMapper.isOptional() )
-					throw new IllegalStateException( "Non optional property may not be initialized with null value: " + parameters[i] );
-			}
-		}
-
-		private int findParameterIndex( String[] parameters, String name )
-		{
-			String actualName = null;
-			for( ClassFieldInfo fieldMapper : fieldMappers )
-			{
-				if( name.equals( fieldMapper.getAsnName() ) )
-				{
-					actualName = fieldMapper.getName();
-					break;
-				}
-			}
-			if( actualName == null )
-				throw new IllegalArgumentException( "No property for name: " + name );
-
-			int i = 0;
-			for( String parameter : parameters )
-			{
-				if( actualName.equals( parameter ) )
-					return i;
-				i++;
-			}
-			return -1;
-		}
-
-		private ClassFieldInfo getFieldMapper( String name )
-		{
-			for( ClassFieldInfo fieldMapper : fieldMappers )
-			{
-				if( fieldMapper.getAsnName().equals( name ) )
-					return fieldMapper;
-			}
-			throw new IllegalArgumentException( "No fields for name: " + name );
 		}
 	}
 
@@ -491,61 +300,6 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 					throw new IllegalStateException( "Only single constructor may have Constructor annotation" );
 
 				found = true;
-			}
-		}
-
-	}
-
-	private static final class Instantiator
-	{
-		private Instantiator( Constructor<?> constructor, @Nullable String[] parameters )
-		{
-			this.constructor = constructor;
-			this.parameters = parameters;
-		}
-
-		private final Constructor<?> constructor;
-		private final String[] parameters;
-
-		boolean hasParameters()
-		{
-			return parameters != null && parameters.length > 0;
-		}
-
-		@Nullable
-		String[] getParameters()
-		{
-			return parameters == null ? null : parameters.clone();
-		}
-
-		Object newInstance()
-		{
-			try
-			{
-				return constructor.newInstance();
-			} catch( InstantiationException | IllegalAccessException | InvocationTargetException e )
-			{
-				throw new IllegalStateException( "Unable to create instance using: " + constructor.getDeclaringClass().getTypeName() + "::" + constructor.getName(), e );
-			}
-		}
-
-		Object newInstance( @NotNull Object[] arguments )
-		{
-			if( !hasParameters() )
-				throw new IllegalStateException( "No parameters expected" );
-
-			assert parameters != null;
-			if( arguments.length != parameters.length )
-				throw new IllegalArgumentException( "Argument count does not match: " + parameters.length + ", got: " + arguments.length );
-			try
-			{
-				return constructor.newInstance( arguments );
-			} catch( InstantiationException | IllegalAccessException | InvocationTargetException e )
-			{
-				throw new IllegalStateException( "Unable to create instance using: "
-						                                 + constructor.getDeclaringClass().getTypeName() + "::" + constructor.getName()
-						                                 + '(' + StringUtils.join( parameters, ", " ) + ')',
-				                                 e );
 			}
 		}
 	}

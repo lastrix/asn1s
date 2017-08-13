@@ -23,59 +23,65 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.databind;
+package org.asn1s.databind.factory.userspace;
 
-import org.asn1s.api.Asn1Factory;
-import org.asn1s.api.encoding.tag.TagMethod;
-import org.asn1s.api.exception.Asn1Exception;
-import org.asn1s.api.module.Module;
-import org.asn1s.api.module.ModuleReference;
-import org.asn1s.databind.builtin.*;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
-public class Asn1Mapper
+final class Instantiator
 {
-	private static final String DEFAULT_MODULE_NAME = "Java-Bind-Module";
-
-	public Asn1Mapper( Asn1Factory factory ) throws Asn1Exception
+	Instantiator( Constructor<?> constructor, @Nullable String[] parameters )
 	{
-		this( factory, DEFAULT_MODULE_NAME, null );
+		this.constructor = constructor;
+		this.parameters = parameters == null ? null : parameters.clone();
 	}
 
-	public Asn1Mapper( Asn1Factory factory, @Nullable Type[] types ) throws Asn1Exception
+	private final Constructor<?> constructor;
+	private final String[] parameters;
+
+	boolean hasParameters()
 	{
-		this( factory, DEFAULT_MODULE_NAME, types );
+		return parameters != null && parameters.length > 0;
 	}
 
-	public Asn1Mapper( Asn1Factory factory, String moduleName, @Nullable Type[] types ) throws Asn1Exception
+	@Nullable
+	String[] getParameters()
 	{
-		this.factory = factory;
-		Module module = factory.types().module( new ModuleReference( moduleName ) );
-		module.setTagMethod( TagMethod.AUTOMATIC );
-		initBuiltinTypes();
-		if( types != null && types.length > 0 )
-			context.mapTypes( factory, types );
-		module.validate();
+		return parameters == null ? null : parameters.clone();
 	}
 
-	private final TypeMapperContext context = new TypeMapperContext();
-	private final Asn1Factory factory;
-
-	private void initBuiltinTypes()
+	Object newInstance()
 	{
-		BuiltinTypeFactory typeFactory = new BuiltinTypeFactory( context, factory );
-		typeFactory.generate( IntegerTypeMapper.class, IntegerMapping.values() );
-		typeFactory.generate( RealTypeMapper.class, RealMapping.values() );
-		typeFactory.generate( BooleanTypeMapper.class, BooleanMapping.values() );
-		typeFactory.generate( StringTypeMapper.class, StringMapping.values() );
-		typeFactory.generate( DateTypeMapper.class, DateMapping.values() );
-		typeFactory.generate( ByteArrayTypeMapper.class, ByteArrayMapping.values() );
+		try
+		{
+			return constructor.newInstance();
+		} catch( InstantiationException | IllegalAccessException | InvocationTargetException e )
+		{
+			throw new IllegalStateException( "Unable to create instance using: " + constructor.getDeclaringClass().getTypeName() + "::" + constructor.getName(), e );
+		}
 	}
 
-	public TypeMapperContext getContext()
+	Object newInstance( @NotNull Object[] arguments )
 	{
-		return context;
+		if( !hasParameters() )
+			throw new IllegalStateException( "No parameters expected" );
+
+		assert parameters != null;
+		if( arguments.length != parameters.length )
+			throw new IllegalArgumentException( "Argument count does not match: " + parameters.length + ", got: " + arguments.length );
+		try
+		{
+			return constructor.newInstance( arguments );
+		} catch( InstantiationException | IllegalAccessException | InvocationTargetException e )
+		{
+			throw new IllegalStateException( "Unable to create instance using: "
+					                                 + constructor.getDeclaringClass().getTypeName() + "::" + constructor.getName()
+					                                 + '(' + StringUtils.join( parameters, ", " ) + ')',
+			                                 e );
+		}
 	}
 }

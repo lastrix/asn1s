@@ -23,26 +23,76 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.databind.factory;
+package org.asn1s.databind.factory.collection;
 
+import org.asn1s.api.Ref;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
+import org.asn1s.api.value.ValueFactory;
+import org.asn1s.api.value.x680.ValueCollection;
 import org.asn1s.databind.TypeMapper;
-import org.asn1s.databind.TypeMetadata;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.function.Function;
 
-public interface TypeMapperFactory extends Comparable<TypeMapperFactory>
+final class CollectionTypeMapper implements TypeMapper
 {
-	int getPriority();
-
-	@Override
-	default int compareTo( @NotNull TypeMapperFactory o )
+	CollectionTypeMapper( Class<?> type, NamedType define, TypeMapper elementMapper, Function<Integer, Collection<Object>> instantiator )
 	{
-		return Integer.compare( getPriority(), o.getPriority() );
+		this.type = type;
+		this.define = define;
+		this.elementMapper = elementMapper;
+		this.instantiator = instantiator;
 	}
 
-	boolean isSupportedFor( Type type );
+	private final Class<?> type;
+	private final NamedType define;
+	private final TypeMapper elementMapper;
+	private final Function<Integer, Collection<Object>> instantiator;
 
-	TypeMapper mapType( Type type, @Nullable TypeMetadata metadata );
+	@Override
+	public Class<?> getJavaType()
+	{
+		return type;
+	}
+
+	@Override
+	public NamedType getAsn1Type()
+	{
+		return define;
+	}
+
+	@NotNull
+	@Override
+	public Value toAsn1( @NotNull ValueFactory factory, @NotNull Object value )
+	{
+		if( !type.isAssignableFrom( value.getClass() ) )
+			throw new IllegalArgumentException( "Unable to handle value of type: " + value.getClass().getTypeName() );
+
+		ValueCollection collection = factory.collection( false );
+		for( Object o : (Iterable<?>)value )
+		{
+			Value asn1 = elementMapper.toAsn1( factory, o );
+			collection.add( asn1 );
+		}
+		return collection;
+	}
+
+	@NotNull
+	@Override
+	public Object toJava( @NotNull Value value )
+	{
+		Kind kind = value.getKind();
+		if( kind != Kind.COLLECTION && kind != Kind.NAMED_COLLECTION )
+			throw new IllegalArgumentException( "Unable to handle value of kind: " + kind );
+
+		ValueCollection collection = value.toValueCollection();
+		Collection<Object> objects = instantiator.apply( collection.size() );
+		for( Ref<Value> ref : collection.asValueList() )
+			objects.add( elementMapper.toJava( (Value)ref ) );
+
+		return objects;
+	}
 }

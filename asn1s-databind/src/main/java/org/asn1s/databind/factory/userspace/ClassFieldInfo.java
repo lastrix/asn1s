@@ -23,60 +23,82 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.databind.instrospection;
+package org.asn1s.databind.factory.userspace;
 
 import org.asn1s.annotation.AnnotationUtils;
 import org.asn1s.annotation.Asn1Property;
-import org.asn1s.api.type.ComponentType.Kind;
+import org.asn1s.databind.TypeMapper;
+import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-public class JavaPropertyConfiguration
+public final class ClassFieldInfo
 {
-	JavaPropertyConfiguration( String name, AnnotatedElement element )
+	ClassFieldInfo( Field field, Method setter, Method getter, TypeMapper mapper, boolean optional )
 	{
-		Asn1Property property = element.getAnnotation( Asn1Property.class );
-		asn1Name = AnnotationUtils.isDefaultName( property ) ? name.replace( '_', '-' ) : property.name();
-		kind = property.componentKind();
-		index = property.index();
-		optional = property.optional();
-		typeName = property.typeName();
+		this.field = field;
+		this.setter = setter;
+		this.getter = getter;
+		this.mapper = mapper;
+		this.optional = optional;
 	}
 
-	private final String asn1Name;
-	private final Kind kind;
-	private final int index;
+	private final Field field;
+	private final Method setter;
+	private final Method getter;
+	private final TypeMapper mapper;
 	private final boolean optional;
-	private final String typeName;
 
-	private static Asn1Property findAnnotationProperty( Field field, Method setter, Method getter )
+	public String getName()
 	{
-		Asn1Property annotation = field.getAnnotation( Asn1Property.class );
-		if( annotation != null )
-			return annotation;
-
-		annotation = setter.getAnnotation( Asn1Property.class );
-		if( annotation != null )
-			return annotation;
-
-		return getter.getAnnotation( Asn1Property.class );
+		if( field == null )
+		{
+			String base = setter == null ? getter.getName() : setter.getName();
+			base = base.substring( 3 );
+			return Character.toLowerCase( base.charAt( 0 ) ) + base.substring( 1 );
+		}
+		return field.getName();
 	}
 
-	public String getAsn1Name()
+	public String getAsnName()
 	{
-		return asn1Name;
+		Asn1Property property = getPropertyAnnotation();
+		return AnnotationUtils.isDefaultName( property )
+				? getName()
+				: property.name();
 	}
 
-	public Kind getKind()
+	@NotNull
+	public Asn1Property getPropertyAnnotation()
 	{
-		return kind;
+		if( field != null )
+			return field.getAnnotation( Asn1Property.class );
+
+		return setter == null
+				? getter.getAnnotation( Asn1Property.class )
+				: setter.getAnnotation( Asn1Property.class );
 	}
 
-	public int getIndex()
+	public Field getField()
 	{
-		return index;
+		return field;
+	}
+
+	public Method getSetter()
+	{
+		return setter;
+	}
+
+	public Method getGetter()
+	{
+		return getter;
+	}
+
+	public TypeMapper getMapper()
+	{
+		return mapper;
 	}
 
 	public boolean isOptional()
@@ -84,8 +106,24 @@ public class JavaPropertyConfiguration
 		return optional;
 	}
 
-	public String getTypeName()
+	public void setValue( Object thisObject, Object value ) throws InvocationTargetException, IllegalAccessException
 	{
-		return typeName;
+		if( field == null )
+		{
+			assert setter != null;
+			setter.invoke( thisObject, value );
+		}
+		else
+			field.set( thisObject, value );
+	}
+
+	public Object getValue( Object thisObject ) throws InvocationTargetException, IllegalAccessException
+	{
+		if( field == null )
+		{
+			assert getter != null;
+			return getter.invoke( thisObject );
+		}
+		return field.get( thisObject );
 	}
 }

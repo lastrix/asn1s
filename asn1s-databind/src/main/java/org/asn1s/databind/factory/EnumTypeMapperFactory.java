@@ -41,6 +41,7 @@ import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.databind.TypeMapper;
 import org.asn1s.databind.TypeMapperContext;
 import org.asn1s.databind.TypeMapperUtils;
+import org.asn1s.databind.TypeMetadata;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -81,7 +82,7 @@ public final class EnumTypeMapperFactory implements TypeMapperFactory
 
 	@SuppressWarnings( "unchecked" )
 	@Override
-	public TypeMapper mapType( Type type )
+	public TypeMapper mapType( Type type, TypeMetadata metadata )
 	{
 		if( !isSupportedFor( type ) )
 			throw new IllegalArgumentException( "Only enum types allowed" );

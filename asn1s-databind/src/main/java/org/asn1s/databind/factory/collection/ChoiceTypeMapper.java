@@ -23,107 +23,88 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.databind.factory;
+package org.asn1s.databind.factory.collection;
 
-import org.asn1s.annotation.AnnotationUtils;
-import org.asn1s.annotation.Asn1Property;
+import org.asn1s.api.type.NamedType;
+import org.asn1s.api.value.Value;
+import org.asn1s.api.value.Value.Kind;
+import org.asn1s.api.value.ValueFactory;
+import org.asn1s.api.value.x680.NamedValue;
 import org.asn1s.databind.TypeMapper;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Objects;
 
-public final class ClassFieldInfo
+final class ChoiceTypeMapper implements TypeMapper
 {
-	public ClassFieldInfo( Field field, Method setter, Method getter, TypeMapper mapper, boolean optional )
+	ChoiceTypeMapper( Type javaType, NamedType asn1Type, ChoiceItem[] items )
 	{
-		this.field = field;
-		this.setter = setter;
-		this.getter = getter;
-		this.mapper = mapper;
-		this.optional = optional;
+		this.javaType = javaType;
+		this.asn1Type = asn1Type;
+		this.items = items.clone();
 	}
 
-	private final Field field;
-	private final Method setter;
-	private final Method getter;
-	private final TypeMapper mapper;
-	private final boolean optional;
+	private final Type javaType;
+	private final NamedType asn1Type;
+	private final ChoiceItem[] items;
 
-	public String getName()
+	@Override
+	public Type getJavaType()
 	{
-		if( field == null )
-		{
-			String base = setter == null ? getter.getName() : setter.getName();
-			base = base.substring( 3 );
-			return Character.toLowerCase( base.charAt( 0 ) ) + base.substring( 1 );
-		}
-		return field.getName();
+		return javaType;
 	}
 
-	public String getAsnName()
+	@Override
+	public NamedType getAsn1Type()
 	{
-		Asn1Property property = getPropertyAnnotation();
-		return AnnotationUtils.isDefaultName( property )
-				? getName()
-				: property.name();
+		return asn1Type;
 	}
 
 	@NotNull
-	public Asn1Property getPropertyAnnotation()
+	@Override
+	public Value toAsn1( @NotNull ValueFactory factory, @NotNull Object value )
 	{
-		if( field != null )
-			return field.getAnnotation( Asn1Property.class );
+		Class<?> aClass = value.getClass();
+		ChoiceItem item = selectForClass( aClass );
+		if( item == null )
+			throw new IllegalArgumentException( "Unable to handle value of type: " + aClass.getTypeName() );
 
-		return setter == null
-				? getter.getAnnotation( Asn1Property.class )
-				: setter.getAnnotation( Asn1Property.class );
+		return factory.named( item.getName(), item.getMapper().toAsn1( factory, value ) );
 	}
 
-	public Field getField()
+	@Nullable
+	private ChoiceItem selectForClass( Class<?> aClass )
 	{
-		return field;
+		for( ChoiceItem item : items )
+			if( Objects.equals( item.getMapper().getJavaType(), aClass ) )
+				return item;
+
+		return null;
 	}
 
-	public Method getSetter()
+	@NotNull
+	@Override
+	public Object toJava( @NotNull Value value )
 	{
-		return setter;
+		if( value.getKind() != Kind.NAME )
+			throw new IllegalArgumentException( "Unable to handle value of kind: " + value.getKind() );
+
+		NamedValue namedValue = value.toNamedValue();
+		ChoiceItem item = selectByNameOrDie( namedValue.getName() );
+
+		assert namedValue.getValueRef() != null;
+		return item.getMapper().toJava( (Value)namedValue.getValueRef() );
 	}
 
-	public Method getGetter()
+	private ChoiceItem selectByNameOrDie( String name )
 	{
-		return getter;
-	}
-
-	public TypeMapper getMapper()
-	{
-		return mapper;
-	}
-
-	public boolean isOptional()
-	{
-		return optional;
-	}
-
-	public void setValue( Object thisObject, Object value ) throws InvocationTargetException, IllegalAccessException
-	{
-		if( field == null )
+		for( ChoiceItem item : items )
 		{
-			assert setter != null;
-			setter.invoke( thisObject, value );
+			if( name.equals( item.getName() ) )
+				return item;
 		}
-		else
-			field.set( thisObject, value );
-	}
-
-	public Object getValue( Object thisObject ) throws InvocationTargetException, IllegalAccessException
-	{
-		if( field == null )
-		{
-			assert getter != null;
-			return getter.invoke( thisObject );
-		}
-		return field.get( thisObject );
+		throw new IllegalStateException( "Unable to find component: " + name );
 	}
 }

@@ -23,33 +23,28 @@
 // OR OTHER DEALINGS IN THE SOFTWARE.                                          /
 ////////////////////////////////////////////////////////////////////////////////
 
-package org.asn1s.databind.factory;
+package org.asn1s.databind.factory.collection;
 
-import org.asn1s.api.value.Value;
-import org.asn1s.core.DefaultAsn1Factory;
-import org.asn1s.databind.Asn1Mapper;
 import org.asn1s.databind.TypeMapper;
-import org.junit.Test;
 
-import java.util.Arrays;
-
-public class UserClassTypeMapperFactoryTest
+final class ChoiceItem
 {
-
-	private static final DefaultAsn1Factory FACTORY = new DefaultAsn1Factory();
-
-	@Test
-	public void testMapping() throws Exception
+	ChoiceItem( String name, TypeMapper mapper )
 	{
-		Asn1Mapper mapper = new Asn1Mapper( FACTORY, new Class<?>[]{Element.class, TextElement.class, Attribute.class} );
-		TypeMapper typeMapper = mapper.getContext().getTypeMapper( Element.class.getTypeName() + "=Java-Bind-Module:Element" );
-
-		Element element = new Element( "root" );
-		element.setAttributes( Arrays.asList( new Attribute( "flag", "true" ), new Attribute( "options", "221" ) ) );
-		element.setSiblings( Arrays.asList( new TextElement( "value1", "Hello, World" ), new TextElement( "value2", "Good job!" ) ) );
-		Value value = typeMapper.toAsn1( FACTORY.values(), element );
-		Object o = typeMapper.toJava( value );
-		int k = 0;
+		this.name = name;
+		this.mapper = mapper;
 	}
 
+	private final String name;
+	private final TypeMapper mapper;
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public TypeMapper getMapper()
+	{
+		return mapper;
+	}
 }

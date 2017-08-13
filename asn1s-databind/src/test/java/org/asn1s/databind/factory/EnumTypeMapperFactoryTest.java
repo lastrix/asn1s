@@ -49,7 +49,7 @@ public class EnumTypeMapperFactoryTest
 		factory.types().dummyModule();
 		mapperFactory = new EnumTypeMapperFactory( new TypeMapperContext(), factory );
 		assertTrue( "Priority must be less than 0", mapperFactory.getPriority() < 0 );
-		mapper = mapperFactory.mapType( Values.class );
+		mapper = mapperFactory.mapType( Values.class, null );
 	}
 
 	@Test
@@ -64,7 +64,7 @@ public class EnumTypeMapperFactoryTest
 	@Test( expected = IllegalArgumentException.class )
 	public void testDuplicateFail() throws Exception
 	{
-		mapperFactory.mapType( Values.class );
+		mapperFactory.mapType( Values.class, null );
 		fail( "Must fail" );
 	}
 
@@ -99,28 +99,28 @@ public class EnumTypeMapperFactoryTest
 	@Test( expected = IllegalArgumentException.class )
 	public void testUnsupportedType() throws Exception
 	{
-		mapperFactory.mapType( Integer.class );
+		mapperFactory.mapType( Integer.class, null );
 		fail( "Must fail!" );
 	}
 
 	@Test( expected = IllegalStateException.class )
 	public void testNoEnumConstantsFail() throws Exception
 	{
-		mapperFactory.mapType( ValuesEmpty.class );
+		mapperFactory.mapType( ValuesEmpty.class, null );
 		fail( "Must fail" );
 	}
 
 	@Test( expected = IllegalStateException.class )
 	public void testIllegalIndexes() throws Exception
 	{
-		mapperFactory.mapType( IllegalEnum.class );
+		mapperFactory.mapType( IllegalEnum.class, null );
 		fail( "Must fail" );
 	}
 
 	@Test( expected = IllegalStateException.class )
 	public void testIllegalIndexes2() throws Exception
 	{
-		mapperFactory.mapType( IllegalEnum2.class );
+		mapperFactory.mapType( IllegalEnum2.class, null );
 		fail( "Must fail" );
 	}
 
