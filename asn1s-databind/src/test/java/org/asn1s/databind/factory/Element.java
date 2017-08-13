@@ -25,9 +25,8 @@
 
 package org.asn1s.databind.factory;
 
-import org.asn1s.annotation.Asn1ElementTypes;
-import org.asn1s.annotation.Asn1Property;
-import org.asn1s.annotation.Asn1Type;
+import org.apache.commons.lang3.StringUtils;
+import org.asn1s.annotation.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,7 +40,8 @@ public final class Element extends AbstractElement
 	{
 	}
 
-	public Element( String name )
+	@Constructor
+	public Element( @ConstructorParam( "name" ) String name )
 	{
 		super( name );
 	}
@@ -55,7 +55,7 @@ public final class Element extends AbstractElement
 
 	public List<Attribute> getAttributes()
 	{
-		return Collections.unmodifiableList( attributes );
+		return attributes == null ? Collections.emptyList() : Collections.unmodifiableList( attributes );
 	}
 
 	public void setAttributes( List<Attribute> attributes )
@@ -65,11 +65,25 @@ public final class Element extends AbstractElement
 
 	public List<TextElement> getSiblings()
 	{
-		return Collections.unmodifiableList( siblings );
+		return siblings == null ? Collections.emptyList() : Collections.unmodifiableList( siblings );
 	}
 
 	public void setSiblings( List<TextElement> siblings )
 	{
 		this.siblings = new ArrayList<>( siblings );
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder sb = new StringBuilder();
+		sb.append( '<' ).append( getName() );
+		List<Attribute> attributes = getAttributes();
+		if( !attributes.isEmpty() )
+			sb.append( ' ' ).append( StringUtils.join( attributes, ' ' ) );
+		sb.append( '>' )
+				.append( StringUtils.join( siblings, "" ) )
+				.append( "</" ).append( getName() + '>' );
+		return sb.toString();
 	}
 }

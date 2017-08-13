@@ -39,7 +39,7 @@ public @interface ConstructorParam
 	 *
 	 * @return string
 	 */
-	String value() default "#default";
+	String value();
 
 	/**
 	 * Return true if value for this parameter must be loaded from global value cache supplied by developer,

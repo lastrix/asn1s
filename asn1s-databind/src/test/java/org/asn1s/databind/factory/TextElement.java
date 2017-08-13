@@ -27,6 +27,8 @@ package org.asn1s.databind.factory;
 
 import org.asn1s.annotation.Asn1Property;
 import org.asn1s.annotation.Asn1Type;
+import org.asn1s.annotation.Constructor;
+import org.asn1s.annotation.ConstructorParam;
 
 @SuppressWarnings( "ALL" )
 @Asn1Type( name = "Text-Element" )
@@ -36,7 +38,8 @@ public class TextElement extends AbstractElement
 	{
 	}
 
-	public TextElement( String name, String content )
+	@Constructor
+	public TextElement( @ConstructorParam( "name" ) String name, @ConstructorParam( "content" ) String content )
 	{
 		super( name );
 		this.content = content;
@@ -53,5 +56,11 @@ public class TextElement extends AbstractElement
 	public void setContent( String content )
 	{
 		this.content = content;
+	}
+
+	@Override
+	public String toString()
+	{
+		return String.format( "<%s>%s</%s>", getName(), getContent(), getName() );
 	}
 }

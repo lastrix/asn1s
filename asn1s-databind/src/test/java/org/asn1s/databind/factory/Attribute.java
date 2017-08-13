@@ -27,6 +27,8 @@ package org.asn1s.databind.factory;
 
 import org.asn1s.annotation.Asn1Property;
 import org.asn1s.annotation.Asn1Type;
+import org.asn1s.annotation.Constructor;
+import org.asn1s.annotation.ConstructorParam;
 
 @SuppressWarnings( "ALL" )
 @Asn1Type( name = "Attribute", extensible = true )
@@ -36,7 +38,8 @@ public class Attribute
 	{
 	}
 
-	public Attribute( String name, String value )
+	@Constructor
+	public Attribute( @ConstructorParam( "name" ) String name, @ConstructorParam( "value" ) String value )
 	{
 		this.name = name;
 		this.value = value;
@@ -65,5 +68,11 @@ public class Attribute
 	public void setValue( String value )
 	{
 		this.value = value;
+	}
+
+	@Override
+	public String toString()
+	{
+		return getName() + "=\"" + getValue() + '"';
 	}
 }

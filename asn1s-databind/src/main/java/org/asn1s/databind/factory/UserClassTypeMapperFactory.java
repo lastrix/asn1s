@@ -25,9 +25,11 @@
 
 package org.asn1s.databind.factory;
 
+import org.apache.commons.lang3.StringUtils;
 import org.asn1s.annotation.AnnotationUtils;
 import org.asn1s.annotation.Asn1Type;
 import org.asn1s.annotation.Asn1Type.Kind;
+import org.asn1s.annotation.ConstructorParam;
 import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.type.AbstractNestingType;
 import org.asn1s.api.type.CollectionType;
@@ -48,13 +50,8 @@ import org.asn1s.databind.instrospection.JavaTypeConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.lang.reflect.*;
+import java.util.*;
 
 public class UserClassTypeMapperFactory implements TypeMapperFactory
 {
@@ -162,6 +159,10 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 
 			collectProperties( type );
 			mapper.setFieldMappers( fieldMappers.toArray( new ClassFieldInfo[fieldMappers.size()] ) );
+
+			InstantiatorFactory instantiatorFactory = new InstantiatorFactory( mapper );
+			mapper.setInstantiator( instantiatorFactory.createInstantiator() );
+
 		}
 
 		private void collectProperties( JavaType type )
@@ -219,6 +220,7 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 		private final Class<?> javaType;
 		private final NamedType asnType;
 		private ClassFieldInfo[] fieldMappers;
+		private Instantiator instantiator;
 
 		@Override
 		public Class<?> getJavaType()
@@ -242,6 +244,16 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 			this.fieldMappers = fieldMappers.clone();
 		}
 
+		Instantiator getInstantiator()
+		{
+			return instantiator;
+		}
+
+		void setInstantiator( Instantiator instantiator )
+		{
+			this.instantiator = instantiator;
+		}
+
 		@NotNull
 		@Override
 		public Value toAsn1( @NotNull ValueFactory factory, @NotNull Object value )
@@ -253,21 +265,28 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 			{
 				for( ClassFieldInfo fieldMapper : fieldMappers )
 				{
-					Object propertyValue = fieldMapper.getValue( value );
-					if( propertyValue == null )
-					{
-						if( !fieldMapper.isOptional() )
-							throw new IllegalStateException( "Unable to handle null value for property: " + fieldMapper.getName() );
-						continue;
-					}
-					Value asn1 = fieldMapper.getMapper().toAsn1( factory, propertyValue );
-					collection.addNamed( fieldMapper.getAsnName(), asn1 );
+					Value propertyValue = toAsn1Value( factory, value, fieldMapper );
+					if( propertyValue != null )
+						collection.addNamed( fieldMapper.getAsnName(), propertyValue );
 				}
 			} catch( Exception e )
 			{
 				throw new IllegalStateException( e );
 			}
 			return collection;
+		}
+
+		@Nullable
+		private static Value toAsn1Value( @NotNull ValueFactory factory, @NotNull Object value, ClassFieldInfo fieldMapper ) throws InvocationTargetException, IllegalAccessException
+		{
+			Object propertyValue = fieldMapper.getValue( value );
+			if( propertyValue != null )
+				return fieldMapper.getMapper().toAsn1( factory, propertyValue );
+
+			if( fieldMapper.isOptional() )
+				return null;
+
+			throw new IllegalStateException( "Unable to handle null value for property: " + fieldMapper.getName() );
 		}
 
 		@NotNull
@@ -279,10 +298,12 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 
 			try
 			{
-				Object o = newInstance();
-				for( NamedValue namedValue : value.toValueCollection().asNamedValueList() )
+				Iterable<NamedValue> namedValues = new LinkedList<>( value.toValueCollection().asNamedValueList() );
+				Object o = createInstance( namedValues );
+				for( NamedValue namedValue : namedValues )
 				{
 					ClassFieldInfo fieldMapper = getFieldMapper( namedValue.getName() );
+					assert namedValue.getValueRef() != null;
 					Object java = fieldMapper.getMapper().toJava( (Value)namedValue.getValueRef() );
 					fieldMapper.setValue( o, java );
 				}
@@ -291,6 +312,70 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 			{
 				throw new IllegalStateException( e );
 			}
+		}
+
+		private Object createInstance( Iterable<NamedValue> namedValues )
+		{
+			if( !instantiator.hasParameters() )
+				return instantiator.newInstance();
+
+			String[] parameters = instantiator.getParameters();
+			assert parameters != null;
+			Object[] arguments = new Object[parameters.length];
+			Iterator<NamedValue> iterator = namedValues.iterator();
+			while( iterator.hasNext() )
+			{
+				NamedValue next = iterator.next();
+				int index = findParameterIndex( parameters, next.getName() );
+				if( index == -1 )
+					continue;
+				ClassFieldInfo fieldMapper = getFieldMapper( next.getName() );
+				assert next.getValueRef() != null;
+				Object java = fieldMapper.getMapper().toJava( (Value)next.getValueRef() );
+				arguments[index] = java;
+				iterator.remove();
+			}
+
+			assertNonOptionalParameters( parameters, arguments );
+			return instantiator.newInstance( arguments );
+		}
+
+		private void assertNonOptionalParameters( String[] parameters, Object[] arguments )
+		{
+			int count = parameters.length;
+			for( int i = 0; i < count; i++ )
+			{
+				if( arguments[i] != null )
+					continue;
+
+				ClassFieldInfo fieldMapper = getFieldMapper( parameters[i] );
+				if( !fieldMapper.isOptional() )
+					throw new IllegalStateException( "Non optional property may not be initialized with null value: " + parameters[i] );
+			}
+		}
+
+		private int findParameterIndex( String[] parameters, String name )
+		{
+			String actualName = null;
+			for( ClassFieldInfo fieldMapper : fieldMappers )
+			{
+				if( name.equals( fieldMapper.getAsnName() ) )
+				{
+					actualName = fieldMapper.getName();
+					break;
+				}
+			}
+			if( actualName == null )
+				throw new IllegalArgumentException( "No property for name: " + name );
+
+			int i = 0;
+			for( String parameter : parameters )
+			{
+				if( actualName.equals( parameter ) )
+					return i;
+				i++;
+			}
+			return -1;
 		}
 
 		private ClassFieldInfo getFieldMapper( String name )
@@ -302,13 +387,166 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 			}
 			throw new IllegalArgumentException( "No fields for name: " + name );
 		}
+	}
 
-		private Object newInstance() throws Exception
+	private final class InstantiatorFactory
+	{
+		private InstantiatorFactory( UserClassTypeMapper typeMapper )
 		{
-			Constructor<?> constructor = javaType.getDeclaredConstructor();
-			if( !constructor.isAccessible() )
-				constructor.setAccessible( true );
-			return constructor.newInstance();
+			this.typeMapper = typeMapper;
+		}
+
+		private final UserClassTypeMapper typeMapper;
+
+		Instantiator createInstantiator()
+		{
+			Constructor<?> constructor = findAppropriateConstructor();
+			if( constructor.getParameterCount() == 0 )
+				return new Instantiator( constructor, null );
+
+			return buildInstantiatorWithParameters( constructor );
+		}
+
+		private Instantiator buildInstantiatorWithParameters( Constructor<?> constructor )
+		{
+			Parameter[] parameters = constructor.getParameters();
+			String[] names = new String[parameters.length];
+			int i = 0;
+			for( Parameter parameter : parameters )
+			{
+				ConstructorParam annotation = parameter.getAnnotation( ConstructorParam.class );
+				assertNameValidity( names, i, annotation.value() );
+				names[i] = annotation.value();
+				i++;
+			}
+
+			return new Instantiator( constructor, names );
+		}
+
+		private void assertNameValidity( String[] names, int maxIndex, String value )
+		{
+			for( int i = 0; i < maxIndex; i++ )
+				if( value.equals( names[i] ) )
+					throw new IllegalArgumentException( "Duplicate ConstructorParam name: " + value );
+
+			for( ClassFieldInfo info : typeMapper.getFieldMappers() )
+			{
+				if( info.getName().equals( value ) )
+					return;
+			}
+
+			throw new IllegalStateException( "No property for name: " + value );
+		}
+
+		private Constructor<?> findAppropriateConstructor()
+		{
+			Class<?> javaType = typeMapper.getJavaType();
+			Constructor<?>[] constructors = javaType.getDeclaredConstructors();
+			checkOnlySingleConstructorWithAnno( constructors );
+			for( Constructor<?> constructor : constructors )
+			{
+				if( !Modifier.isPublic( constructor.getModifiers() )
+						|| constructor.getAnnotation( org.asn1s.annotation.Constructor.class ) == null )
+					continue;
+
+				assertConstructorParamsHasAnnotations( constructor );
+				return constructor;
+			}
+
+			return findNoArgConstructor( javaType );
+		}
+
+		@NotNull
+		private Constructor<?> findNoArgConstructor( Class<?> javaType )
+		{
+			try
+			{
+				Constructor<?> constructor = javaType.getDeclaredConstructor();
+				if( !Modifier.isPublic( constructor.getModifiers() ) )
+					throw new IllegalStateException( "No arg constructor is not public" );
+
+				return constructor;
+			} catch( NoSuchMethodException e )
+			{
+				throw new IllegalStateException( "Unable to find no arg constructor for: " + javaType.getTypeName(), e );
+			}
+		}
+
+		private void assertConstructorParamsHasAnnotations( Constructor<?> constructor )
+		{
+			for( Parameter parameter : constructor.getParameters() )
+				if( parameter.getAnnotation( ConstructorParam.class ) == null )
+					throw new IllegalStateException( "All parameters of Constructor must have ConstructorParam annotation" );
+		}
+
+		private void checkOnlySingleConstructorWithAnno( Constructor<?>[] constructors )
+		{
+			boolean found = false;
+			for( Constructor<?> constructor : constructors )
+			{
+				if( constructor.getAnnotation( org.asn1s.annotation.Constructor.class ) == null )
+					continue;
+
+				if( found )
+					throw new IllegalStateException( "Only single constructor may have Constructor annotation" );
+
+				found = true;
+			}
+		}
+
+	}
+
+	private static final class Instantiator
+	{
+		private Instantiator( Constructor<?> constructor, @Nullable String[] parameters )
+		{
+			this.constructor = constructor;
+			this.parameters = parameters;
+		}
+
+		private final Constructor<?> constructor;
+		private final String[] parameters;
+
+		boolean hasParameters()
+		{
+			return parameters != null && parameters.length > 0;
+		}
+
+		@Nullable
+		String[] getParameters()
+		{
+			return parameters == null ? null : parameters.clone();
+		}
+
+		Object newInstance()
+		{
+			try
+			{
+				return constructor.newInstance();
+			} catch( InstantiationException | IllegalAccessException | InvocationTargetException e )
+			{
+				throw new IllegalStateException( "Unable to create instance using: " + constructor.getDeclaringClass().getTypeName() + "::" + constructor.getName(), e );
+			}
+		}
+
+		Object newInstance( @NotNull Object[] arguments )
+		{
+			if( !hasParameters() )
+				throw new IllegalStateException( "No parameters expected" );
+
+			assert parameters != null;
+			if( arguments.length != parameters.length )
+				throw new IllegalArgumentException( "Argument count does not match: " + parameters.length + ", got: " + arguments.length );
+			try
+			{
+				return constructor.newInstance( arguments );
+			} catch( InstantiationException | IllegalAccessException | InvocationTargetException e )
+			{
+				throw new IllegalStateException( "Unable to create instance using: "
+						                                 + constructor.getDeclaringClass().getTypeName() + "::" + constructor.getName()
+						                                 + '(' + StringUtils.join( parameters, ", " ) + ')',
+				                                 e );
+			}
 		}
 	}
 }
