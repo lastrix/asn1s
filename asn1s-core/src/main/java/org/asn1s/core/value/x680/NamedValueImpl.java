@@ -132,6 +132,16 @@ public class NamedValueImpl extends AbstractNestingValue implements NamedValue
 	}
 
 	@Override
+	public void prettyFormat( StringBuilder sb, String prefix )
+	{
+		sb.append( getName() ).append( ' ' );
+		if( getValueRef() instanceof Value )
+			( (Value)getValueRef() ).prettyFormat( sb, prefix );
+		else
+			sb.append( getValueRef() );
+	}
+
+	@Override
 	public int hashCode()
 	{
 		int result = getName().hashCode();

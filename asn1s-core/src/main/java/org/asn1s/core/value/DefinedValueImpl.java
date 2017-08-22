@@ -218,4 +218,14 @@ public class DefinedValueImpl extends AbstractDefinedValue
 	{
 		return '*' + getName() + '*';
 	}
+
+	@Override
+	public void prettyFormat( StringBuilder sb, String prefix )
+	{
+		sb.append( prefix ).append( getName() ).append( ' ' ).append( getTypeRef() ).append( " ::= " );
+		if( valueRef instanceof Value )
+			( (Value)valueRef ).prettyFormat( sb, prefix + '\t' );
+		else
+			sb.append( valueRef );
+	}
 }

@@ -218,4 +218,25 @@ public final class ValueCollectionImpl implements ValueCollection
 	{
 		return "{ " + StringUtils.join( valueRefs, ", " ) + " }";
 	}
+
+	@Override
+	public void prettyFormat( StringBuilder sb, String prefix )
+	{
+		sb.append( '{' ).append( System.lineSeparator() );
+		String siblingPrefix = prefix + '\t';
+		boolean first = true;
+		for( Ref<Value> ref : asValueList() )
+		{
+			if( first )
+				first = false;
+			else
+				sb.append( ',' ).append( System.lineSeparator() );
+
+			if( ref instanceof Value )
+				( (Value)ref ).prettyFormat( sb.append( siblingPrefix ), siblingPrefix );
+			else
+				sb.append( siblingPrefix ).append( ref );
+		}
+		sb.append( System.lineSeparator() ).append( prefix ).append( '}' );
+	}
 }

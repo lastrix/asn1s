@@ -77,13 +77,21 @@ public final class Element extends AbstractElement
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
-		sb.append( '<' ).append( getName() );
+		appendToStringBuilder( sb, "" );
+		return sb.toString();
+	}
+
+	@Override
+	public void appendToStringBuilder( StringBuilder sb, String prefix )
+	{
+		sb.append( prefix ).append( '<' ).append( getName() );
 		List<Attribute> attributes = getAttributes();
 		if( !attributes.isEmpty() )
 			sb.append( ' ' ).append( StringUtils.join( attributes, ' ' ) );
-		sb.append( '>' )
-				.append( StringUtils.join( siblings, "" ) )
-				.append( "</" ).append( getName() + '>' );
-		return sb.toString();
+		sb.append( '>' ).append( System.lineSeparator() );
+		String siblingPrefix = prefix + '\t';
+		for( AbstractElement sibling : siblings )
+			sibling.appendToStringBuilder( sb, siblingPrefix );
+		sb.append( prefix ).append( "</" ).append( getName() ).append( '>' ).append( System.lineSeparator() );
 	}
 }

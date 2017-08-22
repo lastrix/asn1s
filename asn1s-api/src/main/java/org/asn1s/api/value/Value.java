@@ -138,6 +138,18 @@ public interface Value extends Ref<Value>, Comparable<Value>
 		return this;
 	}
 
+	default String toPrettyString()
+	{
+		StringBuilder sb = new StringBuilder();
+		prettyFormat( sb, "" );
+		return sb.toString();
+	}
+
+	default void prettyFormat( StringBuilder sb, String prefix )
+	{
+		sb.append( toString() );
+	}
+
 	enum Kind
 	{
 		BOOLEAN,

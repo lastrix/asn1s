@@ -102,6 +102,12 @@ public class TemplateValueInstance implements Value
 	}
 
 	@Override
+	public void prettyFormat( StringBuilder sb, String prefix )
+	{
+		sb.append( valueRef ).append( "{ " ).append( StringUtils.join( arguments, ", " ) ).append( " }" );
+	}
+
+	@Override
 	public String toString()
 	{
 		return valueRef + "{" + StringUtils.join( arguments, ", " ) + '}';

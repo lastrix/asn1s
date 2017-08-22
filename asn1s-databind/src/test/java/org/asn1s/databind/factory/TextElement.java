@@ -59,6 +59,12 @@ public class TextElement extends AbstractElement
 	}
 
 	@Override
+	public void appendToStringBuilder( StringBuilder sb, String prefix )
+	{
+		sb.append( prefix ).append( toString() ).append( System.lineSeparator() );
+	}
+
+	@Override
 	public String toString()
 	{
 		return String.format( "<%s>%s</%s>", getName(), getContent(), getName() );

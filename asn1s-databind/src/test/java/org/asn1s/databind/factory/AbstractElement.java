@@ -52,4 +52,6 @@ public abstract class AbstractElement
 	{
 		this.name = name;
 	}
+
+	public abstract void appendToStringBuilder( StringBuilder sb, String prefix );
 }
