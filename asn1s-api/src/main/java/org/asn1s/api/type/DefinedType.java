@@ -28,6 +28,7 @@ package org.asn1s.api.type;
 import org.asn1s.api.Ref;
 import org.asn1s.api.Scope;
 import org.asn1s.api.Template;
+import org.asn1s.api.module.Module;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +36,8 @@ public interface DefinedType extends NamedType
 {
 	@NotNull
 	Scope createScope();
+
+	Module getModule();
 
 	Ref<Type> toRef();
 

@@ -34,6 +34,12 @@ import java.lang.annotation.Target;
 @Target( {ElementType.FIELD, ElementType.METHOD} )
 public @interface CollectionSettings
 {
+	String typeName() default AnnotationUtils.DEFAULT;
+
+	String moduleName() default AnnotationUtils.DEFAULT;
+
+	long[] moduleID() default {};
+
 	/**
 	 * Defines basic type which should be used for creation of array or collection
 	 *

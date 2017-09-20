@@ -28,7 +28,7 @@ package org.asn1s.databind.factory;
 import org.asn1s.annotation.Asn1Property;
 import org.asn1s.annotation.Asn1Type;
 
-@Asn1Type( name = "Abstract-Element" )
+@Asn1Type( name = "Abstract-Element", module = "Xml" )
 public abstract class AbstractElement
 {
 	protected AbstractElement()

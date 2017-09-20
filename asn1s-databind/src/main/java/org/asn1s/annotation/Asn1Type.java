@@ -41,6 +41,10 @@ public @interface Asn1Type
 	 */
 	String name() default AnnotationUtils.DEFAULT;
 
+	String module() default AnnotationUtils.DEFAULT;
+
+	long[] moduleID() default {};
+
 	Kind kind() default Kind.Sequence;
 
 	boolean extensible() default false;

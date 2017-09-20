@@ -28,6 +28,7 @@ package org.asn1s.databind;
 import org.asn1s.api.Asn1Factory;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.exception.Asn1Exception;
+import org.asn1s.api.exception.ResolutionException;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleReference;
 import org.asn1s.databind.builtin.*;
@@ -52,12 +53,31 @@ public class Asn1Mapper
 	public Asn1Mapper( Asn1Factory factory, String moduleName, @Nullable Type[] types ) throws Asn1Exception
 	{
 		this.factory = factory;
-		Module module = factory.types().module( new ModuleReference( moduleName ) );
-		module.setTagMethod( TagMethod.AUTOMATIC );
+		initializeModule( factory, moduleName );
 		initBuiltinTypes();
 		if( types != null && types.length > 0 )
 			context.mapTypes( factory, types );
-		module.validate();
+
+		for( Module module1 : factory.getModuleResolver().getAllModules() )
+			module1.validate();
+	}
+
+	private static void initializeModule( Asn1Factory factory, String moduleName )
+	{
+		if( factory.getModuleResolver() != null )
+		{
+			try
+			{
+				factory.types().setModule( factory.getModuleResolver().resolve( moduleName ) );
+			} catch( ResolutionException ignored )
+			{
+			}
+		}
+
+		Module module = factory.types().module( new ModuleReference( moduleName ) );
+		factory.getModuleResolver().registerModule( module );
+		module.setTagMethod( TagMethod.AUTOMATIC );
+		factory.types().setModule( module );
 	}
 
 	private final TypeMapperContext context = new TypeMapperContext();

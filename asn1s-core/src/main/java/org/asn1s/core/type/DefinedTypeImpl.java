@@ -88,6 +88,7 @@ public class DefinedTypeImpl extends AbstractNestingType implements DefinedType
 				: parentScope.typedScope( this ).templateScope( template, this, getModule() );
 	}
 
+	@Override
 	public Module getModule()
 	{
 		return module;

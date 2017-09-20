@@ -25,19 +25,25 @@
 
 package org.asn1s.databind.factory.collection;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.asn1s.annotation.AnnotationUtils;
 import org.asn1s.annotation.CollectionSettings;
 import org.asn1s.api.Asn1Factory;
-import org.asn1s.api.type.CollectionOfType;
-import org.asn1s.api.type.CollectionType;
+import org.asn1s.api.Ref;
+import org.asn1s.api.module.ModuleReference;
+import org.asn1s.api.type.*;
 import org.asn1s.api.type.ComponentType.Kind;
-import org.asn1s.api.type.NamedType;
 import org.asn1s.api.type.Type.Family;
+import org.asn1s.api.util.RefUtils;
 import org.asn1s.databind.TypeMapper;
 import org.asn1s.databind.TypeMapperContext;
 import org.asn1s.databind.TypeMetadata;
 import org.asn1s.databind.factory.TypeMapperFactory;
 import org.asn1s.databind.instrospection.JavaType;
 import org.asn1s.databind.instrospection.ParameterizedJavaType;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -47,6 +53,8 @@ import java.util.Objects;
 
 public class CollectionClassTypeMapperFactory implements TypeMapperFactory
 {
+	private static final Log log = LogFactory.getLog( CollectionClassTypeMapperFactory.class );
+
 	public CollectionClassTypeMapperFactory( TypeMapperContext context, Asn1Factory factory )
 	{
 		this.context = context;
@@ -99,14 +107,40 @@ public class CollectionClassTypeMapperFactory implements TypeMapperFactory
 
 		TypeMapper typeMapper = context.tryResolveOrMapType( elementType.getType(), null );
 
-		CollectionOfType collectionOf = factory.types().collectionOf( Family.SEQUENCE_OF );
-		collectionOf.setComponent( "item", typeMapper.getAsn1Type() );
+		NamedType asn1Type = typeMapper.getAsn1Type();
+		ModuleReference moduleReference = resolveTypeModuleReference( metadata, typeMapper );
+		TypeFactory typeFactory = factory.types( moduleReference );
 
-		NamedType define = factory.types().define( "List-Of-" + typeMapper.getAsn1Type().getName(), collectionOf, null );
+		CollectionOfType collectionOf = typeFactory.collectionOf( Family.SEQUENCE_OF );
+		collectionOf.setComponent( "item", asn1Type );
+
+		NamedType define = typeFactory.define( resolveListName( metadata, "List-Of-" + asn1Type.getName() ), collectionOf, null );
+		log.debug( "Created new list-of type: " + define.getFullyQualifiedName() );
 		TypeMapper collectionTypeMapper = new CollectionTypeMapper( List.class, define, typeMapper, ArrayList::new );
 		context.registerJavaClassForNamedType( type, define );
 		context.registerTypeMapper( collectionTypeMapper );
 		return collectionTypeMapper;
+	}
+
+	private static String resolveListName( @Nullable TypeMetadata metadata, String defaultName )
+	{
+		if( metadata != null && !AnnotationUtils.isDefault( metadata.getTypeName() ) )
+		{
+			String typeName = metadata.getTypeName();
+			RefUtils.assertTypeRef( typeName );
+			return typeName;
+		}
+		return defaultName;
+	}
+
+	@Nullable
+	private static ModuleReference resolveTypeModuleReference( @Nullable TypeMetadata metadata, @NotNull TypeMapper typeMapper )
+	{
+		if( metadata != null && !AnnotationUtils.isDefault( metadata.getModuleName() ) )
+			return new ModuleReference( metadata.getModuleName() );
+
+		NamedType asn1Type = typeMapper.getAsn1Type();
+		return asn1Type instanceof DefinedType ? ( (DefinedType)asn1Type ).getModule().getModuleReference() : null;
 	}
 
 	private TypeMapper mapListClassWithMetadata( JavaType javaType, TypeMetadata metadata )
@@ -114,7 +148,9 @@ public class CollectionClassTypeMapperFactory implements TypeMapperFactory
 		CollectionSettings settings = metadata.getCollectionSettings();
 
 		Class<?>[] classes = settings.value();
-		CollectionType choiceType = factory.types().collection( Family.CHOICE );
+		ModuleReference moduleReference = getModuleReference( metadata, classes[0] );
+		TypeFactory typeFactory = factory.types( moduleReference );
+		CollectionType choiceType = typeFactory.collection( Family.CHOICE );
 		ChoiceItem[] items = new ChoiceItem[classes.length];
 		int i = 0;
 		for( Class<?> aClass : classes )
@@ -125,26 +161,46 @@ public class CollectionClassTypeMapperFactory implements TypeMapperFactory
 			choiceType.addComponent( Kind.PRIMARY, name, typeMapper.getAsn1Type() );
 			i++;
 		}
-		ChoiceTypeMapper choiceTypeMapper = new ChoiceTypeMapper( javaType.getType(), defineType( settings, choiceType ), items );
+		ChoiceTypeMapper choiceTypeMapper = new ChoiceTypeMapper( javaType.getType(), defineType( typeFactory, settings, choiceType ), items );
 
-		CollectionOfType collectionOf = factory.types().collectionOf( Family.SEQUENCE_OF );
+		CollectionOfType collectionOf = typeFactory.collectionOf( Family.SEQUENCE_OF );
 		collectionOf.setComponent( "item", choiceTypeMapper.getAsn1Type() );
 
 
-		NamedType define = factory.types().define( "List-Of-" + choiceTypeMapper.getAsn1Type().getName(), collectionOf, null );
-
+		NamedType define = typeFactory.define( resolveListName( metadata, "List-Of-" + choiceTypeMapper.getAsn1Type().getName() ), collectionOf, null );
+		log.debug( "Created new list-of type: " + define.getFullyQualifiedName() );
 		return new CollectionTypeMapper( List.class, define, choiceTypeMapper, ArrayList::new );
 	}
 
-	private NamedType defineType( CollectionSettings settings, org.asn1s.api.type.Type choiceType )
+	@Nullable
+	private ModuleReference getModuleReference( @Nullable TypeMetadata metadata, Type type )
 	{
-		return factory.types().define( createName( settings ), choiceType, null );
+		if( metadata != null && !AnnotationUtils.isDefault( metadata.getModuleName() ) )
+			return new ModuleReference( metadata.getModuleName() );
+
+		TypeMapper typeMapper = context.tryResolveOrMapType( type, null );
+		NamedType asn1Type = typeMapper.getAsn1Type();
+		return asn1Type instanceof DefinedType ? ( (DefinedType)asn1Type ).getModule().getModuleReference() : null;
+	}
+
+	private NamedType defineType( @NotNull TypeFactory typeFactory, CollectionSettings settings, Ref<org.asn1s.api.type.Type> choiceType )
+	{
+		if( !AnnotationUtils.isDefault( settings.moduleName() ) )
+			typeFactory = factory.types( new ModuleReference( settings.moduleName() ) );
+
+		return typeFactory.define( createName( settings ), choiceType, null );
 	}
 
 	private int counter;
 
 	private String createName( CollectionSettings settings )
 	{
+		if( !AnnotationUtils.isDefault( settings.typeName() ) )
+		{
+			RefUtils.assertTypeRef( settings.typeName() );
+			return settings.typeName();
+		}
+
 		counter++;
 		return "T-Java-Bind-Unnamed-Choice-" + counter;
 	}

@@ -31,7 +31,7 @@ import org.asn1s.annotation.Constructor;
 import org.asn1s.annotation.ConstructorParam;
 
 @SuppressWarnings( "ALL" )
-@Asn1Type( name = "Text-Element" )
+@Asn1Type( name = "Text-Element", module = "Xml" )
 public class TextElement extends AbstractElement
 {
 	public TextElement()

@@ -60,6 +60,10 @@ public @interface Asn1Property
 	 */
 	String typeName() default "#default";
 
+	String moduleName() default AnnotationUtils.DEFAULT;
+
+	long[] moduleID() default {};
+
 	/**
 	 * @return true if property is optional and may be null
 	 */

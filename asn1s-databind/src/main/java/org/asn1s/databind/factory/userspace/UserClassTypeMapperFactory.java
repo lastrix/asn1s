@@ -30,6 +30,7 @@ import org.asn1s.annotation.Asn1Type;
 import org.asn1s.annotation.Asn1Type.Kind;
 import org.asn1s.annotation.ConstructorParam;
 import org.asn1s.api.Asn1Factory;
+import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.type.AbstractNestingType;
 import org.asn1s.api.type.CollectionType;
 import org.asn1s.api.type.DefinedType;
@@ -114,7 +115,11 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 				? TypeMapperUtils.getDefaultAsnTypeName( aClass )
 				: classAnnotation.name();
 
-		DefinedType asnType = factory.types().define( asnTypeName, null, null );
+		ModuleReference moduleReference = AnnotationUtils.isDefault( classAnnotation.module() )
+				? null
+				: new ModuleReference( classAnnotation.module() );
+
+		DefinedType asnType = factory.types( moduleReference ).define( asnTypeName, null, null );
 		return new UserClassTypeMapper( aClass, asnType );
 	}
 

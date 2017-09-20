@@ -31,7 +31,7 @@ import org.asn1s.annotation.Constructor;
 import org.asn1s.annotation.ConstructorParam;
 
 @SuppressWarnings( "ALL" )
-@Asn1Type( name = "Attribute", extensible = true )
+@Asn1Type( name = "Attribute", extensible = true, module = "Xml" )
 public class Attribute
 {
 	public Attribute()

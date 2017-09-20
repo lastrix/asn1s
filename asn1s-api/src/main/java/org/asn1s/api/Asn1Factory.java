@@ -26,14 +26,26 @@
 package org.asn1s.api;
 
 import org.asn1s.api.constraint.ConstraintFactory;
+import org.asn1s.api.module.ModuleReference;
+import org.asn1s.api.module.ModuleResolver;
 import org.asn1s.api.type.TypeFactory;
 import org.asn1s.api.value.ValueFactory;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public interface Asn1Factory
 {
+	ModuleResolver getModuleResolver();
+
+	@NotNull
 	TypeFactory types();
 
+	@NotNull
+	TypeFactory types( @Nullable ModuleReference moduleReference );
+
+	@NotNull
 	ValueFactory values();
 
+	@NotNull
 	ConstraintFactory constraints();
 }

@@ -52,7 +52,7 @@ public final class TypeMapperContext
 	 * Key format is:
 	 * {@link Class#getTypeName()} + "=" + {@link NamedType#getFullyQualifiedName()}
 	 */
-	private final Map<String, TypeMapper> typeMappers = new HashMap<>();
+	private final Map<String, TypeMapper> typeMappers = new TreeMap<>();
 	private List<TypeMapperFactory> factories;
 	private final Introspector introspector = new Introspector();
 

@@ -124,6 +124,9 @@ public class JavaProperty implements Serializable
 		TypeMetadata metadata = new TypeMetadata();
 		AnnotatedElement element = getAnnotatedElement();
 		metadata.setCollectionSettings( element.getAnnotation( CollectionSettings.class ) );
+		Asn1Property property = element.getAnnotation( Asn1Property.class );
+		metadata.setModuleName( property.moduleName() );
+		metadata.setTypeName( property.typeName() );
 		return metadata;
 	}
 

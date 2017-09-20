@@ -33,7 +33,7 @@ import java.util.Collections;
 import java.util.List;
 
 @SuppressWarnings( "ALL" )
-@Asn1Type( name = "Element" )
+@Asn1Type( name = "Element", module = "Xml" )
 public final class Element extends AbstractElement
 {
 	public Element()
@@ -46,11 +46,11 @@ public final class Element extends AbstractElement
 		super( name );
 	}
 
-	@Asn1Property( optional = true )
-	@CollectionSettings( {Element.class, TextElement.class} )
+	@Asn1Property( optional = true, typeName = "Siblings", moduleName = "Xml" )
+	@CollectionSettings( value = {Element.class, TextElement.class}, typeName = "Sibling", moduleName = "Xml" )
 	private List<AbstractElement> siblings;
 
-	@Asn1Property( optional = true )
+	@Asn1Property( optional = true, typeName = "Attributes", moduleName = "Xml" )
 	private List<Attribute> attributes;
 
 	public List<Attribute> getAttributes()

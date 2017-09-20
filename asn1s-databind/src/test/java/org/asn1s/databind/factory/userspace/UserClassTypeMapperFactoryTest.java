@@ -25,8 +25,13 @@
 
 package org.asn1s.databind.factory.userspace;
 
+import org.asn1s.api.encoding.tag.TagMethod;
+import org.asn1s.api.module.Module;
+import org.asn1s.api.module.ModuleReference;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.DefaultAsn1Factory;
+import org.asn1s.core.module.ModuleImpl;
+import org.asn1s.core.module.ModuleSet;
 import org.asn1s.databind.Asn1Mapper;
 import org.asn1s.databind.TypeMapper;
 import org.asn1s.databind.factory.Attribute;
@@ -40,13 +45,23 @@ import java.util.Collections;
 
 public class UserClassTypeMapperFactoryTest
 {
-	private static final DefaultAsn1Factory FACTORY = new DefaultAsn1Factory();
+	private static final DefaultAsn1Factory FACTORY;
+
+	static
+	{
+		ModuleSet modules = new ModuleSet();
+		FACTORY = new DefaultAsn1Factory( modules );
+		Module module = new ModuleImpl( new ModuleReference( "Xml" ), modules );
+		modules.registerModule( module );
+		module.setTagMethod( TagMethod.AUTOMATIC );
+		module.setExports( null );
+	}
 
 	@Test
 	public void testMapping() throws Exception
 	{
-		Asn1Mapper mapper = new Asn1Mapper( FACTORY, new Class<?>[]{Element.class, TextElement.class, Attribute.class} );
-		TypeMapper typeMapper = mapper.getContext().getTypeMapper( Element.class.getTypeName() + "=Java-Bind-Module:Element" );
+		Asn1Mapper mapper = new Asn1Mapper( FACTORY, "Xml", new Class<?>[]{Element.class, TextElement.class, Attribute.class} );
+		TypeMapper typeMapper = mapper.getContext().getTypeMapper( Element.class.getTypeName() + "=Xml:Element" );
 
 		Element siblingSibling = new Element( "sub-item" );
 		siblingSibling.setAttributes( Arrays.asList( new Attribute( "id", "22" ), new Attribute( "type", "subtype" ) ) );

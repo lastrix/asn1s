@@ -29,6 +29,8 @@ import org.asn1s.annotation.CollectionSettings;
 
 public class TypeMetadata
 {
+	private String typeName;
+	private String moduleName;
 	private CollectionSettings collectionSettings;
 
 	public CollectionSettings getCollectionSettings()
@@ -39,5 +41,25 @@ public class TypeMetadata
 	public void setCollectionSettings( CollectionSettings collectionSettings )
 	{
 		this.collectionSettings = collectionSettings;
+	}
+
+	public String getTypeName()
+	{
+		return typeName;
+	}
+
+	public void setTypeName( String typeName )
+	{
+		this.typeName = typeName;
+	}
+
+	public String getModuleName()
+	{
+		return moduleName;
+	}
+
+	public void setModuleName( String moduleName )
+	{
+		this.moduleName = moduleName;
 	}
 }
