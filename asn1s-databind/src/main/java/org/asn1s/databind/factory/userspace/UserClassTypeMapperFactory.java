@@ -151,7 +151,6 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 
 			InstantiatorFactory instantiatorFactory = new InstantiatorFactory( mapper );
 			mapper.setInstantiator( instantiatorFactory.createInstantiator() );
-
 		}
 
 		private void collectProperties( JavaType type )
@@ -167,25 +166,37 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 		private void collectProperty( JavaProperty property )
 		{
 			JavaPropertyConfiguration conf = property.getConfiguration();
+			TypeMapper propertyTypeMapper = getPropertyTypeMapper( property, conf );
+			collection.addComponent( conf.getKind(), conf.getAsn1Name(), propertyTypeMapper.getAsn1Type() ).setOptional( conf.isOptional() );
+			setAccessible( property );
+			ClassFieldInfo info = new ClassFieldInfo( property, propertyTypeMapper, conf.isOptional() );
+			fieldMappers.add( info );
+		}
+
+		@NotNull
+		private TypeMapper getPropertyTypeMapper( JavaProperty property, JavaPropertyConfiguration conf )
+		{
 			Type type = property.getPropertyType().getType();
 			String typeName = type.getTypeName();
 			TypeMapper propertyTypeMapper =
 					AnnotationUtils.isDefault( conf.getTypeName() )
 							? tryFindTypeMapper( type )
 							: context.getTypeMapper( TypeMapperUtils.mkTypeMapperKey( typeName, conf.getTypeName() ) );
+
 			if( propertyTypeMapper == null )
 				propertyTypeMapper = context.mapType( type, property.toTypeMetadata() );
 
-			collection.addComponent( conf.getKind(), conf.getAsn1Name(), propertyTypeMapper.getAsn1Type() ).setOptional( conf.isOptional() );
+			return propertyTypeMapper;
+		}
 
+		private void setAccessible( JavaProperty property )
+		{
 			if( property.getField() != null && !property.getField().isAccessible() )
 				property.getField().setAccessible( true );
 			if( property.getGetter() != null && !property.getGetter().isAccessible() )
 				property.getGetter().setAccessible( true );
 			if( property.getSetter() != null && !property.getSetter().isAccessible() )
 				property.getSetter().setAccessible( true );
-			ClassFieldInfo info = new ClassFieldInfo( property.getField(), property.getSetter(), property.getGetter(), propertyTypeMapper, conf.isOptional() );
-			fieldMappers.add( info );
 		}
 
 		@Nullable
@@ -239,10 +250,8 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 					throw new IllegalArgumentException( "Duplicate ConstructorParam name: " + value );
 
 			for( ClassFieldInfo info : typeMapper.getFieldMappers() )
-			{
 				if( info.getName().equals( value ) )
 					return;
-			}
 
 			throw new IllegalStateException( "No property for name: " + value );
 		}
@@ -253,16 +262,20 @@ public class UserClassTypeMapperFactory implements TypeMapperFactory
 			Constructor<?>[] constructors = javaType.getDeclaredConstructors();
 			checkOnlySingleConstructorWithAnno( constructors );
 			for( Constructor<?> constructor : constructors )
-			{
-				if( !Modifier.isPublic( constructor.getModifiers() )
-						|| constructor.getAnnotation( org.asn1s.annotation.Constructor.class ) == null )
-					continue;
-
-				assertConstructorParamsHasAnnotations( constructor );
-				return constructor;
-			}
+				if( isAppropriateConstructor( constructor ) )
+					return constructor;
 
 			return findNoArgConstructor( javaType );
+		}
+
+		private boolean isAppropriateConstructor( Constructor<?> constructor )
+		{
+			if( !Modifier.isPublic( constructor.getModifiers() )
+					|| constructor.getAnnotation( org.asn1s.annotation.Constructor.class ) == null )
+				return false;
+
+			assertConstructorParamsHasAnnotations( constructor );
+			return true;
 		}
 
 		@NotNull

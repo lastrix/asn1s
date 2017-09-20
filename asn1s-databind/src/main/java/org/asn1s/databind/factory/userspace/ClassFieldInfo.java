@@ -28,6 +28,7 @@ package org.asn1s.databind.factory.userspace;
 import org.asn1s.annotation.AnnotationUtils;
 import org.asn1s.annotation.Asn1Property;
 import org.asn1s.databind.TypeMapper;
+import org.asn1s.databind.instrospection.JavaProperty;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -36,11 +37,11 @@ import java.lang.reflect.Method;
 
 public final class ClassFieldInfo
 {
-	ClassFieldInfo( Field field, Method setter, Method getter, TypeMapper mapper, boolean optional )
+	ClassFieldInfo( JavaProperty property, TypeMapper mapper, boolean optional )
 	{
-		this.field = field;
-		this.setter = setter;
-		this.getter = getter;
+		field = property.getField();
+		setter = property.getSetter();
+		getter = property.getGetter();
 		this.mapper = mapper;
 		this.optional = optional;
 	}
@@ -106,24 +107,36 @@ public final class ClassFieldInfo
 		return optional;
 	}
 
-	public void setValue( Object thisObject, Object value ) throws InvocationTargetException, IllegalAccessException
+	public void setValue( Object thisObject, Object value )
 	{
-		if( field == null )
+		try
 		{
-			assert setter != null;
-			setter.invoke( thisObject, value );
+			if( field == null )
+			{
+				assert setter != null;
+				setter.invoke( thisObject, value );
+			}
+			else
+				field.set( thisObject, value );
+		} catch( InvocationTargetException | IllegalAccessException | IllegalArgumentException e )
+		{
+			throw new IllegalStateException( "Unable to set property value: " + getName(), e );
 		}
-		else
-			field.set( thisObject, value );
 	}
 
-	public Object getValue( Object thisObject ) throws InvocationTargetException, IllegalAccessException
+	public Object getValue( Object thisObject )
 	{
-		if( field == null )
+		try
 		{
-			assert getter != null;
-			return getter.invoke( thisObject );
+			if( field == null )
+			{
+				assert getter != null;
+				return getter.invoke( thisObject );
+			}
+			return field.get( thisObject );
+		} catch( InvocationTargetException | IllegalAccessException e )
+		{
+			throw new IllegalStateException( "Unable to get property value: " + getName(), e );
 		}
-		return field.get( thisObject );
 	}
 }

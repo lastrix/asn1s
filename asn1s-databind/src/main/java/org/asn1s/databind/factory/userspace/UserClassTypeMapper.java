@@ -35,7 +35,6 @@ import org.asn1s.databind.TypeMapper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -75,11 +74,6 @@ final class UserClassTypeMapper implements TypeMapper
 		this.fieldMappers = fieldMappers.clone();
 	}
 
-	Instantiator getInstantiator()
-	{
-		return instantiator;
-	}
-
 	void setInstantiator( Instantiator instantiator )
 	{
 		this.instantiator = instantiator;
@@ -92,23 +86,18 @@ final class UserClassTypeMapper implements TypeMapper
 		if( !Objects.equals( javaType, value.getClass() ) )
 			throw new IllegalArgumentException( "Unable to handle type: " + value.getClass() );
 		ValueCollection collection = factory.collection( true );
-		try
+
+		for( ClassFieldInfo fieldMapper : fieldMappers )
 		{
-			for( ClassFieldInfo fieldMapper : fieldMappers )
-			{
-				Value propertyValue = toAsn1Value( factory, value, fieldMapper );
-				if( propertyValue != null )
-					collection.addNamed( fieldMapper.getAsnName(), propertyValue );
-			}
-		} catch( Exception e )
-		{
-			throw new IllegalStateException( e );
+			Value propertyValue = toAsn1Value( factory, value, fieldMapper );
+			if( propertyValue != null )
+				collection.addNamed( fieldMapper.getAsnName(), propertyValue );
 		}
 		return collection;
 	}
 
 	@Nullable
-	private static Value toAsn1Value( @NotNull ValueFactory factory, @NotNull Object value, ClassFieldInfo fieldMapper ) throws InvocationTargetException, IllegalAccessException
+	private static Value toAsn1Value( @NotNull ValueFactory factory, @NotNull Object value, ClassFieldInfo fieldMapper )
 	{
 		Object propertyValue = fieldMapper.getValue( value );
 		if( propertyValue != null )
@@ -127,22 +116,20 @@ final class UserClassTypeMapper implements TypeMapper
 		if( value.getKind() != Kind.NAMED_COLLECTION )
 			throw new IllegalArgumentException( "Unable to handle value of kind: " + value.getKind() );
 
-		try
-		{
-			Iterable<NamedValue> namedValues = new LinkedList<>( value.toValueCollection().asNamedValueList() );
-			Object o = createInstance( namedValues );
-			for( NamedValue namedValue : namedValues )
-			{
-				ClassFieldInfo fieldMapper = getFieldMapper( namedValue.getName() );
-				assert namedValue.getValueRef() != null;
-				Object java = fieldMapper.getMapper().toJava( (Value)namedValue.getValueRef() );
-				fieldMapper.setValue( o, java );
-			}
-			return o;
-		} catch( Exception e )
-		{
-			throw new IllegalStateException( e );
-		}
+		Iterable<NamedValue> namedValues = new LinkedList<>( value.toValueCollection().asNamedValueList() );
+		Object o = createInstance( namedValues );
+		for( NamedValue namedValue : namedValues )
+			toJavaProperty( o, namedValue );
+
+		return o;
+	}
+
+	private void toJavaProperty( Object o, NamedValue namedValue )
+	{
+		ClassFieldInfo fieldMapper = getFieldMapper( namedValue.getName() );
+		assert namedValue.getValueRef() != null;
+		Object java = fieldMapper.getMapper().toJava( (Value)namedValue.getValueRef() );
+		fieldMapper.setValue( o, java );
 	}
 
 	private Object createInstance( Iterable<NamedValue> namedValues )
@@ -152,62 +139,10 @@ final class UserClassTypeMapper implements TypeMapper
 
 		String[] parameters = instantiator.getParameters();
 		assert parameters != null;
-		Object[] arguments = new Object[parameters.length];
-		Iterator<NamedValue> iterator = namedValues.iterator();
-		while( iterator.hasNext() )
-		{
-			NamedValue next = iterator.next();
-			int index = findParameterIndex( parameters, next.getName() );
-			if( index == -1 )
-				continue;
-			ClassFieldInfo fieldMapper = getFieldMapper( next.getName() );
-			assert next.getValueRef() != null;
-			Object java = fieldMapper.getMapper().toJava( (Value)next.getValueRef() );
-			arguments[index] = java;
-			iterator.remove();
-		}
-
-		assertNonOptionalParameters( parameters, arguments );
+		Object[] arguments = new InstantiatorParameters( parameters ).buildArguments( namedValues );
 		return instantiator.newInstance( arguments );
 	}
 
-	private void assertNonOptionalParameters( String[] parameters, Object[] arguments )
-	{
-		int count = parameters.length;
-		for( int i = 0; i < count; i++ )
-		{
-			if( arguments[i] != null )
-				continue;
-
-			ClassFieldInfo fieldMapper = getFieldMapper( parameters[i] );
-			if( !fieldMapper.isOptional() )
-				throw new IllegalStateException( "Non optional property may not be initialized with null value: " + parameters[i] );
-		}
-	}
-
-	private int findParameterIndex( String[] parameters, String name )
-	{
-		String actualName = null;
-		for( ClassFieldInfo fieldMapper : fieldMappers )
-		{
-			if( name.equals( fieldMapper.getAsnName() ) )
-			{
-				actualName = fieldMapper.getName();
-				break;
-			}
-		}
-		if( actualName == null )
-			throw new IllegalArgumentException( "No property for name: " + name );
-
-		int i = 0;
-		for( String parameter : parameters )
-		{
-			if( actualName.equals( parameter ) )
-				return i;
-			i++;
-		}
-		return -1;
-	}
 
 	private ClassFieldInfo getFieldMapper( String name )
 	{
@@ -217,5 +152,79 @@ final class UserClassTypeMapper implements TypeMapper
 				return fieldMapper;
 		}
 		throw new IllegalArgumentException( "No fields for name: " + name );
+	}
+
+	private final class InstantiatorParameters
+	{
+		private InstantiatorParameters( @NotNull String[] parameters )
+		{
+			this.parameters = parameters;
+			arguments = new Object[parameters.length];
+		}
+
+		private final String[] parameters;
+		private final Object[] arguments;
+
+		private Object[] buildArguments( Iterable<NamedValue> namedValues )
+		{
+			Iterator<NamedValue> iterator = namedValues.iterator();
+			while( iterator.hasNext() )
+				if( createInstanceProperty( iterator.next() ) )
+					iterator.remove();
+
+			assertNonOptionalParameters();
+			return arguments;
+		}
+
+		private boolean createInstanceProperty( NamedValue namedValue )
+		{
+			int index = findParameterIndex( namedValue.getName() );
+			if( index == -1 )
+				return false;
+
+			ClassFieldInfo fieldMapper = getFieldMapper( namedValue.getName() );
+			assert namedValue.getValueRef() != null;
+			Object java = fieldMapper.getMapper().toJava( (Value)namedValue.getValueRef() );
+			arguments[index] = java;
+			return true;
+		}
+
+		private int findParameterIndex( String name )
+		{
+			String actualName = findParameterActualName( name );
+
+			int i = 0;
+			for( String parameter : parameters )
+			{
+				if( actualName.equals( parameter ) )
+					return i;
+				i++;
+			}
+			return -1;
+		}
+
+		@NotNull
+		private String findParameterActualName( String name )
+		{
+			for( ClassFieldInfo fieldMapper : fieldMappers )
+				if( name.equals( fieldMapper.getAsnName() ) )
+					return fieldMapper.getName();
+
+			throw new IllegalArgumentException( "No property for name: " + name );
+		}
+
+		private void assertNonOptionalParameters()
+		{
+			int count = parameters.length;
+			for( int i = 0; i < count; i++ )
+			{
+				if( arguments[i] != null )
+					continue;
+
+				ClassFieldInfo fieldMapper = getFieldMapper( parameters[i] );
+				if( !fieldMapper.isOptional() )
+					throw new IllegalStateException( "Non optional property may not be initialized with null value: " + parameters[i] );
+			}
+		}
 	}
 }

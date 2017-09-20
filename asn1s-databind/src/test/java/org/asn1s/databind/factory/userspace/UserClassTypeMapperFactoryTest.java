@@ -32,6 +32,7 @@ import org.asn1s.databind.TypeMapper;
 import org.asn1s.databind.factory.Attribute;
 import org.asn1s.databind.factory.Element;
 import org.asn1s.databind.factory.TextElement;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -39,7 +40,6 @@ import java.util.Collections;
 
 public class UserClassTypeMapperFactoryTest
 {
-
 	private static final DefaultAsn1Factory FACTORY = new DefaultAsn1Factory();
 
 	@Test
@@ -61,6 +61,7 @@ public class UserClassTypeMapperFactoryTest
 		element.setSiblings( Arrays.asList( sibling, new TextElement( "value1", "Hello, World" ), new TextElement( "value2", "Good job!" ) ) );
 		Value value = typeMapper.toAsn1( FACTORY.values(), element );
 		Element o = (Element)typeMapper.toJava( value );
+		Assert.assertEquals( "Not equal", element, o );
 		int k = 0;
 	}
 
