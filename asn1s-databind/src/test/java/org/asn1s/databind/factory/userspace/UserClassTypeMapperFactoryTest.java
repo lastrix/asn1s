@@ -25,9 +25,13 @@
 
 package org.asn1s.databind.factory.userspace;
 
+import org.asn1s.api.UniversalType;
 import org.asn1s.api.encoding.tag.TagMethod;
 import org.asn1s.api.module.Module;
 import org.asn1s.api.module.ModuleReference;
+import org.asn1s.api.type.CollectionType;
+import org.asn1s.api.type.ComponentType.Kind;
+import org.asn1s.api.type.Type.Family;
 import org.asn1s.api.value.Value;
 import org.asn1s.core.DefaultAsn1Factory;
 import org.asn1s.core.module.ModuleImpl;
@@ -55,6 +59,12 @@ public class UserClassTypeMapperFactoryTest
 		modules.registerModule( module );
 		module.setTagMethod( TagMethod.AUTOMATIC );
 		module.setExports( null );
+
+		FACTORY.types().setModule( module );
+		CollectionType collection = FACTORY.types().collection( Family.SEQUENCE );
+		collection.addComponent( Kind.PRIMARY, "name", UniversalType.UTF8_STRING.ref() );
+		collection.addComponent( Kind.PRIMARY, "name", UniversalType.UTF8_STRING.ref() );
+		FACTORY.types().define( "Attribute", collection, null );
 	}
 
 	@Test

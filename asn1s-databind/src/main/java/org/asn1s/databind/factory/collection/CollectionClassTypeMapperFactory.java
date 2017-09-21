@@ -89,37 +89,9 @@ public class CollectionClassTypeMapperFactory implements TypeMapperFactory
 			throw new IllegalArgumentException( "Unable to handle type: " + type.getTypeName() );
 
 		if( Objects.equals( ( (ParameterizedType)type ).getRawType(), List.class ) )
-			return mapListClass( type, metadata );
+			return new ListMapperFactory( type, metadata ).build();
 
 		throw new UnsupportedOperationException();
-	}
-
-	private TypeMapper mapListClass( Type type, TypeMetadata metadata )
-	{
-		JavaType javaType = context.getIntrospector().introspect( type );
-		if( !( javaType instanceof ParameterizedJavaType ) )
-			throw new IllegalArgumentException( "Illegal List class: " + type.getTypeName() );
-
-		if( metadata != null && metadata.getCollectionSettings() != null )
-			return mapListClassWithMetadata( javaType, metadata );
-
-		JavaType elementType = ( (ParameterizedJavaType)javaType ).getTypeArguments()[0];
-
-		TypeMapper typeMapper = context.tryResolveOrMapType( elementType.getType(), null );
-
-		NamedType asn1Type = typeMapper.getAsn1Type();
-		ModuleReference moduleReference = resolveTypeModuleReference( metadata, typeMapper );
-		TypeFactory typeFactory = factory.types( moduleReference );
-
-		CollectionOfType collectionOf = typeFactory.collectionOf( Family.SEQUENCE_OF );
-		collectionOf.setComponent( "item", asn1Type );
-
-		NamedType define = typeFactory.define( resolveListName( metadata, "List-Of-" + asn1Type.getName() ), collectionOf, null );
-		log.debug( "Created new list-of type: " + define.getFullyQualifiedName() );
-		TypeMapper collectionTypeMapper = new CollectionTypeMapper( List.class, define, typeMapper, ArrayList::new );
-		context.registerJavaClassForNamedType( type, define );
-		context.registerTypeMapper( collectionTypeMapper );
-		return collectionTypeMapper;
 	}
 
 	private static String resolveListName( @Nullable TypeMetadata metadata, String defaultName )
@@ -141,35 +113,6 @@ public class CollectionClassTypeMapperFactory implements TypeMapperFactory
 
 		NamedType asn1Type = typeMapper.getAsn1Type();
 		return asn1Type instanceof DefinedType ? ( (DefinedType)asn1Type ).getModule().getModuleReference() : null;
-	}
-
-	private TypeMapper mapListClassWithMetadata( JavaType javaType, TypeMetadata metadata )
-	{
-		CollectionSettings settings = metadata.getCollectionSettings();
-
-		Class<?>[] classes = settings.value();
-		ModuleReference moduleReference = getModuleReference( metadata, classes[0] );
-		TypeFactory typeFactory = factory.types( moduleReference );
-		CollectionType choiceType = typeFactory.collection( Family.CHOICE );
-		ChoiceItem[] items = new ChoiceItem[classes.length];
-		int i = 0;
-		for( Class<?> aClass : classes )
-		{
-			TypeMapper typeMapper = context.tryResolveOrMapType( aClass, null );
-			String name = toChoiceName( aClass );
-			items[i] = new ChoiceItem( name, typeMapper );
-			choiceType.addComponent( Kind.PRIMARY, name, typeMapper.getAsn1Type() );
-			i++;
-		}
-		ChoiceTypeMapper choiceTypeMapper = new ChoiceTypeMapper( javaType.getType(), defineType( typeFactory, settings, choiceType ), items );
-
-		CollectionOfType collectionOf = typeFactory.collectionOf( Family.SEQUENCE_OF );
-		collectionOf.setComponent( "item", choiceTypeMapper.getAsn1Type() );
-
-
-		NamedType define = typeFactory.define( resolveListName( metadata, "List-Of-" + choiceTypeMapper.getAsn1Type().getName() ), collectionOf, null );
-		log.debug( "Created new list-of type: " + define.getFullyQualifiedName() );
-		return new CollectionTypeMapper( List.class, define, choiceTypeMapper, ArrayList::new );
 	}
 
 	@Nullable
@@ -211,4 +154,75 @@ public class CollectionClassTypeMapperFactory implements TypeMapperFactory
 		return Character.toLowerCase( name.charAt( 0 ) ) + name.substring( 1 );
 	}
 
+	private final class ListMapperFactory
+	{
+		private ListMapperFactory( Type listType, @Nullable TypeMetadata metadata )
+		{
+			this.listType = listType;
+			this.metadata = metadata;
+		}
+
+		private final Type listType;
+		private final TypeMetadata metadata;
+
+		private TypeMapper build()
+		{
+			JavaType javaType = context.getIntrospector().introspect( listType );
+			if( !( javaType instanceof ParameterizedJavaType ) )
+				throw new IllegalArgumentException( "Illegal List class: " + listType.getTypeName() );
+
+			TypeMapper typeMapper = mapElementType( javaType, metadata );
+
+			NamedType asn1Type = typeMapper.getAsn1Type();
+			ModuleReference moduleReference = resolveTypeModuleReference( metadata, typeMapper );
+			TypeFactory typeFactory = factory.types( moduleReference );
+
+			CollectionOfType collectionOf = typeFactory.collectionOf( Family.SEQUENCE_OF );
+			collectionOf.setComponent( "item", asn1Type );
+
+			NamedType define = typeFactory.define( resolveListName( metadata, "List-Of-" + asn1Type.getName() ), collectionOf, null );
+			log.debug( "Created new list-of type: " + define.getFullyQualifiedName() );
+			TypeMapper collectionTypeMapper = new CollectionTypeMapper( List.class, define, typeMapper, ArrayList::new );
+			context.registerJavaClassForNamedType( listType, define );
+			context.registerTypeMapper( collectionTypeMapper );
+			return collectionTypeMapper;
+		}
+
+		private TypeMapper mapElementType( JavaType javaType, @Nullable TypeMetadata metadata )
+		{
+			if( metadata != null && metadata.getCollectionSettings() != null )
+				return mapElementAsChoiceType( javaType, metadata );
+
+			JavaType elementType = ( (ParameterizedJavaType)javaType ).getTypeArguments()[0];
+			return context.tryResolveOrMapType( elementType.getType(), null );
+		}
+
+		@NotNull
+		private TypeMapper mapElementAsChoiceType( JavaType javaType, @NotNull TypeMetadata metadata )
+		{
+			CollectionSettings settings = metadata.getCollectionSettings();
+			Class<?>[] classes = settings.value();
+			ModuleReference moduleReference = getModuleReference( metadata, classes[0] );
+			TypeFactory typeFactory = factory.types( moduleReference );
+			CollectionType choiceType = typeFactory.collection( Family.CHOICE );
+			ChoiceItem[] items = buildChoiceItems( classes, choiceType );
+			return new ChoiceTypeMapper( javaType.getType(), defineType( typeFactory, settings, choiceType ), items );
+		}
+
+		@NotNull
+		private ChoiceItem[] buildChoiceItems( Class<?>[] classes, ComponentTypeConsumer typeConsumer )
+		{
+			ChoiceItem[] items = new ChoiceItem[classes.length];
+			int i = 0;
+			for( Class<?> aClass : classes )
+			{
+				TypeMapper typeMapper = context.tryResolveOrMapType( aClass, null );
+				String name = toChoiceName( aClass );
+				items[i] = new ChoiceItem( name, typeMapper );
+				typeConsumer.addComponent( Kind.PRIMARY, name, typeMapper.getAsn1Type() );
+				i++;
+			}
+			return items;
+		}
+	}
 }
